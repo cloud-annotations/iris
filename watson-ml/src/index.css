@@ -251,3 +251,10 @@ body {
     font-weight: 500;
     src: url("https://raw.githubusercontent.com/IBM/plex/master/IBM-Plex-Sans/fonts/complete/woff/IBMPlexSans-Medium.woff") format("woff");
 }
+
+@font-face {
+    font-family: 'ibm-plex-sans';
+    font-style: italic;
+    font-weight: 500;
+    src: url("https://raw.githubusercontent.com/IBM/plex/master/IBM-Plex-Sans/fonts/complete/woff/IBMPlexSans-MediumItalic.woff") format("woff");
+}

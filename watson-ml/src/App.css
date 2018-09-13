@@ -105,6 +105,10 @@ img {
   margin-right: 12px;
 }
 
+.icon-thin-add {
+  fill: #3d70b2;
+}
+
 .App-MidBar-Button {
   color: #4e7cb6;
 }
@@ -137,7 +141,7 @@ img {
 
 .App-Sidebar-Fixed-Items {
   border-bottom: 1px solid #dfe3e6;
-  padding: 8px 0 16px 0;
+  padding: 8px 0 2px 0;
   margin-bottom: 8px;
 }
 
@@ -178,7 +182,7 @@ img {
 
 .App-Sidebar-Add-Label-Button {
   padding: 9px 0;
-  margin: 8px 10px 25px 10px;
+  margin: 16px 10px 8px 10px;
 
   font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
 
@@ -193,6 +197,52 @@ img {
 .App-Sidebar-Add-Label-Button:hover {
   background-color: #3d70b2;
   color: #ffffff;
+}
+
+.App-Sidebar-Field-Wrapper {
+  position: relative;
+  margin: 16px 0 8px 0;
+  width: auto;
+}
+
+.App-Sidebar-Add-Label-Field {
+  outline: none;
+  border: none;
+  padding: 14px 43px 4px 25px;
+  width: 100%;
+  border-top: 1px solid #dfe3e6;
+
+  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* .App-Sidebar-Add-Label-Field {
+  outline: none;
+  border: none;
+  padding: 1px 30px 7px 5px;
+  width: 100%;
+  border-bottom: 2px solid #dfe3e6;
+
+  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+
+  font-size: 14px;
+  font-weight: 500;
+} */
+
+.App-Sidebar-Add-Label-Field-Icon {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+
+  padding-left: 15px;
+  padding-right: 15px;
+  padding-top: 16px;
+}
+
+.App-Sidebar-Add-Label-Field::placeholder {
+  font-style: italic;
 }
 
 .App-ImageGrid {
