@@ -11,6 +11,7 @@ img {
   right: 0px;
   bottom: 0px;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .App-TopBar {
@@ -131,6 +132,7 @@ img {
   left: 0px;
   background-color: #ffffff;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .App-Sidebar-Fixed-Items {
