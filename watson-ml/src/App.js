@@ -6,34 +6,23 @@ class App extends Component {
     super(props)
     const sections = [
       'Unlabeled',
-      'A Very Long Section Title',
-      'HDMI',
-      'VGA',
-      'USB',
-      'Thunderbolt',
-      'Micro USB',
-      'Mag Safe Power Cord',
-      'Planes',
-      'Trains',
-      'Automobiles',
-      'Infinity',
-      'And',
-      'Beyond'
+      'Cats',
+      'Dogs',
+      'Elephants',
+      'Clock Towers'
+      // 'VGA',
+      // 'USB',
+      // 'Thunderbolt',
+      // 'Micro USB',
+      // 'Mag Safe Power Cord',
+      // 'Planes',
+      // 'Trains',
+      // 'Automobiles',
+      // 'Infinity',
+      // 'And',
+      // 'Beyond'
     ]
-    const collection = sections.map(title => {
-      const min = 50
-      const max = 500
-      const imageCount = Math.floor(Math.random() * (max - min)) + min
-      return {
-        label: title,
-        images: Array(imageCount)
-          .fill('')
-          .map(() => {
-            // return 'https://picsum.photos/224/?random&t=' + Math.random()
-            return 'https://loremflickr.com/240/240/dog?random=' + Math.random()
-          })
-      }
-    })
+    const collection = this.generateCollection(sections)
 
     const allImageCount = collection
       .reduce((accumulator, section) => {
@@ -67,9 +56,62 @@ class App extends Component {
     }
   }
 
-  // state = {
-  //   addingLabels: false
-  // }
+  componentDidMount() {
+    document.addEventListener('mousedown', this.handleClickOutside)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside)
+  }
+
+  handleClickOutside = e => {
+    if (this.labelFieldRef && !this.labelFieldRef.contains(e.target)) {
+      this.setState({
+        addingLabels: false
+      })
+    }
+  }
+
+  generateCollection = (sections) => {
+    return sections.map(title => {
+      const min = 50
+      const max = 500
+      const imageCount = Math.floor(Math.random() * (max - min)) + min
+      return {
+        label: title,
+        images: Array(imageCount)
+          .fill('')
+          .map(() => {
+            // return 'https://picsum.photos/224/?random&t=' + Math.random()
+            if (title === 'Unlabeled') {
+              return `https://source.unsplash.com/224x224/?sig=${Math.floor(
+                Math.random() * 2000
+              )}`
+            }
+            return `https://source.unsplash.com/224x224/?${title}&sig=${Math.floor(
+              Math.random() * 2000
+            )}`
+            // return 'https://loremflickr.com/240/240/dog?random=' + Math.random()
+          })
+      }
+    })
+  }
+
+  createLabel = () => {
+    const newSections = [...this.state.sections, 'Cars']
+    const collection = this.generateCollection(newSections)
+    this.setState({
+      sections: newSections,
+      collection: collection,
+      addingLabels: false
+    })
+  }
+
+  handleKeyPress = e => {
+    if (e.key === 'Enter') {
+      this.createLabel()
+    }
+  }
 
   render() {
     return (
@@ -124,7 +166,12 @@ class App extends Component {
             </div>
 
             {this.state.addingLabels ? (
-              <div className="App-Sidebar-Field-Wrapper">
+              <div
+                className="App-Sidebar-Field-Wrapper"
+                ref={input => {
+                  this.labelFieldRef = input
+                }}
+              >
                 <input
                   className="App-Sidebar-Add-Label-Field"
                   type="text"
@@ -132,11 +179,12 @@ class App extends Component {
                   ref={input => {
                     this.labelNameInput = input
                   }}
-                  onBlur={() => {
-                    this.setState({ addingLabels: false })
-                  }}
+                  onKeyPress={this.handleKeyPress}
                 />
-                <div className="App-Sidebar-Add-Label-Field-Icon">
+                <div
+                  className="App-Sidebar-Add-Label-Field-Icon"
+                  onClick={this.createLabel}
+                >
                   <svg
                     className="icon-thin-add"
                     width="16"
