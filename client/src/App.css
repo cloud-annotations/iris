@@ -4,6 +4,15 @@ img {
   background-color: #e3eaf3;
 }
 
+input[type=file] {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+}
+
 .App-Parent {
   position: fixed;
   top: 153px; /* This should probably be 150px */
@@ -82,6 +91,7 @@ img {
 }
 
 .App-MidBar-AddImages {
+  position: relative;
   display: flex;
   align-items: center;
   padding: 0 25px;

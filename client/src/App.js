@@ -1,57 +1,47 @@
 import React, { Component } from 'react'
 import './App.css'
 
+const token = `eyJraWQiOiIyMDE3MTAzMC0wMDowMDowMCIsImFsZyI6IlJTMjU2In0.eyJpYW1faWQiOiJpYW0tU2VydmljZUlkLWNjMGMyODczLTVhYmMtNDNmMC04YmQ5LWI3MDM0YWY5Y2ZmNyIsImlkIjoiaWFtLVNlcnZpY2VJZC1jYzBjMjg3My01YWJjLTQzZjAtOGJkOS1iNzAzNGFmOWNmZjciLCJyZWFsbWlkIjoiaWFtIiwiaWRlbnRpZmllciI6IlNlcnZpY2VJZC1jYzBjMjg3My01YWJjLTQzZjAtOGJkOS1iNzAzNGFmOWNmZjciLCJzdWIiOiJTZXJ2aWNlSWQtY2MwYzI4NzMtNWFiYy00M2YwLThiZDktYjcwMzRhZjljZmY3Iiwic3ViX3R5cGUiOiJTZXJ2aWNlSWQiLCJhY2NvdW50Ijp7ImJzcyI6IjE5NTUyZjY3OWExZjFmZWJhNDEyOTI3ZTA0YjMyNTUzIn0sImlhdCI6MTUzNjk3Njk0MCwiZXhwIjoxNTM2OTgwNTQwLCJpc3MiOiJodHRwczovL2lhbS5uZy5ibHVlbWl4Lm5ldC9vaWRjL3Rva2VuIiwiZ3JhbnRfdHlwZSI6InVybjppYm06cGFyYW1zOm9hdXRoOmdyYW50LXR5cGU6YXBpa2V5Iiwic2NvcGUiOiJpYm0gb3BlbmlkIiwiY2xpZW50X2lkIjoiZGVmYXVsdCIsImFjciI6MSwiYW1yIjpbInB3ZCJdfQ.dRXRBElHMEskbcil2R25NpPC5jIzoDF2Z9uBHsw3oYHTS0pJroKbapfjCBoJork4XUU11Kbev1If1DWcxTE-FzyEIbAWH-WVS_O5ltgR0lgu3ZI4RGZWtkuNX0PGSqmCIGBJzamJVRhWo8OphwGleTYCIv6VhSfWUC1zK5KTnTceCCoqXR_f6eRtcnAcfxzZHkbhRdKIv3MHD08fKKgcmdSJf3JG08K8IY6C-mHX70HDUveLyvKNohBbkXzTQc-0Gy6yj0vNBw4QjUl75-VknTDvk4-dbZox0EGd9FAuQf0MEAU9iERwZ-0U0cd9TKQbQw0YPFAH3sMqn0CxHyrZHQ`
+
 class App extends Component {
   constructor(props) {
     super(props)
-    const sections = [
-      'Unlabeled',
-      'Cats',
-      'Dogs',
-      'Elephants',
-      'Clock Towers'
-      // 'VGA',
-      // 'USB',
-      // 'Thunderbolt',
-      // 'Micro USB',
-      // 'Mag Safe Power Cord',
-      // 'Planes',
-      // 'Trains',
-      // 'Automobiles',
-      // 'Infinity',
-      // 'And',
-      // 'Beyond'
-    ]
-    const collection = this.generateCollection(sections)
 
-    const allImageCount = collection
-      .reduce((accumulator, section) => {
-        return accumulator + section.images.length
-      }, 0)
-      .toLocaleString()
-    const labeledImageCount = collection
-      .reduce((accumulator, section) => {
-        if (section.label !== 'Unlabeled') {
-          return accumulator + section.images.length
-        }
-        return accumulator
-      }, 0)
-      .toLocaleString()
-    const unlabeledImageCount = collection
-      .reduce((accumulator, section) => {
-        if (section.label === 'Unlabeled') {
-          return accumulator + section.images.length
-        }
-        return accumulator
-      }, 0)
-      .toLocaleString()
+    this.generateToken()
+
+    this.calculateCollectionSize()
+
+    // const sections = ['Unlabeled', 'Cats', 'Dogs', 'Elephants', 'Clock Towers']
+    // const collection = this.generateCollection()
+    //
+    // const allImageCount = collection
+    //   .reduce((accumulator, section) => {
+    //     return accumulator + section.images.length
+    //   }, 0)
+    //   .toLocaleString()
+    // const labeledImageCount = collection
+    //   .reduce((accumulator, section) => {
+    //     if (section.label !== 'Unlabeled') {
+    //       return accumulator + section.images.length
+    //     }
+    //     return accumulator
+    //   }, 0)
+    //   .toLocaleString()
+    // const unlabeledImageCount = collection
+    //   .reduce((accumulator, section) => {
+    //     if (section.label === 'Unlabeled') {
+    //       return accumulator + section.images.length
+    //     }
+    //     return accumulator
+    //   }, 0)
+    //   .toLocaleString()
 
     this.state = {
-      sections: sections,
-      collection: collection,
-      allImageCount: allImageCount,
-      labeledImageCount: labeledImageCount,
-      unlabeledImageCount: unlabeledImageCount,
+      sections: ['Unlabeled'],
+      collection: [{ label: 'Unlabeled', images: [] }],
+      allImageCount: 10,
+      labeledImageCount: 10,
+      unlabeledImageCount: 10,
       addingLabels: false
     }
   }
@@ -72,28 +62,99 @@ class App extends Component {
     }
   }
 
-  generateCollection = (sections) => {
-    return sections.map(title => {
-      const min = 50
-      const max = 500
-      const imageCount = Math.floor(Math.random() * (max - min)) + min
+  arrayBufferToBase64 = buffer => {
+    var binary = ''
+    var bytes = [].slice.call(new Uint8Array(buffer))
+    bytes.forEach(b => (binary += String.fromCharCode(b)))
+    return window.btoa(binary)
+  }
+
+  generateToken = () => {
+    const url = `https://iam.bluemix.net/oidc/token?apikey=sXN1216NkUnHjTlaQ8Vomkx4eeiF0f4xlq1s7WQnCAJr&response_type=cloud_iam&grant_type=urn:ibm:params:oauth:grant-type:apikey`
+    const request = new Request(url)
+    fetch(request, { method: 'POST', mode: 'cors' })
+      .then(response => response.text())
+      .then(data => {
+        console.log(data)
+      })
+      .catch(error => {
+        console.error(error)
+      })
+  }
+
+  calculateCollectionSize = () => {
+    const url = 'api/list'
+    const options = {
+      method: 'GET'
+    }
+    const request = new Request(url)
+    fetch(request, options)
+      .then(response => response.json())
+      .then(str => new window.DOMParser().parseFromString(str.xml, 'text/xml'))
+      .then(data => {
+        const elements = data.getElementsByTagName('Contents')
+        const imageList = Array.prototype.map.call(elements, element => {
+          return element.getElementsByTagName('Key')[0].innerHTML
+        })
+        console.log(imageList)
+
+        this.setState(
+          {
+            imageList: imageList
+          },
+          this.generateCollection
+        )
+      })
+      .catch(error => {
+        console.error(error)
+      })
+  }
+
+  generateCollection = () => {
+    this.state.imageList.map((imageUrl, i) => {
+      const url = `api/image/${imageUrl}`
+      const options = {
+        method: 'GET'
+      }
+      const request = new Request(url)
+      fetch(request, options)
+        .then(response => {
+          response.arrayBuffer().then(buffer => {
+            const base64Flag = 'data:image/jpeg;base64,'
+            const imageStr = this.arrayBufferToBase64(buffer)
+
+            const newCollection = this.state.collection.map(item => {
+              if (item.label === 'Unlabeled') {
+                const newImages = item.images
+                newImages[i] = base64Flag + imageStr // This will cause an issue, we can't assume the array will be full
+                item.images = newImages
+                return item
+              }
+              return item
+            })
+
+            this.setState({
+              collection: newCollection
+            })
+          })
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    })
+
+    const collection = this.state.sections.map(title => {
+      const imageCount = this.state.imageList.length
       return {
         label: title,
-        images: Array(imageCount)
-          .fill('')
-          .map(() => {
-            // return 'https://picsum.photos/224/?random&t=' + Math.random()
-            if (title === 'Unlabeled') {
-              return `https://source.unsplash.com/224x224/?sig=${Math.floor(
-                Math.random() * 2000
-              )}`
-            }
-            return `https://source.unsplash.com/224x224/?${title}&sig=${Math.floor(
-              Math.random() * 2000
-            )}`
-            // return 'https://loremflickr.com/240/240/dog?random=' + Math.random()
-          })
+        images: Array(imageCount).fill(
+          'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+        )
       }
+    })
+
+    this.setState({
+      collection: collection
     })
   }
 
@@ -141,6 +202,7 @@ class App extends Component {
             <svg className="icon" width="16" height="16" viewBox="0 0 16 16">
               <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
             </svg>Add Images
+            <input type="file" />
           </div>
         </div>
         <div className="App-LowBar" />

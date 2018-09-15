@@ -1,0 +1,16 @@
+{
+  "name": "watson-ml",
+  "version": "0.1.0",
+  "scripts": {
+    "client": "cd client && yarn start",
+    "server": "nodemon server.js",
+    "start": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
+  },
+  "dependencies": {
+    "express": "^4.16.3",
+    "superagent": "^3.8.3"
+  },
+  "devDependencies": {
+    "concurrently": "^3.6.0"
+  }
+}
