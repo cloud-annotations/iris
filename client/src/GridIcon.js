@@ -12,7 +12,9 @@ class GridIcon extends Component {
         onClick={() => {
           this.setState(prevState => ({
             active: !prevState.active
-          }))
+          }), () => {
+            this.props.onItemSelected(this.state.active ? 1 : -1)
+          })
         }}
         class={`ie-container ${this.state.active ? 'active' : ''}`}
       >

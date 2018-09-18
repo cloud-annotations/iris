@@ -38,7 +38,8 @@ class App extends Component {
       allImageCount: 10,
       labeledImageCount: 10,
       unlabeledImageCount: 10,
-      addingLabels: false
+      addingLabels: false,
+      selectionCount: 0
     }
   }
 
@@ -157,6 +158,12 @@ class App extends Component {
     }
   }
 
+  gridItemSelected = increment => {
+    this.setState(prevState => ({
+      selectionCount: prevState.selectionCount + increment
+    }))
+  }
+
   getDataTransferItems = event => {
     let dataTransferItemsList = []
     if (event.dataTransfer) {
@@ -257,12 +264,24 @@ class App extends Component {
         <div className="App-LowBar">
           <div className="App-LowBar-Grid">
             <div className="App-LowBar-Tabs">
-              <div className="App-LowBar-Tab App-LowBar-Tab--Active">Images</div>
+              <div className="App-LowBar-Tab App-LowBar-Tab--Active">
+                Images
+              </div>
               <div className="App-LowBar-Tab">Train</div>
               <div className="App-LowBar-Tab">Evaluate</div>
               <div className="App-LowBar-Tab">Predict</div>
             </div>
           </div>
+        </div>
+        <div
+          className={`App-SelectionBar ${
+            this.state.selectionCount > 0 ? 'App-SelectionBar--Active' : ''
+          }`}
+        >
+          <div className="App-SelectionBar-Count">{this.state.selectionCount} selected</div>
+          <div className="App-SelectionBar-DropDown">Label <svg class="dropdown-icon" width="10" height="5" viewBox="0 0 10 5"><path d="M0 0l5 4.998L10 0z"></path></svg></div>
+          <div>Delete</div>
+          <div className="App-SelectionBar-Close"><svg class="close-icon" width="20" height="20" viewBox="0 0 20 20"><path d="M10 9.293l4.146-4.147.708.708L10.707 10l4.147 4.146-.708.708L10 10.707l-4.146 4.147-.708-.708L9.293 10 5.146 5.854l.708-.708L10 9.293z"></path></svg></div>
         </div>
         <div className="App-Sidebar">
           <div className="App-Sidebar-Fixed-Items">
@@ -345,7 +364,11 @@ class App extends Component {
               )
             })}
         </div>
-        <div className="App-Parent">
+        <div
+          className={`App-Parent ${
+            this.state.selectionCount > 0 ? 'App-Parent--Active' : ''
+          }`}
+        >
           {this.state.collection.map(section => {
             return (
               <div>
@@ -354,7 +377,12 @@ class App extends Component {
                 </div>
                 <div className="App-ImageGrid">
                   {section.images.map(image => {
-                    return <GridIcon image={image} />
+                    return (
+                      <GridIcon
+                        image={image}
+                        onItemSelected={this.gridItemSelected}
+                      />
+                    )
                   })}
                 </div>
               </div>
