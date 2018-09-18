@@ -1,14 +1,10 @@
 import React, { Component } from 'react'
+import GridIcon from './GridIcon'
 import './App.css'
-
-const token = `eyJraWQiOiIyMDE3MTAzMC0wMDowMDowMCIsImFsZyI6IlJTMjU2In0.eyJpYW1faWQiOiJpYW0tU2VydmljZUlkLWNjMGMyODczLTVhYmMtNDNmMC04YmQ5LWI3MDM0YWY5Y2ZmNyIsImlkIjoiaWFtLVNlcnZpY2VJZC1jYzBjMjg3My01YWJjLTQzZjAtOGJkOS1iNzAzNGFmOWNmZjciLCJyZWFsbWlkIjoiaWFtIiwiaWRlbnRpZmllciI6IlNlcnZpY2VJZC1jYzBjMjg3My01YWJjLTQzZjAtOGJkOS1iNzAzNGFmOWNmZjciLCJzdWIiOiJTZXJ2aWNlSWQtY2MwYzI4NzMtNWFiYy00M2YwLThiZDktYjcwMzRhZjljZmY3Iiwic3ViX3R5cGUiOiJTZXJ2aWNlSWQiLCJhY2NvdW50Ijp7ImJzcyI6IjE5NTUyZjY3OWExZjFmZWJhNDEyOTI3ZTA0YjMyNTUzIn0sImlhdCI6MTUzNjk3Njk0MCwiZXhwIjoxNTM2OTgwNTQwLCJpc3MiOiJodHRwczovL2lhbS5uZy5ibHVlbWl4Lm5ldC9vaWRjL3Rva2VuIiwiZ3JhbnRfdHlwZSI6InVybjppYm06cGFyYW1zOm9hdXRoOmdyYW50LXR5cGU6YXBpa2V5Iiwic2NvcGUiOiJpYm0gb3BlbmlkIiwiY2xpZW50X2lkIjoiZGVmYXVsdCIsImFjciI6MSwiYW1yIjpbInB3ZCJdfQ.dRXRBElHMEskbcil2R25NpPC5jIzoDF2Z9uBHsw3oYHTS0pJroKbapfjCBoJork4XUU11Kbev1If1DWcxTE-FzyEIbAWH-WVS_O5ltgR0lgu3ZI4RGZWtkuNX0PGSqmCIGBJzamJVRhWo8OphwGleTYCIv6VhSfWUC1zK5KTnTceCCoqXR_f6eRtcnAcfxzZHkbhRdKIv3MHD08fKKgcmdSJf3JG08K8IY6C-mHX70HDUveLyvKNohBbkXzTQc-0Gy6yj0vNBw4QjUl75-VknTDvk4-dbZox0EGd9FAuQf0MEAU9iERwZ-0U0cd9TKQbQw0YPFAH3sMqn0CxHyrZHQ`
 
 class App extends Component {
   constructor(props) {
     super(props)
-
-    this.generateToken()
-
     this.calculateCollectionSize()
 
     // const sections = ['Unlabeled', 'Cats', 'Dogs', 'Elephants', 'Clock Towers']
@@ -67,19 +63,6 @@ class App extends Component {
     var bytes = [].slice.call(new Uint8Array(buffer))
     bytes.forEach(b => (binary += String.fromCharCode(b)))
     return window.btoa(binary)
-  }
-
-  generateToken = () => {
-    const url = `https://iam.bluemix.net/oidc/token?apikey=sXN1216NkUnHjTlaQ8Vomkx4eeiF0f4xlq1s7WQnCAJr&response_type=cloud_iam&grant_type=urn:ibm:params:oauth:grant-type:apikey`
-    const request = new Request(url)
-    fetch(request, { method: 'POST', mode: 'cors' })
-      .then(response => response.text())
-      .then(data => {
-        console.log(data)
-      })
-      .catch(error => {
-        console.error(error)
-      })
   }
 
   calculateCollectionSize = () => {
@@ -174,6 +157,72 @@ class App extends Component {
     }
   }
 
+  getDataTransferItems = event => {
+    let dataTransferItemsList = []
+    if (event.dataTransfer) {
+      const dt = event.dataTransfer
+      if (dt.files && dt.files.length) {
+        dataTransferItemsList = dt.files
+      } else if (dt.items && dt.items.length) {
+        // During the drag even the dataTransfer.files is null
+        // but Chrome implements some drag store, which is accesible via dataTransfer.items
+        return Array.prototype.slice
+          .call(dt.items)
+          .filter(item => item.kind === 'file')
+      }
+    } else if (event.target && event.target.files) {
+      dataTransferItemsList = event.target.files
+    }
+    // Convert from DataTransferItemsList to the native Array
+    return Array.prototype.slice.call(dataTransferItemsList)
+  }
+
+  onFileChosen = e => {
+    const fileList = this.getDataTransferItems(e)
+
+    fileList.map(file => {
+      var reader = new FileReader()
+      reader.onload = () => {
+        var img = new Image()
+        img.onload = () => {
+          const c = window.document.createElement('canvas')
+          const ctx = c.getContext('2d')
+          c.width = 224
+          c.height = 224
+          ctx.drawImage(img, 0, 0, 224, 224)
+          console.log(c.toDataURL('image/jpeg'))
+
+          c.toBlob(result => {
+            console.log(result)
+            const randomName =
+              Math.random()
+                .toString(36)
+                .substring(2, 15) +
+              Math.random()
+                .toString(36)
+                .substring(2, 15)
+            console.log(randomName)
+            const url = `api/upload/my-first-project/${randomName}.JPG`
+            const options = {
+              method: 'PUT',
+              body: result
+            }
+            const request = new Request(url)
+            fetch(request, options)
+              .then(response => {})
+              .catch(error => {
+                console.error(error)
+              })
+          }, 'image/jpeg')
+        }
+        img.src = reader.result
+      }
+
+      reader.readAsDataURL(file)
+    })
+    console.log(fileList)
+  }
+
   render() {
     return (
       <div>
@@ -202,7 +251,7 @@ class App extends Component {
             <svg className="icon" width="16" height="16" viewBox="0 0 16 16">
               <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
             </svg>Add Images
-            <input type="file" />
+            <input type="file" onChange={this.onFileChosen} multiple />
           </div>
         </div>
         <div className="App-LowBar" />
@@ -296,7 +345,7 @@ class App extends Component {
                 </div>
                 <div className="App-ImageGrid">
                   {section.images.map(image => {
-                    return <img src={image} />
+                    return <GridIcon image={image} />
                   })}
                 </div>
               </div>

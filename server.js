@@ -1,6 +1,7 @@
 const express = require('express')
 const path = require('path')
 const request = require('superagent')
+var requests = require('request')
 
 const app = express()
 const port = process.env.PORT || 9000
@@ -47,7 +48,7 @@ app.get('/api/list', function(req, res) {
         })
         .then(respose => {
           console.log(respose)
-          res.send({xml: respose.text})
+          res.send({ xml: respose.text })
         })
         .catch(err => {
           console.error(err)
@@ -70,7 +71,9 @@ app.get('/api/image/:id', function(req, res) {
       const token = respose.body.access_token
       request
         .get(
-          `https://s3-api.us-geo.objectstorage.softlayer.net/my-first-project/${req.params.id}`
+          `https://s3-api.us-geo.objectstorage.softlayer.net/my-first-project/${
+            req.params.id
+          }`
         )
         .set('Authorization', 'bearer ' + token)
         .buffer()
@@ -80,6 +83,36 @@ app.get('/api/image/:id', function(req, res) {
         .catch(err => {
           console.error(err)
         })
+    })
+    .catch(err => {
+      console.error(err)
+    })
+})
+
+app.put('/api/upload/:bucket/:object', function(req, res) {
+  request
+    .post('https://iam.bluemix.net/oidc/token')
+    .query({
+      apikey: 'sXN1216NkUnHjTlaQ8Vomkx4eeiF0f4xlq1s7WQnCAJr',
+      response_type: 'cloud_iam',
+      grant_type: 'urn:ibm:params:oauth:grant-type:apikey'
+    })
+    .then(respose => {
+      const token = respose.body.access_token
+      var url = `https://s3-api.us-geo.objectstorage.softlayer.net/${
+        req.params.bucket
+      }/${req.params.object}`
+      console.log(url)
+      req
+        .pipe(
+          requests.put({
+            url: url,
+            headers: {
+              Authorization: 'bearer ' + token
+            }
+          })
+        )
+        .pipe(res)
     })
     .catch(err => {
       console.error(err)
