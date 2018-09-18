@@ -254,7 +254,16 @@ class App extends Component {
             <input type="file" onChange={this.onFileChosen} multiple />
           </div>
         </div>
-        <div className="App-LowBar" />
+        <div className="App-LowBar">
+          <div className="App-LowBar-Grid">
+            <div className="App-LowBar-Tabs">
+              <div className="App-LowBar-Tab App-LowBar-Tab--Active">Images</div>
+              <div className="App-LowBar-Tab">Train</div>
+              <div className="App-LowBar-Tab">Evaluate</div>
+              <div className="App-LowBar-Tab">Predict</div>
+            </div>
+          </div>
+        </div>
         <div className="App-Sidebar">
           <div className="App-Sidebar-Fixed-Items">
             <div className="App-Sidebar-Item--Active">

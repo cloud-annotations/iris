@@ -381,3 +381,47 @@ input[type=file] {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+
+.App-LowBar-Grid {
+  position: absolute;
+  left: 209px;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  display: grid;
+  align-content: start;
+  justify-content: center;
+  grid-template-columns: repeat(auto-fill, 112px);
+  grid-auto-columns: auto;
+  grid-gap: 4px;
+  margin: 0 50px;
+}
+
+.App-LowBar-Tabs {
+  grid-column: 1 / auto-fill;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: flex-end;
+  position: absolute;
+  top: 0;
+  bottom: -1px;
+  left: -20px; /* to combat the padding */
+  right: -20px; /* to combat the padding */
+}
+
+.App-LowBar-Tab {
+  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  color: #152935;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-bottom: 2px solid transparent;
+}
+
+.App-LowBar-Tab--Active {
+  color: #4071b0;
+  border-bottom: 2px solid #4071b0;
+}
