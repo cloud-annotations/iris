@@ -6,38 +6,9 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.calculateCollectionSize()
-
-    // const sections = ['Unlabeled', 'Cats', 'Dogs', 'Elephants', 'Clock Towers']
-    // const collection = this.generateCollection()
-    //
-    // const allImageCount = collection
-    //   .reduce((accumulator, section) => {
-    //     return accumulator + section.images.length
-    //   }, 0)
-    //   .toLocaleString()
-    // const labeledImageCount = collection
-    //   .reduce((accumulator, section) => {
-    //     if (section.label !== 'Unlabeled') {
-    //       return accumulator + section.images.length
-    //     }
-    //     return accumulator
-    //   }, 0)
-    //   .toLocaleString()
-    // const unlabeledImageCount = collection
-    //   .reduce((accumulator, section) => {
-    //     if (section.label === 'Unlabeled') {
-    //       return accumulator + section.images.length
-    //     }
-    //     return accumulator
-    //   }, 0)
-    //   .toLocaleString()
-
     this.state = {
       sections: ['Unlabeled'],
       collection: [{ label: 'Unlabeled', images: [] }],
-      allImageCount: 10,
-      labeledImageCount: 10,
-      unlabeledImageCount: 10,
       addingLabels: false,
       selection: [],
       lastSelected: null // This does not include shift clicks.
@@ -228,7 +199,29 @@ class App extends Component {
   onFileChosen = e => {
     const fileList = this.getDataTransferItems(e)
 
-    fileList.map(file => {
+    this.setState(prevState => {
+      const blankImages = Array(fileList.length).fill(
+        'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+      )
+      const newCollection = prevState.collection.map(item => {
+        if (item.label === 'Unlabeled') {
+          const newImages = [...blankImages, ...item.images]
+          item.images = newImages
+          return item
+        }
+        return item
+      })
+      return {
+        collection: newCollection,
+        selection: [
+          ...Array(fileList.length).fill(false),
+          ...prevState.selection.map(() => false)
+        ], // This might not be the most effective.
+        lastSelected: null
+      }
+    })
+
+    fileList.map((file, index) => {
       var reader = new FileReader()
       reader.onload = () => {
         var img = new Image()
@@ -239,6 +232,21 @@ class App extends Component {
           c.height = 224
           ctx.drawImage(img, 0, 0, 224, 224)
           console.log(c.toDataURL('image/jpeg'))
+
+          const dataURL = c.toDataURL('image/jpeg')
+
+          this.setState(prevState => {
+            const newCollection = prevState.collection.map(item => {
+              if (item.label === 'Unlabeled') {
+                const newImages = item.images
+                newImages[index] = dataURL
+                item.images = newImages
+                return item
+              }
+              return item
+            })
+            return { collection: newCollection }
+          })
 
           c.toBlob(result => {
             console.log(result)
@@ -345,19 +353,37 @@ class App extends Component {
             <div className="App-Sidebar-Item--Active">
               <div className="App-Sidebar-Item-Title">All images</div>
               <div className="App-Sidebar-Item-Count">
-                {this.state.allImageCount}
+                {this.state.collection
+                  .reduce((accumulator, section) => {
+                    return accumulator + section.images.length
+                  }, 0)
+                  .toLocaleString()}
               </div>
             </div>
             <div className="App-Sidebar-Item">
               <div className="App-Sidebar-Item-Title">Labeled</div>
               <div className="App-Sidebar-Item-Count">
-                {this.state.labeledImageCount}
+                {this.state.collection
+                  .reduce((accumulator, section) => {
+                    if (section.label !== 'Unlabeled') {
+                      return accumulator + section.images.length
+                    }
+                    return accumulator
+                  }, 0)
+                  .toLocaleString()}
               </div>
             </div>
             <div className="App-Sidebar-Item">
               <div className="App-Sidebar-Item-Title">Unlabeled</div>
               <div className="App-Sidebar-Item-Count">
-                {this.state.unlabeledImageCount}
+                {this.state.collection
+                  .reduce((accumulator, section) => {
+                    if (section.label === 'Unlabeled') {
+                      return accumulator + section.images.length
+                    }
+                    return accumulator
+                  }, 0)
+                  .toLocaleString()}
               </div>
             </div>
 
