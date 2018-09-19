@@ -2,21 +2,15 @@ import React, { Component } from 'react'
 import './GridIcon.css'
 
 class GridIcon extends Component {
-  state = {
-    active: false
+  onClick = e => {
+    this.props.onItemSelected(e, this.props.index)
   }
 
   render() {
     return (
       <div
-        onClick={() => {
-          this.setState(prevState => ({
-            active: !prevState.active
-          }), () => {
-            this.props.onItemSelected(this.state.active ? 1 : -1)
-          })
-        }}
-        class={`ie-container ${this.state.active ? 'active' : ''}`}
+        onClick={this.onClick}
+        class={`ie-container ${this.props.selected ? 'active' : ''}`}
       >
         <img src={this.props.image} />
         <div className="POO">

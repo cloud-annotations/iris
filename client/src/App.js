@@ -39,16 +39,31 @@ class App extends Component {
       labeledImageCount: 10,
       unlabeledImageCount: 10,
       addingLabels: false,
-      selectionCount: 0
+      selection: [],
+      lastSelected: null // This does not include shift clicks.
     }
   }
 
   componentDidMount() {
     document.addEventListener('mousedown', this.handleClickOutside)
+    document.addEventListener('keydown', this.handleKeyDown)
   }
 
   componentWillUnmount() {
     document.removeEventListener('mousedown', this.handleClickOutside)
+    document.removeEventListener('keydown', this.handleKeyDown)
+  }
+
+  handleKeyDown = event => {
+    let charCode = String.fromCharCode(event.which).toLowerCase()
+    // For MAC we can use metaKey to detect cmd key
+    if ((event.ctrlKey || event.metaKey) && charCode === 'a') {
+      event.preventDefault()
+      this.setState(prevState => ({
+        selection: prevState.selection.map(() => true)
+      }))
+      console.log('Ctrl + A pressed')
+    }
   }
 
   handleClickOutside = e => {
@@ -84,7 +99,8 @@ class App extends Component {
 
         this.setState(
           {
-            imageList: imageList
+            imageList: imageList,
+            selection: imageList.map(() => false)
           },
           this.generateCollection
         )
@@ -158,9 +174,34 @@ class App extends Component {
     }
   }
 
-  gridItemSelected = increment => {
+  gridItemSelected = (e, index) => {
+    const shiftPressed = e.shiftKey
+    this.setState(prevState => {
+      const newSelection = prevState.selection
+      let lastSelected = this.state.lastSelected
+      if (shiftPressed && lastSelected !== null) {
+        const sortedSelect = [lastSelected, index].sort()
+        for (let i = sortedSelect[0]; i <= sortedSelect[1]; i++) {
+          newSelection[i] = prevState.selection[lastSelected]
+        }
+      } else {
+        newSelection[index] = !prevState.selection[index]
+        lastSelected = index
+      }
+      if (newSelection.filter(item => item).length == 0) {
+        lastSelected = null
+      }
+      return {
+        selection: newSelection,
+        lastSelected: lastSelected
+      }
+    })
+  }
+
+  deselectAll = () => {
     this.setState(prevState => ({
-      selectionCount: prevState.selectionCount + increment
+      selection: prevState.selection.map(() => false),
+      lastSelected: null
     }))
   }
 
@@ -275,13 +316,29 @@ class App extends Component {
         </div>
         <div
           className={`App-SelectionBar ${
-            this.state.selectionCount > 0 ? 'App-SelectionBar--Active' : ''
+            this.state.selection &&
+            this.state.selection.filter(item => item).length > 0
+              ? 'App-SelectionBar--Active'
+              : ''
           }`}
         >
-          <div className="App-SelectionBar-Count">{this.state.selectionCount} selected</div>
-          <div className="App-SelectionBar-DropDown">Label <svg class="dropdown-icon" width="10" height="5" viewBox="0 0 10 5"><path d="M0 0l5 4.998L10 0z"></path></svg></div>
+          <div className="App-SelectionBar-Count">
+            {this.state.selection &&
+              this.state.selection.filter(item => item).length}{' '}
+            selected
+          </div>
+          <div className="App-SelectionBar-DropDown">
+            Label{' '}
+            <svg class="dropdown-icon" width="10" height="5" viewBox="0 0 10 5">
+              <path d="M0 0l5 4.998L10 0z" />
+            </svg>
+          </div>
           <div>Delete</div>
-          <div className="App-SelectionBar-Close"><svg class="close-icon" width="20" height="20" viewBox="0 0 20 20"><path d="M10 9.293l4.146-4.147.708.708L10.707 10l4.147 4.146-.708.708L10 10.707l-4.146 4.147-.708-.708L9.293 10 5.146 5.854l.708-.708L10 9.293z"></path></svg></div>
+          <div className="App-SelectionBar-Close" onClick={this.deselectAll}>
+            <svg class="close-icon" width="20" height="20" viewBox="0 0 20 20">
+              <path d="M10 9.293l4.146-4.147.708.708L10.707 10l4.147 4.146-.708.708L10 10.707l-4.146 4.147-.708-.708L9.293 10 5.146 5.854l.708-.708L10 9.293z" />
+            </svg>
+          </div>
         </div>
         <div className="App-Sidebar">
           <div className="App-Sidebar-Fixed-Items">
@@ -366,7 +423,10 @@ class App extends Component {
         </div>
         <div
           className={`App-Parent ${
-            this.state.selectionCount > 0 ? 'App-Parent--Active' : ''
+            this.state.selection &&
+            this.state.selection.filter(item => item).length > 0
+              ? 'App-Parent--Active'
+              : ''
           }`}
         >
           {this.state.collection.map(section => {
@@ -376,10 +436,12 @@ class App extends Component {
                   <div className="App-Section-Span">{section.label}</div>
                 </div>
                 <div className="App-ImageGrid">
-                  {section.images.map(image => {
+                  {section.images.map((image, i) => {
                     return (
                       <GridIcon
                         image={image}
+                        index={i}
+                        selected={this.state.selection[i]}
                         onItemSelected={this.gridItemSelected}
                       />
                     )
