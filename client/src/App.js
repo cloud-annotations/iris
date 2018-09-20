@@ -130,6 +130,9 @@ class App extends Component {
   }
 
   createLabel = () => {
+    if (this.labelNameInput.value === '') {
+      return
+    }
     // We also need insert this into the json of our object storage
     const newCollection = [
       ...this.state.collection,
@@ -426,18 +429,21 @@ class App extends Component {
                   </svg>
                 </div>
               </div>
-            ) : (
-              <div
-                className="App-Sidebar-Add-Label-Button"
-                onClick={() => {
-                  this.setState({ addingLabels: true }, () => {
-                    this.labelNameInput.focus()
-                  })
-                }}
-              >
-                Add Label
-              </div>
-            )}
+            ) : null}
+            <div
+              className={`App-Sidebar-Add-Label-Button ${
+                this.state.addingLabels
+                  ? 'App-Sidebar-Add-Label-Button--Hidden'
+                  : ''
+              }`}
+              onClick={() => {
+                this.setState({ addingLabels: true }, () => {
+                  this.labelNameInput.focus()
+                })
+              }}
+            >
+              Add Label
+            </div>
           </div>
 
           {this.state.collection

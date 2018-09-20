@@ -309,6 +309,7 @@ input[type=file] {
   border-bottom: 1px solid #dfe3e6;
   padding: 8px 0 2px 0;
   margin-bottom: 8px;
+  position: relative;
 }
 
 .App-Sidebar-Item, .App-Sidebar-Item--Active {
@@ -361,7 +362,8 @@ input[type=file] {
 }
 
 .App-Sidebar-Add-Label-Button--Hidden {
-  display: none;
+  /* opacity: 0; */
+  visibility: hidden;
 }
 
 .App-Sidebar-Add-Label-Button:hover {
@@ -370,15 +372,19 @@ input[type=file] {
 }
 
 .App-Sidebar-Field-Wrapper {
-  position: relative;
-  margin: 16px 0 8px 0;
-  width: auto;
+  position: absolute;
+  /* margin: 16px 0 8px 0;
+  width: auto; */
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .App-Sidebar-Add-Label-Field {
   outline: none;
   border: none;
-  padding: 14px 43px 4px 25px;
+  margin: 0; /* Safari layout fix */
+  padding: 14px 43px 14px 25px;
   width: 100%;
   border-top: 1px solid #dfe3e6;
 
