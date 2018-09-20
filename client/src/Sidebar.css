@@ -1,0 +1,113 @@
+.Sidebar {
+  position: fixed;
+  border-right: 1px solid #dfe3e6;
+  width: 209px;
+  top: 150px;
+  bottom: 0px;
+  left: 0px;
+  background-color: #ffffff;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.Sidebar-Fixed-Items {
+  border-bottom: 1px solid #dfe3e6;
+  padding: 8px 0 2px 0;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.Sidebar-Item, .Sidebar-Item--Active {
+  display: flex;
+
+  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #152935;
+  padding: 9px 20px;
+
+  line-height: 23px;
+
+  border-left: 4px solid transparent;
+}
+
+.Sidebar-Item--Active {
+  color: #3d70b2;
+  font-weight: 700;
+  border-left: 4px solid #3d70b2;
+}
+
+.Sidebar-Item:hover {
+  color: #3d70b2;
+}
+
+.Sidebar-itemTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 20px;
+}
+
+.Sidebar-itemCount {
+  margin-left: auto;
+}
+
+.Sidebar-addLabel-Button {
+  padding: 9px 0;
+  margin: 16px 10px 8px 10px;
+
+  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+
+  color: #3d70b2;
+  font-size: 14px;
+  font-weight: 600;
+
+  text-align: center;
+  border: 2px solid #3d70b2;
+}
+
+.Sidebar-addLabel-Button--Hidden {
+  visibility: hidden;
+}
+
+.Sidebar-addLabel-Button:hover {
+  background-color: #3d70b2;
+  color: #ffffff;
+}
+
+.Sidebar-addLabel-FieldWrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.Sidebar-addLabel-Field {
+  outline: none;
+  border: none;
+  margin: 0; /* Safari layout fix */
+  padding: 14px 43px 14px 25px;
+  width: 100%;
+  border-top: 1px solid #dfe3e6;
+
+  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.Sidebar-thinAdd-Icon {
+  fill: #3d70b2;
+}
+
+.Sidebar-thinAdd-IconWrapper {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+
+  padding: 16px 15px 0px 15px;
+}
+
+.Sidebar-addLabel-Field::placeholder {
+  font-style: italic;
+}

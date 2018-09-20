@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import GridIcon from './GridIcon'
+import ImageGrid from './ImageGrid'
+import Sidebar from './Sidebar'
 import './App.css'
 
 class App extends Component {
@@ -9,19 +10,16 @@ class App extends Component {
     this.state = {
       sections: ['Unlabeled'],
       collection: [{ label: 'Unlabeled', images: [] }],
-      addingLabels: false,
       selection: [],
       lastSelected: null // This does not include shift clicks.
     }
   }
 
   componentDidMount() {
-    document.addEventListener('mousedown', this.handleClickOutside)
     document.addEventListener('keydown', this.handleKeyDown)
   }
 
   componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClickOutside)
     document.removeEventListener('keydown', this.handleKeyDown)
   }
 
@@ -34,14 +32,6 @@ class App extends Component {
         selection: prevState.selection.map(() => true)
       }))
       console.log('Ctrl + A pressed')
-    }
-  }
-
-  handleClickOutside = e => {
-    if (this.labelFieldRef && !this.labelFieldRef.contains(e.target)) {
-      this.setState({
-        addingLabels: false
-      })
     }
   }
 
@@ -129,33 +119,6 @@ class App extends Component {
     })
   }
 
-  createLabel = () => {
-    if (this.labelNameInput.value === '') {
-      return
-    }
-    // We also need insert this into the json of our object storage
-    const newCollection = [
-      ...this.state.collection,
-      {
-        label: this.labelNameInput.value,
-        images: []
-      }
-    ]
-
-    this.setState({
-      collection: newCollection
-      // addingLabels: false // This can get annoying if we want to add all the labels at once.
-    })
-    // We need to still clear it.
-    this.labelNameInput.value = ''
-  }
-
-  handleKeyPress = e => {
-    if (e.key === 'Enter') {
-      this.createLabel()
-    }
-  }
-
   gridItemSelected = (e, index) => {
     const shiftPressed = e.shiftKey
     this.setState(prevState => {
@@ -185,6 +148,21 @@ class App extends Component {
       selection: prevState.selection.map(() => false),
       lastSelected: null
     }))
+  }
+
+  createLabel = (labelName) => {
+    // We also need insert this into the json of our object storage
+    const newCollection = [
+      ...this.state.collection,
+      {
+        label: labelName,
+        images: []
+      }
+    ]
+
+    this.setState({
+      collection: newCollection
+    })
   }
 
   getDataTransferItems = event => {
@@ -359,108 +337,7 @@ class App extends Component {
             </svg>
           </div>
         </div>
-        <div className="App-Sidebar">
-          <div className="App-Sidebar-Fixed-Items">
-            <div className="App-Sidebar-Item--Active">
-              <div className="App-Sidebar-Item-Title">All images</div>
-              <div className="App-Sidebar-Item-Count">
-                {this.state.collection
-                  .reduce((accumulator, section) => {
-                    return accumulator + section.images.length
-                  }, 0)
-                  .toLocaleString()}
-              </div>
-            </div>
-            <div className="App-Sidebar-Item">
-              <div className="App-Sidebar-Item-Title">Labeled</div>
-              <div className="App-Sidebar-Item-Count">
-                {this.state.collection
-                  .reduce((accumulator, section) => {
-                    if (section.label !== 'Unlabeled') {
-                      return accumulator + section.images.length
-                    }
-                    return accumulator
-                  }, 0)
-                  .toLocaleString()}
-              </div>
-            </div>
-            <div className="App-Sidebar-Item">
-              <div className="App-Sidebar-Item-Title">Unlabeled</div>
-              <div className="App-Sidebar-Item-Count">
-                {this.state.collection
-                  .reduce((accumulator, section) => {
-                    if (section.label === 'Unlabeled') {
-                      return accumulator + section.images.length
-                    }
-                    return accumulator
-                  }, 0)
-                  .toLocaleString()}
-              </div>
-            </div>
-
-            {this.state.addingLabels ? (
-              <div
-                className="App-Sidebar-Field-Wrapper"
-                ref={input => {
-                  this.labelFieldRef = input
-                }}
-              >
-                <input
-                  className="App-Sidebar-Add-Label-Field"
-                  type="text"
-                  placeholder="Label name"
-                  ref={input => {
-                    this.labelNameInput = input
-                  }}
-                  onKeyPress={this.handleKeyPress}
-                />
-                <div
-                  className="App-Sidebar-Add-Label-Field-Icon"
-                  onClick={this.createLabel}
-                >
-                  <svg
-                    className="icon-thin-add"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                  >
-                    <path d="M8.57142857 4H7.42857143v3.42857143H4v1.14285714h3.42857143V12h1.14285714V8.57142857H12V7.42857143H8.57142857z" />
-                    <path d="M8 14.8571429c-3.78114286 0-6.85714286-3.076-6.85714286-6.8571429 0-3.78114286 3.076-6.85714286 6.85714286-6.85714286 3.7811429 0 6.8571429 3.076 6.8571429 6.85714286 0 3.7811429-3.076 6.8571429-6.8571429 6.8571429M8 0C3.58228571 0 0 3.58228571 0 8c0 4.4177143 3.58228571 8 8 8 4.4177143 0 8-3.5822857 8-8 0-4.41771429-3.5822857-8-8-8" />
-                  </svg>
-                </div>
-              </div>
-            ) : null}
-            <div
-              className={`App-Sidebar-Add-Label-Button ${
-                this.state.addingLabels
-                  ? 'App-Sidebar-Add-Label-Button--Hidden'
-                  : ''
-              }`}
-              onClick={() => {
-                this.setState({ addingLabels: true }, () => {
-                  this.labelNameInput.focus()
-                })
-              }}
-            >
-              Add Label
-            </div>
-          </div>
-
-          {this.state.collection
-            .filter(section => {
-              return section.label !== 'Unlabeled'
-            })
-            .map(section => {
-              return (
-                <div className="App-Sidebar-Item">
-                  <div className="App-Sidebar-Item-Title">{section.label}</div>
-                  <div className="App-Sidebar-Item-Count">
-                    {section.images.length.toLocaleString()}
-                  </div>
-                </div>
-              )
-            })}
-        </div>
+        <Sidebar collection={this.state.collection} createLabel={this.createLabel} />
         <div
           className={`App-Parent ${
             this.state.selection &&
@@ -469,29 +346,11 @@ class App extends Component {
               : ''
           }`}
         >
-          {this.state.collection.map(section => {
-            return (
-              <div>
-                <div className="App-Section-Title">
-                  <div className="App-Section-Span">{section.label}</div>
-                </div>
-                <div className="App-ImageGrid">
-                  {section.images.map((image, i) => {
-                    return (
-                      <GridIcon
-                        image={image}
-                        index={i}
-                        selected={this.state.selection[i]}
-                        onItemSelected={this.gridItemSelected}
-                      />
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })}
-
-          <div className="App-ImageGrid-Gap" />
+          <ImageGrid
+            collection={this.state.collection}
+            selection={this.state.selection}
+            gridItemSelected={this.gridItemSelected}
+          />
         </div>
       </div>
     )
