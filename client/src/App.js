@@ -11,6 +11,7 @@ class App extends Component {
     this.state = {
       sections: ['Unlabeled'],
       collection: [{ label: 'Unlabeled', images: [] }],
+      collectionV2: { Unlabeled: {} },
       selection: [],
       lastSelected: null // This does not include shift clicks.
     }
