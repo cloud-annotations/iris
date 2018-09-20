@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import ImageGrid from './ImageGrid'
 import Sidebar from './Sidebar'
+import SelectionBar from './SelectionBar'
 import './App.css'
 
 class App extends Component {
@@ -150,7 +151,7 @@ class App extends Component {
     }))
   }
 
-  createLabel = (labelName) => {
+  createLabel = labelName => {
     // We also need insert this into the json of our object storage
     const newCollection = [
       ...this.state.collection,
@@ -311,33 +312,18 @@ class App extends Component {
             </div>
           </div>
         </div>
-        <div
-          className={`App-SelectionBar ${
-            this.state.selection &&
-            this.state.selection.filter(item => item).length > 0
-              ? 'App-SelectionBar--Active'
-              : ''
-          }`}
-        >
-          <div className="App-SelectionBar-Count">
-            {this.state.selection &&
-              this.state.selection.filter(item => item).length}{' '}
-            selected
-          </div>
-          <div className="App-SelectionBar-DropDown">
-            Label{' '}
-            <svg class="dropdown-icon" width="10" height="5" viewBox="0 0 10 5">
-              <path d="M0 0l5 4.998L10 0z" />
-            </svg>
-          </div>
-          <div>Delete</div>
-          <div className="App-SelectionBar-Close" onClick={this.deselectAll}>
-            <svg class="close-icon" width="20" height="20" viewBox="0 0 20 20">
-              <path d="M10 9.293l4.146-4.147.708.708L10.707 10l4.147 4.146-.708.708L10 10.707l-4.146 4.147-.708-.708L9.293 10 5.146 5.854l.708-.708L10 9.293z" />
-            </svg>
-          </div>
-        </div>
-        <Sidebar collection={this.state.collection} createLabel={this.createLabel} />
+        <SelectionBar
+          selectionCount={
+            this.state.selection
+              ? this.state.selection.filter(item => item).length
+              : 0
+          }
+          deselectAll={this.deselectAll}
+        />
+        <Sidebar
+          collection={this.state.collection}
+          createLabel={this.createLabel}
+        />
         <div
           className={`App-Parent ${
             this.state.selection &&

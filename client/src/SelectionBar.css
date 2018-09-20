@@ -1,0 +1,51 @@
+.SelectionBar {
+  position: fixed;
+  top: 150px;
+  left: 209px;
+  right: 0px;
+  height: 50px;
+  background-color: #4071b0;
+  align-items: center;
+  display: none;
+
+  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.SelectionBar.--Active {
+  display: flex;
+}
+
+.SelectionBar-count {
+  line-height: 20px;
+  width: 160px;
+  margin-left: 18px;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.SelectionBar-close-IconWrapper {
+  margin-right: 18px;
+  margin-left: auto;
+  display: flex;
+}
+
+.SelectionBar-close-Icon {
+  align-self: center;
+  height: 30px;
+  width: 30px;
+  fill: #ffffff;
+}
+
+.SelectionBar-DropDown {
+  margin-left: 24px;
+  display: flex;
+  margin-right: 41px;
+}
+
+.SelectionBar-dropdown-Icon {
+  align-self: center;
+  margin-left: 8px;
+  fill: #ffffff;
+}

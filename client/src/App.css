@@ -128,64 +128,9 @@ input[type=file] {
   border-bottom: 1px solid #dfe3e6;
 }
 
-.App-SelectionBar {
-  position: fixed;
-  top: 150px;
-  left: 209px;
-  right: 0px;
-  height: 50px;
-  background-color: #4071b0;
-  align-items: center;
-  display: none;
-
-  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
-  font-size: 14px;
-  font-weight: 500;
-  color: #ffffff;
-}
-
 .App-Parent--Active {
   top: 200px;
   transition: all 250ms ease;
-}
-
-.App-SelectionBar--Active {
-  display: flex;
-}
-
-.App-SelectionBar-Count {
-  line-height: 20px;
-  width: 160px;
-  margin-left: 18px;
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.App-SelectionBar-Close {
-  margin-right: 18px;
-  display: flex;
-}
-
-.close-icon {
-  align-self: center;
-  height: 30px;
-  width: 30px;
-  fill: #ffffff;
-}
-
-.App-SelectionBar-DropDown {
-  margin-left: 24px;
-  display: flex;
-  margin-right: 41px;
-}
-
-.dropdown-icon {
-  align-self: center;
-  margin-left: 8px;
-  fill: #ffffff;
-}
-
-.App-SelectionBar-Close {
-  margin-left: auto;
 }
 
 .App-LowBar-Grid {
