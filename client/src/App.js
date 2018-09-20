@@ -270,6 +270,10 @@ class App extends Component {
   }
 
   render() {
+    const selectionCount = this.state.selection
+      ? this.state.selection.filter(item => item).length
+      : 0
+
     return (
       <div>
         <div className="App-TopBar">
@@ -303,9 +307,7 @@ class App extends Component {
         <div className="App-LowBar">
           <div className="App-LowBar-Grid">
             <div className="App-LowBar-Tabs">
-              <div className="App-LowBar-Tab App-LowBar-Tab--Active">
-                Images
-              </div>
+              <div className="App-LowBar-Tab --Active">Images</div>
               <div className="App-LowBar-Tab">Train</div>
               <div className="App-LowBar-Tab">Evaluate</div>
               <div className="App-LowBar-Tab">Predict</div>
@@ -313,25 +315,14 @@ class App extends Component {
           </div>
         </div>
         <SelectionBar
-          selectionCount={
-            this.state.selection
-              ? this.state.selection.filter(item => item).length
-              : 0
-          }
+          selectionCount={selectionCount}
           deselectAll={this.deselectAll}
         />
         <Sidebar
           collection={this.state.collection}
           createLabel={this.createLabel}
         />
-        <div
-          className={`App-Parent ${
-            this.state.selection &&
-            this.state.selection.filter(item => item).length > 0
-              ? 'App-Parent--Active'
-              : ''
-          }`}
-        >
+        <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
           <ImageGrid
             collection={this.state.collection}
             selection={this.state.selection}

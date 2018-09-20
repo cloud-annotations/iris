@@ -17,7 +17,7 @@
   position: relative;
 }
 
-.Sidebar-Item, .Sidebar-Item--Active {
+.Sidebar-Item {
   display: flex;
 
   font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
@@ -31,7 +31,7 @@
   border-left: 4px solid transparent;
 }
 
-.Sidebar-Item--Active {
+.Sidebar-Item.--Active {
   color: #3d70b2;
   font-weight: 700;
   border-left: 4px solid #3d70b2;

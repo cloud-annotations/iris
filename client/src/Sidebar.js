@@ -44,7 +44,7 @@ class Sidebar extends Component {
     return (
       <div className="Sidebar">
         <div className="Sidebar-Fixed-Items">
-          <div className="Sidebar-Item--Active">
+          <div className="Sidebar-Item --Active">
             <div className="Sidebar-itemTitle">All images</div>
             <div className="Sidebar-itemCount">
               {collection
