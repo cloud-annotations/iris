@@ -360,6 +360,10 @@ input[type=file] {
   border: 2px solid #3d70b2;
 }
 
+.App-Sidebar-Add-Label-Button--Hidden {
+  display: none;
+}
+
 .App-Sidebar-Add-Label-Button:hover {
   background-color: #3d70b2;
   color: #ffffff;
@@ -401,10 +405,10 @@ input[type=file] {
   position: absolute;
   right: 0px;
   top: 0px;
+  /* height: 0;
+  width: 0; */
 
-  padding-left: 15px;
-  padding-right: 15px;
-  padding-top: 16px;
+  padding: 16px 15px 0px 15px;
 }
 
 .App-Sidebar-Add-Label-Field::placeholder {

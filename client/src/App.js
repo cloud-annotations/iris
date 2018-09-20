@@ -130,13 +130,21 @@ class App extends Component {
   }
 
   createLabel = () => {
-    const newSections = [...this.state.sections, 'Cars']
-    const collection = this.generateCollection(newSections)
+    // We also need insert this into the json of our object storage
+    const newCollection = [
+      ...this.state.collection,
+      {
+        label: this.labelNameInput.value,
+        images: []
+      }
+    ]
+
     this.setState({
-      sections: newSections,
-      collection: collection,
-      addingLabels: false
+      collection: newCollection
+      // addingLabels: false // This can get annoying if we want to add all the labels at once.
     })
+    // We need to still clear it.
+    this.labelNameInput.value = ''
   }
 
   handleKeyPress = e => {
