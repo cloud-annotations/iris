@@ -211,83 +211,108 @@ class App extends Component {
 
   onFileChosen = e => {
     const fileList = this.getDataTransferItems(e)
+    const filesWithNames = fileList.map(file => {
+      const randomName =
+        Math.random()
+          .toString(36)
+          .substring(2, 15) +
+        Math.random()
+          .toString(36)
+          .substring(2, 15)
+      return { file: file, fileName: randomName }
+    })
 
     this.setState(prevState => {
-      const blankImages = Array(fileList.length).fill(EMPTY_IMAGE)
-      const newCollection = prevState.collection.map(item => {
-        if (item.label === 'Unlabeled') {
-          const newImages = [...blankImages, ...item.images]
-          item.images = newImages
-          return item
-        }
-        return item
-      })
+      const newCollection = { ...prevState.collection }
+      const newImageCluster = { ...prevState.imageCluster }
+
+      newCollection['Unlabeled'] = filesWithNames.reduce(
+        (acc, fileWithName) => {
+          newImageCluster[fileWithName.fileName] = { data: EMPTY_IMAGE }
+          return [fileWithName.fileName, ...acc]
+        },
+        newCollection['Unlabeled']
+      )
+
+      const newSelection = Object.keys(newCollection).reduce((acc, key) => {
+        return [...acc, ...newCollection[key].map(() => false)]
+      }, [])
+
       return {
         collection: newCollection,
-        selection: [
-          ...Array(fileList.length).fill(false),
-          ...prevState.selection.map(() => false)
-        ], // This might not be the most effective.
+        imageCluster: newImageCluster,
+        selection: newSelection,
         lastSelected: null
       }
     })
 
-    fileList.map((file, index) => {
-      var reader = new FileReader()
-      reader.onload = () => {
-        var img = new Image()
-        img.onload = () => {
-          const c = window.document.createElement('canvas')
-          const ctx = c.getContext('2d')
-          c.width = 224
-          c.height = 224
-          ctx.drawImage(img, 0, 0, 224, 224)
-          console.log(c.toDataURL('image/jpeg'))
-
-          const dataURL = c.toDataURL('image/jpeg')
+    filesWithNames.map(fileWithName => {
+      const fileName = fileWithName.fileName
+      const file = fileWithName.file
+      this.readFile(file)
+        .then(image => this.shrinkImage(image))
+        .then(canvas => {
+          const dataURL = canvas.toDataURL('image/jpeg')
 
           this.setState(prevState => {
-            const newCollection = prevState.collection.map(item => {
-              if (item.label === 'Unlabeled') {
-                const newImages = item.images
-                newImages[index] = dataURL
-                item.images = newImages
-                return item
-              }
-              return item
-            })
-            return { collection: newCollection }
+            const newImageCluster = { ...prevState.imageCluster }
+            newImageCluster[fileName] = { data: dataURL }
+            return { imageCluster: newImageCluster }
           })
 
-          c.toBlob(result => {
-            console.log(result)
-            const randomName =
-              Math.random()
-                .toString(36)
-                .substring(2, 15) +
-              Math.random()
-                .toString(36)
-                .substring(2, 15)
-            console.log(randomName)
-            const url = `api/upload/my-first-project/${randomName}.JPG`
-            const options = {
-              method: 'PUT',
-              body: result
-            }
-            const request = new Request(url)
-            fetch(request, options)
-              .then(response => {})
-              .catch(error => {
-                console.error(error)
-              })
-          }, 'image/jpeg')
-        }
-        img.src = reader.result
-      }
-
-      reader.readAsDataURL(file)
+          return this.canvasToBlob(canvas)
+        })
+        .then(blob => {
+          const url = `api/upload/my-first-project/${fileName}.JPG`
+          const options = {
+            method: 'PUT',
+            body: blob
+          }
+          const request = new Request(url)
+          return fetch(request, options)
+        })
+        .then(response => {
+          console.log(response)
+        })
+        .catch(error => {
+          console.error(error)
+        })
     })
     console.log(fileList)
+  }
+
+  readFile = file => {
+    return new Promise((resolve, reject) => {
+      var reader = new FileReader()
+      reader.onload = () => {
+        resolve(reader.result)
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  shrinkImage = imageSrc => {
+    return new Promise((resolve, reject) => {
+      var img = new Image()
+      img.onload = () => {
+        const c = window.document.createElement('canvas')
+        const ctx = c.getContext('2d')
+        c.width = 224
+        c.height = 224
+        ctx.drawImage(img, 0, 0, 224, 224)
+
+        resolve(c)
+      }
+      img.src = imageSrc
+    })
+  }
+
+  canvasToBlob = canvas => {
+    return new Promise((resolve, reject) => {
+      canvas.toBlob(result => {
+        resolve(result)
+      }, 'image/jpeg')
+    })
   }
 
   render() {
