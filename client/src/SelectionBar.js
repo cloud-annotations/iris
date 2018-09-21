@@ -3,7 +3,7 @@ import './SelectionBar.css'
 
 class SelectionBar extends Component {
   render() {
-    const { selectionCount, deselectAll, ...other } = this.props
+    const { selectionCount, deleteImages, deselectAll, ...other } = this.props
     return (
       <div className={`SelectionBar ${selectionCount > 0 ? '--Active' : ''}`}>
         <div className="SelectionBar-count">{`${selectionCount} selected`}</div>
@@ -18,7 +18,7 @@ class SelectionBar extends Component {
             <path d="M0 0l5 4.998L10 0z" />
           </svg>
         </div>
-        <div>Delete</div>
+        <div onClick={deleteImages}>Delete</div>
         <div
           className="SelectionBar-close-IconWrapper"
           onClick={deselectAll}

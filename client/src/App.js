@@ -153,7 +153,9 @@ class App extends Component {
       const newSelection = prevState.selection
       let lastSelected = this.state.lastSelected
       if (shiftPressed && lastSelected !== null) {
-        const sortedSelect = [lastSelected, index].sort()
+        // The default sort for arrays in Javascript is an alphabetical search.
+        const sortedSelect = [lastSelected, index].sort((a, b) => a - b)
+
         for (let i = sortedSelect[0]; i <= sortedSelect[1]; i++) {
           newSelection[i] = prevState.selection[lastSelected]
         }
@@ -176,6 +178,31 @@ class App extends Component {
       selection: prevState.selection.map(() => false),
       lastSelected: null
     }))
+  }
+
+  deleteImages = () => {
+    const newCollection = { ...this.state.collection }
+    const flattenedImages = this.state.labelList.reduce((acc, label) => {
+      return [...acc, ...newCollection[label]]
+    }, [])
+
+    console.log(flattenedImages)
+    flattenedImages.map((imageName, i) => {
+      if (this.state.selection[i]) {
+        const url = `api/delete/my-first-project/${imageName}`
+        const options = {
+          method: 'DELETE'
+        }
+        const request = new Request(url)
+        fetch(request, options)
+          .then(response => {
+            console.log(response)
+          })
+          .catch(error => {
+            console.error(error)
+          })
+      }
+    })
   }
 
   createLabel = labelName => {
@@ -363,6 +390,7 @@ class App extends Component {
         <SelectionBar
           selectionCount={selectionCount}
           deselectAll={this.deselectAll}
+          deleteImages={this.deleteImages}
         />
         <Sidebar
           sections={this.state.labelList}

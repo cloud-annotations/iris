@@ -119,6 +119,36 @@ app.put('/api/upload/:bucket/:object', function(req, res) {
     })
 })
 
+app.delete('/api/delete/:bucket/:object', function(req, res) {
+  request
+    .post('https://iam.bluemix.net/oidc/token')
+    .query({
+      apikey: 'sXN1216NkUnHjTlaQ8Vomkx4eeiF0f4xlq1s7WQnCAJr',
+      response_type: 'cloud_iam',
+      grant_type: 'urn:ibm:params:oauth:grant-type:apikey'
+    })
+    .then(respose => {
+      const token = respose.body.access_token
+      var url = `https://s3-api.us-geo.objectstorage.softlayer.net/${
+        req.params.bucket
+      }/${req.params.object}`
+      console.log(url)
+      req
+        .pipe(
+          requests.delete({
+            url: url,
+            headers: {
+              Authorization: 'bearer ' + token
+            }
+          })
+        )
+        .pipe(res)
+    })
+    .catch(err => {
+      console.error(err)
+    })
+})
+
 if (process.env.NODE_ENV === 'production') {
   app.get('/', function(req, res) {
     res.sendFile(path.join(__dirname, 'client/build', 'index.html'))
