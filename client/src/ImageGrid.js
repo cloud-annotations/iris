@@ -4,22 +4,29 @@ import './ImageGrid.css'
 
 class ImageGrid extends Component {
   render() {
-    const { collection, selection, gridItemSelected, ...other } = this.props
+    const {
+      sections,
+      selection,
+      collection,
+      images,
+      gridItemSelected,
+      ...other
+    } = this.props
     return (
       <div>
-        {collection.map(section => {
+        {sections.map((section, i) => {
           return (
             <div>
               <div className="ImageGrid-Section-Title">
-                <div className="ImageGrid-Section-Span">{section.label}</div>
+                <div className="ImageGrid-Section-Span">{section}</div>
               </div>
               <div className="ImageGrid">
-                {section.images.map((image, i) => {
+                {collection[section].map((imagePointer, j) => {
                   return (
                     <GridIcon
-                      image={image}
-                      index={i}
-                      selected={selection[i]}
+                      imageData={images[imagePointer].data}
+                      index={(i + 1) * j}
+                      selected={selection[(i + 1) * j]}
                       onItemSelected={gridItemSelected}
                     />
                   )

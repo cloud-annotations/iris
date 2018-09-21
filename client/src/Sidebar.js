@@ -40,16 +40,16 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { collection, ...other } = this.props
+    const { sections, collection, ...other } = this.props
     return (
       <div className="Sidebar">
         <div className="Sidebar-Fixed-Items">
           <div className="Sidebar-Item --Active">
             <div className="Sidebar-itemTitle">All images</div>
             <div className="Sidebar-itemCount">
-              {collection
-                .reduce((accumulator, section) => {
-                  return accumulator + section.images.length
+              {sections
+                .reduce((acc, label) => {
+                  return acc + collection[label].length
                 }, 0)
                 .toLocaleString()}
             </div>
@@ -57,12 +57,12 @@ class Sidebar extends Component {
           <div className="Sidebar-Item">
             <div className="Sidebar-itemTitle">Labeled</div>
             <div className="Sidebar-itemCount">
-              {collection
-                .reduce((accumulator, section) => {
-                  if (section.label !== 'Unlabeled') {
-                    return accumulator + section.images.length
+              {sections
+                .reduce((acc, label) => {
+                  if (label !== 'Unlabeled') {
+                    return acc + collection[label].length
                   }
-                  return accumulator
+                  return acc
                 }, 0)
                 .toLocaleString()}
             </div>
@@ -70,12 +70,12 @@ class Sidebar extends Component {
           <div className="Sidebar-Item">
             <div className="Sidebar-itemTitle">Unlabeled</div>
             <div className="Sidebar-itemCount">
-              {collection
-                .reduce((accumulator, section) => {
-                  if (section.label === 'Unlabeled') {
-                    return accumulator + section.images.length
+              {sections
+                .reduce((acc, label) => {
+                  if (label === 'Unlabeled') {
+                    return acc + collection[label].length
                   }
-                  return accumulator
+                  return acc
                 }, 0)
                 .toLocaleString()}
             </div>
@@ -127,16 +127,16 @@ class Sidebar extends Component {
           </div>
         </div>
 
-        {collection
-          .filter(section => {
-            return section.label !== 'Unlabeled'
+        {sections
+          .filter(label => {
+            return label !== 'Unlabeled'
           })
-          .map(section => {
+          .map(label => {
             return (
               <div className="Sidebar-Item">
-                <div className="Sidebar-itemTitle">{section.label}</div>
+                <div className="Sidebar-itemTitle">{label}</div>
                 <div className="Sidebar-itemCount">
-                  {section.images.length.toLocaleString()}
+                  {collection[label].length.toLocaleString()}
                 </div>
               </div>
             )

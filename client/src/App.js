@@ -4,14 +4,40 @@ import Sidebar from './Sidebar'
 import SelectionBar from './SelectionBar'
 import './App.css'
 
+const EMPTY_IMAGE =
+  'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+
+/**
+  // This let's us loop through the collection easily.
+  LabelList = [Label, Label, ...]
+
+  Collection = {
+    Label: [PointerToImage, PointerToImage, ...]
+    Label: [PointerToImage, PointerToImage, ...]
+    Label: [PointerToImage, PointerToImage, ...]
+    Label: [PointerToImage, PointerToImage, ...]
+    Label: [PointerToImage, PointerToImage, ...]
+  }
+
+  // We could turn this into some sort of cache.
+  ImageCluster = {
+    ImagePointer: {
+      data: Base64String
+    },
+    ImagePointer: {
+      data: Base64String
+    }
+  }
+*/
+
 class App extends Component {
   constructor(props) {
     super(props)
     this.calculateCollectionSize()
     this.state = {
-      sections: ['Unlabeled'],
-      collection: [{ label: 'Unlabeled', images: [] }],
-      collectionV2: { Unlabeled: {} },
+      labelList: ['Unlabeled'],
+      collection: { Unlabeled: [] },
+      imageCluster: {},
       selection: [],
       lastSelected: null // This does not include shift clicks.
     }
@@ -55,14 +81,23 @@ class App extends Component {
       .then(str => new window.DOMParser().parseFromString(str.xml, 'text/xml'))
       .then(data => {
         const elements = data.getElementsByTagName('Contents')
-        const imageList = Array.prototype.map.call(elements, element => {
-          return element.getElementsByTagName('Key')[0].innerHTML
-        })
-        console.log(imageList)
+        const imageList = Array.prototype.map
+          .call(elements, element => {
+            return element.getElementsByTagName('Key')[0].innerHTML
+          })
+          .filter(fileName => {
+            return fileName.match(/.(jpg|jpeg|png)$/i) // Make sure the extension is an image.
+          })
+
+        const imageCluster = imageList.reduce((acc, item) => {
+          acc[item] = { data: EMPTY_IMAGE }
+          return acc
+        }, {})
+        console.log(imageCluster)
 
         this.setState(
           {
-            imageList: imageList,
+            imageCluster: imageCluster,
             selection: imageList.map(() => false)
           },
           this.generateCollection
@@ -74,7 +109,9 @@ class App extends Component {
   }
 
   generateCollection = () => {
-    this.state.imageList.map((imageUrl, i) => {
+    // We don't care about the order, we just need to download all the images.
+    // The `Keys` of the image cluster are the urls.
+    Object.keys(this.state.imageCluster).map(imageUrl => {
       const url = `api/image/${imageUrl}`
       const options = {
         method: 'GET'
@@ -83,21 +120,12 @@ class App extends Component {
       fetch(request, options)
         .then(response => {
           response.arrayBuffer().then(buffer => {
-            const base64Flag = 'data:image/jpeg;base64,'
-            const imageStr = this.arrayBufferToBase64(buffer)
-
-            const newCollection = this.state.collection.map(item => {
-              if (item.label === 'Unlabeled') {
-                const newImages = item.images
-                newImages[i] = base64Flag + imageStr // This will cause an issue, we can't assume the array will be full
-                item.images = newImages
-                return item
-              }
-              return item
-            })
-
-            this.setState({
-              collection: newCollection
+            this.setState(prevState => {
+              const base64Flag = 'data:image/jpeg;base64,'
+              const imageStr = this.arrayBufferToBase64(buffer)
+              const newCluster = { ...prevState.imageCluster }
+              newCluster[imageUrl] = { data: base64Flag + imageStr }
+              return { imageCluster: newCluster }
             })
           })
         })
@@ -106,18 +134,16 @@ class App extends Component {
         })
     })
 
-    const collection = this.state.sections.map(title => {
-      const imageCount = this.state.imageList.length
+    this.setState(prevState => {
+      const newCollection = {}
+      newCollection['Unlabeled'] = Object.keys(prevState.imageCluster).map(
+        imageUrl => {
+          return imageUrl
+        }
+      )
       return {
-        label: title,
-        images: Array(imageCount).fill(
-          'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
-        )
+        collection: newCollection
       }
-    })
-
-    this.setState({
-      collection: collection
     })
   }
 
@@ -154,16 +180,12 @@ class App extends Component {
 
   createLabel = labelName => {
     // We also need insert this into the json of our object storage
-    const newCollection = [
-      ...this.state.collection,
-      {
-        label: labelName,
-        images: []
-      }
-    ]
+    const newCollection = this.state.collectionV2
+
+    newCollection[labelName] = {}
 
     this.setState({
-      collection: newCollection
+      collectionV2: newCollection
     })
   }
 
@@ -191,9 +213,7 @@ class App extends Component {
     const fileList = this.getDataTransferItems(e)
 
     this.setState(prevState => {
-      const blankImages = Array(fileList.length).fill(
-        'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
-      )
+      const blankImages = Array(fileList.length).fill(EMPTY_IMAGE)
       const newCollection = prevState.collection.map(item => {
         if (item.label === 'Unlabeled') {
           const newImages = [...blankImages, ...item.images]
@@ -320,12 +340,15 @@ class App extends Component {
           deselectAll={this.deselectAll}
         />
         <Sidebar
+          sections={this.state.labelList}
           collection={this.state.collection}
           createLabel={this.createLabel}
         />
         <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
           <ImageGrid
+            sections={this.state.labelList}
             collection={this.state.collection}
+            images={this.state.imageCluster}
             selection={this.state.selection}
             gridItemSelected={this.gridItemSelected}
           />
