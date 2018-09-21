@@ -179,13 +179,13 @@ class App extends Component {
   }
 
   createLabel = labelName => {
-    // We also need insert this into the json of our object storage
-    const newCollection = this.state.collectionV2
+    this.setState(prevState => {
+      const newCollection = { ...prevState.collection }
+      const newLabelList = [...prevState.labelList, labelName]
 
-    newCollection[labelName] = {}
+      newCollection[labelName] = []
 
-    this.setState({
-      collectionV2: newCollection
+      return { collection: newCollection, labelList: newLabelList }
     })
   }
 
