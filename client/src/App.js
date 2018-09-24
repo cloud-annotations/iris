@@ -33,7 +33,7 @@ const EMPTY_IMAGE =
 class App extends Component {
   constructor(props) {
     super(props)
-    this.calculateCollectionSize()
+    this.initializeData()
     this.state = {
       labelList: ['Unlabeled'],
       collection: { Unlabeled: [] },
@@ -49,6 +49,161 @@ class App extends Component {
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown)
+  }
+
+  initializeData = () => {
+    this.populateLabels()
+      .then(() => this.populateUnlabeled())
+      .then(() => this.loadImages())
+  }
+
+  populateLabels = () => {
+    return new Promise((resolve, reject) => {
+      const url = `api/image/_labels.csv`
+      const options = {
+        method: 'GET'
+      }
+      const request = new Request(url)
+      const labels = fetch(request, options)
+        .then(response => response.text())
+        .catch(error => {
+          console.error(error)
+        })
+
+      const url2 = `api/image/_annotations.csv`
+      const request2 = new Request(url2)
+      const annotations = fetch(request2, options)
+        .then(response => response.text())
+        .catch(error => {
+          console.error(error)
+        })
+
+      Promise.all([labels, annotations]).then(values => {
+        this.setState(prevState => {
+          const labelsCsv = values[0]
+          const annotationsCsv = values[1]
+
+          const labelMap = {}
+          let urls = []
+
+          const newCollection = prevState.collection
+          let newLabelList = prevState.labelList
+
+          const labels = labelsCsv.split('\n')
+          labels.map(label => {
+            // Account for empty lines.
+            if (label === '') {
+              return
+            }
+            const [key, value] = label.split(',')
+            labelMap[key] = value
+            newLabelList = [...newLabelList, value]
+            newCollection[value] = []
+          })
+
+          const annotations = annotationsCsv.split('\n')
+          annotations.map(annotation => {
+            // Account for empty lines.
+            if (annotation === '') {
+              return
+            }
+            const [url, key] = annotation.split(',')
+            newCollection[labelMap[key]] = [
+              url,
+              ...newCollection[labelMap[key]]
+            ]
+            urls = [...urls, url]
+          })
+
+          const imageCluster = urls.reduce((acc, item) => {
+            acc[item] = { data: EMPTY_IMAGE }
+            return acc
+          }, {})
+
+          return {
+            collection: newCollection,
+            labelList: newLabelList,
+            imageCluster: imageCluster
+          }
+        }, resolve)
+      })
+    })
+  }
+
+  populateUnlabeled = () => {
+    return new Promise((resolve, reject) => {
+      const url = 'api/list'
+      const options = {
+        method: 'GET'
+      }
+      const request = new Request(url)
+      fetch(request, options)
+        .then(response => response.json())
+        .then(str =>
+          new window.DOMParser().parseFromString(str.xml, 'text/xml')
+        )
+        .then(data => {
+          const elements = data.getElementsByTagName('Contents')
+          const imageList = Array.prototype.map
+            .call(elements, element => {
+              return element.getElementsByTagName('Key')[0].innerHTML
+            })
+            .filter(fileName => {
+              return fileName.match(/.(jpg|jpeg|png)$/i) // Make sure the extension is an image.
+            })
+
+          this.setState(prevState => {
+            const newCollection = prevState.collection
+
+            const newImageCluster = imageList.reduce((acc, item) => {
+              if (acc[item] == null) {
+                newCollection['Unlabeled'] = [
+                  ...newCollection['Unlabeled'],
+                  item
+                ]
+              }
+              acc[item] = { data: EMPTY_IMAGE }
+              return acc
+            }, prevState.imageCluster)
+            return {
+              imageCluster: newImageCluster,
+              selection: Object.keys(newImageCluster).map(() => false)
+            }
+          }, resolve)
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    })
+  }
+
+  loadImages = () => {
+    // We don't care about the order, we just need to download all the images.
+    // The `Keys` of the image cluster are the urls.
+    Object.keys(this.state.imageCluster).map(imageUrl => {
+      const url = `api/image/${imageUrl}`
+      const options = {
+        method: 'GET'
+      }
+      const request = new Request(url)
+      fetch(request, options)
+        .then(response => response.arrayBuffer())
+        .then(buffer => {
+          this.setState(prevState => {
+            const base64Flag = 'data:image/jpeg;base64,'
+            const imageStr = this.arrayBufferToBase64(buffer)
+            const newCluster = { ...prevState.imageCluster }
+            newCluster[imageUrl] = { data: base64Flag + imageStr }
+            return {
+              imageCluster: newCluster,
+              selection: Object.keys(newCluster).map(() => false)
+            }
+          })
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    })
   }
 
   handleKeyDown = event => {
@@ -68,83 +223,6 @@ class App extends Component {
     var bytes = [].slice.call(new Uint8Array(buffer))
     bytes.forEach(b => (binary += String.fromCharCode(b)))
     return window.btoa(binary)
-  }
-
-  calculateCollectionSize = () => {
-    const url = 'api/list'
-    const options = {
-      method: 'GET'
-    }
-    const request = new Request(url)
-    fetch(request, options)
-      .then(response => response.json())
-      .then(str => new window.DOMParser().parseFromString(str.xml, 'text/xml'))
-      .then(data => {
-        const elements = data.getElementsByTagName('Contents')
-        const imageList = Array.prototype.map
-          .call(elements, element => {
-            return element.getElementsByTagName('Key')[0].innerHTML
-          })
-          .filter(fileName => {
-            return fileName.match(/.(jpg|jpeg|png)$/i) // Make sure the extension is an image.
-          })
-
-        const imageCluster = imageList.reduce((acc, item) => {
-          acc[item] = { data: EMPTY_IMAGE }
-          return acc
-        }, {})
-        console.log(imageCluster)
-
-        this.setState(
-          {
-            imageCluster: imageCluster,
-            selection: imageList.map(() => false)
-          },
-          this.generateCollection
-        )
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }
-
-  generateCollection = () => {
-    // We don't care about the order, we just need to download all the images.
-    // The `Keys` of the image cluster are the urls.
-    Object.keys(this.state.imageCluster).map(imageUrl => {
-      const url = `api/image/${imageUrl}`
-      const options = {
-        method: 'GET'
-      }
-      const request = new Request(url)
-      fetch(request, options)
-        .then(response => {
-          response.arrayBuffer().then(buffer => {
-            this.setState(prevState => {
-              const base64Flag = 'data:image/jpeg;base64,'
-              const imageStr = this.arrayBufferToBase64(buffer)
-              const newCluster = { ...prevState.imageCluster }
-              newCluster[imageUrl] = { data: base64Flag + imageStr }
-              return { imageCluster: newCluster }
-            })
-          })
-        })
-        .catch(error => {
-          console.error(error)
-        })
-    })
-
-    this.setState(prevState => {
-      const newCollection = {}
-      newCollection['Unlabeled'] = Object.keys(prevState.imageCluster).map(
-        imageUrl => {
-          return imageUrl
-        }
-      )
-      return {
-        collection: newCollection
-      }
-    })
   }
 
   gridItemSelected = (e, index) => {
@@ -352,7 +430,7 @@ class App extends Component {
     return (
       <div>
         <div className="App-TopBar">
-          <div className="App-TopBar-Title">Annotations</div>
+          <div className="App-TopBar-Title">Annotate ML</div>
           <div className="App-TopBar-BreadCrumb">
             &nbsp;/&nbsp;
             <a href="#TODO" className="App-TopBar-ServiceID">

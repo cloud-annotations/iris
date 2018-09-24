@@ -12,6 +12,7 @@ class ImageGrid extends Component {
       gridItemSelected,
       ...other
     } = this.props
+    var index = 0
     return (
       <div>
         {sections.map((section, i) => {
@@ -22,11 +23,12 @@ class ImageGrid extends Component {
               </div>
               <div className="ImageGrid">
                 {collection[section].map((imagePointer, j) => {
+                  index++
                   return (
                     <GridIcon
                       imageData={images[imagePointer].data}
-                      index={(i + 1) * j}
-                      selected={selection[(i + 1) * j]}
+                      index={index}
+                      selected={selection[index]}
                       onItemSelected={gridItemSelected}
                     />
                   )
