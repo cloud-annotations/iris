@@ -181,6 +181,8 @@ class App extends Component {
   }
 
   deleteImages = () => {
+    this.setState(prevState => ({}))
+
     const newCollection = { ...this.state.collection }
     const flattenedImages = this.state.labelList.reduce((acc, label) => {
       return [...acc, ...newCollection[label]]
@@ -350,11 +352,11 @@ class App extends Component {
     return (
       <div>
         <div className="App-TopBar">
-          <div className="App-TopBar-Title">Visual Recognition Tool</div>
+          <div className="App-TopBar-Title">Annotations</div>
           <div className="App-TopBar-BreadCrumb">
             &nbsp;/&nbsp;
             <a href="#TODO" className="App-TopBar-ServiceID">
-              Visual Recognition-r0
+              cloud-object-storage-qf
             </a>
           </div>
         </div>
@@ -375,16 +377,6 @@ class App extends Component {
               <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
             </svg>Add Images
             <input type="file" onChange={this.onFileChosen} multiple />
-          </div>
-        </div>
-        <div className="App-LowBar">
-          <div className="App-LowBar-Grid">
-            <div className="App-LowBar-Tabs">
-              <div className="App-LowBar-Tab --Active">Images</div>
-              <div className="App-LowBar-Tab">Train</div>
-              <div className="App-LowBar-Tab">Evaluate</div>
-              <div className="App-LowBar-Tab">Predict</div>
-            </div>
           </div>
         </div>
         <SelectionBar
