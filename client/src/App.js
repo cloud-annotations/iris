@@ -195,8 +195,7 @@ class App extends Component {
             const newCluster = { ...prevState.imageCluster }
             newCluster[imageUrl] = { data: base64Flag + imageStr }
             return {
-              imageCluster: newCluster,
-              selection: Object.keys(newCluster).map(() => false)
+              imageCluster: newCluster
             }
           })
         })
