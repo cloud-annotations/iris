@@ -257,9 +257,35 @@ class App extends Component {
     }))
   }
 
-  deleteImages = () => {
-    this.setState(prevState => ({}))
+  labelImages = () => {
+    console.log('LABEL')
+    this.setState(prevState => {
+      let newCollection = { ...prevState.collection }
+      
+      let count = 0
+      prevState.labelList.map(label => {
+        const section = [...newCollection[label]]
+        // copy everything to the new label and filter the section to remove the copied elements.
+        const newSection = section.filter((imageName, i) => {
+          if (prevState.selection[i + count]) {
+            const oldList = newCollection[label]
+            newCollection['Boats'] = [...newCollection['Boats'], oldList[i]]
+            return false
+          }
+          return true
+        })
 
+        newCollection[label] = newSection
+        count += section.length
+      })
+
+      return {
+        collection: newCollection
+      }
+    })
+  }
+
+  deleteImages = () => {
     const newCollection = { ...this.state.collection }
     const flattenedImages = this.state.labelList.reduce((acc, label) => {
       return [...acc, ...newCollection[label]]
@@ -459,6 +485,7 @@ class App extends Component {
         <SelectionBar
           selectionCount={selectionCount}
           deselectAll={this.deselectAll}
+          labelImages={this.labelImages}
           deleteImages={this.deleteImages}
         />
         <Sidebar

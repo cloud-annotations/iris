@@ -23,8 +23,7 @@ class ImageGrid extends Component {
               </div>
               <div className="ImageGrid">
                 {collection[section].map((imagePointer, j) => {
-                  index++
-                  return (
+                  const gridIcon = (
                     <GridIcon
                       imageData={images[imagePointer].data}
                       index={index}
@@ -32,6 +31,8 @@ class ImageGrid extends Component {
                       onItemSelected={gridItemSelected}
                     />
                   )
+                  index++
+                  return gridIcon
                 })}
               </div>
               <div className="ImageGrid-Gap" />

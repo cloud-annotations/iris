@@ -3,11 +3,17 @@ import './SelectionBar.css'
 
 class SelectionBar extends Component {
   render() {
-    const { selectionCount, deleteImages, deselectAll, ...other } = this.props
+    const {
+      selectionCount,
+      labelImages,
+      deleteImages,
+      deselectAll,
+      ...other
+    } = this.props
     return (
       <div className={`SelectionBar ${selectionCount > 0 ? '--Active' : ''}`}>
         <div className="SelectionBar-count">{`${selectionCount} selected`}</div>
-        <div className="SelectionBar-DropDown">
+        <div className="SelectionBar-DropDown" onClick={labelImages}>
           Label{' '}
           <svg
             className="SelectionBar-dropdown-Icon"
@@ -19,10 +25,7 @@ class SelectionBar extends Component {
           </svg>
         </div>
         <div onClick={deleteImages}>Delete</div>
-        <div
-          className="SelectionBar-close-IconWrapper"
-          onClick={deselectAll}
-        >
+        <div className="SelectionBar-close-IconWrapper" onClick={deselectAll}>
           <svg
             className="SelectionBar-close-Icon"
             width="20"
