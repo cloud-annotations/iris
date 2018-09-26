@@ -68,22 +68,24 @@ class App extends Component {
 
   initializeData = () => {
     const cookie = getCookie('token')
-    if (cookie != '') {
-      this.populateLabels()
-        .then(() => this.populateUnlabeled())
-        .then(() => this.loadImages())
-    } else {
+    let emptyPromises = new Promise((resolve, reject) => {
+      resolve()
+    })
+
+    if (cookie === '') {
       const apiKey = prompt('apikey')
       const url = 'api/auth?apikey=' + apiKey
       const options = {
         method: 'GET'
       }
       const request = new Request(url)
-      fetch(request, options)
-        .then(() => this.populateLabels())
-        .then(() => this.populateUnlabeled())
-        .then(() => this.loadImages())
+      emptyPromises = fetch(request, options)
     }
+
+    emptyPromises
+      .then(() => this.populateLabels())
+      .then(() => this.populateUnlabeled())
+      .then(() => this.loadImages())
   }
 
   populateLabels = () => {
