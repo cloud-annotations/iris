@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import ImageGrid from './ImageGrid'
-import Sidebar from './Sidebar'
+import Sidebar, { ALL_IMAGES } from './Sidebar'
 import SelectionBar from './SelectionBar'
 import './App.css'
 
@@ -53,6 +53,7 @@ class App extends Component {
       labelList: ['Unlabeled'],
       collection: { Unlabeled: [] },
       imageCluster: {},
+      currentSection: ALL_IMAGES,
       selection: [],
       lastSelected: null // This does not include shift clicks.
     }
@@ -367,6 +368,12 @@ class App extends Component {
     })
   }
 
+  chooseSection = label => {
+    this.setState({
+      currentSection: label
+    })
+  }
+
   getDataTransferItems = event => {
     let dataTransferItemsList = []
     if (event.dataTransfer) {
@@ -536,6 +543,8 @@ class App extends Component {
           deleteImages={this.deleteImages}
         />
         <Sidebar
+          currentSection={this.state.currentSection}
+          chooseSection={this.chooseSection}
           sections={this.state.labelList}
           collection={this.state.collection}
           createLabel={this.createLabel}

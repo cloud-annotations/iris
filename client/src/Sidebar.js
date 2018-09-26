@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
 import './Sidebar.css'
 
+export const ALL_IMAGES = 'all'
+export const LABELED = 'labeled'
+export const UNLABELED = 'unlabeled'
+
 class Sidebar extends Component {
   state = {
     addingLabels: false
@@ -27,9 +31,7 @@ class Sidebar extends Component {
     if (labelName === '') {
       return
     }
-
     this.props.createLabel(labelName)
-
     this.labelNameInput.value = ''
   }
 
@@ -40,11 +42,24 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { sections, collection, ...other } = this.props
+    const {
+      sections,
+      chooseSection,
+      collection,
+      currentSection,
+      ...other
+    } = this.props
     return (
       <div className="Sidebar">
         <div className="Sidebar-Fixed-Items">
-          <div className="Sidebar-Item --Active">
+          <div
+            className={`Sidebar-Item ${
+              currentSection === ALL_IMAGES ? '--Active' : ''
+            }`}
+            onClick={() => {
+              chooseSection(ALL_IMAGES)
+            }}
+          >
             <div className="Sidebar-itemTitle">All images</div>
             <div className="Sidebar-itemCount">
               {sections
@@ -54,7 +69,14 @@ class Sidebar extends Component {
                 .toLocaleString()}
             </div>
           </div>
-          <div className="Sidebar-Item">
+          <div
+            className={`Sidebar-Item ${
+              currentSection === LABELED ? '--Active' : ''
+            }`}
+            onClick={() => {
+              chooseSection(LABELED)
+            }}
+          >
             <div className="Sidebar-itemTitle">Labeled</div>
             <div className="Sidebar-itemCount">
               {sections
@@ -67,7 +89,14 @@ class Sidebar extends Component {
                 .toLocaleString()}
             </div>
           </div>
-          <div className="Sidebar-Item">
+          <div
+            className={`Sidebar-Item ${
+              currentSection === UNLABELED ? '--Active' : ''
+            }`}
+            onClick={() => {
+              chooseSection(UNLABELED)
+            }}
+          >
             <div className="Sidebar-itemTitle">Unlabeled</div>
             <div className="Sidebar-itemCount">
               {sections
@@ -133,7 +162,14 @@ class Sidebar extends Component {
           })
           .map(label => {
             return (
-              <div className="Sidebar-Item">
+              <div
+                className={`Sidebar-Item ${
+                  currentSection === label ? '--Active' : ''
+                }`}
+                onClick={() => {
+                  chooseSection(label)
+                }}
+              >
                 <div className="Sidebar-itemTitle">{label}</div>
                 <div className="Sidebar-itemCount">
                   {collection[label].length.toLocaleString()}
