@@ -4,6 +4,21 @@ import Sidebar from './Sidebar'
 import SelectionBar from './SelectionBar'
 import './App.css'
 
+function getCookie(cname) {
+  var name = cname + '='
+  var ca = document.cookie.split(';')
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i]
+    while (c.charAt(0) == ' ') {
+      c = c.substring(1)
+    }
+    if (c.indexOf(name) == 0) {
+      return c.substring(name.length, c.length)
+    }
+  }
+  return ''
+}
+
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
@@ -52,9 +67,23 @@ class App extends Component {
   }
 
   initializeData = () => {
-    this.populateLabels()
-      .then(() => this.populateUnlabeled())
-      .then(() => this.loadImages())
+    const cookie = getCookie('token')
+    if (cookie != '') {
+      this.populateLabels()
+        .then(() => this.populateUnlabeled())
+        .then(() => this.loadImages())
+    } else {
+      const apiKey = prompt('apikey')
+      const url = 'api/auth?apikey=' + apiKey
+      const options = {
+        method: 'GET'
+      }
+      const request = new Request(url)
+      fetch(request, options)
+        .then(() => this.populateLabels())
+        .then(() => this.populateUnlabeled())
+        .then(() => this.loadImages())
+    }
   }
 
   populateLabels = () => {
@@ -261,7 +290,7 @@ class App extends Component {
     console.log('LABEL')
     this.setState(prevState => {
       let newCollection = { ...prevState.collection }
-      
+
       let count = 0
       prevState.labelList.map(label => {
         const section = [...newCollection[label]]
@@ -484,6 +513,7 @@ class App extends Component {
         </div>
         <SelectionBar
           selectionCount={selectionCount}
+          sections={this.state.labelList}
           deselectAll={this.deselectAll}
           labelImages={this.labelImages}
           deleteImages={this.deleteImages}

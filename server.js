@@ -1,152 +1,108 @@
 const express = require('express')
 const path = require('path')
 const request = require('superagent')
-var requests = require('request')
+const requests = require('request')
+const cookieParser = require('cookie-parser')
 
 const app = express()
 const port = process.env.PORT || 9000
 
+app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'client/build')))
 
-app.get('/api/token', function(req, res) {
+app.get('/api/auth', function(req, res) {
+  const apikey = req.query.apikey
   request
     .post('https://iam.bluemix.net/oidc/token')
     .query({
-      apikey: 'sXN1216NkUnHjTlaQ8Vomkx4eeiF0f4xlq1s7WQnCAJr',
+      apikey: apikey,
       response_type: 'cloud_iam',
       grant_type: 'urn:ibm:params:oauth:grant-type:apikey'
     })
     .then(respose => {
-      console.log(respose.body.access_token)
-      res.sendStatus(respose.status)
+      res
+        .cookie('token', respose.body.access_token, {
+          expire: respose.body.expiration
+        })
+        .sendStatus(respose.status)
     })
     .catch(err => {
-      console.error(err)
       res.sendStatus(err.status)
     })
 })
 
 app.get('/api/list', function(req, res) {
+  const token = req.cookies.token
   request
-    .post('https://iam.bluemix.net/oidc/token')
+    .get('https://s3-api.us-geo.objectstorage.softlayer.net/my-first-project')
+    .set('Authorization', 'bearer ' + token)
+    .buffer()
+    .type('xml')
     .query({
-      apikey: 'sXN1216NkUnHjTlaQ8Vomkx4eeiF0f4xlq1s7WQnCAJr',
-      response_type: 'cloud_iam',
-      grant_type: 'urn:ibm:params:oauth:grant-type:apikey'
+      'list-type': '2'
     })
     .then(respose => {
-      const token = respose.body.access_token
-      request
-        .get(
-          'https://s3-api.us-geo.objectstorage.softlayer.net/my-first-project'
-        )
-        .set('Authorization', 'bearer ' + token)
-        .buffer()
-        .type('xml')
-        .query({
-          'list-type': '2'
-        })
-        .then(respose => {
-          console.log(respose)
-          res.send({ xml: respose.text })
-        })
-        .catch(err => {
-          console.error(err)
-        })
+      res.send({ xml: respose.text })
     })
     .catch(err => {
-      console.error(err)
+      if (err.status === 403) {
+        res.clearCookie('token').sendStatus(err.status)
+      }
     })
 })
 
 app.get('/api/image/:id', function(req, res) {
+  const token = req.cookies.token
   request
-    .post('https://iam.bluemix.net/oidc/token')
-    .query({
-      apikey: 'sXN1216NkUnHjTlaQ8Vomkx4eeiF0f4xlq1s7WQnCAJr',
-      response_type: 'cloud_iam',
-      grant_type: 'urn:ibm:params:oauth:grant-type:apikey'
-    })
+    .get(
+      `https://s3-api.us-geo.objectstorage.softlayer.net/my-first-project/${
+        req.params.id
+      }`
+    )
+    .set('Authorization', 'bearer ' + token)
+    .buffer()
     .then(respose => {
-      const token = respose.body.access_token
-      request
-        .get(
-          `https://s3-api.us-geo.objectstorage.softlayer.net/my-first-project/${
-            req.params.id
-          }`
-        )
-        .set('Authorization', 'bearer ' + token)
-        .buffer()
-        .then(respose => {
-          res.send(respose.body)
-        })
-        .catch(err => {
-          console.error(err)
-        })
+      res.send(respose.body)
     })
     .catch(err => {
-      console.error(err)
+      if (err.status === 403) {
+        res.clearCookie('token').sendStatus(err.status)
+      }
     })
 })
 
 app.put('/api/upload/:bucket/:object', function(req, res) {
-  request
-    .post('https://iam.bluemix.net/oidc/token')
-    .query({
-      apikey: 'sXN1216NkUnHjTlaQ8Vomkx4eeiF0f4xlq1s7WQnCAJr',
-      response_type: 'cloud_iam',
-      grant_type: 'urn:ibm:params:oauth:grant-type:apikey'
-    })
-    .then(respose => {
-      const token = respose.body.access_token
-      var url = `https://s3-api.us-geo.objectstorage.softlayer.net/${
-        req.params.bucket
-      }/${req.params.object}`
-      console.log(url)
-      req
-        .pipe(
-          requests.put({
-            url: url,
-            headers: {
-              Authorization: 'bearer ' + token
-            }
-          })
-        )
-        .pipe(res)
-    })
-    .catch(err => {
-      console.error(err)
-    })
+  const token = req.cookies.token
+  var url = `https://s3-api.us-geo.objectstorage.softlayer.net/${
+    req.params.bucket
+  }/${req.params.object}`
+  req
+    .pipe(
+      requests.put({
+        url: url,
+        headers: {
+          Authorization: 'bearer ' + token
+        }
+      })
+    )
+    .pipe(res)
 })
 
 app.delete('/api/delete/:bucket/:object', function(req, res) {
-  request
-    .post('https://iam.bluemix.net/oidc/token')
-    .query({
-      apikey: 'sXN1216NkUnHjTlaQ8Vomkx4eeiF0f4xlq1s7WQnCAJr',
-      response_type: 'cloud_iam',
-      grant_type: 'urn:ibm:params:oauth:grant-type:apikey'
-    })
-    .then(respose => {
-      const token = respose.body.access_token
-      var url = `https://s3-api.us-geo.objectstorage.softlayer.net/${
-        req.params.bucket
-      }/${req.params.object}`
-      console.log(url)
-      req
-        .pipe(
-          requests.delete({
-            url: url,
-            headers: {
-              Authorization: 'bearer ' + token
-            }
-          })
-        )
-        .pipe(res)
-    })
-    .catch(err => {
-      console.error(err)
-    })
+  const token = req.cookies.token
+  var url = `https://s3-api.us-geo.objectstorage.softlayer.net/${
+    req.params.bucket
+  }/${req.params.object}`
+  req
+    .pipe(
+      requests.delete({
+        url: url,
+        headers: {
+          Authorization: 'bearer ' + token
+        }
+      })
+    )
+    .pipe(res)
 })
 
 if (process.env.NODE_ENV === 'production') {
