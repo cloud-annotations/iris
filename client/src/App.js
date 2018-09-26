@@ -288,30 +288,45 @@ class App extends Component {
     }))
   }
 
-  labelImages = () => {
-    console.log('LABEL')
+  labelImages = newLabel => {
     this.setState(prevState => {
       let newCollection = { ...prevState.collection }
 
+      let aNewArrayOfThingsToBeAdded = []
+
       let count = 0
       prevState.labelList.map(label => {
-        const section = [...newCollection[label]]
-        // copy everything to the new label and filter the section to remove the copied elements.
+        const section = [...prevState.collection[label]]
         const newSection = section.filter((imageName, i) => {
           if (prevState.selection[i + count]) {
-            const oldList = newCollection[label]
-            newCollection['Boats'] = [...newCollection['Boats'], oldList[i]]
+            // If the image is selected:
+
+            // Copy the image to the new label in the collection
+            aNewArrayOfThingsToBeAdded = [
+              ...aNewArrayOfThingsToBeAdded,
+              section[i]
+            ]
+
+            // Don't include it in the new section
             return false
           }
           return true
         })
 
+        // Replace the current section with the filted section.
         newCollection[label] = newSection
         count += section.length
       })
 
+      newCollection[newLabel] = [
+        ...newCollection[newLabel],
+        ...aNewArrayOfThingsToBeAdded
+      ]
+
       return {
-        collection: newCollection
+        collection: newCollection,
+        selection: prevState.selection.map(() => false),
+        lastSelected: null
       }
     })
   }

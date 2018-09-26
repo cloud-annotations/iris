@@ -42,6 +42,10 @@ class SelectionBar extends Component {
       deselectAll,
       ...other
     } = this.props
+
+    const onlyLabels = sections.filter(label => {
+      return label !== 'Unlabeled'
+    })
     return (
       <div className={`SelectionBar ${selectionCount > 0 ? '--Active' : ''}`}>
         <div className="SelectionBar-count">{`${selectionCount} selected`}</div>
@@ -71,16 +75,26 @@ class SelectionBar extends Component {
             }}
           />
           <div className="SelectionBar-DropDown-Menu">
-            {sections.map(section => {
+            {onlyLabels.map(section => {
               return (
-                <div className="SelectionBar-DropDown-MenuItemWrapper">
+                <div
+                  className="SelectionBar-DropDown-MenuItemWrapper"
+                  onClick={() => {
+                    labelImages(section)
+                  }}
+                >
                   <div className="SelectionBar-DropDown-MenuItem">
                     {section}
                   </div>
                 </div>
               )
             })}
-            <div className="SelectionBar-DropDown-MenuItemWrapper">
+            <div
+              className="SelectionBar-DropDown-MenuItemWrapper"
+              onClick={() => {
+                labelImages('Unlabeled')
+              }}
+            >
               <div className="SelectionBar-DropDown-MenuItem">Unlabel</div>
             </div>
           </div>

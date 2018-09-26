@@ -18,24 +18,30 @@ class ImageGrid extends Component {
         {sections.map((section, i) => {
           return (
             <div>
-              <div className="ImageGrid-Section-Title">
-                <div className="ImageGrid-Section-Span">{section}</div>
-              </div>
-              <div className="ImageGrid">
-                {collection[section].map((imagePointer, j) => {
-                  const gridIcon = (
-                    <GridIcon
-                      imageData={images[imagePointer].data}
-                      index={index}
-                      selected={selection[index]}
-                      onItemSelected={gridItemSelected}
-                    />
-                  )
-                  index++
-                  return gridIcon
-                })}
-              </div>
-              <div className="ImageGrid-Gap" />
+              {collection[section].length > 0 ? (
+                <div>
+                  <div className="ImageGrid-Section-Title">
+                    <div className="ImageGrid-Section-Span">{section}</div>
+                  </div>
+                  <div className="ImageGrid">
+                    {collection[section].map((imagePointer, j) => {
+                      const gridIcon = (
+                        <GridIcon
+                          imageData={images[imagePointer].data}
+                          index={index}
+                          selected={selection[index]}
+                          onItemSelected={gridItemSelected}
+                        />
+                      )
+                      index++
+                      return gridIcon
+                    })}
+                  </div>
+                  <div className="ImageGrid-Gap" />
+                </div>
+              ) : (
+                ''
+              )}
             </div>
           )
         })}
