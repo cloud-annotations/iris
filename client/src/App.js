@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import ImageGrid from './ImageGrid'
 import Sidebar, { ALL_IMAGES } from './Sidebar'
 import SelectionBar from './SelectionBar'
+import localforage from 'localforage'
+
 import './App.css'
 
 function getCookie(cname) {
@@ -86,7 +88,6 @@ class App extends Component {
     emptyPromises
       .then(() => this.populateLabels())
       .then(() => this.populateUnlabeled())
-      .then(() => this.loadImages())
   }
 
   populateLabels = () => {
@@ -209,34 +210,6 @@ class App extends Component {
     })
   }
 
-  loadImages = () => {
-    // We don't care about the order, we just need to download all the images.
-    // The `Keys` of the image cluster are the urls.
-    Object.keys(this.state.imageCluster).map(imageUrl => {
-      const url = `api/image/${imageUrl}`
-      const options = {
-        method: 'GET'
-      }
-      const request = new Request(url)
-      fetch(request, options)
-        .then(response => response.arrayBuffer())
-        .then(buffer => {
-          this.setState(prevState => {
-            const base64Flag = 'data:image/jpeg;base64,'
-            const imageStr = this.arrayBufferToBase64(buffer)
-            const newCluster = { ...prevState.imageCluster }
-            newCluster[imageUrl] = { data: base64Flag + imageStr }
-            return {
-              imageCluster: newCluster
-            }
-          })
-        })
-        .catch(error => {
-          console.error(error)
-        })
-    })
-  }
-
   handleKeyDown = event => {
     let charCode = String.fromCharCode(event.which).toLowerCase()
     // For MAC we can use metaKey to detect cmd key
@@ -247,13 +220,6 @@ class App extends Component {
       }))
       console.log('Ctrl + A pressed')
     }
-  }
-
-  arrayBufferToBase64 = buffer => {
-    var binary = ''
-    var bytes = [].slice.call(new Uint8Array(buffer))
-    bytes.forEach(b => (binary += String.fromCharCode(b)))
-    return window.btoa(binary)
   }
 
   gridItemSelected = (e, index) => {

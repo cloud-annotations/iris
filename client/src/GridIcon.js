@@ -1,7 +1,57 @@
 import React, { Component } from 'react'
+import localforage from 'localforage'
 import './GridIcon.css'
 
+// TODO: IndexedDB might not be a good idea from a security standpoint.
+
 class GridIcon extends Component {
+  state = {
+    image:
+      'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+  }
+
+  componentDidMount() {
+    const { imageData, selected, ...other } = this.props
+    localforage.getItem(imageData).then(data => {
+      if (data == null || data == '') {
+        this.loadImage()
+      } else {
+        this.setState({
+          image: data
+        })
+      }
+    })
+  }
+
+  arrayBufferToBase64 = buffer => {
+    var binary = ''
+    var bytes = [].slice.call(new Uint8Array(buffer))
+    bytes.forEach(b => (binary += String.fromCharCode(b)))
+    return window.btoa(binary)
+  }
+
+  loadImage = () => {
+    const imageUrl = this.props.imageData
+    const url = `api/image/${imageUrl}`
+    const options = {
+      method: 'GET'
+    }
+    const request = new Request(url)
+    fetch(request, options)
+      .then(response => response.arrayBuffer())
+      .then(buffer => {
+        const base64Flag = 'data:image/jpeg;base64,'
+        const imageStr = this.arrayBufferToBase64(buffer)
+        localforage.setItem(imageUrl, base64Flag + imageStr)
+        this.setState({
+          image: base64Flag + imageStr
+        })
+      })
+      .catch(error => {
+        console.error(error)
+      })
+  }
+
   onClick = e => {
     const { index, onItemSelected, ...other } = this.props
     onItemSelected(e, index)
@@ -9,12 +59,13 @@ class GridIcon extends Component {
 
   render() {
     const { imageData, selected, ...other } = this.props
+
     return (
       <div
         onClick={this.onClick}
         className={`GridIcon-Wrapper ${selected ? '--Active' : ''}`}
       >
-        <img className="GridIcon-Image" src={imageData} />
+        <img className="GridIcon-Image" src={this.state.image} />
         <div className="GridIcon-check-IconWrapper">
           <svg
             className="GridIcon-check-Icon"

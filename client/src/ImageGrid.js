@@ -27,7 +27,7 @@ class ImageGrid extends Component {
                     {collection[section].map((imagePointer, j) => {
                       const gridIcon = (
                         <GridIcon
-                          imageData={images[imagePointer].data}
+                          imageData={imagePointer}
                           index={index}
                           selected={selection[index]}
                           onItemSelected={gridItemSelected}
