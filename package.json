@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "client": "cd client && yarn start",
+    "build": "cd client && npm run build",
     "server": "nodemon server.js",
     "start": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },

@@ -2,7 +2,6 @@
   "name": "watson-ml",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://bourdakos1.github.io/WatsonML",
   "proxy": "http://localhost:9000/",
   "dependencies": {
     "carbon-components": "^9.13.0",
