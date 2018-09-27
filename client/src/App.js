@@ -1,28 +1,17 @@
 import React, { Component } from 'react'
 import ImageGrid from './ImageGrid'
-import Sidebar, { ALL_IMAGES } from './Sidebar'
+import Sidebar, { ALL_IMAGES, LABELED, UNLABELED } from './Sidebar'
 import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
-
+import {
+  getCookie,
+  generateUUID,
+  getDataTransferItems,
+  readFile,
+  shrinkImage,
+  canvasToBlob
+} from './Utils'
 import './App.css'
-
-function getCookie(cname) {
-  var name = cname + '='
-  var ca = document.cookie.split(';')
-  for (var i = 0; i < ca.length; i++) {
-    var c = ca[i]
-    while (c.charAt(0) == ' ') {
-      c = c.substring(1)
-    }
-    if (c.indexOf(name) == 0) {
-      return c.substring(name.length, c.length)
-    }
-  }
-  return ''
-}
-
-const EMPTY_IMAGE =
-  'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
 /**
   // This let's us loop through the collection easily.
@@ -35,16 +24,6 @@ const EMPTY_IMAGE =
     Label: [PointerToImage, PointerToImage, ...]
     Label: [PointerToImage, PointerToImage, ...]
   }
-
-  // We could turn this into some sort of cache.
-  ImageCluster = {
-    ImagePointer: {
-      data: Base64String
-    },
-    ImagePointer: {
-      data: Base64String
-    }
-  }
 */
 
 class App extends Component {
@@ -54,9 +33,9 @@ class App extends Component {
     this.state = {
       labelList: ['Unlabeled'],
       collection: { Unlabeled: [] },
-      imageCluster: {},
       currentSection: ALL_IMAGES,
       selection: [],
+      tmpLabeledImages: new Set([]),
       lastSelected: null // This does not include shift clicks.
     }
   }
@@ -117,10 +96,10 @@ class App extends Component {
           const annotationsCsv = values[1]
 
           const labelMap = {}
-          let urls = []
+          let urls = {}
 
-          const newCollection = prevState.collection
-          let newLabelList = prevState.labelList
+          const newCollection = { ...prevState.collection }
+          let newLabelList = [...prevState.labelList]
 
           const labels = labelsCsv.split('\n')
           labels.map(label => {
@@ -148,15 +127,10 @@ class App extends Component {
             urls = [...urls, url]
           })
 
-          const imageCluster = urls.reduce((acc, item) => {
-            acc[item] = { data: EMPTY_IMAGE }
-            return acc
-          }, {})
-
           return {
             collection: newCollection,
             labelList: newLabelList,
-            imageCluster: imageCluster
+            tmpLabeledImages: new Set(urls)
           }
         }, resolve)
       })
@@ -186,21 +160,27 @@ class App extends Component {
             })
 
           this.setState(prevState => {
-            const newCollection = prevState.collection
+            const newCollection = { ...prevState.collection }
 
-            const newImageCluster = imageList.reduce((acc, item) => {
-              if (acc[item] == null) {
+            imageList.map(item => {
+              if (!prevState.tmpLabeledImages.has(item)) {
                 newCollection['Unlabeled'] = [
                   ...newCollection['Unlabeled'],
                   item
                 ]
               }
-              acc[item] = { data: EMPTY_IMAGE }
-              return acc
-            }, prevState.imageCluster)
+            })
+
+            const newSelection = Object.keys(newCollection).reduce(
+              (acc, key) => {
+                return [...acc, ...newCollection[key].map(() => false)]
+              },
+              []
+            )
+
             return {
-              imageCluster: newImageCluster,
-              selection: Object.keys(newImageCluster).map(() => false)
+              collection: newCollection,
+              selection: newSelection
             }
           }, resolve)
         })
@@ -225,8 +205,8 @@ class App extends Component {
   gridItemSelected = (e, index) => {
     const shiftPressed = e.shiftKey
     this.setState(prevState => {
-      const newSelection = prevState.selection
-      let lastSelected = this.state.lastSelected
+      const newSelection = [...prevState.selection]
+      let lastSelected = prevState.lastSelected
       if (shiftPressed && lastSelected !== null) {
         // The default sort for arrays in Javascript is an alphabetical search.
         const sortedSelect = [lastSelected, index].sort((a, b) => a - b)
@@ -238,7 +218,7 @@ class App extends Component {
         newSelection[index] = !prevState.selection[index]
         lastSelected = index
       }
-      if (newSelection.filter(item => item).length == 0) {
+      if (newSelection.filter(item => item).length === 0) {
         lastSelected = null
       }
       return {
@@ -298,6 +278,7 @@ class App extends Component {
     })
   }
 
+  // TODO: Look over this.
   deleteImages = () => {
     const newCollection = { ...this.state.collection }
     const flattenedImages = this.state.labelList.reduce((acc, label) => {
@@ -340,50 +321,22 @@ class App extends Component {
     })
   }
 
-  getDataTransferItems = event => {
-    let dataTransferItemsList = []
-    if (event.dataTransfer) {
-      const dt = event.dataTransfer
-      if (dt.files && dt.files.length) {
-        dataTransferItemsList = dt.files
-      } else if (dt.items && dt.items.length) {
-        // During the drag even the dataTransfer.files is null
-        // but Chrome implements some drag store, which is accesible via dataTransfer.items
-        return Array.prototype.slice
-          .call(dt.items)
-          .filter(item => item.kind === 'file')
-      }
-    } else if (event.target && event.target.files) {
-      dataTransferItemsList = event.target.files
-    }
-    // Convert from DataTransferItemsList to the native Array
-    return Array.prototype.slice.call(dataTransferItemsList)
-  }
-
   onFileChosen = e => {
-    const fileList = this.getDataTransferItems(e)
+    const fileList = getDataTransferItems(e)
     const filesWithNames = fileList.map(file => {
-      const randomName =
-        Math.random()
-          .toString(36)
-          .substring(2, 15) +
-        Math.random()
-          .toString(36)
-          .substring(2, 15)
-      return { file: file, fileName: randomName }
+      const fileName = generateUUID()
+      return { file: file, fileName: `${fileName}.JPG` }
     })
 
     this.setState(prevState => {
       const newCollection = { ...prevState.collection }
-      const newImageCluster = { ...prevState.imageCluster }
 
-      newCollection['Unlabeled'] = filesWithNames.reduce(
-        (acc, fileWithName) => {
-          newImageCluster[fileWithName.fileName] = { data: EMPTY_IMAGE }
-          return [fileWithName.fileName, ...acc]
-        },
-        newCollection['Unlabeled']
-      )
+      filesWithNames.map(fileWithName => {
+        newCollection['Unlabeled'] = [
+          `tmp_${fileWithName.fileName}`,
+          ...newCollection['Unlabeled']
+        ]
+      })
 
       const newSelection = Object.keys(newCollection).reduce((acc, key) => {
         return [...acc, ...newCollection[key].map(() => false)]
@@ -391,7 +344,6 @@ class App extends Component {
 
       return {
         collection: newCollection,
-        imageCluster: newImageCluster,
         selection: newSelection,
         lastSelected: null
       }
@@ -400,21 +352,32 @@ class App extends Component {
     filesWithNames.map(fileWithName => {
       const fileName = fileWithName.fileName
       const file = fileWithName.file
-      this.readFile(file)
-        .then(image => this.shrinkImage(image))
+      return readFile(file)
+        .then(image => shrinkImage(image))
         .then(canvas => {
           const dataURL = canvas.toDataURL('image/jpeg')
+          return localforage.setItem(fileName, dataURL).then(() => {
+            this.setState(prevState => {
+              const newCollection = { ...prevState.collection }
+              newCollection['Unlabeled'] = newCollection['Unlabeled'].map(
+                image => {
+                  if (image === `tmp_${fileName}`) {
+                    return fileName
+                  }
+                  return image
+                }
+              )
 
-          this.setState(prevState => {
-            const newImageCluster = { ...prevState.imageCluster }
-            newImageCluster[fileName] = { data: dataURL }
-            return { imageCluster: newImageCluster }
+              return {
+                collection: newCollection
+              }
+            })
+            return canvas
           })
-
-          return this.canvasToBlob(canvas)
         })
+        .then(canvas => canvasToBlob(canvas))
         .then(blob => {
-          const url = `api/upload/my-first-project/${fileName}.JPG`
+          const url = `api/upload/my-first-project/${fileName}`
           const options = {
             method: 'PUT',
             body: blob
@@ -422,47 +385,9 @@ class App extends Component {
           const request = new Request(url)
           return fetch(request, options)
         })
-        .then(response => {
-          console.log(response)
-        })
         .catch(error => {
           console.error(error)
         })
-    })
-    console.log(fileList)
-  }
-
-  readFile = file => {
-    return new Promise((resolve, reject) => {
-      var reader = new FileReader()
-      reader.onload = () => {
-        resolve(reader.result)
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-
-  shrinkImage = imageSrc => {
-    return new Promise((resolve, reject) => {
-      var img = new Image()
-      img.onload = () => {
-        const c = window.document.createElement('canvas')
-        const ctx = c.getContext('2d')
-        c.width = 224
-        c.height = 224
-        ctx.drawImage(img, 0, 0, 224, 224)
-
-        resolve(c)
-      }
-      img.src = imageSrc
-    })
-  }
-
-  canvasToBlob = canvas => {
-    return new Promise((resolve, reject) => {
-      canvas.toBlob(result => {
-        resolve(result)
-      }, 'image/jpeg')
     })
   }
 
@@ -517,9 +442,27 @@ class App extends Component {
         />
         <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
           <ImageGrid
-            sections={this.state.labelList}
+            sections={this.state.labelList.filter(section => {
+              if (this.state.currentSection === ALL_IMAGES) {
+                return true
+              }
+              if (
+                this.state.currentSection === LABELED &&
+                section !== 'Unlabeled'
+              ) {
+                return true
+              }
+              if (
+                this.state.currentSection === UNLABELED &&
+                section === 'Unlabeled'
+              ) {
+                return true
+              }
+              if (this.state.currentSection === section) {
+                return true
+              }
+            })}
             collection={this.state.collection}
-            images={this.state.imageCluster}
             selection={this.state.selection}
             gridItemSelected={this.gridItemSelected}
           />

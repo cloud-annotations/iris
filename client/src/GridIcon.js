@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import localforage from 'localforage'
+import { arrayBufferToBase64 } from './Utils'
 import './GridIcon.css'
 
 // TODO: IndexedDB might not be a good idea from a security standpoint.
@@ -11,10 +12,11 @@ class GridIcon extends Component {
   }
 
   componentDidMount() {
-    const { imageData, selected, ...other } = this.props
-    localforage.getItem(imageData).then(data => {
-      if (data == null || data == '') {
-        this.loadImage()
+    console.log("Hello, I'm a new kid.")
+    const { imageUrl, ...other } = this.props
+    localforage.getItem(imageUrl).then(data => {
+      if (data === null || data === '') {
+        this.loadImage(imageUrl)
       } else {
         this.setState({
           image: data
@@ -23,25 +25,22 @@ class GridIcon extends Component {
     })
   }
 
-  arrayBufferToBase64 = buffer => {
-    var binary = ''
-    var bytes = [].slice.call(new Uint8Array(buffer))
-    bytes.forEach(b => (binary += String.fromCharCode(b)))
-    return window.btoa(binary)
-  }
-
-  loadImage = () => {
-    const imageUrl = this.props.imageData
+  loadImage = imageUrl => {
     const url = `api/image/${imageUrl}`
     const options = {
       method: 'GET'
     }
     const request = new Request(url)
     fetch(request, options)
-      .then(response => response.arrayBuffer())
+      .then(response => {
+        if (response.status !== 200) {
+          return Promise.reject('Status not 200!')
+        }
+        return response.arrayBuffer()
+      })
       .then(buffer => {
         const base64Flag = 'data:image/jpeg;base64,'
-        const imageStr = this.arrayBufferToBase64(buffer)
+        const imageStr = arrayBufferToBase64(buffer)
         localforage.setItem(imageUrl, base64Flag + imageStr)
         this.setState({
           image: base64Flag + imageStr
@@ -58,7 +57,7 @@ class GridIcon extends Component {
   }
 
   render() {
-    const { imageData, selected, ...other } = this.props
+    const { selected, ...other } = this.props
 
     return (
       <div
@@ -73,10 +72,7 @@ class GridIcon extends Component {
             height="16"
             viewBox="0 0 16 16"
           >
-            <path
-              d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm3.646-10.854L6.75 10.043 4.354 7.646l-.708.708 3.104 3.103 5.604-5.603-.708-.708z"
-              fill-rule="evenodd"
-            />
+            <path d="M8 16A8 8 0 1 1 8 0a8 8 0 0 1 0 16zm3.646-10.854L6.75 10.043 4.354 7.646l-.708.708 3.104 3.103 5.604-5.603-.708-.708z" />
           </svg>
         </div>
       </div>
