@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import GridIcon from './GridIcon'
+import { ALL_IMAGES, LABELED, UNLABELED } from './Sidebar'
 import './ImageGrid.css'
 
 class ImageGrid extends Component {
@@ -8,6 +9,7 @@ class ImageGrid extends Component {
       sections,
       selection,
       collection,
+      currentSection,
       gridItemSelected,
       ...other
     } = this.props
@@ -15,35 +17,47 @@ class ImageGrid extends Component {
     return (
       <div>
         {sections.map((section, i) => {
-          return (
-            <div key={section}>
-              {collection[section].length > 0 ? (
-                <div>
-                  <div className="ImageGrid-Section-Title">
-                    <div className="ImageGrid-Section-Span">{section}</div>
+          if (
+            currentSection === ALL_IMAGES ||
+            (currentSection === LABELED && section !== 'Unlabeled') ||
+            (currentSection === UNLABELED && section === 'Unlabeled') ||
+            currentSection === section
+          ) {
+            return (
+              <div key={section}>
+                {collection[section].length > 0 ? (
+                  <div>
+                    <div className="ImageGrid-Section-Title">
+                      <div className="ImageGrid-Section-Span">{section}</div>
+                    </div>
+                    <div className="ImageGrid">
+                      {collection[section].map((imagePointer, j) => {
+                        const gridIcon = (
+                          <GridIcon
+                            key={imagePointer}
+                            imageUrl={imagePointer}
+                            index={index}
+                            selected={selection[index]}
+                            onItemSelected={gridItemSelected}
+                          />
+                        )
+                        index++
+                        return gridIcon
+                      })}
+                    </div>
+                    <div className="ImageGrid-Gap" />
                   </div>
-                  <div className="ImageGrid">
-                    {collection[section].map((imagePointer, j) => {
-                      const gridIcon = (
-                        <GridIcon
-                          key={imagePointer}
-                          imageUrl={imagePointer}
-                          index={index}
-                          selected={selection[index]}
-                          onItemSelected={gridItemSelected}
-                        />
-                      )
-                      index++
-                      return gridIcon
-                    })}
-                  </div>
-                  <div className="ImageGrid-Gap" />
-                </div>
-              ) : (
-                ''
-              )}
-            </div>
-          )
+                ) : (
+                  ''
+                )}
+              </div>
+            )
+          } else {
+            collection[section].map(() => {
+              index++
+            })
+            return ''
+          }
         })}
       </div>
     )

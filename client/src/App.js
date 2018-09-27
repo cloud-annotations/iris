@@ -442,26 +442,8 @@ class App extends Component {
         />
         <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
           <ImageGrid
-            sections={this.state.labelList.filter(section => {
-              if (this.state.currentSection === ALL_IMAGES) {
-                return true
-              }
-              if (
-                this.state.currentSection === LABELED &&
-                section !== 'Unlabeled'
-              ) {
-                return true
-              }
-              if (
-                this.state.currentSection === UNLABELED &&
-                section === 'Unlabeled'
-              ) {
-                return true
-              }
-              if (this.state.currentSection === section) {
-                return true
-              }
-            })}
+            sections={this.state.labelList}
+            currentSection={this.state.currentSection}
             collection={this.state.collection}
             selection={this.state.selection}
             gridItemSelected={this.gridItemSelected}
