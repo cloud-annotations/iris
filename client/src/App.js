@@ -278,28 +278,48 @@ class App extends Component {
     })
   }
 
-  // TODO: Look over this.
   deleteImages = () => {
-    const newCollection = { ...this.state.collection }
-    const flattenedImages = this.state.labelList.reduce((acc, label) => {
-      return [...acc, ...newCollection[label]]
-    }, [])
+    this.setState(prevState => {
+      let newCollection = { ...prevState.collection }
 
-    console.log(flattenedImages)
-    flattenedImages.map((imageName, i) => {
-      if (this.state.selection[i]) {
-        const url = `api/delete/my-first-project/${imageName}`
-        const options = {
-          method: 'DELETE'
-        }
-        const request = new Request(url)
-        fetch(request, options)
-          .then(response => {
-            console.log(response)
-          })
-          .catch(error => {
-            console.error(error)
-          })
+      let count = 0
+      prevState.labelList.map(label => {
+        const section = [...prevState.collection[label]]
+        const newSection = section.filter((imageName, i) => {
+          if (prevState.selection[i + count]) {
+            // If the image is selected:
+            // Delete it from server.
+            const url = `api/delete/my-first-project/${imageName}`
+            const options = {
+              method: 'DELETE'
+            }
+            const request = new Request(url)
+            fetch(request, options)
+              .then(response => {
+                console.log(response)
+              })
+              .catch(error => {
+                console.error(error)
+              })
+            // Don't include it in the new section
+            return false
+          }
+          return true
+        })
+
+        // Replace the current section with the filted section.
+        newCollection[label] = newSection
+        count += section.length
+      })
+
+      const newSelection = Object.keys(newCollection).reduce((acc, key) => {
+        return [...acc, ...newCollection[key].map(() => false)]
+      }, [])
+
+      return {
+        collection: newCollection,
+        selection: newSelection,
+        lastSelected: null
       }
     })
   }
