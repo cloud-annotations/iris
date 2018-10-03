@@ -33,7 +33,7 @@ class App extends Component {
     this.state = {
       labelList: ['Unlabeled'],
       collection: { Unlabeled: [] },
-      currentSection: ALL_IMAGES,
+      currentSection: UNLABELED,
       selection: [],
       tmpLabeledImages: new Set([]),
       lastSelected: null // This does not include shift clicks.
@@ -436,14 +436,14 @@ class App extends Component {
               viewBox="0 0 16 14"
             >
               <path d="M4.044 8.003l4.09 3.905-1.374 1.453-6.763-6.356L6.759.639 8.135 2.09 4.043 6.003h11.954v2H4.044z" />
-            </svg>Projects
+            </svg>Buckets
           </div>
-          <div className="App-MidBar-ProjectID">Brazil Cables Project</div>
+          <div className="App-MidBar-ProjectID">my-first-project</div>
           <div className="App-MidBar-Button App-MidBar-AddImages">
             <svg className="icon" width="16" height="16" viewBox="0 0 16 16">
               <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
             </svg>Add Images
-            <input type="file" onChange={this.onFileChosen} multiple />
+            <input type="file" accept="image/*" onChange={this.onFileChosen} multiple />
           </div>
         </div>
         <SelectionBar
