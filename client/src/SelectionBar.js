@@ -39,8 +39,7 @@ class SelectionBar extends Component {
       sections,
       labelImages,
       deleteImages,
-      deselectAll,
-      ...other
+      deselectAll
     } = this.props
 
     const onlyLabels = sections.filter(label => {

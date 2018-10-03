@@ -46,8 +46,7 @@ class Sidebar extends Component {
       sections,
       chooseSection,
       collection,
-      currentSection,
-      ...other
+      currentSection
     } = this.props
     return (
       <div className="Sidebar">

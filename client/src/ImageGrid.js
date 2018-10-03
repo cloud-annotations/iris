@@ -11,8 +11,7 @@ class ImageGrid extends Component {
       collection,
       currentSection,
       gridItemSelected,
-      bucket,
-      ...other
+      bucket
     } = this.props
     var index = 0
     return (

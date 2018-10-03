@@ -57,7 +57,7 @@ class GridIcon extends Component {
   }
 
   render() {
-    const { selected, ...other } = this.props
+    const { selected } = this.props
 
     return (
       <div

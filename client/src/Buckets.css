@@ -8,3 +8,15 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+.Buckets-Table {
+  margin: 40px 5%;
+}
+
+.bx--data-table-v2 th:hover .bx--table-sort-v2__icon {
+    opacity: 0.5;
+}
+
+.bx--table-sort-v2--active .bx--table-sort-v2__icon {
+    opacity: 1 !important;
+}
