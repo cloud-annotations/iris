@@ -3,6 +3,7 @@ import ImageGrid from './ImageGrid'
 import Sidebar, { ALL_IMAGES, LABELED, UNLABELED } from './Sidebar'
 import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
+import { Link } from 'react-router-dom'
 import {
   getCookie,
   generateUUID,
@@ -432,7 +433,7 @@ class App extends Component {
           </div>
         </div>
         <div className="App-MidBar">
-          <div className="App-MidBar-Button App-MidBar-Projects">
+          <Link to="/" className="App-MidBar-Button App-MidBar-Projects">
             <svg
               className="icon-arrow"
               width="16"
@@ -441,7 +442,7 @@ class App extends Component {
             >
               <path d="M4.044 8.003l4.09 3.905-1.374 1.453-6.763-6.356L6.759.639 8.135 2.09 4.043 6.003h11.954v2H4.044z" />
             </svg>Buckets
-          </div>
+          </Link>
           <div className="App-MidBar-ProjectID">
             {this.props.match.params.bucket}
           </div>

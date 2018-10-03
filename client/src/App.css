@@ -120,6 +120,7 @@ input[type=file] {
 
 .App-MidBar-Button {
   color: #4e7cb6;
+  text-decoration: none;
 }
 
 .App-MidBar-Button:hover {
