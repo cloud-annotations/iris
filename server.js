@@ -31,10 +31,12 @@ app.get('/api/auth', function(req, res) {
     })
 })
 
-app.get('/api/list', function(req, res) {
+app.get('/api/list/:bucket', function(req, res) {
   const token = req.cookies.token
   request
-    .get('https://s3-api.us-geo.objectstorage.softlayer.net/my-first-project')
+    .get(
+      `https://s3-api.us-geo.objectstorage.softlayer.net/${req.params.bucket}`
+    )
     .set('Authorization', 'bearer ' + token)
     .buffer()
     .type('xml')
@@ -51,11 +53,11 @@ app.get('/api/list', function(req, res) {
     })
 })
 
-app.get('/api/image/:id', function(req, res) {
+app.get('/api/image/:bucket/:id', function(req, res) {
   const token = req.cookies.token
   request
     .get(
-      `https://s3-api.us-geo.objectstorage.softlayer.net/my-first-project/${
+      `https://s3-api.us-geo.objectstorage.softlayer.net/${req.params.bucket}/${
         req.params.id
       }`
     )

@@ -26,7 +26,7 @@ class GridIcon extends Component {
   }
 
   loadImage = imageUrl => {
-    const url = `api/image/${imageUrl}`
+    const url = `api/image/${this.props.bucket}/${imageUrl}`
     const options = {
       method: 'GET'
     }

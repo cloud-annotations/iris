@@ -71,7 +71,7 @@ class App extends Component {
 
   populateLabels = () => {
     return new Promise((resolve, reject) => {
-      const url = `api/image/_labels.csv`
+      const url = `api/image/${this.props.match.params.bucket}/_labels.csv`
       const options = {
         method: 'GET'
       }
@@ -82,7 +82,9 @@ class App extends Component {
           console.error(error)
         })
 
-      const url2 = `api/image/_annotations.csv`
+      const url2 = `api/image/${
+        this.props.match.params.bucket
+      }/_annotations.csv`
       const request2 = new Request(url2)
       const annotations = fetch(request2, options)
         .then(response => response.text())
@@ -139,7 +141,7 @@ class App extends Component {
 
   populateUnlabeled = () => {
     return new Promise((resolve, reject) => {
-      const url = 'api/list'
+      const url = `api/list/${this.props.match.params.bucket}`
       const options = {
         method: 'GET'
       }
@@ -289,7 +291,9 @@ class App extends Component {
           if (prevState.selection[i + count]) {
             // If the image is selected:
             // Delete it from server.
-            const url = `api/delete/my-first-project/${imageName}`
+            const url = `api/delete/${
+              this.props.match.params.bucket
+            }/${imageName}`
             const options = {
               method: 'DELETE'
             }
@@ -397,7 +401,7 @@ class App extends Component {
         })
         .then(canvas => canvasToBlob(canvas))
         .then(blob => {
-          const url = `api/upload/my-first-project/${fileName}`
+          const url = `api/upload/${this.props.match.params.bucket}/${fileName}`
           const options = {
             method: 'PUT',
             body: blob
@@ -438,12 +442,19 @@ class App extends Component {
               <path d="M4.044 8.003l4.09 3.905-1.374 1.453-6.763-6.356L6.759.639 8.135 2.09 4.043 6.003h11.954v2H4.044z" />
             </svg>Buckets
           </div>
-          <div className="App-MidBar-ProjectID">my-first-project</div>
+          <div className="App-MidBar-ProjectID">
+            {this.props.match.params.bucket}
+          </div>
           <div className="App-MidBar-Button App-MidBar-AddImages">
             <svg className="icon" width="16" height="16" viewBox="0 0 16 16">
               <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
             </svg>Add Images
-            <input type="file" accept="image/*" onChange={this.onFileChosen} multiple />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={this.onFileChosen}
+              multiple
+            />
           </div>
         </div>
         <SelectionBar
@@ -462,6 +473,7 @@ class App extends Component {
         />
         <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
           <ImageGrid
+            bucket={this.props.match.params.bucket}
             sections={this.state.labelList}
             currentSection={this.state.currentSection}
             collection={this.state.collection}
