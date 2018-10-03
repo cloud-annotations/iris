@@ -9,6 +9,11 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.Buckets-Link {
+  text-decoration: none;
+  display: block;
+}
+
 .Buckets-Table {
   margin: 40px 5%;
 }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { DataTable } from 'carbon-components-react'
+import { Link } from 'react-router-dom'
 import 'carbon-components/css/carbon-components.min.css'
 import './Buckets.css'
 
@@ -21,22 +22,22 @@ class Buckets extends Component {
     ]
     const rows = [
       {
-        id: 'a',
+        id: 'my-first-project',
         name: 'my-first-project',
         created: 'Yesterday'
       },
       {
-        id: 'b',
+        id: 'neuralnetwork-donotdelete-pr-zrwqsde2yepxsy',
         name: 'neuralnetwork-donotdelete-pr-zrwqsde2yepxsy',
         created: 'Oct 1'
       },
       {
-        id: 'c',
+        id: 'notebooktest-donotdelete-pr-tqmp0hdhwhxm7o',
         name: 'notebooktest-donotdelete-pr-tqmp0hdhwhxm7o',
         created: '9/25/18'
       },
       {
-        id: 'd',
+        id: 'xxxxxxx-donotdelete-pr-uqs1epvuuo9por',
         name: 'xxxxxxx-donotdelete-pr-uqs1epvuuo9por',
         created: '10/9/08'
       }
@@ -61,7 +62,12 @@ class Buckets extends Component {
                   </TableHead>
                   <TableBody>
                     {rows.map(row => (
-                      <TableRow key={row.id}>
+                      <TableRow
+                        key={row.id}
+                        onClick={() => {
+                          this.props.history.push(`/${row.id}`)
+                        }}
+                      >
                         {row.cells.map(cell => (
                           <TableCell key={cell.id}>{cell.value}</TableCell>
                         ))}
