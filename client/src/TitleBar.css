@@ -1,0 +1,40 @@
+.TitleBar {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 50px;
+  background-color: #162934;
+  display: flex;
+  align-items: center;
+}
+
+.TitleBar-title {
+  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+
+  margin-left: 25px;
+
+  font-size: 16px;
+  color: rgb(242, 244, 248);
+  font-weight: 600;
+}
+
+.TitleBar-breadCrumb {
+  font-family: ibm-plex-mono, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+  align-items: center;
+
+  /* margin: 0px 25px; */
+
+  font-size: 16px;
+  color: rgba(242, 244, 248, 0.6);
+}
+
+.TitleBar-serviceID {
+  color: #5aaafa;
+  text-decoration: none;
+}
+
+.TitleBar-serviceID:hover {
+  color: #7fbfff;
+  text-decoration: underline;
+}

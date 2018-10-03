@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import ImageGrid from './ImageGrid'
+import BucketBar from './BucketBar'
 import Sidebar, { ALL_IMAGES, LABELED, UNLABELED } from './Sidebar'
 import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
-import { Link } from 'react-router-dom'
 import {
   getCookie,
   generateUUID,
@@ -423,41 +423,10 @@ class App extends Component {
 
     return (
       <div>
-        <div className="App-TopBar">
-          <div className="App-TopBar-Title">Annotate ML</div>
-          <div className="App-TopBar-BreadCrumb">
-            &nbsp;/&nbsp;
-            <a href="#TODO" className="App-TopBar-ServiceID">
-              cloud-object-storage-qf
-            </a>
-          </div>
-        </div>
-        <div className="App-MidBar">
-          <Link to="/" className="App-MidBar-Button App-MidBar-Projects">
-            <svg
-              className="icon-arrow"
-              width="16"
-              height="14"
-              viewBox="0 0 16 14"
-            >
-              <path d="M4.044 8.003l4.09 3.905-1.374 1.453-6.763-6.356L6.759.639 8.135 2.09 4.043 6.003h11.954v2H4.044z" />
-            </svg>Buckets
-          </Link>
-          <div className="App-MidBar-ProjectID">
-            {this.props.match.params.bucket}
-          </div>
-          <div className="App-MidBar-Button App-MidBar-AddImages">
-            <svg className="icon" width="16" height="16" viewBox="0 0 16 16">
-              <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
-            </svg>Add Images
-            <input
-              type="file"
-              accept="image/*"
-              onChange={this.onFileChosen}
-              multiple
-            />
-          </div>
-        </div>
+        <BucketBar
+          bucket={this.props.match.params.bucket}
+          onChange={this.onFileChosen}
+        />
         <SelectionBar
           selectionCount={selectionCount}
           sections={this.state.labelList}
