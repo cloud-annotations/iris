@@ -1,0 +1,64 @@
+.EmptySet {
+  width: 430px;
+  height: 430px;
+  margin: auto;
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  user-select: none;
+}
+
+.EmptySet-Circle {
+  border: 4px solid rgba(0, 0, 0, 0.04);
+  border-radius: 50%;
+  width: 430px;
+  height: 430px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+
+.EmptySet-Image {
+  background: no-repeat url('images.png') -100px 0px;
+  background-size: 200px 125px;
+  width: 100px;
+  height: 125px;
+  position: absolute;
+  left: calc(160px);
+  top: 150px;
+  transform: rotate(20deg);
+}
+
+.EmptySet-Image2 {
+  background: no-repeat url('images.png') 0px 0px;
+  background-size: 200px 125px;
+  width: 100px;
+  height: 125px;
+  position: absolute;
+  left: calc(165px);
+  top: 150px;
+}
+
+.EmptySet-Text {
+  bottom: 70px;
+  color: rgb(144, 144, 144);
+  height: 54px;
+  margin-bottom: 0px;
+  margin-top: 0px;
+  position: absolute;
+  width: 430px;
+}
+
+.EmptySet-Text-Big {
+  font-size: 18px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.EmptySet-Text-Small {
+  font-size: 13px;
+  margin-bottom: 8px;
+  text-align: center;
+}

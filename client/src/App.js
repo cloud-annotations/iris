@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import ImageGrid from './ImageGrid'
 import BucketBar from './BucketBar'
+import EmptySet from './EmptySet'
 import Sidebar, { ALL_IMAGES } from './Sidebar'
 import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
@@ -450,6 +451,12 @@ class App extends Component {
         />
         <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
           <Loading active={this.state.loading} />
+          <EmptySet
+            forceHide={this.state.loading}
+            currentSection={this.state.currentSection}
+            sections={this.state.labelList}
+            collection={this.state.collection}
+          />
           <ImageGrid
             bucket={this.props.match.params.bucket}
             sections={this.state.labelList}
