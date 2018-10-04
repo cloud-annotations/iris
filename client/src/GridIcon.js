@@ -13,7 +13,7 @@ class GridIcon extends Component {
 
   componentDidMount() {
     console.log("Hello, I'm a new kid.")
-    const { imageUrl, ...other } = this.props
+    const { imageUrl } = this.props
     localforage.getItem(imageUrl).then(data => {
       if (data === null || data === '') {
         this.loadImage(imageUrl)
@@ -26,7 +26,7 @@ class GridIcon extends Component {
   }
 
   loadImage = imageUrl => {
-    const url = `api/image/${this.props.bucket}/${imageUrl}`
+    const url = `api/fetch/${this.props.bucket}/${imageUrl}`
     const options = {
       method: 'GET'
     }
@@ -52,7 +52,7 @@ class GridIcon extends Component {
   }
 
   onClick = e => {
-    const { index, onItemSelected, ...other } = this.props
+    const { index, onItemSelected } = this.props
     onItemSelected(e, index)
   }
 

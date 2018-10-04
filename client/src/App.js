@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
 import ImageGrid from './ImageGrid'
 import BucketBar from './BucketBar'
-import Sidebar, { ALL_IMAGES, LABELED, UNLABELED } from './Sidebar'
+import Sidebar, { ALL_IMAGES } from './Sidebar'
 import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
+import { Loading } from 'carbon-components-react'
 import {
-  getCookie,
+  validateCookies,
   generateUUID,
   getDataTransferItems,
   readFile,
   shrinkImage,
-  canvasToBlob
+  canvasToBlob,
+  handleErrors
 } from './Utils'
 import './App.css'
 
@@ -32,9 +34,10 @@ class App extends Component {
     super(props)
     this.initializeData()
     this.state = {
+      loading: true,
       labelList: ['Unlabeled'],
       collection: { Unlabeled: [] },
-      currentSection: UNLABELED,
+      currentSection: ALL_IMAGES,
       selection: [],
       tmpLabeledImages: new Set([]),
       lastSelected: null // This does not include shift clicks.
@@ -50,97 +53,24 @@ class App extends Component {
   }
 
   initializeData = () => {
-    const cookie = getCookie('token')
-    let emptyPromises = new Promise((resolve, reject) => {
-      resolve()
-    })
-
-    if (cookie === '') {
-      const apiKey = prompt('apikey')
-      const url = 'api/auth?apikey=' + apiKey
-      const options = {
-        method: 'GET'
-      }
-      const request = new Request(url)
-      emptyPromises = fetch(request, options)
-    }
-
-    emptyPromises
-      .then(() => this.populateLabels())
-      .then(() => this.populateUnlabeled())
-  }
-
-  populateLabels = () => {
-    return new Promise((resolve, reject) => {
-      const url = `api/image/${this.props.match.params.bucket}/_labels.csv`
-      const options = {
-        method: 'GET'
-      }
-      const request = new Request(url)
-      const labels = fetch(request, options)
-        .then(response => response.text())
-        .catch(error => {
-          console.error(error)
+    validateCookies()
+      .then(this.fetchFileList)
+      .then(this.populateLabels)
+      .then(this.populateUnlabeled)
+      .catch(error => {
+        console.error(error)
+        this.setState({
+          loading: false
         })
-
-      const url2 = `api/image/${
-        this.props.match.params.bucket
-      }/_annotations.csv`
-      const request2 = new Request(url2)
-      const annotations = fetch(request2, options)
-        .then(response => response.text())
-        .catch(error => {
-          console.error(error)
-        })
-
-      Promise.all([labels, annotations]).then(values => {
-        this.setState(prevState => {
-          const labelsCsv = values[0]
-          const annotationsCsv = values[1]
-
-          const labelMap = {}
-          let urls = {}
-
-          const newCollection = { ...prevState.collection }
-          let newLabelList = [...prevState.labelList]
-
-          const labels = labelsCsv.split('\n')
-          labels.map(label => {
-            // Account for empty lines.
-            if (label === '') {
-              return
-            }
-            const [key, value] = label.split(',')
-            labelMap[key] = value
-            newLabelList = [...newLabelList, value]
-            newCollection[value] = []
-          })
-
-          const annotations = annotationsCsv.split('\n')
-          annotations.map(annotation => {
-            // Account for empty lines.
-            if (annotation === '') {
-              return
-            }
-            const [url, key] = annotation.split(',')
-            newCollection[labelMap[key]] = [
-              url,
-              ...newCollection[labelMap[key]]
-            ]
-            urls = [...urls, url]
-          })
-
-          return {
-            collection: newCollection,
-            labelList: newLabelList,
-            tmpLabeledImages: new Set(urls)
-          }
-        }, resolve)
+        if (error.message === 'Forbidden') {
+          // TODO: Recursive call. Could end in infinite loop.
+          this.initializeData()
+        }
       })
-    })
   }
 
-  populateUnlabeled = () => {
+  // TODO: Handle pages larger than 1000.
+  fetchFileList = () => {
     return new Promise((resolve, reject) => {
       const url = `api/list/${this.props.match.params.bucket}`
       const options = {
@@ -148,48 +78,125 @@ class App extends Component {
       }
       const request = new Request(url)
       fetch(request, options)
+        .then(handleErrors)
         .then(response => response.json())
         .then(str =>
           new window.DOMParser().parseFromString(str.xml, 'text/xml')
         )
         .then(data => {
           const elements = data.getElementsByTagName('Contents')
-          const imageList = Array.prototype.map
-            .call(elements, element => {
-              return element.getElementsByTagName('Key')[0].innerHTML
-            })
-            .filter(fileName => {
-              return fileName.match(/.(jpg|jpeg|png)$/i) // Make sure the extension is an image.
-            })
+          const fileList = Array.prototype.map.call(elements, element => {
+            return element.getElementsByTagName('Key')[0].innerHTML
+          })
+          return resolve(fileList)
+        })
+        .catch(reject)
+    })
+  }
 
-          this.setState(prevState => {
+  populateLabels = fileList => {
+    return new Promise((resolve, reject) => {
+      if (
+        !fileList.includes('_labels.csv') ||
+        !fileList.includes('_annotations.csv')
+      ) {
+        return resolve(fileList)
+      }
+
+      const url = `api/fetch/${this.props.match.params.bucket}/_labels.csv`
+      const options = {
+        method: 'GET'
+      }
+      const request = new Request(url)
+      const labels = fetch(request, options)
+        .then(handleErrors)
+        .then(response => response.text())
+        .catch(reject)
+
+      const url2 = `api/fetch/${
+        this.props.match.params.bucket
+      }/_annotations.csv`
+      const request2 = new Request(url2)
+      const annotations = fetch(request2, options)
+        .then(handleErrors)
+        .then(response => response.text())
+        .catch(reject)
+
+      Promise.all([labels, annotations]).then(values => {
+        this.setState(
+          prevState => {
+            const labelsCsv = values[0]
+            const annotationsCsv = values[1]
+
+            const labelMap = {}
+            let urls = {}
+
             const newCollection = { ...prevState.collection }
+            let newLabelList = [...prevState.labelList]
 
-            imageList.map(item => {
-              if (!prevState.tmpLabeledImages.has(item)) {
-                newCollection['Unlabeled'] = [
-                  ...newCollection['Unlabeled'],
-                  item
-                ]
+            const labels = labelsCsv.split('\n')
+            labels.forEach(label => {
+              // Account for empty lines.
+              if (label !== '') {
+                const [key, value] = label.split(',')
+                labelMap[key] = value
+                newLabelList = [...newLabelList, value]
+                newCollection[value] = []
               }
             })
 
-            const newSelection = Object.keys(newCollection).reduce(
-              (acc, key) => {
-                return [...acc, ...newCollection[key].map(() => false)]
-              },
-              []
-            )
+            const annotations = annotationsCsv.split('\n')
+            annotations.forEach(annotation => {
+              // Account for empty lines.
+              if (annotation !== '') {
+                const [url, key] = annotation.split(',')
+                newCollection[labelMap[key]] = [
+                  url,
+                  ...newCollection[labelMap[key]]
+                ]
+                urls = [...urls, url]
+              }
+            })
 
             return {
               collection: newCollection,
-              selection: newSelection
+              labelList: newLabelList,
+              tmpLabeledImages: new Set(urls)
             }
-          }, resolve)
+          },
+          () => {
+            resolve(fileList)
+          }
+        )
+      })
+    })
+  }
+
+  populateUnlabeled = fileList => {
+    return new Promise((resolve, reject) => {
+      const imageList = fileList.filter(fileName => {
+        return fileName.match(/.(jpg|jpeg|png)$/i) // Make sure the extension is an image.
+      })
+
+      this.setState(prevState => {
+        const newCollection = { ...prevState.collection }
+
+        imageList.forEach(item => {
+          if (!prevState.tmpLabeledImages.has(item)) {
+            newCollection['Unlabeled'] = [...newCollection['Unlabeled'], item]
+          }
         })
-        .catch(error => {
-          console.error(error)
-        })
+
+        const newSelection = Object.keys(newCollection).reduce((acc, key) => {
+          return [...acc, ...newCollection[key].map(() => false)]
+        }, [])
+
+        return {
+          loading: false,
+          collection: newCollection,
+          selection: newSelection
+        }
+      }, resolve)
     })
   }
 
@@ -245,7 +252,7 @@ class App extends Component {
       let aNewArrayOfThingsToBeAdded = []
 
       let count = 0
-      prevState.labelList.map(label => {
+      prevState.labelList.forEach(label => {
         const section = [...prevState.collection[label]]
         const newSection = section.filter((imageName, i) => {
           if (prevState.selection[i + count]) {
@@ -286,7 +293,7 @@ class App extends Component {
       let newCollection = { ...prevState.collection }
 
       let count = 0
-      prevState.labelList.map(label => {
+      prevState.labelList.forEach(label => {
         const section = [...prevState.collection[label]]
         const newSection = section.filter((imageName, i) => {
           if (prevState.selection[i + count]) {
@@ -356,7 +363,7 @@ class App extends Component {
     this.setState(prevState => {
       const newCollection = { ...prevState.collection }
 
-      filesWithNames.map(fileWithName => {
+      filesWithNames.forEach(fileWithName => {
         newCollection['Unlabeled'] = [
           `tmp_${fileWithName.fileName}`,
           ...newCollection['Unlabeled']
@@ -374,10 +381,10 @@ class App extends Component {
       }
     })
 
-    filesWithNames.map(fileWithName => {
+    filesWithNames.forEach(fileWithName => {
       const fileName = fileWithName.fileName
       const file = fileWithName.file
-      return readFile(file)
+      readFile(file)
         .then(image => shrinkImage(image))
         .then(canvas => {
           const dataURL = canvas.toDataURL('image/jpeg')
@@ -442,6 +449,7 @@ class App extends Component {
           createLabel={this.createLabel}
         />
         <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
+          <Loading active={this.state.loading} />
           <ImageGrid
             bucket={this.props.match.params.bucket}
             sections={this.state.labelList}

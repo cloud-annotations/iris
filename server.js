@@ -31,6 +31,28 @@ app.get('/api/auth', function(req, res) {
     })
 })
 
+app.get('/api/buckets', function(req, res) {
+  const token = req.cookies.token
+  request
+    .get(`https://s3-api.us-geo.objectstorage.softlayer.net`)
+    .set('Authorization', 'bearer ' + token)
+    .set(
+      'ibm-service-instance-id',
+      'crn:v1:bluemix:public:cloud-object-storage:global:a/19552f679a1f1feba412927e04b32553:23ae42fb-ae1f-4f63-b6fa-d0c27e2d59e7::'
+    )
+    .buffer()
+    .type('xml')
+    .then(respose => {
+      res.send({ xml: respose.text })
+    })
+    .catch(err => {
+      if (err.status === 403) {
+        res.clearCookie('token').sendStatus(err.status)
+      }
+      res.sendStatus(err.status)
+    })
+})
+
 app.get('/api/list/:bucket', function(req, res) {
   const token = req.cookies.token
   request
@@ -50,27 +72,25 @@ app.get('/api/list/:bucket', function(req, res) {
       if (err.status === 403) {
         res.clearCookie('token').sendStatus(err.status)
       }
+      res.sendStatus(err.status)
     })
 })
 
-app.get('/api/image/:bucket/:id', function(req, res) {
+app.get('/api/fetch/:bucket/:object', function(req, res) {
   const token = req.cookies.token
-  request
-    .get(
-      `https://s3-api.us-geo.objectstorage.softlayer.net/${req.params.bucket}/${
-        req.params.id
-      }`
+  var url = `https://s3-api.us-geo.objectstorage.softlayer.net/${
+    req.params.bucket
+  }/${req.params.object}`
+  req
+    .pipe(
+      requests.get({
+        url: url,
+        headers: {
+          Authorization: 'bearer ' + token
+        }
+      })
     )
-    .set('Authorization', 'bearer ' + token)
-    .buffer()
-    .then(respose => {
-      res.send(respose.body)
-    })
-    .catch(err => {
-      if (err.status === 403) {
-        res.clearCookie('token').sendStatus(err.status)
-      }
-    })
+    .pipe(res)
 })
 
 app.put('/api/upload/:bucket/:object', function(req, res) {

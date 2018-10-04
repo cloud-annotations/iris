@@ -54,7 +54,7 @@ class ImageGrid extends Component {
               </div>
             )
           } else {
-            collection[section].map(() => {
+            collection[section].forEach(() => {
               index++
             })
             return ''
