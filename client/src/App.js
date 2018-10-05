@@ -64,8 +64,7 @@ class App extends Component {
           loading: false
         })
         if (error.message === 'Forbidden') {
-          // TODO: Recursive call. Could end in infinite loop.
-          this.initializeData()
+          this.props.history.push('/login')
         }
       })
   }

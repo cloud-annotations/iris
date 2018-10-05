@@ -100,22 +100,7 @@ export function validateCookies() {
   return new Promise((resolve, reject) => {
     const cookie = getCookie('token')
     if (cookie === '') {
-      const apiKey = prompt('apikey')
-      const url = 'api/auth?apikey=' + apiKey
-      const options = {
-        method: 'GET'
-      }
-      const request = new Request(url)
-      fetch(request, options)
-        .then(response => {
-          if (!response.ok) {
-            // Fake a forbidden.
-            throw Error('Forbidden')
-          }
-          return response
-        })
-        .then(resolve)
-        .catch(reject)
+      reject(Error('Forbidden'))
     } else {
       resolve()
     }

@@ -49,7 +49,6 @@
 .Login-Button {
   border: 2px solid #3d70b2;
   color: #3d70b2;
-  text-decoration: none;
   margin: 0 100px 0 auto;
   font-size: 16px;
   font-weight: 500;
@@ -69,7 +68,7 @@
 }
 
 .Login-FormWrapper {
-  margin: 50px 0;
+  margin: 66px 0;
   width: 500px;
   max-width: 90%;
 }
