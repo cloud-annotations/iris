@@ -7,9 +7,9 @@ class TitleBar extends Component {
       <div className="TitleBar">
         <div className="TitleBar-title">Annotate ML</div>
         <div className="TitleBar-breadCrumb">
-          &nbsp;/&nbsp;
+          &nbsp;//&nbsp;
           <a href="#TODO" className="TitleBar-serviceID">
-            cloud-object-storage-qf
+            TODO: figure out what to put here.
           </a>
         </div>
       </div>
