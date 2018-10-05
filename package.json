@@ -4,6 +4,7 @@
   "scripts": {
     "client": "cd client && yarn start",
     "build": "cd client && npm run build",
+    "deploy": "yarn build && ./deploy.sh",
     "server": "nodemon server.js",
     "start": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },
