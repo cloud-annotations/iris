@@ -37,4 +37,6 @@ configure
 attempt_build
 set_image
 echo "Deployment complete"
-echo "visit: $URL"
+echo "\n$URL\n"
+
+/usr/bin/open -a "/Applications/Google Chrome.app" $URL
