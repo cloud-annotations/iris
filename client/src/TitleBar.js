@@ -5,7 +5,7 @@ class TitleBar extends Component {
   render() {
     return (
       <div className="TitleBar">
-        <div className="TitleBar-title">NickAnnotate ML</div>
+        <div className="TitleBar-title">Annotate ML</div>
         <div className="TitleBar-breadCrumb">
           &nbsp;/&nbsp;
           <a href="#TODO" className="TitleBar-serviceID">
