@@ -36,7 +36,9 @@ class Buckets extends Component {
 
   populateBuckets = () => {
     return new Promise((resolve, reject) => {
-      const url = `api/buckets/`
+      const url = `api/proxy/${localStorage.getItem(
+        'loginUrl'
+      )}?resourceId=${localStorage.getItem('resourceId')}`
       const options = {
         method: 'GET'
       }

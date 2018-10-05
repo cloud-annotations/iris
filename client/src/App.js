@@ -72,7 +72,9 @@ class App extends Component {
   // TODO: Handle pages larger than 1000.
   fetchFileList = () => {
     return new Promise((resolve, reject) => {
-      const url = `api/list/${this.props.match.params.bucket}`
+      const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
+        this.props.match.params.bucket
+      }`
       const options = {
         method: 'GET'
       }
@@ -103,7 +105,9 @@ class App extends Component {
         return resolve(fileList)
       }
 
-      const url = `api/fetch/${this.props.match.params.bucket}/_labels.csv`
+      const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
+        this.props.match.params.bucket
+      }/_labels.csv`
       const options = {
         method: 'GET'
       }
@@ -113,7 +117,7 @@ class App extends Component {
         .then(response => response.text())
         .catch(reject)
 
-      const url2 = `api/fetch/${
+      const url2 = `api/proxy/${localStorage.getItem('loginUrl')}/${
         this.props.match.params.bucket
       }/_annotations.csv`
       const request2 = new Request(url2)
@@ -299,7 +303,7 @@ class App extends Component {
           if (prevState.selection[i + count]) {
             // If the image is selected:
             // Delete it from server.
-            const url = `api/delete/${
+            const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
               this.props.match.params.bucket
             }/${imageName}`
             const options = {
@@ -409,7 +413,7 @@ class App extends Component {
         })
         .then(canvas => canvasToBlob(canvas))
         .then(blob => {
-          const url = `api/upload/${this.props.match.params.bucket}/${fileName}`
+          const url = `api/proxy/${localStorage.getItem('loginUrl')}/${this.props.match.params.bucket}/${fileName}`
           const options = {
             method: 'PUT',
             body: blob
