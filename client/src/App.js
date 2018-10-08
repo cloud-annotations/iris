@@ -373,7 +373,9 @@ class App extends Component {
 
   labelsToCsv = () => {
     const csvFile = this.state.labelList
-      .slice(1)
+      .filter(label => {
+        return label !== 'Unlabeled'
+      })
       .reduce((acc, label, index) => {
         const row = `${index},${label}`
         return acc + row + '\r\n'
@@ -402,6 +404,32 @@ class App extends Component {
           const newLabelList = [...prevState.labelList, labelName]
 
           newCollection[labelName] = []
+
+          return { collection: newCollection, labelList: newLabelList }
+        },
+        () => {
+          this.labelsToCsv()
+            .then(resolve)
+            .catch(reject)
+        }
+      )
+    })
+
+    this.changeRequest(promise)
+  }
+
+  deleteLabel = labelName => {
+    const promise = new Promise((resolve, reject) => {
+      this.setState(
+        prevState => {
+          const newLabelList = prevState.labelList.filter(label => {
+            return label !== labelName
+          })
+
+          const newCollection = prevState.labelList.reduce((acc, label) => {
+            acc[label] = prevState.collection[label]
+            return acc
+          }, {})
 
           return { collection: newCollection, labelList: newLabelList }
         },
@@ -530,6 +558,7 @@ class App extends Component {
           sections={this.state.labelList}
           collection={this.state.collection}
           createLabel={this.createLabel}
+          deleteLabel={this.deleteLabel}
         />
         <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
           <Loading active={this.state.loading} />

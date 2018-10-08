@@ -6,7 +6,9 @@
   bottom: 0px;
   left: 0px;
   background-color: #ffffff;
-  overflow-y: auto;
+
+  overflow: auto;
+
   -webkit-overflow-scrolling: touch;
 }
 
@@ -20,7 +22,8 @@
 .Sidebar-Item {
   display: flex;
 
-  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: #152935;
@@ -29,16 +32,91 @@
   line-height: 23px;
 
   border-left: 4px solid transparent;
+  position: relative;
 }
 
+.Sidebar-Item:hover {
+  color: #3d70b2;
+  background-color: rgba(85, 150, 230, 0.1);
+}
+
+.Sidebar-Item.--NoHover {
+  color: #152935;
+  background-color: #ffffff;
+}
+
+/* Must come afte --NoHover */
 .Sidebar-Item.--Active {
   color: #3d70b2;
   font-weight: 700;
   border-left: 4px solid #3d70b2;
 }
 
-.Sidebar-Item:hover {
+.Sidebar-itemOverflow-Menu {
+  visibility: collapse;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: white;
+  z-index: 1;
+  box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: transform ease 200ms;
+  transform: scaleY(0);
+  transform-origin: top;
+}
+
+.Sidebar-itemOverflow-Menu.--Active {
+  visibility: visible;
+  transform: scaleY(1);
+}
+
+.Sidebar-itemOverflow-MenuItem {
+  padding: 6px 20px;
+  color: #152935;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.Sidebar-itemOverflow-MenuItem:hover {
+  background-color: rgba(85, 150, 230, 0.1);
   color: #3d70b2;
+}
+
+.Sidebar-itemOverflow-MenuItem.--Danger:hover {
+  background-color: #e0182d;
+  color: #ffffff;
+}
+
+.Sidebar-itemOverflow-MenuItem.--Dissabled {
+  opacity: 0.2;
+}
+
+.Sidebar-itemOverflow-MenuItem.--Dissabled:hover {
+  color: #152935;
+  background-color: #ffffff;
+}
+
+.Sidebar-itemOverflow {
+  visibility: collapse;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  fill: #5a6872;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.Sidebar-itemOverflow:hover {
+  opacity: 1;
+}
+
+.Sidebar-Item:hover .Sidebar-itemOverflow {
+  visibility: visible;
+  width: 20px;
 }
 
 .Sidebar-itemTitle {
@@ -56,7 +134,8 @@
   padding: 9px 0;
   margin: 16px 10px 8px 10px;
 
-  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
 
   color: #3d70b2;
   font-size: 14px;
@@ -90,7 +169,8 @@
   width: 100%;
   border-top: 1px solid #dfe3e6;
 
-  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
 
   font-size: 14px;
   font-weight: 500;

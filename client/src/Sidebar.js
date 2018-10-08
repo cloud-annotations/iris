@@ -7,7 +7,8 @@ export const UNLABELED = 'unlabeled'
 
 class Sidebar extends Component {
   state = {
-    addingLabels: false
+    addingLabels: false,
+    menuOpen: ''
   }
 
   componentDidMount() {
@@ -35,6 +36,29 @@ class Sidebar extends Component {
     this.labelNameInput.value = ''
   }
 
+  submenu = (e, label) => {
+    e.stopPropagation()
+    this.setState({
+      menuOpen: label
+    })
+  }
+
+  deleteLabel = (e, label) => {
+    e.stopPropagation()
+    this.clearMenu()
+    this.props.deleteLabel(label)
+  }
+
+  renameLabel = (e, label) => {
+    e.stopPropagation()
+  }
+
+  clearMenu = () => {
+    this.setState({
+      menuOpen: ''
+    })
+  }
+
   handleKeyPress = e => {
     if (e.key === 'Enter') {
       this.createLabel()
@@ -42,12 +66,7 @@ class Sidebar extends Component {
   }
 
   render() {
-    const {
-      sections,
-      chooseSection,
-      collection,
-      currentSection
-    } = this.props
+    const { sections, chooseSection, collection, currentSection } = this.props
     return (
       <div className="Sidebar">
         <div className="Sidebar-Fixed-Items">
@@ -164,7 +183,7 @@ class Sidebar extends Component {
               <div
                 className={`Sidebar-Item ${
                   currentSection === label ? '--Active' : ''
-                }`}
+                } ${this.state.menuOpen === label ? '--NoHover' : ''}`}
                 onClick={() => {
                   chooseSection(label)
                 }}
@@ -172,6 +191,39 @@ class Sidebar extends Component {
                 <div className="Sidebar-itemTitle">{label}</div>
                 <div className="Sidebar-itemCount">
                   {collection[label].length.toLocaleString()}
+                </div>
+                <div
+                  className="Sidebar-itemOverflow"
+                  onClick={e => {
+                    this.submenu(e, label)
+                  }}
+                >
+                  <svg width="3" height="15" viewBox="0 0 3 15">
+                    <path d="M0 1.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 7.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 13.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0" />
+                  </svg>
+                </div>
+                <div
+                  className={`Sidebar-itemOverflow-Menu ${
+                    this.state.menuOpen === label ? '--Active' : ''
+                  }`}
+                  onMouseLeave={this.clearMenu}
+                >
+                  <div
+                    className="Sidebar-itemOverflow-MenuItem --Dissabled"
+                    onClick={e => {
+                      this.renameLabel(e, label)
+                    }}
+                  >
+                    Rename
+                  </div>
+                  <div
+                    className="Sidebar-itemOverflow-MenuItem --Danger"
+                    onClick={e => {
+                      this.deleteLabel(e, label)
+                    }}
+                  >
+                    Delete
+                  </div>
                 </div>
               </div>
             )
