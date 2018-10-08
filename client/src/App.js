@@ -133,7 +133,7 @@ class App extends Component {
             const labelsCsv = values[0]
             const annotationsCsv = values[1]
 
-            let urls = {}
+            let urls = []
 
             const newCollection = { ...prevState.collection }
             let newLabelList = [...prevState.labelList]
@@ -470,6 +470,11 @@ class App extends Component {
             acc[label] = prevState.collection[label]
             return acc
           }, {})
+
+          newCollection['Unlabeled'] = [
+            ...prevState.collection[labelName],
+            ...newCollection['Unlabeled']
+          ]
 
           return { collection: newCollection, labelList: newLabelList }
         },
