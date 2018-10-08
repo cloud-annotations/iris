@@ -275,46 +275,57 @@ class App extends Component {
   }
 
   labelImages = newLabel => {
-    this.setState(prevState => {
-      let newCollection = { ...prevState.collection }
+    const promise = new Promise((resolve, reject) => {
+      this.setState(
+        prevState => {
+          let newCollection = { ...prevState.collection }
 
-      let aNewArrayOfThingsToBeAdded = []
+          let aNewArrayOfThingsToBeAdded = []
 
-      let count = 0
-      prevState.labelList.forEach(label => {
-        const section = [...prevState.collection[label]]
-        const newSection = section.filter((imageName, i) => {
-          if (prevState.selection[i + count]) {
-            // If the image is selected:
+          let count = 0
+          prevState.labelList.forEach(label => {
+            const section = [...prevState.collection[label]]
+            const newSection = section.filter((imageName, i) => {
+              if (prevState.selection[i + count]) {
+                // If the image is selected:
 
-            // Copy the image to the new label in the collection
-            aNewArrayOfThingsToBeAdded = [
-              ...aNewArrayOfThingsToBeAdded,
-              section[i]
-            ]
+                // Copy the image to the new label in the collection
+                aNewArrayOfThingsToBeAdded = [
+                  ...aNewArrayOfThingsToBeAdded,
+                  section[i]
+                ]
 
-            // Don't include it in the new section
-            return false
+                // Don't include it in the new section
+                return false
+              }
+              return true
+            })
+
+            // Replace the current section with the filted section.
+            newCollection[label] = newSection
+            count += section.length
+          })
+
+          newCollection[newLabel] = [
+            ...newCollection[newLabel],
+            ...aNewArrayOfThingsToBeAdded
+          ]
+
+          return {
+            collection: newCollection,
+            selection: prevState.selection.map(() => false),
+            lastSelected: null
           }
-          return true
-        })
-
-        // Replace the current section with the filted section.
-        newCollection[label] = newSection
-        count += section.length
-      })
-
-      newCollection[newLabel] = [
-        ...newCollection[newLabel],
-        ...aNewArrayOfThingsToBeAdded
-      ]
-
-      return {
-        collection: newCollection,
-        selection: prevState.selection.map(() => false),
-        lastSelected: null
-      }
+        },
+        () => {
+          this.annotationsToCsv()
+            .then(resolve)
+            .catch(reject)
+        }
+      )
     })
+
+    this.changeRequest(promise)
   }
 
   deleteImages = () => {
@@ -383,13 +394,40 @@ class App extends Component {
         return acc + label + '\r\n'
       }, '')
 
+    const blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' })
+
+    const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
+      this.props.match.params.bucket
+    }/_labels.csv`
+    const options = {
+      method: 'PUT',
+      body: blob
+    }
+    const request = new Request(url)
+    return fetch(request, options)
+  }
+
+  annotationsToCsv = () => {
+    const csvFile = this.state.labelList
+      .filter(label => {
+        return label !== 'Unlabeled'
+      })
+      .reduce((acc, label) => {
+        return (
+          acc +
+          this.state.collection[label].reduce((acc, url) => {
+            return acc + url + ',' + label + '\r\n'
+          }, '')
+        )
+      }, '')
+
     console.log(csvFile)
 
     const blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' })
 
     const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
       this.props.match.params.bucket
-    }/_labels.csv`
+    }/_annotations.csv`
     const options = {
       method: 'PUT',
       body: blob
