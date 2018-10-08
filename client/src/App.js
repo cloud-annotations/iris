@@ -133,7 +133,6 @@ class App extends Component {
             const labelsCsv = values[0]
             const annotationsCsv = values[1]
 
-            const labelMap = {}
             let urls = {}
 
             const newCollection = { ...prevState.collection }
@@ -141,12 +140,11 @@ class App extends Component {
 
             const labels = labelsCsv.split('\n')
             labels.forEach(label => {
+              label = label.trim()
               // Account for empty lines.
               if (label !== '') {
-                const [key, value] = label.split(',')
-                labelMap[key] = value
-                newLabelList = [...newLabelList, value]
-                newCollection[value] = []
+                newLabelList = [...newLabelList, label]
+                newCollection[label] = []
               }
             })
 
@@ -154,12 +152,17 @@ class App extends Component {
             annotations.forEach(annotation => {
               // Account for empty lines.
               if (annotation !== '') {
-                const [url, key] = annotation.split(',')
-                newCollection[labelMap[key]] = [
-                  url,
-                  ...newCollection[labelMap[key]]
-                ]
-                urls = [...urls, url]
+                const [url, label] = annotation.split(',')
+                const trimedLabel = label.trim()
+
+                if (trimedLabel in newCollection) {
+                  newCollection[trimedLabel] = [
+                    url,
+                    ...newCollection[trimedLabel]
+                  ]
+
+                  urls = [...urls, url]
+                }
               }
             })
 
@@ -376,9 +379,8 @@ class App extends Component {
       .filter(label => {
         return label !== 'Unlabeled'
       })
-      .reduce((acc, label, index) => {
-        const row = `${index},${label}`
-        return acc + row + '\r\n'
+      .reduce((acc, label) => {
+        return acc + label + '\r\n'
       }, '')
 
     console.log(csvFile)
