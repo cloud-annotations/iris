@@ -29,7 +29,10 @@ class Sidebar extends Component {
 
   createLabel = () => {
     const labelName = this.labelNameInput.value
-    if (labelName === '') {
+    const trimmedCompare = this.props.sections.filter(label => {
+      return labelName.trim() === label.trim()
+    })
+    if (labelName === '' || trimmedCompare.length > 0) {
       return
     }
     this.props.createLabel(labelName)

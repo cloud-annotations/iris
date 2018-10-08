@@ -448,6 +448,7 @@ class App extends Component {
     this.setState({
       currentSection: label
     })
+    this.deselectAll()
   }
 
   onFileChosen = e => {
