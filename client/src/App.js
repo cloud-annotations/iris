@@ -35,6 +35,7 @@ class App extends Component {
     super(props)
     this.initializeData()
     this.state = {
+      saved: true,
       loading: true,
       labelList: ['Unlabeled'],
       collection: { Unlabeled: [] },
@@ -204,6 +205,27 @@ class App extends Component {
     })
   }
 
+  changeRequest = changePromise => {
+    console.log('save')
+    this.setState(
+      {
+        saved: false
+      },
+      () => {
+        changePromise
+          .then(() => {
+            console.log('done')
+            this.setState({
+              saved: true
+            })
+          })
+          .catch(error => {
+            console.error(error)
+          })
+      }
+    )
+  }
+
   handleKeyDown = event => {
     let charCode = String.fromCharCode(event.which).toLowerCase()
     // For MAC we can use metaKey to detect cmd key
@@ -293,51 +315,60 @@ class App extends Component {
   }
 
   deleteImages = () => {
-    this.setState(prevState => {
-      let newCollection = { ...prevState.collection }
+    let deleteRequests = []
+    this.setState(
+      prevState => {
+        let newCollection = { ...prevState.collection }
 
-      let count = 0
-      prevState.labelList.forEach(label => {
-        const section = [...prevState.collection[label]]
-        const newSection = section.filter((imageName, i) => {
-          if (prevState.selection[i + count]) {
-            // If the image is selected:
-            // Delete it from server.
-            const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
-              this.props.match.params.bucket
-            }/${imageName}`
-            const options = {
-              method: 'DELETE'
+        let count = 0
+        prevState.labelList.forEach(label => {
+          const section = [...prevState.collection[label]]
+          const newSection = section.filter((imageName, i) => {
+            if (prevState.selection[i + count]) {
+              // If the image is selected:
+              // Delete it from server.
+              const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
+                this.props.match.params.bucket
+              }/${imageName}`
+              const options = {
+                method: 'DELETE'
+              }
+              const request = new Request(url)
+              const deleteRequest = fetch(request, options)
+                .then(response => {
+                  console.log(response)
+                })
+                .catch(error => {
+                  console.error(error)
+                })
+
+              deleteRequests = [...deleteRequests, deleteRequest]
+              // Don't include it in the new section
+              return false
             }
-            const request = new Request(url)
-            fetch(request, options)
-              .then(response => {
-                console.log(response)
-              })
-              .catch(error => {
-                console.error(error)
-              })
-            // Don't include it in the new section
-            return false
-          }
-          return true
+            return true
+          })
+
+          // Replace the current section with the filted section.
+          newCollection[label] = newSection
+          count += section.length
         })
 
-        // Replace the current section with the filted section.
-        newCollection[label] = newSection
-        count += section.length
-      })
+        const newSelection = Object.keys(newCollection).reduce((acc, key) => {
+          return [...acc, ...newCollection[key].map(() => false)]
+        }, [])
 
-      const newSelection = Object.keys(newCollection).reduce((acc, key) => {
-        return [...acc, ...newCollection[key].map(() => false)]
-      }, [])
-
-      return {
-        collection: newCollection,
-        selection: newSelection,
-        lastSelected: null
+        return {
+          collection: newCollection,
+          selection: newSelection,
+          lastSelected: null
+        }
+      },
+      () => {
+        const changes = Promise.all(deleteRequests)
+        this.changeRequest(changes)
       }
-    })
+    )
   }
 
   createLabel = labelName => {
@@ -358,73 +389,86 @@ class App extends Component {
   }
 
   onFileChosen = e => {
-    const fileList = getDataTransferItems(e)
-    const filesWithNames = fileList.map(file => {
-      const fileName = generateUUID()
-      return { file: file, fileName: `${fileName}.JPG` }
-    })
-
-    this.setState(prevState => {
-      const newCollection = { ...prevState.collection }
-
-      filesWithNames.forEach(fileWithName => {
-        newCollection['Unlabeled'] = [
-          `tmp_${fileWithName.fileName}`,
-          ...newCollection['Unlabeled']
-        ]
+    const uploadRequest = new Promise((resolve, reject) => {
+      const fileList = getDataTransferItems(e)
+      const filesWithNames = fileList.map(file => {
+        const fileName = generateUUID()
+        return { file: file, fileName: `${fileName}.JPG` }
       })
 
-      const newSelection = Object.keys(newCollection).reduce((acc, key) => {
-        return [...acc, ...newCollection[key].map(() => false)]
-      }, [])
+      this.setState(prevState => {
+        const newCollection = { ...prevState.collection }
 
-      return {
-        collection: newCollection,
-        selection: newSelection,
-        lastSelected: null
-      }
-    })
+        filesWithNames.forEach(fileWithName => {
+          newCollection['Unlabeled'] = [
+            `tmp_${fileWithName.fileName}`,
+            ...newCollection['Unlabeled']
+          ]
+        })
 
-    filesWithNames.forEach(fileWithName => {
-      const fileName = fileWithName.fileName
-      const file = fileWithName.file
-      readFile(file)
-        .then(image => shrinkImage(image))
-        .then(canvas => {
-          const dataURL = canvas.toDataURL('image/jpeg')
-          return localforage.setItem(fileName, dataURL).then(() => {
-            this.setState(prevState => {
-              const newCollection = { ...prevState.collection }
-              newCollection['Unlabeled'] = newCollection['Unlabeled'].map(
-                image => {
-                  if (image === `tmp_${fileName}`) {
-                    return fileName
+        const newSelection = Object.keys(newCollection).reduce((acc, key) => {
+          return [...acc, ...newCollection[key].map(() => false)]
+        }, [])
+
+        return {
+          collection: newCollection,
+          selection: newSelection,
+          lastSelected: null
+        }
+      })
+
+      var uploadRequests = []
+      filesWithNames.forEach(fileWithName => {
+        const fileName = fileWithName.fileName
+        const file = fileWithName.file
+        const promise = readFile(file)
+          .then(image => shrinkImage(image))
+          .then(canvas => {
+            const dataURL = canvas.toDataURL('image/jpeg')
+            return localforage.setItem(fileName, dataURL).then(() => {
+              this.setState(prevState => {
+                const newCollection = { ...prevState.collection }
+                newCollection['Unlabeled'] = newCollection['Unlabeled'].map(
+                  image => {
+                    if (image === `tmp_${fileName}`) {
+                      return fileName
+                    }
+                    return image
                   }
-                  return image
-                }
-              )
+                )
 
-              return {
-                collection: newCollection
-              }
+                return {
+                  collection: newCollection
+                }
+              })
+              return canvas
             })
-            return canvas
           })
-        })
-        .then(canvas => canvasToBlob(canvas))
-        .then(blob => {
-          const url = `api/proxy/${localStorage.getItem('loginUrl')}/${this.props.match.params.bucket}/${fileName}`
-          const options = {
-            method: 'PUT',
-            body: blob
-          }
-          const request = new Request(url)
-          return fetch(request, options)
-        })
-        .catch(error => {
-          console.error(error)
-        })
+          .then(canvas => canvasToBlob(canvas))
+          .then(blob => {
+            const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
+              this.props.match.params.bucket
+            }/${fileName}`
+            const options = {
+              method: 'PUT',
+              body: blob
+            }
+            const request = new Request(url)
+            return fetch(request, options)
+          })
+          .catch(error => {
+            console.error(error)
+          })
+
+        uploadRequests = [...uploadRequests, promise]
+      })
+
+      Promise.all(uploadRequests)
+        .then(resolve)
+        .catch(reject)
     })
+
+    this.changeRequest(uploadRequest)
   }
 
   render() {
@@ -435,6 +479,7 @@ class App extends Component {
     return (
       <div>
         <BucketBar
+          saved={this.state.saved}
           bucket={this.props.match.params.bucket}
           onChange={this.onFileChosen}
         />

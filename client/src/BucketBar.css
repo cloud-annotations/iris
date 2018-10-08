@@ -12,7 +12,8 @@
   display: flex;
   align-items: stretch;
 
-  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
 
   font-size: 14px;
   font-weight: 500;
@@ -59,11 +60,16 @@
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-.BucketBar input[type=file] {
+.BucketBar input[type='file'] {
   position: absolute;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
   opacity: 0;
+}
+
+.BucketBar-save {
+  opacity: 0.5;
+  margin-left: 18px;
 }
