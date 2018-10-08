@@ -371,15 +371,49 @@ class App extends Component {
     )
   }
 
+  labelsToCsv = () => {
+    const csvFile = this.state.labelList
+      .slice(1)
+      .reduce((acc, label, index) => {
+        const row = `${index},${label}`
+        return acc + row + '\r\n'
+      }, '')
+
+    console.log(csvFile)
+
+    const blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' })
+
+    const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
+      this.props.match.params.bucket
+    }/_labels.csv`
+    const options = {
+      method: 'PUT',
+      body: blob
+    }
+    const request = new Request(url)
+    return fetch(request, options)
+  }
+
   createLabel = labelName => {
-    this.setState(prevState => {
-      const newCollection = { ...prevState.collection }
-      const newLabelList = [...prevState.labelList, labelName]
+    const promise = new Promise((resolve, reject) => {
+      this.setState(
+        prevState => {
+          const newCollection = { ...prevState.collection }
+          const newLabelList = [...prevState.labelList, labelName]
 
-      newCollection[labelName] = []
+          newCollection[labelName] = []
 
-      return { collection: newCollection, labelList: newLabelList }
+          return { collection: newCollection, labelList: newLabelList }
+        },
+        () => {
+          this.labelsToCsv()
+            .then(resolve)
+            .catch(reject)
+        }
+      )
     })
+
+    this.changeRequest(promise)
   }
 
   chooseSection = label => {
