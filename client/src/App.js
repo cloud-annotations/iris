@@ -129,9 +129,13 @@ class App extends Component {
     if (this.dragging) {
       this.setState(prevState => {
         const newSelection = prevState.tmpSelection || prevState.selection
+        let newLastSelect = prevState.lastSelected
+        if (prevState.tmpSelection !== null) {
+          newLastSelect = null
+        }
         return {
           selection: newSelection,
-          lastSelected: null,
+          lastSelected: newLastSelect,
           tmpSelection: null
         }
       })
