@@ -26,7 +26,9 @@ class GridIcon extends Component {
   }
 
   loadImage = imageUrl => {
-    const url = `api/proxy/${localStorage.getItem('loginUrl')}/${this.props.bucket}/${imageUrl}`
+    const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
+      this.props.bucket
+    }/${imageUrl}`
     const options = {
       method: 'GET'
     }
@@ -57,10 +59,16 @@ class GridIcon extends Component {
   }
 
   render() {
-    const { selected } = this.props
+    const { selected, dragStart, drag, index } = this.props
 
     return (
       <div
+        onMouseDown={() => {
+          dragStart(index)
+        }}
+        onMouseOver={() => {
+          drag(index)
+        }}
         onClick={this.onClick}
         className={`GridIcon-Wrapper ${selected ? '--Active' : ''}`}
       >

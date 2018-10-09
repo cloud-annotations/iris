@@ -11,6 +11,8 @@ class ImageGrid extends Component {
       collection,
       currentSection,
       gridItemSelected,
+      dragStart,
+      drag,
       bucket
     } = this.props
     return (
@@ -34,6 +36,8 @@ class ImageGrid extends Component {
                         {collection[section].map(imagePointer => {
                           const gridIcon = (
                             <GridIcon
+                              dragStart={dragStart}
+                              drag={drag}
                               bucket={bucket}
                               key={imagePointer}
                               imageUrl={imagePointer}
