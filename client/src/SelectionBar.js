@@ -31,9 +31,25 @@ class SelectionBar extends Component {
       return list
     }
 
-    return list.filter(item => {
-      return item.toLowerCase().includes(trimmed.toLowerCase())
-    })
+    return list
+      .filter(item => {
+        return item.toLowerCase().includes(trimmed.toLowerCase())
+      })
+      .sort((a, b) => {
+        if (
+          a.toLowerCase().indexOf(trimmed.toLowerCase()) === 0 &&
+          b.toLowerCase().indexOf(trimmed.toLowerCase()) > 0
+        ) {
+          return -1
+        }
+        if (
+          b.toLowerCase().indexOf(trimmed.toLowerCase()) === 0 &&
+          a.toLowerCase().indexOf(trimmed.toLowerCase()) > 0
+        ) {
+          return 1
+        }
+        return a.length - b.length
+      })
   }
 
   filterChange = e => {
@@ -100,15 +116,14 @@ class SelectionBar extends Component {
               }}
             />
             <div className="SelectionBar-DropDown-Menu">
-              {this.state.filter.trim() !== '' &&
-              !onlyLabels.includes(this.state.filter) ? (
+              {this.filterList(this.state.filter, onlyLabels).length === 0 ? (
                 <div
                   className="SelectionBar-DropDown-MenuItemWrapper-Button"
                   onClick={() => {
                     // labelImages('Unlabeled')
                   }}
                 >
-                  <div className="SelectionBar-DropDown-MenuItem">{`Add label "${
+                  <div className="SelectionBar-DropDown-MenuItem">{`Create label "${
                     this.state.filter
                   }"`}</div>
                 </div>
@@ -129,14 +144,18 @@ class SelectionBar extends Component {
                   </div>
                 )
               })}
-              <div
-                className="SelectionBar-DropDown-MenuItemWrapper"
-                onClick={() => {
-                  labelImages('Unlabeled')
-                }}
-              >
-                <div className="SelectionBar-DropDown-MenuItem">Unlabel</div>
-              </div>
+              {this.state.filter.trim() === '' ? (
+                <div
+                  className="SelectionBar-DropDown-MenuItemWrapper"
+                  onClick={() => {
+                    labelImages('Unlabeled')
+                  }}
+                >
+                  <div className="SelectionBar-DropDown-MenuItem">Unlabel</div>
+                </div>
+              ) : (
+                ''
+              )}
             </div>
           </div>
         </div>

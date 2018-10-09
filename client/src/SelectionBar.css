@@ -134,7 +134,7 @@
 }
 
 .SelectionBar-DropDown-MenuItemWrapper-Button .SelectionBar-DropDown-MenuItem {
-  background-color: red;
+  font-style: italic;
 }
 
 .SelectionBar-DropDown-MenuItemWrapper:hover {
