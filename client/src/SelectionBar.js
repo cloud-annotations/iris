@@ -30,8 +30,9 @@ class SelectionBar extends Component {
     if (trimmed === '') {
       return list
     }
+
     return list.filter(item => {
-      return item.includes(trimmed)
+      return item.toLowerCase().includes(trimmed.toLowerCase())
     })
   }
 
@@ -99,6 +100,21 @@ class SelectionBar extends Component {
               }}
             />
             <div className="SelectionBar-DropDown-Menu">
+              {this.state.filter.trim() !== '' &&
+              !onlyLabels.includes(this.state.filter) ? (
+                <div
+                  className="SelectionBar-DropDown-MenuItemWrapper-Button"
+                  onClick={() => {
+                    // labelImages('Unlabeled')
+                  }}
+                >
+                  <div className="SelectionBar-DropDown-MenuItem">{`Add label "${
+                    this.state.filter
+                  }"`}</div>
+                </div>
+              ) : (
+                ''
+              )}
               {this.filterList(this.state.filter, onlyLabels).map(section => {
                 return (
                   <div
