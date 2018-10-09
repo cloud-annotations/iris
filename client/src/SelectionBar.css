@@ -32,6 +32,10 @@
   padding: 0 25px;
 }
 
+.SelectionBar-count-Wrapper {
+  padding-right: 0;
+}
+
 .SelectionBar-Wrapper:hover.SelectionBar-Button {
   background-color: rgba(0, 0, 0, 0.1);
 }
@@ -113,7 +117,7 @@
 
 .SelectionBar-DropDown-MenuItemWrapper {
   height: 2.5rem;
-  padding: 0 16px;
+  padding: 0 25px;
   display: flex;
 }
 
