@@ -33,21 +33,9 @@ class SelectionBar extends Component {
 
     return list
       .filter(item => {
-        return item.toLowerCase().includes(trimmed.toLowerCase())
+        return item.toLowerCase().indexOf(trimmed.toLowerCase()) === 0
       })
       .sort((a, b) => {
-        if (
-          a.toLowerCase().indexOf(trimmed.toLowerCase()) === 0 &&
-          b.toLowerCase().indexOf(trimmed.toLowerCase()) > 0
-        ) {
-          return -1
-        }
-        if (
-          b.toLowerCase().indexOf(trimmed.toLowerCase()) === 0 &&
-          a.toLowerCase().indexOf(trimmed.toLowerCase()) > 0
-        ) {
-          return 1
-        }
         return a.length - b.length
       })
   }
@@ -69,13 +57,32 @@ class SelectionBar extends Component {
     )
   }
 
+  handleKeyPress = e => {
+    const { labelImages, createLabel, sections } = this.props
+
+    if (e.key === 'Enter') {
+      const onlyLabels = sections.filter(label => {
+        return label !== 'Unlabeled'
+      })
+
+      if (this.filterList(this.state.filter, onlyLabels).length === 0) {
+        createLabel(this.state.filter)
+        labelImages(this.state.filter)
+        return
+      }
+      const label = this.filterList(this.state.filter, onlyLabels)[0]
+      labelImages(label)
+    }
+  }
+
   render() {
     const {
       selectionCount,
       sections,
       labelImages,
       deleteImages,
-      deselectAll
+      deselectAll,
+      createLabel
     } = this.props
 
     const onlyLabels = sections.filter(label => {
@@ -109,18 +116,20 @@ class SelectionBar extends Component {
             </svg>
             <input
               className="SelectionBar-DropDown-Filter"
-              placeholder="Filter"
+              placeholder="Label"
               onChange={this.filterChange}
               ref={input => {
                 this.filterFieldRef = input
               }}
+              onKeyPress={this.handleKeyPress}
             />
             <div className="SelectionBar-DropDown-Menu">
               {this.filterList(this.state.filter, onlyLabels).length === 0 ? (
                 <div
                   className="SelectionBar-DropDown-MenuItemWrapper-Button"
                   onClick={() => {
-                    // labelImages('Unlabeled')
+                    createLabel(this.state.filter)
+                    labelImages(this.state.filter)
                   }}
                 >
                   <div className="SelectionBar-DropDown-MenuItem">{`Create label "${
@@ -139,7 +148,10 @@ class SelectionBar extends Component {
                     }}
                   >
                     <div className="SelectionBar-DropDown-MenuItem">
-                      {section}
+                      <span className="SelectionBar-DropDown-MenuItem-highlight">
+                        {section.substring(0, this.state.filter.length)}
+                      </span>
+                      {section.substring(this.state.filter.length)}
                     </div>
                   </div>
                 )

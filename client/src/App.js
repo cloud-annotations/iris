@@ -67,7 +67,8 @@ class App extends Component {
       window
         .getComputedStyle(grid, null)
         .getPropertyValue('grid-template-columns')
-        .split('px').length - 1
+        .split('px').length - 1,
+      10
     )
   }
   handleDragStart = index => {
@@ -745,6 +746,7 @@ class App extends Component {
           sections={this.state.labelList}
           deselectAll={this.deselectAll}
           labelImages={this.labelImages}
+          createLabel={this.createLabel}
           deleteImages={this.deleteImages}
         />
         <Sidebar

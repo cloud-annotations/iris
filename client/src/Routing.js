@@ -1,10 +1,5 @@
 import React, { Component } from 'react'
-import {
-  BrowserRouter as Router,
-  Route,
-  Switch,
-  browserHistory
-} from 'react-router-dom'
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import TitleBar from './TitleBar'
 import App from './App'
 import Login from './Login'

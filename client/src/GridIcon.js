@@ -72,7 +72,7 @@ class GridIcon extends Component {
         onClick={this.onClick}
         className={`GridIcon-Wrapper ${selected ? '--Active' : ''}`}
       >
-        <img className="GridIcon-Image" src={this.state.image} />
+        <img className="GridIcon-Image" alt="" src={this.state.image} />
         <div className="GridIcon-check-IconWrapper">
           <svg
             className="GridIcon-check-Icon"
