@@ -57,7 +57,7 @@ class Login extends Component {
       <div>
         <div className="Login-TopBar">
           <div className="Login-TopBar-title">
-            Cloud Object Storage / Connection Details
+            Cloud Object Storage — Connection Details
           </div>
         </div>
         <div className="Login-Parent">
