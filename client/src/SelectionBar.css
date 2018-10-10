@@ -116,16 +116,36 @@
   visibility: visible;
 }
 
-.SelectionBar-DropDown-MenuItemWrapper, .SelectionBar-DropDown-MenuItemWrapper-Button {
+.SelectionBar-DropDown-Menu.--Filtering
+  .SelectionBar-DropDown-MenuItemWrapper:first-child {
+  background-color: rgba(85, 150, 230, 0.15);
+}
+
+.SelectionBar-DropDown-Menu.--Filtering
+  .SelectionBar-DropDown-MenuItemWrapper:first-child:hover {
+  background-color: rgba(85, 150, 230, 0.25);
+}
+
+.SelectionBar-DropDown-MenuItemWrapper,
+.SelectionBar-DropDown-MenuItemWrapper-Button {
   padding: 9px 25px;
   display: flex;
 }
 
-.SelectionBar-DropDown-MenuItemWrapper:hover, .SelectionBar-DropDown-MenuItemWrapper-Button:hover {
+.SelectionBar-DropDown-MenuItemWrapper:hover,
+.SelectionBar-DropDown-MenuItemWrapper-Button:hover {
   /* color: #3d70b2; */
   background-color: rgba(85, 150, 230, 0.1);
 }
 
+.SelectionBar-DropDown-MenuItemWrapper-Button {
+  background-color: rgba(85, 150, 230, 0.15);
+}
+
+.SelectionBar-DropDown-MenuItemWrapper-Button:hover {
+  /* color: #3d70b2; */
+  background-color: rgba(85, 150, 230, 0.25);
+}
 
 .SelectionBar-DropDown-MenuItem {
   overflow: hidden;

@@ -123,7 +123,11 @@ class SelectionBar extends Component {
               }}
               onKeyPress={this.handleKeyPress}
             />
-            <div className="SelectionBar-DropDown-Menu">
+            <div
+              className={`SelectionBar-DropDown-Menu ${
+                this.state.filter.trim() !== '' ? '--Filtering' : ''
+              }`}
+            >
               {this.filterList(this.state.filter, onlyLabels).length === 0 ? (
                 <div
                   className="SelectionBar-DropDown-MenuItemWrapper-Button"
