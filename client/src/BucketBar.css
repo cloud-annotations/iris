@@ -1,6 +1,6 @@
 .BucketBar {
   position: fixed;
-  z-index: 1; /* so the shadow shows */
+  z-index: -1; /* so the shadow shows */
   top: 50px;
   left: 0px;
   right: 0px;

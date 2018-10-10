@@ -1,4 +1,5 @@
 .TitleBar {
+  z-index: 9000;
   position: fixed;
   top: 0px;
   left: 0px;
@@ -7,24 +8,21 @@
   background-color: #162934;
   display: flex;
   align-items: center;
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
 }
 
 .TitleBar-title {
-  font-family: ibm-plex-sans, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
-
   margin-left: 25px;
-
   font-size: 16px;
   color: rgb(242, 244, 248);
   font-weight: 600;
 }
 
 .TitleBar-breadCrumb {
-  font-family: ibm-plex-mono, "Helvetica Neue for IBM", "Helvetica Neue", Helvetica, Arial, Roboto, sans-serif;
-  align-items: center;
-
+  font-family: ibm-plex-mono, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
   /* margin: 0px 25px; */
-
   font-size: 16px;
   color: rgba(242, 244, 248, 0.6);
 }
@@ -34,7 +32,81 @@
   text-decoration: none;
 }
 
-.TitleBar-serviceID:hover {
-  color: #7fbfff;
-  text-decoration: underline;
+.TitleBar-user {
+  position: relative;
+  margin: 0 2px 0 auto;
+  padding: 0 8px;
+  display: flex;
+  align-self: stretch;
+}
+
+.TitleBar-user:hover {
+  background-color: #2c3f48;
+}
+
+.TitleBar-user.--Active {
+  background-color: #2c3f48;
+}
+
+.TitleBar-user-Icon {
+  align-self: center;
+  fill: #ffffff;
+  height: 32px;
+  width: 32px;
+}
+
+.TitleBar-user-Dropdown {
+  position: absolute;
+  right: 2px;
+  top: 50px;
+  width: 270px;
+  z-index: 0;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
+  background-color: #2c3f48;
+  color: rgb(242, 244, 248);
+  transform: translateY(-33px);
+  transition: 250ms all cubic-bezier(0.5, 0, 0.1, 1);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.TitleBar-user-Dropdown.--Active {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.TitleBar-user-Dropdown-profile {
+  padding: 18px 16px;
+  font-size: 20px;
+  font-weight: 700;
+  display: flex;
+}
+
+.TitleBar-user-Dropdown-svg-wrapper {
+  width: 60px;
+  height: 60px;
+  background-color: #ffffff;
+  border-radius: 30px;
+  padding: 8px;
+  border: 1px solid #162934;
+
+  flex-shrink: 0;
+}
+
+.TitleBar-user-Dropdown-profile-id {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 16px;
+}
+
+.TitleBar-user-Dropdown-logout {
+  padding: 13px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border-top: 1px solid #364f5a;
+}
+
+.TitleBar-user-Dropdown-logout:hover {
+  color: #5596e6;
 }

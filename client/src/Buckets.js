@@ -50,6 +50,7 @@ class Buckets extends Component {
           new window.DOMParser().parseFromString(str.xml, 'text/xml')
         )
         .then(data => {
+          console.log(data)
           const elements = data.getElementsByTagName('Bucket')
           const bucketList = Array.prototype.map.call(elements, element => {
             const name = element.getElementsByTagName('Name')[0].innerHTML
