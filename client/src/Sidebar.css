@@ -59,14 +59,14 @@
   background-color: white;
   z-index: 1;
   box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.1);
-  transition: transform ease 200ms;
-  transform: scaleY(0);
-  transform-origin: top;
+  transition: transform ease 100ms;
+  transform: scaleX(0.5) scaleY(0.5);
+  transform-origin: top right;
 }
 
 .Sidebar-itemOverflow-Menu.--Active {
   visibility: visible;
-  transform: scaleY(1);
+  transform: scaleX(1) scaleY(0);
 }
 
 .Sidebar-itemOverflow-MenuItem {
