@@ -137,6 +137,14 @@ if (process.env.NODE_ENV === 'production') {
     res.sendFile(path.join(__dirname, 'index.html'))
   })
 
+  app.get('/favicon.ico', function(req, res) {
+    res.sendFile(path.join(__dirname, 'favicon.ico'))
+  })
+
+  app.get('/manifest.json', function(req, res) {
+    res.sendFile(path.join(__dirname, 'manifest.json'))
+  })
+
   app.get('*', function(req, res) {
     res.sendFile(path.join(__dirname, 'index.html'))
   })
