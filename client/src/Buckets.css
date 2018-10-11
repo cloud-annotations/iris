@@ -9,6 +9,41 @@
   -webkit-overflow-scrolling: touch;
 }
 
+.Buckets-TableHeader {
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+
+.Buckets-TableHeader-title {
+  font-size: 20px;
+  padding: 0 16px;
+  margin-bottom: 8px;
+}
+
+.Buckets-createBucket-Button {
+  background-color: #3d70b2;
+  border: 2px solid transparent;
+  color: #fff;
+  font-size: 14px;
+  padding: 12px 16px;
+  margin: 0 16px 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.Buckets-createBucket-Button:hover {
+  background-color: #30588c;
+}
+
+.Buckets-createBucket-Icon {
+  height: 16px;
+  width: 16px;
+  fill: #ffffff;
+  margin-left: 12px;
+}
+
 .Buckets-Link {
   text-decoration: none;
   display: block;
@@ -18,10 +53,18 @@
   margin: 40px 5%;
 }
 
+.Buckets-Modal-TextInput {
+  margin-bottom: 2px; /* show the underline */
+}
+
+.bx--modal-container {
+  width: 100%;
+}
+
 .bx--data-table-v2 th:hover .bx--table-sort-v2__icon {
-    opacity: 0.5;
+  opacity: 0.5;
 }
 
 .bx--table-sort-v2--active .bx--table-sort-v2__icon {
-    opacity: 1 !important;
+  opacity: 1 !important;
 }

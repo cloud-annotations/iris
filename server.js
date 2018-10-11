@@ -71,6 +71,22 @@ app.get('/api/proxy/:url/:bucket', function(req, res) {
     })
 })
 
+app.put('/api/proxy/:url/:bucket', function(req, res) {
+  const token = req.cookies.token
+  const url = `https://${req.params.url}/${req.params.bucket}`
+  req
+    .pipe(
+      requests.put({
+        url: url,
+        headers: {
+          Authorization: 'bearer ' + token,
+          'ibm-service-instance-id': req.query.resourceId
+        }
+      })
+    )
+    .pipe(res)
+})
+
 app.get('/api/proxy/:url/:bucket/*', function(req, res) {
   const token = req.cookies.token
   const url = `https://${req.params.url}/${req.params.bucket}/${req.params[0]}`

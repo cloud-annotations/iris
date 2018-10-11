@@ -1,6 +1,6 @@
 #!/bin/bash
 
-KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/test_annotations/kube-config-wdc04-test_annotations.yml"
+export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/test_annotations/kube-config-wdc04-test_annotations.yml"
 
 URL="https://testannotations.us-east.containers.appdomain.cloud"
 
