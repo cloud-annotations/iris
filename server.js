@@ -71,9 +71,9 @@ app.get('/api/proxy/:url/:bucket', function(req, res) {
     })
 })
 
-app.get('/api/proxy/:url/:bucket/:id', function(req, res) {
+app.get('/api/proxy/:url/:bucket/*', function(req, res) {
   const token = req.cookies.token
-  var url = `https://${req.params.url}/${req.params.bucket}/${req.params.id}`
+  const url = `https://${req.params.url}/${req.params.bucket}/${req.params[0]}`
   req
     .pipe(
       requests.get({
@@ -86,9 +86,9 @@ app.get('/api/proxy/:url/:bucket/:id', function(req, res) {
     .pipe(res)
 })
 
-app.put('/api/proxy/:url/:bucket/:id', function(req, res) {
+app.put('/api/proxy/:url/:bucket/*', function(req, res) {
   const token = req.cookies.token
-  var url = `https://${req.params.url}/${req.params.bucket}/${req.params.id}`
+  const url = `https://${req.params.url}/${req.params.bucket}/${req.params[0]}`
   req
     .pipe(
       requests.put({
@@ -101,9 +101,9 @@ app.put('/api/proxy/:url/:bucket/:id', function(req, res) {
     .pipe(res)
 })
 
-app.delete('/api/proxy/:url/:bucket/:id', function(req, res) {
+app.delete('/api/proxy/:url/:bucket/*', function(req, res) {
   const token = req.cookies.token
-  var url = `https://${req.params.url}/${req.params.bucket}/${req.params.id}`
+  const url = `https://${req.params.url}/${req.params.bucket}/${req.params[0]}`
   req
     .pipe(
       requests.delete({

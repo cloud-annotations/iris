@@ -26,7 +26,7 @@ class GridIcon extends Component {
   }
 
   loadImage = imageUrl => {
-    const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
+    const url = `api/proxy/${localStorage.getItem('loginUrl') || ''}/${
       this.props.bucket
     }/${imageUrl}`
     const options = {

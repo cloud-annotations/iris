@@ -46,6 +46,12 @@ class TitleBar extends Component {
   }
 
   render() {
+    const resourceId = (localStorage.getItem('resourceId') || '').split(':')
+    let shortId = ''
+    if (resourceId.length > 7) {
+      shortId = resourceId[7]
+    }
+
     return (
       <div>
         <div className="TitleBar">
@@ -151,9 +157,7 @@ class TitleBar extends Component {
                 <path fill="none" d="M1-194.6h56.4v9.3H1z" />
               </svg>
             </div>
-            <div className="TitleBar-user-Dropdown-profile-id">
-              {localStorage.getItem('resourceId').split(':')[7]}
-            </div>
+            <div className="TitleBar-user-Dropdown-profile-id">{shortId}</div>
           </div>
           <div className="TitleBar-user-Dropdown-logout" onClick={this.logout}>
             Log out
