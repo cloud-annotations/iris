@@ -1,7 +1,7 @@
 FROM node:9.4.0-alpine
 COPY server.js .
 COPY package.json .
-COPY client/build .
+COPY client/build client
 RUN npm install &&\
     apk update &&\
     apk upgrade

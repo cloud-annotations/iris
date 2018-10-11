@@ -8,7 +8,6 @@ const app = express()
 const port = process.env.PORT || 9000
 
 app.use(cookieParser())
-app.use('/static', express.static(path.join(__dirname, 'static')))
 
 app.get('/api/auth', function(req, res) {
   const apikey = req.query.apikey
@@ -133,20 +132,10 @@ app.delete('/api/proxy/:url/:bucket/*', function(req, res) {
 })
 
 if (process.env.NODE_ENV === 'production') {
-  app.get('/', function(req, res) {
-    res.sendFile(path.join(__dirname, 'index.html'))
-  })
-
-  app.get('/favicon.ico', function(req, res) {
-    res.sendFile(path.join(__dirname, 'favicon.ico'))
-  })
-
-  app.get('/manifest.json', function(req, res) {
-    res.sendFile(path.join(__dirname, 'manifest.json'))
-  })
+  app.use(express.static(path.join(__dirname, 'client')))
 
   app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname, 'index.html'))
+    res.sendFile(path.join(__dirname, 'client', 'index.html'))
   })
 }
 
