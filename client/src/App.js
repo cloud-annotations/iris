@@ -6,6 +6,7 @@ import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
 import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
 import { Loading } from 'carbon-components-react'
+import Dropzone from 'react-dropzone'
 import {
   validateCookies,
   generateUUID,
@@ -43,8 +44,8 @@ class App extends Component {
       selection: [],
       tmpLabeledImages: new Set([]),
       lastSelected: null, // This does not include shift clicks.
-
-      tmpSelection: null
+      tmpSelection: null,
+      dropzoneActive: false
     }
   }
 
@@ -729,6 +730,101 @@ class App extends Component {
     this.changeRequest(uploadRequest)
   }
 
+  onDragEnter = () => {
+    this.setState({
+      dropzoneActive: true
+    })
+  }
+
+  onDragLeave = () => {
+    this.setState({
+      dropzoneActive: false
+    })
+  }
+
+  onDrop = files => {
+    const uploadRequest = new Promise((resolve, reject) => {
+      const filesWithNames = files.map(file => {
+        const fileName = generateUUID()
+        return { file: file, fileName: `${fileName}.JPG` }
+      })
+
+      this.setState(prevState => {
+        const newCollection = { ...prevState.collection }
+
+        filesWithNames.forEach(fileWithName => {
+          newCollection['Unlabeled'] = [
+            `tmp_${fileWithName.fileName}`,
+            ...newCollection['Unlabeled']
+          ]
+        })
+
+        const newSelection = Object.keys(newCollection).reduce((acc, key) => {
+          return [...acc, ...newCollection[key].map(() => false)]
+        }, [])
+
+        return {
+          collection: newCollection,
+          selection: newSelection,
+          lastSelected: null
+        }
+      })
+
+      var uploadRequests = []
+      filesWithNames.forEach(fileWithName => {
+        const fileName = fileWithName.fileName
+        const file = fileWithName.file
+        const promise = readFile(file)
+          .then(image => shrinkImage(image))
+          .then(canvas => {
+            const dataURL = canvas.toDataURL('image/jpeg')
+            return localforage.setItem(fileName, dataURL).then(() => {
+              this.setState(prevState => {
+                const newCollection = { ...prevState.collection }
+                newCollection['Unlabeled'] = newCollection['Unlabeled'].map(
+                  image => {
+                    if (image === `tmp_${fileName}`) {
+                      return fileName
+                    }
+                    return image
+                  }
+                )
+
+                return {
+                  collection: newCollection,
+                  dropzoneActive: false
+                }
+              })
+              return canvas
+            })
+          })
+          .then(canvas => canvasToBlob(canvas))
+          .then(blob => {
+            const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
+              this.props.match.params.bucket
+            }/${fileName}`
+            const options = {
+              method: 'PUT',
+              body: blob
+            }
+            const request = new Request(url)
+            return fetch(request, options)
+          })
+          .catch(error => {
+            console.error(error)
+          })
+
+        uploadRequests = [...uploadRequests, promise]
+      })
+
+      Promise.all(uploadRequests)
+        .then(resolve)
+        .catch(reject)
+    })
+
+    this.changeRequest(uploadRequest)
+  }
+
   render() {
     const selectionCount = this.state.selection
       ? this.state.selection.filter(item => item).length
@@ -758,23 +854,43 @@ class App extends Component {
           deleteLabel={this.deleteLabel}
         />
         <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
-          <Loading active={this.state.loading} />
-          <EmptySet
-            forceHide={this.state.loading}
-            currentSection={this.state.currentSection}
-            sections={this.state.labelList}
-            collection={this.state.collection}
-          />
-          <ImageGrid
-            dragStart={this.handleDragStart}
-            drag={this.handleDrag}
-            bucket={this.props.match.params.bucket}
-            sections={this.state.labelList}
-            currentSection={this.state.currentSection}
-            collection={this.state.collection}
-            selection={this.state.tmpSelection || this.state.selection}
-            gridItemSelected={this.gridItemSelected}
-          />
+          <Dropzone
+            disableClick
+            style={{ position: 'relative' }}
+            accept="image/*"
+            onDrop={this.onDrop}
+            onDragEnter={this.onDragEnter}
+            onDragLeave={this.onDragLeave}
+          >
+            <Loading active={this.state.loading} />
+            <div
+              className={`App-DropTarget ${
+                this.state.dropzoneActive ? '--Active' : ''
+              }`}
+            >
+              <div className="App-DropTarget-outline">
+                <div className="App-DropTarget-text">
+                  Drop to upload your images
+                </div>
+              </div>
+            </div>
+            <EmptySet
+              forceHide={this.state.loading}
+              currentSection={this.state.currentSection}
+              sections={this.state.labelList}
+              collection={this.state.collection}
+            />
+            <ImageGrid
+              dragStart={this.handleDragStart}
+              drag={this.handleDrag}
+              bucket={this.props.match.params.bucket}
+              sections={this.state.labelList}
+              currentSection={this.state.currentSection}
+              collection={this.state.collection}
+              selection={this.state.tmpSelection || this.state.selection}
+              gridItemSelected={this.gridItemSelected}
+            />
+          </Dropzone>
         </div>
       </div>
     )
