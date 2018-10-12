@@ -47,7 +47,7 @@ class Buckets extends Component {
   }
 
   initializeData = () => {
-    validateCookies()
+    return validateCookies()
       .then(() => this.populateBuckets())
       .catch(error => {
         console.error(error)
@@ -175,6 +175,7 @@ class Buckets extends Component {
               {
                 loading: false,
                 invalidText: '',
+                textInputBucketName: '',
                 invalid: false
               },
               () => {
@@ -268,7 +269,9 @@ class Buckets extends Component {
       })
       .then(handleErrors)
       .then(() => {
-        this.initializeData()
+        return this.initializeData()
+      })
+      .then(() => {
         this.setState(prevState => {
           const loading = prevState.loadingBuckets.filter(bucket => {
             return bucketName !== bucket
