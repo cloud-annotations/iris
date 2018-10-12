@@ -28,10 +28,19 @@ class Routing extends Component {
                 exact
                 path="/"
                 render={props => (
-                  <Buckets {...props} buckets={this.state.buckets} cacheBucketList={this.cacheBucketList} />
+                  <Buckets
+                    {...props}
+                    buckets={this.state.buckets}
+                    cacheBucketList={this.cacheBucketList}
+                  />
                 )}
               />
-              <Route path="/login" component={Login} />
+              <Route
+                path="/login"
+                render={props => (
+                  <Login {...props} cacheBucketList={this.cacheBucketList} />
+                )}
+              />
               <Route path="/:bucket" component={App} />
             </Switch>
           </div>

@@ -30,6 +30,12 @@ app.get('/api/auth', function(req, res) {
     })
 })
 
+app.get('/api/enpoints', function(req, res) {
+  request.get(`https://cos-service.bluemix.net/endpoints`).then(respose => {
+    res.send(respose.text)
+  })
+})
+
 app.get('/api/proxy/:url', function(req, res) {
   const token = req.cookies.token
   request
