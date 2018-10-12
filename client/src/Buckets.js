@@ -4,9 +4,14 @@ import {
   DataTableSkeleton,
   Modal,
   TextInput,
-  Loading
+  Loading,
+  InlineLoading
 } from 'carbon-components-react'
 import { validateCookies, handleErrors } from './Utils'
+
+import MD5 from 'crypto-js/md5'
+import Base64 from 'crypto-js/enc-base64'
+
 import 'carbon-components/css/carbon-components.min.css'
 import './Buckets.css'
 
@@ -36,7 +41,8 @@ class Buckets extends Component {
       textInputBucketName: '',
       invalidText: '',
       invalid: false,
-      loading: false
+      loading: false,
+      loadingBuckets: []
     }
   }
 
@@ -196,8 +202,93 @@ class Buckets extends Component {
     )
   }
 
-  overflow = e => {
+  deleteBucket = (e, bucketName) => {
     e.stopPropagation()
+
+    this.setState(prevState => {
+      const loading = [...prevState.loadingBuckets, bucketName]
+      return {
+        loadingBuckets: loading
+      }
+    })
+
+    const url = `api/proxy/${localStorage.getItem('loginUrl')}/${bucketName}`
+    const options = { method: 'GET' }
+    const request = new Request(url)
+    fetch(request, options)
+      .then(handleErrors)
+      .then(response => response.json())
+      .then(str => new window.DOMParser().parseFromString(str.xml, 'text/xml'))
+      .then(data => {
+        console.log(data)
+
+        const elements = data.getElementsByTagName('Contents')
+        const fileList = Array.prototype.map.call(elements, element => {
+          return element.getElementsByTagName('Key')[0].innerHTML
+        })
+
+        if (fileList.length === 0) {
+          return ''
+        }
+
+        const deleteXml = `<?xml version="1.0" encoding="UTF-8"?><Delete>${fileList
+          .map(key => `<Object><Key>${key}</Key></Object>`)
+          .join('')}</Delete>`
+
+        return deleteXml
+      })
+      .then(xmlString => {
+        // Skip emptying bucket and give ok respose.
+        if (xmlString.length === 0) {
+          return { ok: true }
+        }
+
+        const md5Hash = MD5(xmlString).toString(Base64)
+        const url = `api/proxy/${localStorage.getItem(
+          'loginUrl'
+        )}/${bucketName}`
+        const options = {
+          method: 'POST',
+          body: xmlString,
+          headers: {
+            'Content-MD5': md5Hash
+          }
+        }
+        const request = new Request(url)
+        return fetch(request, options)
+      })
+      .then(handleErrors)
+      .then(() => {
+        const url = `api/proxy/${localStorage.getItem(
+          'loginUrl'
+        )}/${bucketName}`
+        const options = { method: 'DELETE' }
+        const request = new Request(url)
+        return fetch(request, options)
+      })
+      .then(handleErrors)
+      .then(() => {
+        this.initializeData()
+        this.setState(prevState => {
+          const loading = prevState.loadingBuckets.filter(bucket => {
+            return bucketName !== bucket
+          })
+          return {
+            loadingBuckets: loading
+          }
+        })
+      })
+      .catch(error => {
+        console.error(error)
+        this.setState(prevState => {
+          const loading = prevState.loadingBuckets.filter(bucket => {
+            return bucketName !== bucket
+          })
+          return {
+            loadingBuckets: loading
+          }
+        })
+      })
   }
 
   render() {
@@ -274,15 +365,23 @@ class Buckets extends Component {
                           ))}
                           <TableCell
                             className="Buckets-row-overflow"
-                            onClick={this.overflow}
+                            onClick={e => {
+                              this.deleteBucket(e, row.id)
+                            }}
                           >
-                            <svg
-                              height="20"
-                              viewBox="0 0 4 20"
-                              width="4"
-                            >
-                              <path d="M0 2a2 2 0 1 1 4 0 2 2 0 1 1-4 0M0 10a2 2 0 1 1 4 0 2 2 0 1 1-4 0M0 18a2 2 0 1 1 4 0 2 2 0 1 1-4 0" />
-                            </svg>
+                            {this.state.loadingBuckets.includes(row.id) ? (
+                              <InlineLoading success={false} />
+                            ) : (
+                              <svg
+                                className="Buckets-row-overflow-delete-Icon"
+                                width="12"
+                                height="16"
+                                viewBox="0 0 12 16"
+                              >
+                                <path d="M11 4v11c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V4H0V3h12v1h-1zM2 4v11h8V4H2z" />
+                                <path d="M4 6h1v7H4zm3 0h1v7H7zM3 1V0h6v1z" />
+                              </svg>
+                            )}
                           </TableCell>
                         </TableRow>
                       ))}

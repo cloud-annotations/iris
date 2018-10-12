@@ -137,6 +137,37 @@ app.delete('/api/proxy/:url/:bucket/*', function(req, res) {
     .pipe(res)
 })
 
+app.delete('/api/proxy/:url/:bucket', function(req, res) {
+  const token = req.cookies.token
+  const url = `https://${req.params.url}/${req.params.bucket}`
+  req
+    .pipe(
+      requests.delete({
+        url: url,
+        headers: {
+          Authorization: 'bearer ' + token
+        }
+      })
+    )
+    .pipe(res)
+})
+
+app.post('/api/proxy/:url/:bucket', function(req, res) {
+  const token = req.cookies.token
+  const url = `https://${req.params.url}/${req.params.bucket}?delete=`
+  console.log(url)
+  req
+    .pipe(
+      requests.post({
+        url: url,
+        headers: {
+          Authorization: 'bearer ' + token
+        }
+      })
+    )
+    .pipe(res)
+})
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client')))
 
