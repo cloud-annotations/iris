@@ -128,7 +128,8 @@ class SelectionBar extends Component {
                 this.state.filter.trim() !== '' ? '--Filtering' : ''
               }`}
             >
-              {this.filterList(this.state.filter, onlyLabels).length === 0 ? (
+              {this.state.filter.trim() !== '' &&
+              this.filterList(this.state.filter, onlyLabels).length === 0 ? (
                 <div
                   className="SelectionBar-DropDown-MenuItemWrapper-Button"
                   onClick={() => {
