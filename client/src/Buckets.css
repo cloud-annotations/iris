@@ -57,6 +57,20 @@
   margin-bottom: 2px; /* show the underline */
 }
 
+.Buckets-row-overflow {
+  width: 48px;
+  padding-left: 1.5rem !important;
+  fill: #8c9ba5;
+}
+
+.Buckets-row-overflow svg {
+  margin-top: 2px;
+}
+
+.Buckets-row-overflow:hover {
+  fill: #3d70b2;
+}
+
 .bx--modal-container {
   width: 100%;
 }

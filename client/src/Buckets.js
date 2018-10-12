@@ -196,6 +196,10 @@ class Buckets extends Component {
     )
   }
 
+  overflow = e => {
+    e.stopPropagation()
+  }
+
   render() {
     const { buckets } = this.props
     const headers = [
@@ -254,6 +258,7 @@ class Buckets extends Component {
                             {header.header}
                           </TableHeader>
                         ))}
+                        <TableHeader isSortable={false} />
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -267,6 +272,18 @@ class Buckets extends Component {
                           {row.cells.map(cell => (
                             <TableCell key={cell.id}>{cell.value}</TableCell>
                           ))}
+                          <TableCell
+                            className="Buckets-row-overflow"
+                            onClick={this.overflow}
+                          >
+                            <svg
+                              height="20"
+                              viewBox="0 0 4 20"
+                              width="4"
+                            >
+                              <path d="M0 2a2 2 0 1 1 4 0 2 2 0 1 1-4 0M0 10a2 2 0 1 1 4 0 2 2 0 1 1-4 0M0 18a2 2 0 1 1 4 0 2 2 0 1 1-4 0" />
+                            </svg>
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
