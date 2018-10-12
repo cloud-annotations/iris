@@ -531,6 +531,7 @@ class App extends Component {
       },
       () => {
         const changes = Promise.all(deleteRequests)
+        changes.then(() => this.annotationsToCsv())
         this.changeRequest(changes)
       }
     )
@@ -659,13 +660,20 @@ class App extends Component {
         return { file: file, fileName: `${fileName}.JPG` }
       })
 
+      const label =
+        this.state.currentSection === UNLABELED ||
+        this.state.currentSection === LABELED ||
+        this.state.currentSection === ALL_IMAGES
+          ? 'Unlabeled'
+          : this.state.currentSection
+
       this.setState(prevState => {
         const newCollection = { ...prevState.collection }
 
         filesWithNames.forEach(fileWithName => {
-          newCollection['Unlabeled'] = [
+          newCollection[label] = [
             `tmp_${fileWithName.fileName}`,
-            ...newCollection['Unlabeled']
+            ...newCollection[label]
           ]
         })
 
@@ -689,22 +697,26 @@ class App extends Component {
           .then(canvas => {
             const dataURL = canvas.toDataURL('image/jpeg')
             return localforage.setItem(fileName, dataURL).then(() => {
-              this.setState(prevState => {
-                const newCollection = { ...prevState.collection }
-                newCollection['Unlabeled'] = newCollection['Unlabeled'].map(
-                  image => {
-                    if (image === `tmp_${fileName}`) {
-                      return fileName
+              return new Promise((resolve, reject) => {
+                this.setState(
+                  prevState => {
+                    const newCollection = { ...prevState.collection }
+                    newCollection[label] = newCollection[label].map(image => {
+                      if (image === `tmp_${fileName}`) {
+                        return fileName
+                      }
+                      return image
+                    })
+
+                    return {
+                      collection: newCollection
                     }
-                    return image
+                  },
+                  () => {
+                    resolve(canvas)
                   }
                 )
-
-                return {
-                  collection: newCollection
-                }
               })
-              return canvas
             })
           })
           .then(canvas => canvasToBlob(canvas))
@@ -727,6 +739,7 @@ class App extends Component {
       })
 
       Promise.all(uploadRequests)
+        .then(() => this.annotationsToCsv())
         .then(resolve)
         .catch(reject)
     })
@@ -781,45 +794,44 @@ class App extends Component {
           createLabel={this.createLabel}
           deleteLabel={this.deleteLabel}
         />
-        <div className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}>
-          <Dropzone
-            disableClick
-            style={{ position: 'relative' }}
-            accept="image/*"
-            onDrop={this.onDrop}
-            onDragEnter={this.onDragEnter}
-            onDragLeave={this.onDragLeave}
+        <Dropzone
+          disableClick
+          className={`App-Parent ${selectionCount > 0 ? '--Active' : ''}`}
+          style={{ position: 'fixed' }}
+          accept="image/*"
+          onDrop={this.onDrop}
+          onDragEnter={this.onDragEnter}
+          onDragLeave={this.onDragLeave}
+        >
+          <Loading active={this.state.loading} />
+          <div
+            className={`App-DropTarget ${
+              this.state.dropzoneActive ? '--Active' : ''
+            }`}
           >
-            <Loading active={this.state.loading} />
-            <div
-              className={`App-DropTarget ${
-                this.state.dropzoneActive ? '--Active' : ''
-              }`}
-            >
-              <div className="App-DropTarget-outline">
-                <div className="App-DropTarget-text">
-                  Drop to upload your images
-                </div>
+            <div className="App-DropTarget-outline">
+              <div className="App-DropTarget-text">
+                Drop to upload your images
               </div>
             </div>
-            <EmptySet
-              forceHide={this.state.loading}
-              currentSection={this.state.currentSection}
-              sections={this.state.labelList}
-              collection={this.state.collection}
-            />
-            <ImageGrid
-              dragStart={this.handleDragStart}
-              drag={this.handleDrag}
-              bucket={this.props.match.params.bucket}
-              sections={this.state.labelList}
-              currentSection={this.state.currentSection}
-              collection={this.state.collection}
-              selection={this.state.tmpSelection || this.state.selection}
-              gridItemSelected={this.gridItemSelected}
-            />
-          </Dropzone>
-        </div>
+          </div>
+          <EmptySet
+            forceHide={this.state.loading}
+            currentSection={this.state.currentSection}
+            sections={this.state.labelList}
+            collection={this.state.collection}
+          />
+          <ImageGrid
+            dragStart={this.handleDragStart}
+            drag={this.handleDrag}
+            bucket={this.props.match.params.bucket}
+            sections={this.state.labelList}
+            currentSection={this.state.currentSection}
+            collection={this.state.collection}
+            selection={this.state.tmpSelection || this.state.selection}
+            gridItemSelected={this.gridItemSelected}
+          />
+        </Dropzone>
       </div>
     )
   }

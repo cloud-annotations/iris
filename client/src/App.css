@@ -15,6 +15,14 @@
   transition: all 250ms ease;
 }
 
+.App-DropZone {
+  position: fixed;
+  top: 100px;
+  left: 209px;
+  right: 0px;
+  bottom: 0px;
+}
+
 .App-DropTarget {
   position: fixed;
   top: 100px;
