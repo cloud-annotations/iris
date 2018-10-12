@@ -648,8 +648,12 @@ class App extends Component {
   }
 
   onFileChosen = e => {
+    const fileList = getDataTransferItems(e)
+    this.uploadFiles(fileList)
+  }
+
+  uploadFiles = fileList => {
     const uploadRequest = new Promise((resolve, reject) => {
-      const fileList = getDataTransferItems(e)
       const filesWithNames = fileList.map(file => {
         const fileName = generateUUID()
         return { file: file, fileName: `${fileName}.JPG` }
@@ -743,86 +747,10 @@ class App extends Component {
   }
 
   onDrop = files => {
-    const uploadRequest = new Promise((resolve, reject) => {
-      const filesWithNames = files.map(file => {
-        const fileName = generateUUID()
-        return { file: file, fileName: `${fileName}.JPG` }
-      })
-
-      this.setState(prevState => {
-        const newCollection = { ...prevState.collection }
-
-        filesWithNames.forEach(fileWithName => {
-          newCollection['Unlabeled'] = [
-            `tmp_${fileWithName.fileName}`,
-            ...newCollection['Unlabeled']
-          ]
-        })
-
-        const newSelection = Object.keys(newCollection).reduce((acc, key) => {
-          return [...acc, ...newCollection[key].map(() => false)]
-        }, [])
-
-        return {
-          collection: newCollection,
-          selection: newSelection,
-          lastSelected: null
-        }
-      })
-
-      var uploadRequests = []
-      filesWithNames.forEach(fileWithName => {
-        const fileName = fileWithName.fileName
-        const file = fileWithName.file
-        const promise = readFile(file)
-          .then(image => shrinkImage(image))
-          .then(canvas => {
-            const dataURL = canvas.toDataURL('image/jpeg')
-            return localforage.setItem(fileName, dataURL).then(() => {
-              this.setState(prevState => {
-                const newCollection = { ...prevState.collection }
-                newCollection['Unlabeled'] = newCollection['Unlabeled'].map(
-                  image => {
-                    if (image === `tmp_${fileName}`) {
-                      return fileName
-                    }
-                    return image
-                  }
-                )
-
-                return {
-                  collection: newCollection,
-                  dropzoneActive: false
-                }
-              })
-              return canvas
-            })
-          })
-          .then(canvas => canvasToBlob(canvas))
-          .then(blob => {
-            const url = `api/proxy/${localStorage.getItem('loginUrl')}/${
-              this.props.match.params.bucket
-            }/${fileName}`
-            const options = {
-              method: 'PUT',
-              body: blob
-            }
-            const request = new Request(url)
-            return fetch(request, options)
-          })
-          .catch(error => {
-            console.error(error)
-          })
-
-        uploadRequests = [...uploadRequests, promise]
-      })
-
-      Promise.all(uploadRequests)
-        .then(resolve)
-        .catch(reject)
+    this.uploadFiles(files)
+    this.setState({
+      dropzoneActive: false
     })
-
-    this.changeRequest(uploadRequest)
   }
 
   render() {
