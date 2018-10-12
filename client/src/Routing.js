@@ -6,6 +6,16 @@ import Login from './Login'
 import Buckets from './Buckets'
 
 class Routing extends Component {
+  state = {
+    buckets: null
+  }
+
+  cacheBucketList = buckets => {
+    this.setState({
+      buckets: buckets
+    })
+  }
+
   render() {
     return (
       <div>
@@ -14,7 +24,13 @@ class Routing extends Component {
             <Route path="/" component={TitleBar} />
             <Switch>
               {/* With `Switch` there will only ever be one child here */}
-              <Route exact path="/" component={Buckets} />
+              <Route
+                exact
+                path="/"
+                render={props => (
+                  <Buckets {...props} buckets={this.state.buckets} cacheBucketList={this.cacheBucketList} />
+                )}
+              />
               <Route path="/login" component={Login} />
               <Route path="/:bucket" component={App} />
             </Switch>

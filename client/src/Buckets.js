@@ -32,7 +32,6 @@ class Buckets extends Component {
     super(props)
     this.initializeData()
     this.state = {
-      buckets: null,
       modalOpen: false,
       textInputBucketName: '',
       invalidText: '',
@@ -80,7 +79,9 @@ class Buckets extends Component {
               created: new Date(date).toLocaleDateString()
             }
           })
-          this.setState({ buckets: bucketList }, resolve)
+
+          this.props.cacheBucketList(bucketList)
+          resolve()
         })
         .catch(reject)
     })
@@ -196,6 +197,7 @@ class Buckets extends Component {
   }
 
   render() {
+    const { buckets } = this.props
     const headers = [
       { key: 'name', header: 'NAME' },
       { key: 'created', header: 'CREATED' }
@@ -238,9 +240,9 @@ class Buckets extends Component {
               </svg>
             </div>
           </div>
-          {this.state.buckets ? (
+          {buckets ? (
             <DataTable
-              rows={this.state.buckets}
+              rows={buckets}
               headers={headers}
               render={({ rows, headers, getHeaderProps }) => (
                 <TableContainer>
