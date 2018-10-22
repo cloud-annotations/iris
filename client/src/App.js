@@ -657,7 +657,7 @@ class App extends Component {
     const uploadRequest = new Promise((resolve, reject) => {
       const filesWithNames = fileList.map(file => {
         const fileName = generateUUID()
-        return { file: file, fileName: `${fileName}.JPG` }
+        return { file: file, fileName: `${fileName}.jpg` }
       })
 
       const label =
