@@ -99,6 +99,7 @@ export function handleErrors(response) {
 export function validateCookies() {
   return new Promise((resolve, reject) => {
     const cookie = getCookie('token')
+    console.log(cookie)
     if (cookie === '') {
       reject(Error('Forbidden'))
     } else {
