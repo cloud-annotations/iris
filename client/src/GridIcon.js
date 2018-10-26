@@ -63,7 +63,10 @@ class GridIcon extends Component {
 
     return (
       <div
-        onMouseDown={() => {
+        onMouseDown={e => {
+          if (e.button !== 0) {
+            return
+          }
           dragStart(index)
         }}
         onMouseOver={() => {
