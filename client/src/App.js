@@ -52,6 +52,15 @@ class App extends Component {
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('mouseup', this.handleDragEnd)
+    setInterval(() => {
+      validateCookies()
+        .catch(error => {
+          console.error(error)
+          if (error.message === 'Forbidden') {
+            this.props.history.push('/login')
+          }
+        })
+    }, 10 * 1000)
   }
 
   componentWillUnmount() {
