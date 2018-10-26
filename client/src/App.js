@@ -53,7 +53,7 @@ class App extends Component {
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('mouseup', this.handleDragEnd)
     setInterval(() => {
-      console.log('timing...')
+      console.log('tic toc')
       validateCookies()
         .catch(error => {
           console.error(error)
