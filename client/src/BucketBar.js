@@ -3,8 +3,14 @@ import { Link } from 'react-router-dom'
 import './BucketBar.css'
 
 class BucketBar extends Component {
+  fileChange = e => {
+    const { onChange } = this.props
+    onChange(e)
+    this.fileInputEl.value = null
+  }
+
   render() {
-    const { bucket, saved, onChange } = this.props
+    const { bucket, saved } = this.props
     return (
       <div className="BucketBar">
         <Link to="/" className="BucketBar-Button BucketBar-buckets-Wrapper">
@@ -30,7 +36,15 @@ class BucketBar extends Component {
           >
             <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
           </svg>Add Images
-          <input type="file" accept="image/*" onChange={onChange} multiple />
+          <input
+            ref={ref => {
+              this.fileInputEl = ref
+            }}
+            type="file"
+            accept="image/*"
+            onChange={this.fileChange}
+            multiple
+          />
         </div>
       </div>
     )

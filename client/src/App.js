@@ -380,12 +380,6 @@ class App extends Component {
   }
 
   gridItemSelected = (e, index) => {
-    validateCookies().catch(error => {
-      if (error.message === 'Forbidden') {
-        this.props.history.push('/login')
-      }
-    })
-
     const shiftPressed = e.shiftKey
     this.setState(prevState => {
       const newSelection = [...prevState.selection]
