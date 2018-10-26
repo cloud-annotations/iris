@@ -113,7 +113,7 @@ class App extends Component {
 
               if (Math.min(y2, y1) <= y && y <= Math.max(y2, y1)) {
                 if (Math.min(x2, x1) <= x && x <= Math.max(x2, x1)) {
-                  return true
+                  return !prevState.selection[this.dragStartIndex]
                 }
               }
             }
