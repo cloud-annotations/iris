@@ -49,10 +49,21 @@ class App extends Component {
     }
   }
 
+  handleCookieChange = () => {
+    console.log('tic toc')
+    validateCookies()
+      .catch(error => {
+        console.error(error)
+        if (error.message === 'Forbidden') {
+          this.props.history.push('/login')
+        }
+      })
+  }
+
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('mouseup', this.handleDragEnd)
-    setInterval(() => {
+    const intervalID = setInterval(() => {
       console.log('tic toc')
       validateCookies()
         .catch(error => {
@@ -62,11 +73,15 @@ class App extends Component {
           }
         })
     }, 10 * 1000)
+    this.setState({
+      intervalID: intervalID
+    })
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown)
     document.removeEventListener('mouseup', this.handleDragEnd)
+    clearInterval(this.state.intervalID)
   }
 
   dragging = false

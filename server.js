@@ -21,7 +21,7 @@ app.get('/api/auth', function(req, res) {
     .then(respose => {
       res
         .cookie('token', respose.body.access_token, {
-          expire: respose.body.expiration
+          expires: new Date(respose.body.expiration * 1000)
         })
         .sendStatus(respose.status)
     })

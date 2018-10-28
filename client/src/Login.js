@@ -2,8 +2,6 @@ import React, { Component } from 'react'
 import { Select, SelectItemGroup, SelectItem } from 'carbon-components-react'
 import './Login.css'
 
-import { handleErrors } from './Utils'
-
 let enpoints = {
   'cross-region': [
     's3-api.us-geo.objectstorage.service.networklayer.com',
