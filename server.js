@@ -9,10 +9,17 @@ const port = process.env.PORT || 9000
 
 app.use(cookieParser())
 
+app.get('/api/enpoints', function(req, res) {
+  request.get(`https://cos-service.bluemix.net/endpoints`).then(respose => {
+    res.send(respose.text)
+  })
+})
+
 app.get('/api/auth', function(req, res) {
   const apikey = req.query.apikey
   request
     .post('https://iam.bluemix.net/oidc/token')
+    .set('Authorization', 'Basic Yng6Yng=')
     .query({
       apikey: apikey,
       response_type: 'cloud_iam',
@@ -23,6 +30,7 @@ app.get('/api/auth', function(req, res) {
         .cookie('token', respose.body.access_token, {
           expires: new Date(respose.body.expiration * 1000)
         })
+        .cookie('refresh_token', respose.body.refresh_token)
         .sendStatus(respose.status)
     })
     .catch(err => {
@@ -30,10 +38,25 @@ app.get('/api/auth', function(req, res) {
     })
 })
 
-app.get('/api/enpoints', function(req, res) {
-  request.get(`https://cos-service.bluemix.net/endpoints`).then(respose => {
-    res.send(respose.text)
-  })
+app.use(function(req, res, next) {
+  request
+    .post('https://iam.bluemix.net/identity/token')
+    .set('Authorization', 'Basic Yng6Yng=')
+    .query({
+      refresh_token: req.cookies.refresh_token,
+      grant_type: 'refresh_token'
+    })
+    .then(respose => {
+      res
+        .cookie('token', respose.body.access_token, {
+          expires: new Date(respose.body.expiration * 1000)
+        })
+        .cookie('refresh_token', respose.body.refresh_token)
+      next()
+    })
+    .catch(err => {
+      next()
+    })
 })
 
 app.get('/api/proxy/:url', function(req, res) {
