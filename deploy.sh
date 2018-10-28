@@ -8,6 +8,7 @@ DEPLOYMENT="hello-world-deployment"
 PROJECT_ID="nypower"
 NAME="annotate"
 IMAGE_NAME="registry.ng.bluemix.net/$PROJECT_ID/$NAME:$(git rev-parse HEAD)"
+CLUSTER="test_annotations"
 
 function fail {
   echo $1 >&2
@@ -23,6 +24,11 @@ function configure {
   [ ! -z "$IMAGE_NAME" ] || fail "Configuration option is not set: IMAGE_NAME"
 }
 
+function download_config {
+  echo Downloading config for $CLUSTER ...
+  ibmcloud cs cluster-config $CLUSTER
+}
+
 function attempt_build {
   echo Building $IMAGE_NAME ...
   ibmcloud cr build -t $IMAGE_NAME .
@@ -34,6 +40,7 @@ function set_image {
 }
 
 configure
+download_config
 attempt_build
 set_image
 echo "Deployment complete"
