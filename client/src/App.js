@@ -7,6 +7,7 @@ import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
 import { Loading } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
+import ReactGA from 'react-ga'
 import {
   validateCookies,
   generateUUID,
