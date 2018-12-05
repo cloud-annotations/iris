@@ -11,7 +11,6 @@
   "dependencies": {
     "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
-    "react-dropzone": "^6.0.4",
     "request": "^2.88.0",
     "superagent": "^3.8.3"
   },

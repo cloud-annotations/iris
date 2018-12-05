@@ -6,12 +6,12 @@ spec:
   tls:
   - hosts:
     -  annotations.us-east.containers.appdomain.cloud
-    secretName: secret
+    secretName: annotations
   rules:
   - host: annotations.us-east.containers.appdomain.cloud
     http:
       paths:
       - path: /
         backend:
-          serviceName: cloud-annotations-production
+          serviceName: annotations
           servicePort: 8080
