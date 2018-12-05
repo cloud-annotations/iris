@@ -2,13 +2,13 @@
 
 export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/test_annotations/kube-config-wdc04-test_annotations.yml"
 
-URL="https://testannotations.us-east.containers.appdomain.cloud"
+URL="https://annotations.us-east.containers.appdomain.cloud"
 
-DEPLOYMENT="hello-world-deployment"
+DEPLOYMENT="cloud-annotations-production"
 PROJECT_ID="nypower"
 NAME="annotate"
 IMAGE_NAME="registry.ng.bluemix.net/$PROJECT_ID/$NAME:$(git rev-parse HEAD)"
-CLUSTER="test_annotations"
+CLUSTER="annotations"
 
 function fail {
   echo $1 >&2

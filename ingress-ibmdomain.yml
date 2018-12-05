@@ -5,13 +5,13 @@ metadata:
 spec:
   tls:
   - hosts:
-    -  testannotations.us-east.containers.appdomain.cloud
-    secretName: testannotations
+    -  annotations.us-east.containers.appdomain.cloud
+    secretName: secret
   rules:
-  - host: testannotations.us-east.containers.appdomain.cloud
+  - host: annotations.us-east.containers.appdomain.cloud
     http:
       paths:
       - path: /
         backend:
-          serviceName: hello-world-service
+          serviceName: cloud-annotations-production
           servicePort: 8080
