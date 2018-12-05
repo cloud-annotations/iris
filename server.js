@@ -3,11 +3,23 @@ const path = require('path')
 const request = require('superagent')
 const requests = require('request')
 const cookieParser = require('cookie-parser')
+const frameguard = require('frameguard')
 
 const app = express()
 const port = process.env.PORT || 9000
 
 app.use(cookieParser())
+app.use(frameguard()) // Prevent click jacking.
+
+// Redirect http to https.
+app.enable('trust proxy')
+app.use(function(req, res, next) {
+  if (req.secure || process.env.NODE_ENV !== 'production') {
+    next()
+  } else {
+    res.redirect('https://' + req.headers.host + req.url)
+  }
+})
 
 app.get('/api/enpoints', function(req, res) {
   request.get(`https://cos-service.bluemix.net/endpoints`).then(respose => {
