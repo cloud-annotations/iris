@@ -61,6 +61,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    ReactGA.pageview('annotations')
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('mouseup', this.handleDragEnd)
     const intervalID = setInterval(() => {

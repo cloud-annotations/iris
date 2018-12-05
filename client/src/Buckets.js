@@ -46,6 +46,10 @@ class Buckets extends Component {
     }
   }
 
+  componentDidMount() {
+    ReactGA.pageview('buckets')
+  }
+
   initializeData = () => {
     return validateCookies()
       .then(() => this.populateBuckets())

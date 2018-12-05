@@ -75,13 +75,18 @@ class Login extends Component {
     props.cacheBucketList(null)
 
     const resourceId = localStorage.getItem('resourceId') || ''
-    const loginUrl = localStorage.getItem('loginUrl') || enpoints['cross-region'][0]
+    const loginUrl =
+      localStorage.getItem('loginUrl') || enpoints['cross-region'][0]
 
     this.state = {
       resourceId: resourceId,
       loginUrl: loginUrl,
       apiKey: ''
     }
+  }
+
+  componentDidMount() {
+    ReactGA.pageview('login')
   }
 
   handleUserInput = e => {
