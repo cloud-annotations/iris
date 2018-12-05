@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/test_annotations/kube-config-wdc04-test_annotations.yml"
+export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/annotations/kube-config-wdc04-annotations.yml"
 
 URL="https://annotations.us-east.containers.appdomain.cloud"
 
@@ -36,6 +36,7 @@ function attempt_build {
 
 function set_image {
   echo Container build completed, updating $DEPLOYMENT ...
+  # kubectl run $DEPLOYMENT --image=$IMAGE_NAME
   kubectl set image deployments/$DEPLOYMENT $DEPLOYMENT=$IMAGE_NAME
 }
 
