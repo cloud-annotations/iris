@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Select, SelectItemGroup, SelectItem } from 'carbon-components-react'
-import ReactGA from 'react-ga'
+import GoogleAnalytics from 'react-ga'
 import './Login.css'
 
 let enpoints = {
@@ -87,7 +87,7 @@ class Login extends Component {
   }
 
   componentDidMount() {
-    ReactGA.pageview('login')
+    GoogleAnalytics.pageview('login')
   }
 
   handleUserInput = e => {

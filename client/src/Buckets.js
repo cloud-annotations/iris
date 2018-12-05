@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import ReactGA from 'react-ga'
+import GoogleAnalytics from 'react-ga'
 import {
   DataTable,
   DataTableSkeleton,
@@ -48,7 +48,7 @@ class Buckets extends Component {
   }
 
   componentDidMount() {
-    ReactGA.pageview('buckets')
+    GoogleAnalytics.pageview('buckets')
   }
 
   initializeData = () => {

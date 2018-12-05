@@ -7,7 +7,7 @@ import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
 import { Loading } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
-import ReactGA from 'react-ga'
+import GoogleAnalytics from 'react-ga'
 import {
   validateCookies,
   generateUUID,
@@ -62,7 +62,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    ReactGA.pageview('annotations')
+    GoogleAnalytics.pageview('annotations')
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('mouseup', this.handleDragEnd)
     const intervalID = setInterval(() => {
