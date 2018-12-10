@@ -202,9 +202,9 @@ class App extends Component {
       const request = new Request(url)
       fetch(request, options)
         .then(handleErrors)
-        .then(response => response.json())
+        .then(response => response.text())
         .then(str =>
-          new window.DOMParser().parseFromString(str.xml, 'text/xml')
+          new window.DOMParser().parseFromString(str, 'text/xml')
         )
         .then(data => {
           const elements = data.getElementsByTagName('Contents')

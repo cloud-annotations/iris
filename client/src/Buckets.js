@@ -66,16 +66,19 @@ class Buckets extends Component {
     return new Promise((resolve, reject) => {
       const url = `api/proxy/${localStorage.getItem(
         'loginUrl'
-      )}?resourceId=${localStorage.getItem('resourceId')}`
+      )}`
       const options = {
-        method: 'GET'
+        method: 'GET',
+        headers: {
+          'ibm-service-instance-id': localStorage.getItem('resourceId')
+        }
       }
       const request = new Request(url)
       fetch(request, options)
         .then(handleErrors)
-        .then(response => response.json())
+        .then(response => response.text())
         .then(str =>
-          new window.DOMParser().parseFromString(str.xml, 'text/xml')
+          new window.DOMParser().parseFromString(str, 'text/xml')
         )
         .then(data => {
           console.log(data)
@@ -168,9 +171,12 @@ class Buckets extends Component {
       () => {
         const url = `api/proxy/${localStorage.getItem(
           'loginUrl'
-        )}/${bucketName}?resourceId=${localStorage.getItem('resourceId')}`
+        )}/${bucketName}`
         const options = {
-          method: 'PUT'
+          method: 'PUT',
+          headers: {
+            'ibm-service-instance-id': localStorage.getItem('resourceId')
+          }
         }
         const request = new Request(url)
         fetch(request, options)
@@ -223,8 +229,8 @@ class Buckets extends Component {
     const request = new Request(url)
     fetch(request, options)
       .then(handleErrors)
-      .then(response => response.json())
-      .then(str => new window.DOMParser().parseFromString(str.xml, 'text/xml'))
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
       .then(data => {
         console.log(data)
 
@@ -252,7 +258,7 @@ class Buckets extends Component {
         const md5Hash = MD5(xmlString).toString(Base64)
         const url = `api/proxy/${localStorage.getItem(
           'loginUrl'
-        )}/${bucketName}`
+        )}/${bucketName}?delete=`
         const options = {
           method: 'POST',
           body: xmlString,
