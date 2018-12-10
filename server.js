@@ -20,26 +20,17 @@ app.use((req, res, next) => {
   }
 })
 
-const checkStatus = (error, response) => {
-  return new Promise((resolve, reject) => {
-    if (!error && response.statusCode === 200) {
-      resolve()
-    } else {
-      reject()
-    }
-  })
+const isSuccess = (error, response) => {
+  return !error && response.statusCode === 200
 }
 
 const setToken = (res, json) => {
-  return new Promise((resolve, reject) => {
-    const { access_token, expiration, refresh_token } = json
-    res
-      .cookie('token', access_token, {
-        expires: new Date(expiration * 1000)
-      })
-      .cookie('refresh_token', refresh_token)
-    resolve()
-  })
+  const { access_token, expiration, refresh_token } = json
+  res
+    .cookie('token', access_token, {
+      expires: new Date(expiration * 1000)
+    })
+    .cookie('refresh_token', refresh_token)
 }
 
 // Refresh token every request.
@@ -57,10 +48,10 @@ app.use((req, res, next) => {
     }
   }
   request(options, (error, response, body) => {
-    checkStatus(error, response)
-      .then(() => setToken(res, body))
-      .then(() => next())
-      .catch(() => next())
+    if (isSuccess(error, response)) {
+      setToken(res, body)
+    }
+    next()
   })
 })
 
@@ -80,10 +71,10 @@ app.get('/api/auth', (req, res) => {
     }
   }
   request(options, (error, response, body) => {
-    checkStatus(error, response)
-      .then(() => setToken(res, body))
-      .then(() => res.sendStatus(response.statusCode))
-      .catch(() => res.sendStatus(response.statusCode))
+    if (isSuccess(error, response)) {
+      setToken(res, body)
+    }
+    res.sendStatus(response.statusCode)
   })
 })
 
