@@ -13,6 +13,7 @@ import {
   validateCookies,
   generateUUID,
   getDataTransferItems,
+  arrayBufferToBase64,
   readFile,
   shrinkImage,
   canvasToBlob,
@@ -20,20 +21,6 @@ import {
 } from './Utils'
 import './App.css'
 
-/**
-  // This let's us loop through the collection easily.
-  LabelList = [Label, Label, ...]
-
-  Collection = {
-    Label: [PointerToImage, PointerToImage, ...]
-    Label: [PointerToImage, PointerToImage, ...]
-    Label: [PointerToImage, PointerToImage, ...]
-    Label: [PointerToImage, PointerToImage, ...]
-    Label: [PointerToImage, PointerToImage, ...]
-  }
-*/
-
-import { arrayBufferToBase64 } from './Utils'
 const Canvas = props => {
   const loadImage = imageUrl => {
     const url = `/api/proxy/${localStorage.getItem('loginUrl') ||
@@ -293,158 +280,6 @@ class App extends Component {
     this.dragging = false
     this.dragStartIndex = null
     this.dragEndIndex = null
-  }
-
-  initializeData = () => {
-    validateCookies()
-      .then(this.fetchFileList)
-      .then(this.populateLabels)
-      .then(this.populateUnlabeled)
-      .catch(error => {
-        console.error(error)
-        this.setState({
-          loading: false
-        })
-        if (error.message === 'Forbidden') {
-          this.props.history.push('/login')
-        }
-      })
-  }
-
-  // TODO: Handle pages larger than 1000.
-  fetchFileList = () => {
-    return new Promise((resolve, reject) => {
-      const url = `/api/proxy/${localStorage.getItem('loginUrl')}/${
-        this.props.match.params.bucket
-      }`
-      const options = {
-        method: 'GET'
-      }
-      const request = new Request(url)
-      fetch(request, options)
-        .then(handleErrors)
-        .then(response => response.text())
-        .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
-        .then(data => {
-          const elements = data.getElementsByTagName('Contents')
-          const fileList = Array.prototype.map.call(elements, element => {
-            return element.getElementsByTagName('Key')[0].innerHTML
-          })
-          return resolve(fileList)
-        })
-        .catch(reject)
-    })
-  }
-
-  populateLabels = fileList => {
-    return new Promise((resolve, reject) => {
-      if (
-        !fileList.includes('_labels.csv') ||
-        !fileList.includes('_annotations.csv')
-      ) {
-        return resolve(fileList)
-      }
-
-      const url = `/api/proxy/${localStorage.getItem('loginUrl')}/${
-        this.props.match.params.bucket
-      }/_labels.csv`
-      const options = {
-        method: 'GET'
-      }
-      const request = new Request(url)
-      const labels = fetch(request, options)
-        .then(handleErrors)
-        .then(response => response.text())
-        .catch(reject)
-
-      const url2 = `/api/proxy/${localStorage.getItem('loginUrl')}/${
-        this.props.match.params.bucket
-      }/_annotations.csv`
-      const request2 = new Request(url2)
-      const annotations = fetch(request2, options)
-        .then(handleErrors)
-        .then(response => response.text())
-        .catch(reject)
-
-      Promise.all([labels, annotations]).then(values => {
-        this.setState(
-          prevState => {
-            const labelsCsv = values[0]
-            const annotationsCsv = values[1]
-
-            let urls = []
-
-            const newCollection = { ...prevState.collection }
-            let newLabelList = [...prevState.labelList]
-
-            const labels = labelsCsv.split('\n')
-            labels.forEach(label => {
-              label = label.trim()
-              // Account for empty lines.
-              if (label !== '') {
-                newLabelList = [...newLabelList, label]
-                newCollection[label] = []
-              }
-            })
-
-            const annotations = annotationsCsv.split('\n')
-            annotations.forEach(annotation => {
-              // Account for empty lines.
-              if (annotation !== '') {
-                const [url, label] = annotation.split(',')
-                const trimedLabel = label.trim()
-
-                if (trimedLabel in newCollection) {
-                  newCollection[trimedLabel] = [
-                    url,
-                    ...newCollection[trimedLabel]
-                  ]
-
-                  urls = [...urls, url]
-                }
-              }
-            })
-
-            return {
-              collection: newCollection,
-              labelList: newLabelList,
-              tmpLabeledImages: new Set(urls)
-            }
-          },
-          () => {
-            resolve(fileList)
-          }
-        )
-      })
-    })
-  }
-
-  populateUnlabeled = fileList => {
-    return new Promise((resolve, reject) => {
-      const imageList = fileList.filter(fileName => {
-        return fileName.match(/.(jpg|jpeg|png)$/i) // Make sure the extension is an image.
-      })
-
-      this.setState(prevState => {
-        const newCollection = { ...prevState.collection }
-
-        imageList.forEach(item => {
-          if (!prevState.tmpLabeledImages.has(item)) {
-            newCollection['Unlabeled'] = [...newCollection['Unlabeled'], item]
-          }
-        })
-
-        const newSelection = Object.keys(newCollection).reduce((acc, key) => {
-          return [...acc, ...newCollection[key].map(() => false)]
-        }, [])
-
-        return {
-          loading: false,
-          collection: newCollection,
-          selection: newSelection
-        }
-      }, resolve)
-    })
   }
 
   changeRequest = changePromise => {
