@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { fetchImages } from './api/fetchImages'
 import ImageGrid from './ImageGrid'
 import BucketBar from './BucketBar'
 import EmptySet from './EmptySet'
@@ -142,7 +143,22 @@ const Canvas = props => {
 class App extends Component {
   constructor(props) {
     super(props)
-    this.initializeData()
+    fetchImages(localStorage.getItem('loginUrl'), props.match.params.bucket)
+      .then(res => {
+        this.setState({
+          loading: false,
+          ...res
+        })
+      })
+      .catch(error => {
+        console.error(error)
+        this.setState({
+          loading: false
+        })
+        if (error.message === 'Forbidden') {
+          this.props.history.push('/login')
+        }
+      })
     this.state = {
       saved: true,
       loading: true,
