@@ -22,9 +22,6 @@ const IAMGE_REGEX = /.(jpg|jpeg|png)$/i
 
 export const fetchImages = (endpoint, bucket) => {
   this.baseUrl = `/api/proxy/${endpoint}/${bucket}`
-  this.labelList = [UNLABELED]
-  this.collection = { Unlabeled: [] }
-  this.tmpLabeledImages = new Set([])
   return validateCookies()
     .then(fetchFileList)
     .then(populateLabels)
@@ -61,16 +58,16 @@ const populateLabels = fileList => {
     const labelsCsv = values[0]
     const annotationsCsv = values[1]
 
-    const newCollection = { ...this.collection }
-    let newLabelList = [...this.labelList]
+    const collection = { Unlabeled: [] }
+    let labelList = [UNLABELED]
 
     const labels = labelsCsv.split('\n')
     labels.forEach(label => {
       label = label.trim()
       // Account for empty lines.
       if (label !== '') {
-        newLabelList = [...newLabelList, label]
-        newCollection[label] = []
+        labelList = [...labelList, label]
+        collection[label] = []
       }
     })
 
@@ -83,16 +80,16 @@ const populateLabels = fileList => {
         const [url, label] = annotation.split(',')
         const trimedLabel = label.trim()
 
-        if (trimedLabel in newCollection) {
-          newCollection[trimedLabel] = [url, ...newCollection[trimedLabel]]
+        if (trimedLabel in collection) {
+          collection[trimedLabel] = [url, ...collection[trimedLabel]]
 
           urls = [...urls, url]
         }
       }
     })
 
-    this.collection = newCollection
-    this.labelList = newLabelList
+    this.collection = collection
+    this.labelList = labelList
     this.tmpLabeledImages = new Set(urls)
 
     return fileList
@@ -103,14 +100,14 @@ const populateUnlabeled = fileList => {
   // Make sure the extension is an image.
   const imageList = fileList.filter(fileName => fileName.match(IAMGE_REGEX))
 
-  const newCollection = { ...this.collection }
+  const collection = { ...this.collection }
 
   imageList.forEach(item => {
     if (!this.tmpLabeledImages.has(item)) {
-      newCollection[UNLABELED] = [...newCollection[UNLABELED], item]
+      collection[UNLABELED] = [...collection[UNLABELED], item]
     }
   })
 
-  this.collection = newCollection
+  this.collection = collection
   return { collection: this.collection, labelList: this.labelList }
 }
