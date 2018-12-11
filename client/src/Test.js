@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { fetchImages } from './api/fetchImages'
+import fetchImages from './api/fetchImages'
 import ImageGrid from './ImageGrid'
 import BucketBar from './BucketBar'
 import EmptySet from './EmptySet'
