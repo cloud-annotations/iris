@@ -181,7 +181,7 @@ class GridController extends Component {
 
     this.setState(
       prevState => {
-        let lastSelectedIndex = prevState.lastSelected
+        let lastSelectedIndex = prevState.lastSelectedIndex
         if (shiftPressed && lastSelectedIndex !== null) {
           // The default sort for arrays in Javascript is alphabetical.
           const sortedSelect = [lastSelectedIndex, index].sort((a, b) => a - b)
@@ -198,6 +198,7 @@ class GridController extends Component {
           selection[index] = !selection[index]
           lastSelectedIndex = index
         }
+        // If nothing is selected clear the last selected index.
         if (selection.filter(item => item).length === 0) {
           lastSelectedIndex = null
         }
