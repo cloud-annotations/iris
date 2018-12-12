@@ -24,6 +24,7 @@ export default class GridController extends Component {
     dragging: false,
     lastSelectedIndex: null,
     dragStartIndex: null,
+    dragStartSection: null,
     intermediateSelection: null
   }
 
