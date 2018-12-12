@@ -224,7 +224,7 @@ class GridController extends Component {
           (i => section => {
             return (
               <div key={section}>
-                {collection[section].length > 0 ? (
+                {collection[section].length > 0 && (
                   <div>
                     <div className="ImageGrid-Section-Title">
                       <div className="ImageGrid-Section-Span">{section}</div>
@@ -253,8 +253,6 @@ class GridController extends Component {
                     </div>
                     <div className="ImageGrid-Gap" />
                   </div>
-                ) : (
-                  ''
                 )}
               </div>
             )
