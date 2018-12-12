@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import fetchImages from './api/fetchImages'
-import GridController from './Grid/GridController'
+import fetchImages from 'api/fetchImages'
+import GridController from 'common/Grid/GridController'
 import ImageTile from './ImageTile'
 import BucketBar from './BucketBar'
 import EmptySet from './EmptySet'

@@ -52,7 +52,7 @@ class ImageTile extends Component {
     const { selected } = this.props
     return (
       <div className={selected ? styles.selected : styles.container}>
-        <img className={styles.image} alt="" src={this.state.image} />
+        <img draggable={false} className={styles.image} alt="" src={this.state.image} />
         <div className={styles.iconWrapper}>
           <svg
             className={styles.icon}
