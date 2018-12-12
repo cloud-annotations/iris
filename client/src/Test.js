@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import fetchImages from './api/fetchImages'
-import GridContainer from './Grid'
+import GridController from './Grid/GridController'
 import ImageTile from './ImageTile'
 import BucketBar from './BucketBar'
 import EmptySet from './EmptySet'
@@ -53,7 +53,7 @@ const Canvas = props => {
             var rect = canvas.getBoundingClientRect()
             mouse.x = Math.round(e.clientX - rect.left)
             mouse.y = Math.round(e.clientY - rect.top)
-            console.log('X: ' + mouse.x + ' Y: ' + mouse.y)
+            // console.log('X: ' + mouse.x + ' Y: ' + mouse.y)
           }
 
           var mouse = {
@@ -634,7 +634,7 @@ class App extends Component {
             collection={this.state.collection}
           />
           <Canvas />
-          <GridContainer
+          <GridController
             sections={visibleLabels}
             collection={visibleCollection}
             selection={this.state.selection}
