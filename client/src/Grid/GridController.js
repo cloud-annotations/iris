@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import GridItem from './GridItem'
-import './ImageGrid.css'
+import styles from './GridController.module.css'
 
 class GridController extends Component {
   state = {
@@ -20,7 +20,6 @@ class GridController extends Component {
     document.removeEventListener('mouseup', this.handleDragEnd)
   }
 
-  // const grid = document.getElementsByClassName('ImageGrid')[0]
   calculateColumnCount = () =>
     parseInt(
       window
@@ -226,11 +225,11 @@ class GridController extends Component {
               <div key={section}>
                 {collection[section].length > 0 && (
                   <div>
-                    <div className="ImageGrid-Section-Title">
-                      <div className="ImageGrid-Section-Span">{section}</div>
+                    <div className={styles.sectionTitle}>
+                      <div className={styles.sectionSpan}>{section}</div>
                     </div>
                     <div
-                      className="ImageGrid"
+                      className={styles.grid}
                       ref={ref => {
                         this.gridRef = ref
                       }}
@@ -251,7 +250,7 @@ class GridController extends Component {
                         )
                       })}
                     </div>
-                    <div className="ImageGrid-Gap" />
+                    <div className={styles.gap} />
                   </div>
                 )}
               </div>
