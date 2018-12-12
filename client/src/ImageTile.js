@@ -11,10 +11,10 @@ class ImageTile extends Component {
 
   componentDidMount() {
     console.log("Hello, I'm a new kid.")
-    const { imageUrl } = this.props
-    localforage.getItem(imageUrl).then(data => {
+    const { itemData } = this.props
+    localforage.getItem(itemData).then(data => {
       if (data === null || data === '') {
-        this.loadImage(imageUrl)
+        this.loadImage(itemData)
       } else {
         this.setState({
           image: data
@@ -52,7 +52,12 @@ class ImageTile extends Component {
     const { selected } = this.props
     return (
       <div className={selected ? styles.selected : styles.container}>
-        <img draggable={false} className={styles.image} alt="" src={this.state.image} />
+        <img
+          draggable={false}
+          className={styles.image}
+          alt=""
+          src={this.state.image}
+        />
         <div className={styles.iconWrapper}>
           <svg
             className={styles.icon}

@@ -1,25 +1,26 @@
 import React, { Component } from 'react'
 
-class GridItem extends Component {
+export default class GridItem extends Component {
   handleClick = e => {
     const { onItemSelected, index } = this.props
     onItemSelected(e, index)
   }
 
   handleMouseDown = e => {
-    const { onDragStart, index } = this.props
+    const { onDragStart, section, index } = this.props
+    // Start drag if it was a left click.
     if (e.button === 0) {
-      onDragStart(index)
+      onDragStart(section, index)
     }
   }
 
   handleMouseEnter = e => {
-    const { onItemEntered, index } = this.props
-    onItemEntered(index)
+    const { onItemEntered, section, index } = this.props
+    onItemEntered(section, index)
   }
 
   render() {
-    const { selected, gridItem, imageUrl } = this.props
+    const { selected, gridItem, itemData } = this.props
     return (
       <div
         onMouseDown={this.handleMouseDown}
@@ -27,12 +28,10 @@ class GridItem extends Component {
         onClick={this.handleClick}
       >
         {React.cloneElement(gridItem, {
-          imageUrl: imageUrl,
+          itemData: itemData,
           selected: selected
         })}
       </div>
     )
   }
 }
-
-export default GridItem

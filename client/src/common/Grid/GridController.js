@@ -2,7 +2,24 @@ import React, { Component } from 'react'
 import GridItem from './GridItem'
 import styles from './GridController.module.css'
 
-class GridController extends Component {
+const SafetyNet = collection => {
+  const fillWith = type => {
+    return Object.keys(collection).reduce((acc, key) => {
+      return [...acc, ...collection[key].map(() => type)]
+    }, [])
+  }
+  const safeSelection = fillWith(false)
+  return {
+    selection: selection =>
+      selection && safeSelection.length === selection.length
+        ? [...selection]
+        : safeSelection,
+    fullSelection: fillWith(true),
+    emptySelection: safeSelection
+  }
+}
+
+export default class GridController extends Component {
   state = {
     dragging: false,
     lastSelectedIndex: null,
@@ -20,46 +37,83 @@ class GridController extends Component {
     document.removeEventListener('mouseup', this.handleDragEnd)
   }
 
-  calculateColumnCount = () =>
-    parseInt(
-      window
-        .getComputedStyle(this.gridRef, null)
-        .getPropertyValue('grid-template-columns')
-        .split('px').length - 1,
-      10
-    )
+  handleKeyDown = event => {
+    const charCode = String.fromCharCode(event.which).toLowerCase()
+    // For MAC we can use metaKey to detect cmd key
+    if ((event.ctrlKey || event.metaKey) && charCode === 'a') {
+      event.preventDefault()
+      this.selectAll()
+    }
+  }
 
-  handleDragStart = index => {
+  handleItemSelected = (e, index) => {
+    const { collection, selection } = this.props
+    const shiftPressed = e.shiftKey
+
+    const safeSelection = SafetyNet(collection).selection(selection)
+
+    this.setState(
+      prevState => {
+        let lastSelectedIndex = prevState.lastSelectedIndex
+        if (shiftPressed && lastSelectedIndex !== null) {
+          // The default sort for arrays in Javascript is alphabetical.
+          const [min, max] = [lastSelectedIndex, index].sort((a, b) => a - b)
+
+          /**
+           * If the last selected index was a deselect and you try to select a
+           * deselected tile, select everything in between. Otherwise, nothing
+           * would happen, which causes confusion.
+           *
+           * if selection[lastSelectedIndex] === false {
+           *   type = !selection[index]
+           * }
+           */
+          for (let i = min; i <= max; i++) {
+            safeSelection[i] =
+              safeSelection[lastSelectedIndex] || !safeSelection[index]
+          }
+        } else {
+          safeSelection[index] = !safeSelection[index]
+          lastSelectedIndex = index
+        }
+        // If nothing is selected clear the last selected index.
+        if (safeSelection.filter(item => item).length === 0) {
+          lastSelectedIndex = null
+        }
+        return {
+          lastSelectedIndex: lastSelectedIndex
+        }
+      },
+      () => {
+        this.props.onSelectionChanged(safeSelection)
+      }
+    )
+  }
+
+  handleDragStart = (section, index) => {
     this.setState({
       dragging: true,
-      dragStartIndex: index
+      dragStartIndex: index,
+      dragStartSection: section
     })
   }
 
-  handleItemEntered = index => {
-    const { collection, sections, onSelectionChanged } = this.props
-    const { dragging, dragStartIndex } = this.state
+  handleItemEntered = (section, index) => {
+    const { collection, selection, sections, onSelectionChanged } = this.props
+    const { dragging, dragStartIndex, dragStartSection } = this.state
 
     if (!dragging) {
       return
     }
 
-    let sectionMin = 0
-    let sectionMax = 0
-    for (let i = 0; i < sections.length; i++) {
-      const section = sections[i]
-      const sectionSize = collection[section].length
-      const tmpSize = sectionMin + sectionSize
-      if (tmpSize > dragStartIndex) {
-        sectionMax = tmpSize
-        break
-      }
-      sectionMin = tmpSize
-    }
+    const i = sections.indexOf(dragStartSection)
+    const sectionSizes = sections.map(section => collection[section].length)
+    const sectionStart = sectionSizes.slice(0, i).reduce((a, b) => a + b, 0)
+    const sectionEnd = sectionStart + sectionSizes[i]
 
     const columnCount = this.calculateColumnCount()
-    const normalizedStartIndex = dragStartIndex - sectionMin
-    const normalizedEndIndex = index - sectionMin
+    const normalizedStartIndex = dragStartIndex - sectionStart
+    const normalizedEndIndex = index - sectionStart
 
     const x1 = normalizedStartIndex % columnCount
     const y1 = Math.floor(normalizedStartIndex / columnCount)
@@ -68,27 +122,21 @@ class GridController extends Component {
 
     console.log(`(${x1}, ${y1}) -> (${x2}, ${y2})`)
 
-    const selectionCheck = this.selectionFullOf(false)
-    const selection =
-      this.props.selection &&
-      selectionCheck.length === this.props.selection.length
-        ? [...this.props.selection]
-        : selectionCheck
-
-    const intermediateSelection = selection.map((selectState, index) => {
+    const safeSelection = SafetyNet(collection).selection(selection)
+    const intermediateSelection = safeSelection.map((selectState, index) => {
       // If item is outside of the selection, return the same state.
-      if (sectionMin > index || index >= sectionMax) {
+      if (sectionStart > index || index >= sectionEnd) {
         return selectState
       }
 
-      const normalizedIndex = index - sectionMin
+      const normalizedIndex = index - sectionStart
       const x = normalizedIndex % columnCount
       const y = Math.floor(normalizedIndex / columnCount)
 
       const yInRange = Math.min(y2, y1) <= y && y <= Math.max(y2, y1)
       const xInRange = Math.min(x2, x1) <= x && x <= Math.max(x2, x1)
       if (xInRange && yInRange) {
-        return !selection[dragStartIndex]
+        return !safeSelection[dragStartIndex]
       }
 
       return selectState
@@ -100,32 +148,21 @@ class GridController extends Component {
   }
 
   handleDragEnd = () => {
-    const { onSelectionChanged } = this.props
+    const { collection, selection, onSelectionChanged } = this.props
     const { dragging } = this.state
 
     if (!dragging) {
       return
     }
 
-    const selectionCheck = this.selectionFullOf(false)
-    const selection =
-      this.props.selection &&
-      selectionCheck.length === this.props.selection.length
-        ? [...this.props.selection]
-        : selectionCheck
-
-    console.log(this.state.intermediateSelection)
-
-    const newSelection = this.state.intermediateSelection || selection
-
+    const safeSelection = SafetyNet(collection).selection(selection)
+    const mergedSelection = this.state.intermediateSelection || safeSelection
     this.setState(
       prevState => {
-        let lastSelectedIndex = prevState.lastSelectedIndex
-
         // If we dragged a selection, we don't want a last selected for shift click.
-        if (prevState.intermediateSelection !== null) {
-          lastSelectedIndex = null
-        }
+        const lastSelectedIndex = prevState.intermediateSelection
+          ? null
+          : prevState.lastSelectedIndex
 
         return {
           dragging: false,
@@ -136,87 +173,28 @@ class GridController extends Component {
         }
       },
       () => {
-        onSelectionChanged(newSelection)
+        onSelectionChanged(mergedSelection)
       }
     )
   }
 
-  handleKeyDown = event => {
-    const charCode = String.fromCharCode(event.which).toLowerCase()
-    // For MAC we can use metaKey to detect cmd key
-    if ((event.ctrlKey || event.metaKey) && charCode === 'a') {
-      event.preventDefault()
-      this.selectAll()
-    }
-  }
+  calculateColumnCount = () =>
+    parseInt(
+      window
+        .getComputedStyle(this.gridRef, null)
+        .getPropertyValue('grid-template-columns')
+        .split('px').length - 1,
+      10
+    )
 
   selectAll = () => {
-    const { onSelectionChanged } = this.props
-    const selection = this.selectionFullOf(true)
-    onSelectionChanged(selection)
-  }
-
-  selectionFullOf = type => {
-    const { collection } = this.props
-    return Object.keys(collection).reduce((acc, key) => {
-      return [...acc, ...collection[key].map(() => type)]
-    }, [])
-  }
-
-  handleItemSelected = (e, index) => {
-    const safeIndex = (array, index) => {
-      return array.length > index && array[index]
-    }
-
-    const shiftPressed = e.shiftKey
-
-    const selectionCheck = this.selectionFullOf(false)
-
-    const selection =
-      this.props.selection &&
-      selectionCheck.length === this.props.selection.length
-        ? [...this.props.selection]
-        : selectionCheck
-
-    this.setState(
-      prevState => {
-        let lastSelectedIndex = prevState.lastSelectedIndex
-        if (shiftPressed && lastSelectedIndex !== null) {
-          // The default sort for arrays in Javascript is alphabetical.
-          const sortedSelect = [lastSelectedIndex, index].sort((a, b) => a - b)
-
-          // Set the selection type (select/deselect), as the last selected type.
-          const lastSelectedType = safeIndex(selection, lastSelectedIndex)
-          // Unless both the last and current selection are deselected.
-          const selectionType = lastSelectedType || !safeIndex(selection, index)
-
-          for (let i = sortedSelect[0]; i <= sortedSelect[1]; i++) {
-            selection[i] = selectionType
-          }
-        } else {
-          selection[index] = !selection[index]
-          lastSelectedIndex = index
-        }
-        // If nothing is selected clear the last selected index.
-        if (selection.filter(item => item).length === 0) {
-          lastSelectedIndex = null
-        }
-        return {
-          lastSelectedIndex: lastSelectedIndex
-        }
-      },
-      () => {
-        this.props.onSelectionChanged(selection)
-      }
-    )
+    const { collection, onSelectionChanged } = this.props
+    onSelectionChanged(SafetyNet(collection).fullSelection)
   }
 
   render() {
     const { sections, collection, selection, gridItem } = this.props
-
     const mergedSelection = this.state.intermediateSelection || selection
-
-    // There's got to be a better way to get an index for the grid items.
     return (
       <div>
         {sections.map(
@@ -234,17 +212,18 @@ class GridController extends Component {
                         this.gridRef = ref
                       }}
                     >
-                      {collection[section].map(imagePointer => {
+                      {collection[section].map(itemData => {
                         i++
                         return (
                           <GridItem
-                            onDragStart={this.handleDragStart}
-                            onItemEntered={this.handleItemEntered}
-                            key={imagePointer}
-                            imageUrl={imagePointer}
                             index={i}
+                            section={section}
+                            key={itemData}
+                            itemData={itemData}
                             selected={mergedSelection && mergedSelection[i]}
                             onItemSelected={this.handleItemSelected}
+                            onDragStart={this.handleDragStart}
+                            onItemEntered={this.handleItemEntered}
                             gridItem={gridItem}
                           />
                         )
@@ -261,5 +240,3 @@ class GridController extends Component {
     )
   }
 }
-
-export default GridController
