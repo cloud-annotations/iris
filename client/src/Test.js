@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import fetchImages from './api/fetchImages'
-import ImageGrid from './ImageGrid'
+import GridContainer from './Grid'
+import ImageTile from './ImageTile'
 import BucketBar from './BucketBar'
 import EmptySet from './EmptySet'
 import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
@@ -127,10 +128,40 @@ const Canvas = props => {
   )
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////// ORIGINAL COMPONENT //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class App extends Component {
   constructor(props) {
     super(props)
-    fetchImages(localStorage.getItem('loginUrl'), props.match.params.bucket)
+    this.initializeData()
+    this.state = {
+      saved: true,
+      loading: true,
+      labelList: ['Unlabeled'],
+      collection: { Unlabeled: [] },
+      currentSection: ALL_IMAGES,
+      selection: null,
+      dropzoneActive: false
+    }
+  }
+
+  componentDidMount() {
+    GoogleAnalytics.pageview('annotations')
+    const intervalID = setInterval(this.handleCookieChange, 10 * 1000)
+    this.setState({
+      intervalID: intervalID
+    })
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.intervalID)
+  }
+
+  initializeData = () => {
+    const { bucket } = this.props.match.params
+    fetchImages(localStorage.getItem('loginUrl'), bucket)
       .then(res => {
         this.setState({
           loading: false,
@@ -146,18 +177,6 @@ class App extends Component {
           this.props.history.push('/login')
         }
       })
-    this.state = {
-      saved: true,
-      loading: true,
-      labelList: ['Unlabeled'],
-      collection: { Unlabeled: [] },
-      currentSection: ALL_IMAGES,
-      selection: [],
-      tmpLabeledImages: new Set([]),
-      lastSelected: null, // This does not include shift clicks.
-      tmpSelection: null,
-      dropzoneActive: false
-    }
   }
 
   handleCookieChange = () => {
@@ -168,118 +187,6 @@ class App extends Component {
         this.props.history.push('/login')
       }
     })
-  }
-
-  componentDidMount() {
-    GoogleAnalytics.pageview('annotations')
-    document.addEventListener('keydown', this.handleKeyDown)
-    document.addEventListener('mouseup', this.handleDragEnd)
-    const intervalID = setInterval(() => {
-      console.log('tic toc')
-      validateCookies().catch(error => {
-        console.error(error)
-        if (error.message === 'Forbidden') {
-          this.props.history.push('/login')
-        }
-      })
-    }, 10 * 1000)
-    this.setState({
-      intervalID: intervalID
-    })
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown)
-    document.removeEventListener('mouseup', this.handleDragEnd)
-    clearInterval(this.state.intervalID)
-  }
-
-  dragging = false
-  dragStartIndex = null
-
-  getColCount = () => {
-    const grid = document.getElementsByClassName('ImageGrid')[0]
-    return parseInt(
-      window
-        .getComputedStyle(grid, null)
-        .getPropertyValue('grid-template-columns')
-        .split('px').length - 1,
-      10
-    )
-  }
-  handleDragStart = index => {
-    console.log(index)
-    this.dragging = true
-    this.dragStartIndex = index
-  }
-  handleDrag = index => {
-    if (this.dragging) {
-      let sectionMin = 0
-      let sectionMax = 0
-      for (let i = 0; i < this.state.labelList.length; i++) {
-        const label = this.state.labelList[i]
-        const sectionSize = this.state.collection[label].length
-        const tmpSize = sectionMin + sectionSize
-        if (tmpSize > this.dragStartIndex) {
-          sectionMax = tmpSize
-          break
-        }
-        sectionMin = tmpSize
-      }
-
-      const colCount = this.getColCount()
-      const normalizedStartIndex = this.dragStartIndex - sectionMin
-      const normalizedEndIndex = index - sectionMin
-
-      const x1 = normalizedStartIndex % colCount
-      const y1 = Math.floor(normalizedStartIndex / colCount)
-      const x2 = normalizedEndIndex % colCount
-      const y2 = Math.floor(normalizedEndIndex / colCount)
-
-      console.log(`(${x1}, ${y1}) -> (${x2}, ${y2})`)
-
-      this.setState(prevState => {
-        const newTmpSelection = prevState.selection.map(
-          (selectState, index) => {
-            if (sectionMin <= index && index < sectionMax) {
-              const normalizedIndex = index - sectionMin
-              const x = normalizedIndex % colCount
-              const y = Math.floor(normalizedIndex / colCount)
-
-              if (Math.min(y2, y1) <= y && y <= Math.max(y2, y1)) {
-                if (Math.min(x2, x1) <= x && x <= Math.max(x2, x1)) {
-                  return !prevState.selection[this.dragStartIndex]
-                }
-              }
-            }
-            return selectState
-          }
-        )
-
-        return {
-          tmpSelection: newTmpSelection
-        }
-      })
-    }
-  }
-  handleDragEnd = () => {
-    if (this.dragging) {
-      this.setState(prevState => {
-        const newSelection = prevState.tmpSelection || prevState.selection
-        let newLastSelect = prevState.lastSelected
-        if (prevState.tmpSelection !== null) {
-          newLastSelect = null
-        }
-        return {
-          selection: newSelection,
-          lastSelected: newLastSelect,
-          tmpSelection: null
-        }
-      })
-    }
-    this.dragging = false
-    this.dragStartIndex = null
-    this.dragEndIndex = null
   }
 
   changeRequest = changePromise => {
@@ -301,96 +208,6 @@ class App extends Component {
           })
       }
     )
-  }
-
-  handleKeyDown = event => {
-    let charCode = String.fromCharCode(event.which).toLowerCase()
-    // For MAC we can use metaKey to detect cmd key
-    if ((event.ctrlKey || event.metaKey) && charCode === 'a') {
-      event.preventDefault()
-      this.setState(prevState => {
-        const cSection = prevState.currentSection
-
-        // TODO: clean this up.
-        let startOfSection = 0
-        let endOfSection = 0
-        if (cSection === ALL_IMAGES) {
-          prevState.labelList.forEach(section => {
-            endOfSection += prevState.collection[section].length
-          })
-        } else if (cSection === LABELED) {
-          prevState.labelList.forEach(section => {
-            if (section === 'Unlabeled') {
-              startOfSection += prevState.collection[section].length
-            }
-            endOfSection += prevState.collection[section].length
-          })
-        } else if (cSection === UNLABELED) {
-          prevState.labelList.forEach(section => {
-            if (section === 'Unlabeled') {
-              endOfSection += prevState.collection[section].length
-            }
-          })
-        } else {
-          prevState.labelList.forEach(section => {
-            if (endOfSection > 0) {
-              return
-            }
-            if (section !== cSection) {
-              startOfSection += prevState.collection[section].length
-            } else {
-              endOfSection =
-                startOfSection + prevState.collection[section].length
-            }
-          })
-        }
-
-        const newSelection = prevState.selection.map((_, index) => {
-          if (startOfSection <= index && index < endOfSection) {
-            return true
-          }
-          return false
-        })
-
-        return {
-          selection: newSelection
-        }
-      })
-      console.log('Ctrl + A pressed')
-    }
-  }
-
-  gridItemSelected = (e, index) => {
-    const shiftPressed = e.shiftKey
-    this.setState(prevState => {
-      const newSelection = [...prevState.selection]
-      let lastSelected = prevState.lastSelected
-      if (shiftPressed && lastSelected !== null) {
-        // The default sort for arrays in Javascript is an alphabetical search.
-        const sortedSelect = [lastSelected, index].sort((a, b) => a - b)
-
-        // Set the selection type (select/deselect) as the last selected type.
-        let bool = prevState.selection[lastSelected]
-        // Unless both the last and current selection are deselected.
-        if (!prevState.selection[lastSelected] && !prevState.selection[index]) {
-          bool = true
-        }
-
-        for (let i = sortedSelect[0]; i <= sortedSelect[1]; i++) {
-          newSelection[i] = bool
-        }
-      } else {
-        newSelection[index] = !prevState.selection[index]
-        lastSelected = index
-      }
-      if (newSelection.filter(item => item).length === 0) {
-        lastSelected = null
-      }
-      return {
-        selection: newSelection,
-        lastSelected: lastSelected
-      }
-    })
   }
 
   deselectAll = () => {
@@ -746,6 +563,20 @@ class App extends Component {
       ? this.state.selection.filter(item => item).length
       : 0
 
+    const visibleLabels = this.state.labelList.filter(label => {
+      return (
+        this.state.currentSection === ALL_IMAGES ||
+        (this.state.currentSection === LABELED && label !== 'Unlabeled') ||
+        (this.state.currentSection === UNLABELED && label === 'Unlabeled') ||
+        this.state.currentSection === label
+      )
+    })
+
+    const visibleCollection = visibleLabels.reduce((acc, label) => {
+      acc[label] = this.state.collection[label]
+      return acc
+    }, {})
+
     return (
       <div>
         <BucketBar
@@ -797,15 +628,12 @@ class App extends Component {
             collection={this.state.collection}
           />
           <Canvas />
-          <ImageGrid
-            dragStart={this.handleDragStart}
-            drag={this.handleDrag}
-            bucket={this.props.match.params.bucket}
-            sections={this.state.labelList}
-            currentSection={this.state.currentSection}
-            collection={this.state.collection}
-            selection={this.state.tmpSelection || this.state.selection}
-            gridItemSelected={this.gridItemSelected}
+          <GridContainer
+            sections={visibleLabels}
+            collection={visibleCollection}
+            selection={this.state.selection}
+            onSelectionChanged={this.onSelectionChanged}
+            gridItem={<ImageTile bucket={this.props.match.params.bucket} />}
           />
         </Dropzone>
       </div>
