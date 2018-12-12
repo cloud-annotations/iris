@@ -158,55 +158,13 @@ class GridContainer extends Component {
     // For MAC we can use metaKey to detect cmd key
     if ((event.ctrlKey || event.metaKey) && charCode === 'a') {
       event.preventDefault()
-      // this.setState(prevState => {
-      //   const cSection = prevState.currentSection
-      //
-      //   // TODO: clean this up.
-      //   let startOfSection = 0
-      //   let endOfSection = 0
-      //   if (cSection === ALL_IMAGES) {
-      //     prevState.labelList.forEach(section => {
-      //       endOfSection += prevState.collection[section].length
-      //     })
-      //   } else if (cSection === LABELED) {
-      //     prevState.labelList.forEach(section => {
-      //       if (section === 'Unlabeled') {
-      //         startOfSection += prevState.collection[section].length
-      //       }
-      //       endOfSection += prevState.collection[section].length
-      //     })
-      //   } else if (cSection === UNLABELED) {
-      //     prevState.labelList.forEach(section => {
-      //       if (section === 'Unlabeled') {
-      //         endOfSection += prevState.collection[section].length
-      //       }
-      //     })
-      //   } else {
-      //     prevState.labelList.forEach(section => {
-      //       if (endOfSection > 0) {
-      //         return
-      //       }
-      //       if (section !== cSection) {
-      //         startOfSection += prevState.collection[section].length
-      //       } else {
-      //         endOfSection =
-      //           startOfSection + prevState.collection[section].length
-      //       }
-      //     })
-      //   }
-      //
-      //   const newSelection = prevState.selection.map((_, index) => {
-      //     if (startOfSection <= index && index < endOfSection) {
-      //       return true
-      //     }
-      //     return false
-      //   })
-      //
-      //   return {
-      //     selection: newSelection
-      //   }
-      // })
-      console.log('Ctrl + A pressed')
+      const selection = Object.keys(this.props.collection).reduce(
+        (acc, key) => {
+          return [...acc, ...this.props.collection[key].map(() => true)]
+        },
+        []
+      )
+      this.props.onSelectionChanged(selection)
     }
   }
 
