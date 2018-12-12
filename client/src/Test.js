@@ -23,6 +23,9 @@ import {
 import './App.css'
 
 const Canvas = props => {
+  const imageRef = React.createRef()
+  const canvasRef = React.createRef()
+
   const loadImage = imageUrl => {
     const url = `/api/proxy/${localStorage.getItem('loginUrl') ||
       ''}/beer-workshop/${imageUrl}`
@@ -41,7 +44,7 @@ const Canvas = props => {
         const base64Flag = 'data:image/jpeg;base64,'
         const imageStr = arrayBufferToBase64(buffer)
 
-        this.imageRef.onload = () => {
+        imageRef.current.onload = () => {
           // const ctx = this.canvasRef.getContext('2d')
           // this.canvasRef.width = image.width
           // this.canvasRef.height = image.height
@@ -64,8 +67,8 @@ const Canvas = props => {
           }
           var element = null
 
-          this.canvasRef.onmousemove = e => {
-            setMousePosition(e, this.canvasRef)
+          canvasRef.current.onmousemove = e => {
+            setMousePosition(e, canvasRef.current)
             if (element !== null) {
               element.style.width = Math.abs(mouse.x - mouse.startX) + 'px'
               element.style.height = Math.abs(mouse.y - mouse.startY) + 'px'
@@ -80,10 +83,10 @@ const Canvas = props => {
             }
           }
 
-          this.canvasRef.onclick = e => {
+          canvasRef.current.onclick = e => {
             if (element !== null) {
               element = null
-              this.canvasRef.style.cursor = 'default'
+              canvasRef.current.style.cursor = 'default'
               console.log('finsihed.')
             } else {
               console.log('begun.')
@@ -94,18 +97,18 @@ const Canvas = props => {
               element.style.top = mouse.y + 'px'
               element.style.cssText =
                 'position: absolute; border: 1px solid rgba(0, 185, 225, 1.0); background-color: rgba(0, 185, 225, 0.0)'
-              this.canvasRef.appendChild(element)
+              canvasRef.current.appendChild(element)
 
               const element2 = document.createElement('div')
               element2.style.cssText =
                 'position: absolute; left: -2px; right: -2px; top: -2px; bottom: -2px; border: 1px solid rgba(225, 225, 225, 0.0); mix-blend-mode: difference;'
               element.appendChild(element2)
 
-              this.canvasRef.style.cursor = 'crosshair'
+              canvasRef.current.style.cursor = 'crosshair'
             }
           }
         }
-        this.imageRef.src = base64Flag + imageStr
+        imageRef.current.src = base64Flag + imageStr
       })
       .catch(error => {
         console.error(error)
@@ -115,15 +118,9 @@ const Canvas = props => {
   return (
     <div
       style={{ margin: '20px', cursor: 'crosshair', position: 'relative' }}
-      ref={ref => {
-        this.canvasRef = ref
-      }}
+      ref={canvasRef}
     >
-      <img
-        ref={ref => {
-          this.imageRef = ref
-        }}
-      />
+      <img ref={imageRef} />
     </div>
   )
 }

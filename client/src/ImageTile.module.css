@@ -1,0 +1,95 @@
+.container {
+  display: inline-block;
+  position: relative;
+  user-select: none;
+}
+
+.container:before {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 1px solid rgba(136, 151, 161, 0); /* Hide border */
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0); /* Hide shadow */
+  transition: all 250ms cubic-bezier(0.5, 0, 0.1, 1);
+}
+
+.container:hover:before {
+  border: 1px solid rgba(136, 151, 161, 1); /* Show border */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Show shadow */
+}
+
+/**
+ * `:active` hides the border, just as the user is clicking.
+ * Without this, the border would linger until the animation completes,
+ * causing an ugly flicker.
+ */
+.container:active:before {
+  border: 1px solid rgba(136, 151, 161, 0); /* Hide border */
+}
+
+.selected {
+  composes: container;
+  width: 112px;
+  height: 112px;
+}
+
+.selected:hover:before {
+  border: 1px solid rgba(136, 151, 161, 0);
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+}
+
+.image {
+  width: 112px;
+  height: 112px;
+  background-color: #e3eaf3;
+  vertical-align: middle;
+  border: 2px solid red;
+}
+
+.selected:hover .image {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.selected .image {
+  border: 1px solid #4071b0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  width: 80px;
+  height: 80px;
+  margin: 16px;
+}
+
+.iconWrapper {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  transition: all 250ms ease;
+  opacity: 0;
+  border-radius: 50%;
+  background-color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.container:hover .iconWrapper {
+  opacity: 0.4;
+  transition: all 250ms ease;
+}
+
+.selected .iconWrapper {
+  opacity: 1;
+  transition: none;
+}
+
+.icon {
+  fill: #1470df;
+  width: 24px;
+  height: 24px;
+  margin: 1px;
+}
