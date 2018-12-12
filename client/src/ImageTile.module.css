@@ -1,45 +1,23 @@
 .container {
   display: inline-block;
   position: relative;
-  user-select: none;
+  user-select: none; /* stops images from turning blue */
 }
 
+/**
+ * Stops images from being draggable.
+ */
 .container:before {
-  display: block;
   content: '';
   position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
   left: 0;
-  border: 1px solid rgba(136, 151, 161, 0); /* Hide border */
-  box-shadow: 0 0px 0px rgba(0, 0, 0, 0); /* Hide shadow */
-  transition: all 250ms cubic-bezier(0.5, 0, 0.1, 1);
-}
-
-.container:hover:before {
-  border: 1px solid rgba(136, 151, 161, 1); /* Show border */
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Show shadow */
-}
-
-/**
- * `:active` hides the border, just as the user is clicking.
- * Without this, the border would linger until the animation completes,
- * causing an ugly flicker.
- */
-.container:active:before {
-  border: 1px solid rgba(136, 151, 161, 0); /* Hide border */
 }
 
 .selected {
   composes: container;
-  width: 112px;
-  height: 112px;
-}
-
-.selected:hover:before {
-  border: 1px solid rgba(136, 151, 161, 0);
-  box-shadow: 0 0px 0px rgba(0, 0, 0, 0);
 }
 
 .image {
@@ -47,14 +25,18 @@
   height: 112px;
   background-color: #e3eaf3;
   vertical-align: middle;
-  border: 2px solid red;
+  border: 1px solid rgba(136, 151, 161, 0);
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0);
+  transition: border box-shadow 250ms cubic-bezier(0.5, 0, 0.1, 1);
 }
 
-.selected:hover .image {
+.container:hover .image {
+  border: 1px solid #8897a1;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.selected .image {
+.selected .image,
+.selected:hover .image {
   border: 1px solid #4071b0;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   width: 80px;
@@ -63,26 +45,25 @@
 }
 
 .iconWrapper {
-  display: block;
   content: '';
   position: absolute;
   top: 8px;
   right: 8px;
   width: 26px;
   height: 26px;
-  transition: all 250ms ease;
   opacity: 0;
   border-radius: 50%;
   background-color: #ffffff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: all 250ms ease;
 }
 
 .container:hover .iconWrapper {
   opacity: 0.4;
-  transition: all 250ms ease;
 }
 
-.selected .iconWrapper {
+.selected .iconWrapper,
+.selected:hover .iconWrapper {
   opacity: 1;
   transition: none;
 }
