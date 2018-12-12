@@ -558,6 +558,12 @@ class App extends Component {
     })
   }
 
+  onSelectionChanged = selection => {
+    this.setState({
+      selection: selection
+    })
+  }
+
   render() {
     const selectionCount = this.state.selection
       ? this.state.selection.filter(item => item).length

@@ -48,6 +48,7 @@ class GridItemContainer extends Component {
 class GridContainer extends Component {
   state = {
     dragging: false,
+    lastSelected: null,
     dragStartIndex: null
   }
 
@@ -210,49 +211,64 @@ class GridContainer extends Component {
   }
 
   gridItemSelected = (e, index) => {
+    const safeIndex = (array, index) => {
+      return array.length > index && array[index]
+    }
+
     const shiftPressed = e.shiftKey
-    this.setState(prevState => {
-      const newSelection = [...prevState.selection]
-      let lastSelected = prevState.lastSelected
-      if (shiftPressed && lastSelected !== null) {
-        // The default sort for arrays in Javascript is an alphabetical search.
-        const sortedSelect = [lastSelected, index].sort((a, b) => a - b)
 
-        // Set the selection type (select/deselect) as the last selected type.
-        let bool = prevState.selection[lastSelected]
-        // Unless both the last and current selection are deselected.
-        if (!prevState.selection[lastSelected] && !prevState.selection[index]) {
-          bool = true
-        }
+    const selectionCheck = Object.keys(this.props.collection).reduce(
+      (acc, key) => {
+        return [...acc, ...this.props.collection[key].map(() => false)]
+      },
+      []
+    )
 
-        for (let i = sortedSelect[0]; i <= sortedSelect[1]; i++) {
-          newSelection[i] = bool
+    const selection =
+      this.props.selection &&
+      selectionCheck.length === this.props.selection.length
+        ? [...this.props.selection]
+        : selectionCheck
+
+    this.setState(
+      prevState => {
+        let lastSelectedIndex = prevState.lastSelected
+        if (shiftPressed && lastSelectedIndex !== null) {
+          // The default sort for arrays in Javascript is alphabetical.
+          const sortedSelect = [lastSelectedIndex, index].sort((a, b) => a - b)
+
+          // Set the selection type (select/deselect), as the last selected type.
+          const lastSelectedType = safeIndex(selection, lastSelectedIndex)
+          // Unless both the last and current selection are deselected.
+          const selectionType = lastSelectedType || !safeIndex(selection, index)
+
+          for (let i = sortedSelect[0]; i <= sortedSelect[1]; i++) {
+            selection[i] = selectionType
+          }
+        } else {
+          selection[index] = !selection[index]
+          lastSelectedIndex = index
         }
-      } else {
-        newSelection[index] = !prevState.selection[index]
-        lastSelected = index
+        if (selection.filter(item => item).length === 0) {
+          lastSelectedIndex = null
+        }
+        return {
+          lastSelected: lastSelectedIndex
+        }
+      },
+      () => {
+        this.props.onSelectionChanged(selection)
       }
-      if (newSelection.filter(item => item).length === 0) {
-        lastSelected = null
-      }
-      return {
-        selection: newSelection,
-        lastSelected: lastSelected
-      }
-    })
+    )
   }
 
   render() {
-    const { sections, collection, onSelectionChanged, gridItem } = this.props
-    const selection =
-      this.props.selection ||
-      Object.keys(collection).reduce((acc, key) => {
-        return [...acc, ...collection[key].map(() => false)]
-      }, [])
+    const { sections, collection, selection, gridItem } = this.props
 
+    let i = 0
     return (
       <div>
-        {sections.map((section, i) => {
+        {sections.map(section => {
           return (
             <div key={section}>
               {collection[section].length > 0 ? (
@@ -268,7 +284,7 @@ class GridContainer extends Component {
                         key={imagePointer}
                         imageUrl={imagePointer}
                         index={i}
-                        selected={selection[i]}
+                        selected={selection && selection[i++]}
                         onItemSelected={this.gridItemSelected}
                         gridItem={gridItem}
                       />
