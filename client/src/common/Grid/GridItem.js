@@ -28,7 +28,7 @@ export default class GridItem extends Component {
         onClick={this.handleClick}
       >
         {React.cloneElement(gridItem, {
-          itemData: itemData,
+          item: itemData,
           selected: selected
         })}
       </div>
