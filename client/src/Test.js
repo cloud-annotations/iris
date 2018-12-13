@@ -18,7 +18,7 @@ import {
   arrayBufferToBase64,
   readFile,
   shrinkImage,
-  canvasToBlob,
+  namedCanvasToFile,
   handleErrors
 } from './Utils'
 import './App.css'
@@ -459,9 +459,11 @@ class App extends Component {
       const collection = { ...prevState.collection }
 
       // We need a unique name to use as a key so react doesn't shit the bed.
-      fileList.forEach(file => {
-        collection[label] = [`${generateUUID()}.tmp`, ...collection[label]]
-      })
+      const tmp = Array.apply(null, Array(fileList.length)).map(
+        () => `${generateUUID()}.tmp`
+      )
+
+      collection[label] = [...tmp, ...collection[label]]
 
       const selection = Object.keys(collection).reduce((acc, key) => {
         return [...acc, ...collection[key].map(() => false)]
@@ -476,25 +478,30 @@ class App extends Component {
     const readFiles = fileList.map(file =>
       readFile(file)
         .then(image => shrinkImage(image))
-        .then(canvas => canvasToBlob(canvas))
+        .then(canvas => {
+          const name = `${generateUUID()}.jpg`
+          const dataURL = canvas.toDataURL('image/jpeg')
+          // We don't care when this finishes, so it can break of on it's own.
+          localforage.setItem(name, dataURL).then(() => {
+            this.setState(prevState => {
+              const collection = { ...prevState.collection }
+              const index = collection[label].findIndex(item =>
+                item.endsWith('.tmp')
+              )
+              collection[label][index] = name
+              return {
+                collection: collection
+              }
+            })
+          })
+          return { canvas: canvas, name: name }
+        })
+        .then(namedCanvas => namedCanvasToFile(namedCanvas))
     )
 
     const uploadRequest = Promise.all(readFiles)
-      .then(blobs => {
-        const files = blobs.map(blob => {
-          return { blob: blob, name: `${generateUUID()}.jpg` }
-        })
-        return putImages(localStorage.getItem('loginUrl'), bucket, files)
-      })
       .then(files => {
-        this.setState(prevState => {
-          const collection = { ...prevState.collection }
-          collection[label] = collection[label].filter(
-            item => !item.endsWith('.tmp')
-          )
-          collection[label] = [...files, ...collection[label]]
-          return { collection: collection }
-        })
+        return putImages(localStorage.getItem('loginUrl'), bucket, files)
       })
       .catch(error => {
         console.error(error)
