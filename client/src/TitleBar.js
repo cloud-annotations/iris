@@ -37,7 +37,7 @@ class TitleBar extends Component {
     this.setState({
       showDropDown: false
     })
-    document.cookie = 'token=; Max-Age=-99999999;'
+    document.cookie = 'token=; Max-Age=-99999999; path=/'
     validateCookies().catch(error => {
       if (error.message === 'Forbidden') {
         this.props.history.push('/login')

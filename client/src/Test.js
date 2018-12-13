@@ -141,20 +141,18 @@ class App extends Component {
       collection: { Unlabeled: [] },
       currentSection: ALL_IMAGES,
       selection: null,
-      dropzoneActive: false
+      dropzoneActive: false,
+      cookieCheckInterval: null
     }
   }
 
   componentDidMount() {
     GoogleAnalytics.pageview('annotations')
-    const intervalID = setInterval(this.handleCookieChange, 10 * 1000)
-    this.setState({
-      intervalID: intervalID
-    })
+    this.addCookieCheckInterval()
   }
 
   componentWillUnmount() {
-    clearInterval(this.state.intervalID)
+    clearInterval(this.state.cookieCheckInterval)
   }
 
   initializeData = () => {
@@ -177,13 +175,18 @@ class App extends Component {
       })
   }
 
-  handleCookieChange = () => {
-    console.log('tic toc')
-    validateCookies().catch(error => {
-      console.error(error)
-      if (error.message === 'Forbidden') {
-        this.props.history.push('/login')
-      }
+  addCookieCheckInterval = () => {
+    const intervalID = setInterval(() => {
+      console.log('tic toc')
+      validateCookies().catch(error => {
+        console.error(error)
+        if (error.message === 'Forbidden') {
+          this.props.history.push('/login')
+        }
+      })
+    }, 10 * 1000)
+    this.setState({
+      cookieCheckInterval: intervalID
     })
   }
 
