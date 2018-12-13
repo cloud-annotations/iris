@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import fetchImages from 'api/fetchImages'
+import putImages from 'api/putImages'
 import GridController from 'common/Grid/GridController'
 import ImageTile from './ImageTile'
 import BucketBar from './BucketBar'
@@ -443,96 +444,63 @@ class App extends Component {
   }
 
   uploadFiles = fileList => {
-    const uploadRequest = new Promise((resolve, reject) => {
-      const filesWithNames = fileList.map(file => {
-        const fileName = generateUUID()
-        return { file: file, fileName: `${fileName}.jpg` }
+    const { bucket } = this.props.match.params
+
+    // If a label tab is selected, images need to be labeled as such.
+    const label =
+      this.state.currentSection === UNLABELED ||
+      this.state.currentSection === LABELED ||
+      this.state.currentSection === ALL_IMAGES
+        ? 'Unlabeled'
+        : this.state.currentSection
+
+    // Inject tmp names so empty tiles show while the actual images are loading.
+    this.setState(prevState => {
+      const collection = { ...prevState.collection }
+
+      // We need a unique name to use as a key so react doesn't shit the bed.
+      fileList.forEach(file => {
+        collection[label] = [`${generateUUID()}.tmp`, ...collection[label]]
       })
 
-      const label =
-        this.state.currentSection === UNLABELED ||
-        this.state.currentSection === LABELED ||
-        this.state.currentSection === ALL_IMAGES
-          ? 'Unlabeled'
-          : this.state.currentSection
+      const selection = Object.keys(collection).reduce((acc, key) => {
+        return [...acc, ...collection[key].map(() => false)]
+      }, [])
 
-      this.setState(prevState => {
-        const newCollection = { ...prevState.collection }
-
-        filesWithNames.forEach(fileWithName => {
-          newCollection[label] = [
-            `tmp_${fileWithName.fileName}`,
-            ...newCollection[label]
-          ]
-        })
-
-        const newSelection = Object.keys(newCollection).reduce((acc, key) => {
-          return [...acc, ...newCollection[key].map(() => false)]
-        }, [])
-
-        return {
-          collection: newCollection,
-          selection: newSelection,
-          lastSelected: null
-        }
-      })
-
-      var uploadRequests = []
-      filesWithNames.forEach(fileWithName => {
-        const fileName = fileWithName.fileName
-        const file = fileWithName.file
-        const promise = readFile(file)
-          .then(image => shrinkImage(image))
-          .then(canvas => {
-            const dataURL = canvas.toDataURL('image/jpeg')
-            return localforage.setItem(fileName, dataURL).then(() => {
-              return new Promise((resolve, reject) => {
-                this.setState(
-                  prevState => {
-                    const newCollection = { ...prevState.collection }
-                    newCollection[label] = newCollection[label].map(image => {
-                      if (image === `tmp_${fileName}`) {
-                        return fileName
-                      }
-                      return image
-                    })
-
-                    return {
-                      collection: newCollection
-                    }
-                  },
-                  () => {
-                    resolve(canvas)
-                  }
-                )
-              })
-            })
-          })
-          .then(canvas => canvasToBlob(canvas))
-          .then(blob => {
-            const url = `/api/proxy/${localStorage.getItem('loginUrl')}/${
-              this.props.match.params.bucket
-            }/${fileName}`
-            const options = {
-              method: 'PUT',
-              body: blob
-            }
-            const request = new Request(url)
-            return fetch(request, options)
-          })
-          .catch(error => {
-            console.error(error)
-          })
-
-        uploadRequests = [...uploadRequests, promise]
-      })
-
-      Promise.all(uploadRequests)
-        .then(() => this.annotationsToCsv())
-        .then(resolve)
-        .catch(reject)
+      return {
+        collection: collection,
+        selection: selection
+      }
     })
 
+    const readFiles = fileList.map(file =>
+      readFile(file)
+        .then(image => shrinkImage(image))
+        .then(canvas => canvasToBlob(canvas))
+    )
+
+    const uploadRequest = Promise.all(readFiles)
+      .then(blobs => {
+        const files = blobs.map(blob => {
+          return { blob: blob, name: `${generateUUID()}.jpg` }
+        })
+        return putImages(localStorage.getItem('loginUrl'), bucket, files)
+      })
+      .then(files => {
+        this.setState(prevState => {
+          const collection = { ...prevState.collection }
+          collection[label] = collection[label].filter(
+            item => !item.endsWith('.tmp')
+          )
+          collection[label] = [...files, ...collection[label]]
+          return { collection: collection }
+        })
+      })
+      .catch(error => {
+        console.error(error)
+      })
+
+    this.annotationsToCsv()
     this.changeRequest(uploadRequest)
   }
 
