@@ -17,13 +17,12 @@ export default class App extends Component {
     this.state = {
       labelList: ['Unlabeled'],
       collection: { Unlabeled: [] },
-      selection: null,
+      selection: 0,
       dropzoneActive: false,
       cookieCheckInterval: null,
-
       image: null,
       bboxes: [],
-      label: 'Millenium Falcon',
+      label: 'Millennium Falcon',
       mode: 'box'
     }
   }
@@ -84,7 +83,12 @@ export default class App extends Component {
     Promise.all([imagePromise, annotationPromise])
       .then(res => {
         console.log(res)
-        this.setState({ ...res[0], ...res[1] })
+        const bboxes = res[1].bboxes.map(bbox => {
+          const color = this.colorFromLabel(bbox.label)
+          bbox.color = color
+          return bbox
+        })
+        this.setState({ ...res[0], bboxes: bboxes })
       })
       .catch(error => {
         console.error(error)
@@ -161,15 +165,20 @@ export default class App extends Component {
             borderTop: '1px solid #dfe3e6'
           }}
         >
-          {this.state.collection['Unlabeled'].map(item => {
+          {this.state.collection['Unlabeled'].map((item, i) => {
             return (
               <div
                 style={{ height: '80px', margin: '0 8px' }}
                 onClick={() => {
                   this.loadForImage(this.props.bucket, item)
+                  this.setState({ selection: i })
                 }}
               >
-                <ImageTileV2 bucket={this.props.bucket} item={item} />
+                <ImageTileV2
+                  selected={this.state.selection === i}
+                  bucket={this.props.bucket}
+                  item={item}
+                />
               </div>
             )
           })}
