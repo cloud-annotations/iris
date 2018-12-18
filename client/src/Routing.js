@@ -4,7 +4,6 @@ import TitleBar from './TitleBar'
 import App from './App'
 import Login from './Login'
 import Buckets from './Buckets'
-import Test from './Test'
 
 class Routing extends Component {
   state = {
@@ -42,7 +41,6 @@ class Routing extends Component {
                   <Login {...props} cacheBucketList={this.cacheBucketList} />
                 )}
               />
-              <Route path="/experiment/:bucket" component={Test} />
               <Route path="/:bucket" component={App} />
             </Switch>
           </div>

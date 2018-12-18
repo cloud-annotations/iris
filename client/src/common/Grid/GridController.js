@@ -194,10 +194,10 @@ export default class GridController extends Component {
   }
 
   render() {
-    const { sections, collection, selection, gridItem } = this.props
+    const { sections, collection, selection, gridItem, className } = this.props
     const mergedSelection = this.state.intermediateSelection || selection
     return (
-      <div>
+      <div className={className}>
         {sections.map(
           (i => section => {
             return (

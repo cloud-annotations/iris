@@ -1,0 +1,12 @@
+.wrapper {
+  position: relative;
+}
+
+.blendMode {
+  mix-blend-mode: difference;
+}
+
+.image {
+  user-select: none;
+  max-width: 100%;
+}

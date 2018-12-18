@@ -1,0 +1,46 @@
+.wrapper {
+  position: absolute;
+  user-select: none;
+}
+
+.nobBase {
+  position: absolute;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  width: 7px;
+  height: 7px;
+  z-index: 10;
+}
+
+.nobBase::before {
+  content: '';
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.06);
+  left: 1px;
+  top: 1px;
+  width: 5px;
+  height: 5px;
+}
+
+.topLeft {
+  composes: nobBase;
+  top: -4px;
+  left: -4px;
+}
+
+.topRight {
+  composes: nobBase;
+  top: -4px;
+  right: -4px;
+}
+
+.bottomRight {
+  composes: nobBase;
+  bottom: -4px;
+  right: -4px;
+}
+
+.bottomLeft {
+  composes: nobBase;
+  bottom: -4px;
+  left: -4px;
+}

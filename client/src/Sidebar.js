@@ -28,14 +28,15 @@ class Sidebar extends Component {
   }
 
   createLabel = () => {
+    const { sectionList, onLabelAdded } = this.props
     const labelName = this.labelNameInput.value
-    const trimmedCompare = this.props.sections.filter(label => {
+    const trimmedCompare = sectionList.filter(label => {
       return labelName.trim() === label.trim()
     })
     if (labelName === '' || trimmedCompare.length > 0) {
       return
     }
-    this.props.createLabel(labelName)
+    onLabelAdded(labelName)
     this.labelNameInput.value = ''
   }
 
@@ -47,9 +48,10 @@ class Sidebar extends Component {
   }
 
   deleteLabel = (e, label) => {
+    const { onLabelDeleted } = this.props
     e.stopPropagation()
     this.clearMenu()
-    this.props.deleteLabel(label)
+    onLabelDeleted(label)
   }
 
   renameLabel = (e, label) => {
@@ -69,7 +71,12 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { sections, chooseSection, collection, currentSection } = this.props
+    const {
+      sectionList,
+      sectionCount,
+      currentSection,
+      onSectionChanged
+    } = this.props
     return (
       <div className="Sidebar">
         <div className="Sidebar-Fixed-Items">
@@ -78,16 +85,12 @@ class Sidebar extends Component {
               currentSection === ALL_IMAGES ? '--Active' : ''
             }`}
             onClick={() => {
-              chooseSection(ALL_IMAGES)
+              onSectionChanged(ALL_IMAGES)
             }}
           >
             <div className="Sidebar-itemTitle">All images</div>
             <div className="Sidebar-itemCount">
-              {sections
-                .reduce((acc, label) => {
-                  return acc + collection[label].length
-                }, 0)
-                .toLocaleString()}
+              {sectionCount[ALL_IMAGES].toLocaleString()}
             </div>
           </div>
           <div
@@ -95,19 +98,12 @@ class Sidebar extends Component {
               currentSection === LABELED ? '--Active' : ''
             }`}
             onClick={() => {
-              chooseSection(LABELED)
+              onSectionChanged(LABELED)
             }}
           >
             <div className="Sidebar-itemTitle">Labeled</div>
             <div className="Sidebar-itemCount">
-              {sections
-                .reduce((acc, label) => {
-                  if (label !== 'Unlabeled') {
-                    return acc + collection[label].length
-                  }
-                  return acc
-                }, 0)
-                .toLocaleString()}
+              {sectionCount[LABELED].toLocaleString()}
             </div>
           </div>
           <div
@@ -115,19 +111,12 @@ class Sidebar extends Component {
               currentSection === UNLABELED ? '--Active' : ''
             }`}
             onClick={() => {
-              chooseSection(UNLABELED)
+              onSectionChanged(UNLABELED)
             }}
           >
             <div className="Sidebar-itemTitle">Unlabeled</div>
             <div className="Sidebar-itemCount">
-              {sections
-                .reduce((acc, label) => {
-                  if (label === 'Unlabeled') {
-                    return acc + collection[label].length
-                  }
-                  return acc
-                }, 0)
-                .toLocaleString()}
+              {sectionCount[UNLABELED].toLocaleString()}
             </div>
           </div>
 
@@ -177,9 +166,11 @@ class Sidebar extends Component {
           </div>
         </div>
 
-        {sections
+        {sectionList
           .filter(label => {
-            return label !== 'Unlabeled'
+            return (
+              label !== UNLABELED && label !== LABELED && label !== ALL_IMAGES
+            )
           })
           .map(label => {
             return (
@@ -188,12 +179,12 @@ class Sidebar extends Component {
                   currentSection === label ? '--Active' : ''
                 } ${this.state.menuOpen === label ? '--NoHover' : ''}`}
                 onClick={() => {
-                  chooseSection(label)
+                  onSectionChanged(label)
                 }}
               >
                 <div className="Sidebar-itemTitle">{label}</div>
                 <div className="Sidebar-itemCount">
-                  {collection[label].length.toLocaleString()}
+                  {sectionCount[label].toLocaleString()}
                 </div>
                 <div
                   className="Sidebar-itemOverflow"

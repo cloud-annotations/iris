@@ -35,20 +35,22 @@ export default (endpoint, bucket) => {
   }
 
   const populateLabels = fileList => {
-    if (
-      !fileList.includes(ANNOTATIONS_FILE) ||
-      !fileList.includes(LABELS_FILE)
-    ) {
-      return fileList
+    // There should never be an annotations file, but no labels file.
+    if (!fileList.includes(LABELS_FILE)) {
+      return {
+        fileList: fileList
+      }
     }
 
     const labels = fetch(`${baseUrl}/${LABELS_FILE}`)
       .then(handleErrors)
       .then(response => response.text())
 
-    const annotations = fetch(`${baseUrl}/${ANNOTATIONS_FILE}`)
-      .then(handleErrors)
-      .then(response => response.text())
+    const annotations = fileList.includes(ANNOTATIONS_FILE)
+      ? fetch(`${baseUrl}/${ANNOTATIONS_FILE}`)
+          .then(handleErrors)
+          .then(response => response.text())
+      : ''
 
     return Promise.all([labels, annotations]).then(values => {
       const [labelsCsv, annotationsCsv] = values
@@ -91,6 +93,10 @@ export default (endpoint, bucket) => {
 
   const populateUnlabeled = res => {
     let { fileList, collection, labels, urls } = res
+
+    collection = collection || { Unlabeled: [] }
+    labels = labels || [UNLABELED]
+    urls = urls || new Set([])
 
     // Make sure the extension is an image.
     const imageList = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
