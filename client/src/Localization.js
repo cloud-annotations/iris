@@ -163,9 +163,9 @@ export default class App extends Component {
     })
   }
 
-  handleModeChanged = e => {
+  handleModeChanged = mode => {
     this.setState({
-      mode: e.target.value
+      mode: mode
     })
   }
 
@@ -207,13 +207,47 @@ export default class App extends Component {
           />
         </div>
         <div className={styles.sidebar}>
-          <div>{`Mode: ${this.state.mode}`}</div>
-          <button value={'move'} onClick={this.handleModeChanged}>
-            Move
-          </button>
-          <button value={'box'} onClick={this.handleModeChanged}>
-            Draw
-          </button>
+          <div>Tools</div>
+          <div className={styles.tools}>
+            <div
+              className={
+                this.state.mode === 'move'
+                  ? styles.activeToolWrapper
+                  : styles.toolWrapper
+              }
+              onClick={() => {
+                this.handleModeChanged('move')
+              }}
+            >
+              <svg
+                className={styles.move}
+                width="20"
+                height="20"
+                viewBox="0 0 40 40"
+              >
+                <path d="M19,11h2V29H19V11Zm-8,8H29v2H11V19ZM21,35H19l-4-6H25ZM35,19v2l-6,4V15ZM5,21V19l6-4V25ZM19,5h2l4,6H15Z" />
+              </svg>
+            </div>
+            <div
+              className={
+                this.state.mode === 'box'
+                  ? styles.activeToolWrapper
+                  : styles.toolWrapper
+              }
+              onClick={() => {
+                this.handleModeChanged('box')
+              }}
+            >
+              <svg
+                className={styles.box}
+                width="20"
+                height="20"
+                viewBox="0 0 40 40"
+              >
+                <rect x="4" y="8" width="32" height="24" />
+              </svg>
+            </div>
+          </div>
           <div>{`Label: ${this.state.label}`}</div>
           {this.state.labelList.map(label => (
             <button value={label} onClick={this.handleLabelChanged}>

@@ -8,3 +8,43 @@
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+.tools {
+  display: flex;
+}
+
+.toolWrapper {
+  background-color: transparent;
+  height: 26px;
+  width: 26px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.activeToolWrapper {
+  composes: toolWrapper;
+  background-color: #4e7cb6;
+}
+
+.box {
+  fill: #4e7cb6;
+  fill-opacity: 0.2;
+  stroke: #4e7cb6;
+  stroke-width: 2px;
+}
+
+.move {
+  fill: #4e7cb6;
+}
+
+.activeToolWrapper .box {
+  fill: #ffffff;
+  stroke: #ffffff;
+}
+
+.activeToolWrapper .move {
+  fill: #ffffff;
+}
