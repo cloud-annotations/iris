@@ -156,6 +156,8 @@ export default class App extends Component {
   }
 
   handleWindowResize = e => {
+    const { onImageDimensionChanged } = this.props
+    onImageDimensionChanged(this.cavasRef.width, this.cavasRef.height)
     this.setState({
       size: {
         imageWidth: this.cavasRef.width,
@@ -165,6 +167,8 @@ export default class App extends Component {
   }
 
   handleOnImageLoad = e => {
+    const { onImageDimensionChanged } = this.props
+    onImageDimensionChanged(e.target.width, e.target.height)
     this.setState({
       size: { imageWidth: e.target.width, imageHeight: e.target.height }
     })

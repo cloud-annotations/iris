@@ -1,0 +1,10 @@
+.sidebar {
+  position: absolute;
+  border-left: 1px solid #dfe3e6;
+  width: 209px;
+  top: 0;
+  bottom: 117px;
+  right: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}

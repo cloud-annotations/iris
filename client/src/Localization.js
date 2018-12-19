@@ -7,7 +7,7 @@ import ImageTileV2 from './ImageTileV2'
 import EmptySet from './EmptySet'
 import SelectionBar from './SelectionBar'
 import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
-import './App.css'
+import styles from './Localization.module.css'
 
 export default class App extends Component {
   constructor(props) {
@@ -21,6 +21,8 @@ export default class App extends Component {
       dropzoneActive: false,
       cookieCheckInterval: null,
       image: null,
+      imageWidth: 0,
+      imageHeight: 0,
       bboxes: [],
       label: 'Millennium Falcon',
       mode: 'box'
@@ -29,10 +31,43 @@ export default class App extends Component {
 
   componentDidMount() {
     document.addEventListener('mousewheel', this.blockSwipeBack, false)
+    document.addEventListener('keydown', this.handleKeyDown)
   }
 
   componentWillUnmount() {
     document.removeEventListener('mousewheel', this.blockSwipeBack)
+    document.removeEventListener('keydown', this.handleKeyDown)
+  }
+
+  handleKeyDown = e => {
+    if (e.which === 39) {
+      e.preventDefault()
+
+      this.setState(
+        prevState => ({
+          selection: prevState.selection + 1
+        }),
+        () => {
+          this.loadForImage(
+            this.props.bucket,
+            this.state.collection['Unlabeled'][this.state.selection]
+          )
+        }
+      )
+    } else if (e.which === 37) {
+      e.preventDefault()
+      this.setState(
+        prevState => ({
+          selection: prevState.selection - 1
+        }),
+        () => {
+          this.loadForImage(
+            this.props.bucket,
+            this.state.collection['Unlabeled'][this.state.selection]
+          )
+        }
+      )
+    }
   }
 
   blockSwipeBack = e => {
@@ -128,6 +163,25 @@ export default class App extends Component {
     })
   }
 
+  handleModeChanged = e => {
+    this.setState({
+      mode: e.target.value
+    })
+  }
+
+  handleLabelChanged = e => {
+    this.setState({
+      label: e.target.value
+    })
+  }
+
+  handleImageDimensionChanged = (width, height) => {
+    this.setState({
+      imageWidth: width,
+      imageHeight: height
+    })
+  }
+
   render() {
     return (
       <div>
@@ -136,7 +190,7 @@ export default class App extends Component {
             position: 'absolute',
             bottom: '117px',
             left: '0',
-            right: '0',
+            right: '209px',
             top: '0',
             display: 'flex',
             justifyContent: 'center',
@@ -149,7 +203,55 @@ export default class App extends Component {
             image={this.state.image}
             onDrawStarted={this.handleDrawStarted}
             onCoordinatesChanged={this.handleCoordinatesChanged}
+            onImageDimensionChanged={this.handleImageDimensionChanged}
           />
+        </div>
+        <div className={styles.sidebar}>
+          <div>{`Mode: ${this.state.mode}`}</div>
+          <button value={'move'} onClick={this.handleModeChanged}>
+            Move
+          </button>
+          <button value={'box'} onClick={this.handleModeChanged}>
+            Draw
+          </button>
+          <div>{`Label: ${this.state.label}`}</div>
+          {this.state.labelList.map(label => (
+            <button value={label} onClick={this.handleLabelChanged}>
+              {label}
+            </button>
+          ))}
+          {this.state.bboxes
+            .sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase())
+            .map(box => {
+              const imageHeight = this.state.imageHeight
+              const imageWidth = this.state.imageWidth
+
+              const cropHeight = 20
+              const cropWidth = 30
+
+              const scale = cropWidth / ((box.x2 - box.x) * imageWidth)
+              const objHeight = scale * (box.y2 - box.y) * imageHeight
+              const centerOffset = (cropHeight - objHeight) / 2
+              const xOffset = -box.x * scale * imageWidth
+              const yOffset = -box.y * scale * imageHeight
+              const backgroundSize = scale * (100 / cropWidth) * imageWidth
+
+              return (
+                <div>
+                  <div
+                    style={{
+                      backgroundImage: `url(${this.state.image})`,
+                      height: `${cropHeight}px`,
+                      width: `${cropWidth}px`,
+                      backgroundPosition: `${xOffset}px ${yOffset +
+                        centerOffset}px`,
+                      backgroundSize: `${backgroundSize}%`
+                    }}
+                  />
+                  <div>{box.label}</div>
+                </div>
+              )
+            })}
         </div>
         <div
           ref={this.horizontalScrollRef}
