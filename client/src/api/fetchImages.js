@@ -12,6 +12,49 @@ import { validateCookies, handleErrors } from 'Utils'
     Label: [PointerToImage, PointerToImage, ...]
   }
 */
+export const fetchTest = (endpoint, bucket) => {
+  const UNLABELED = 'Unlabeled'
+  const TYPE_FILE = '_type'
+  const ANNOTATIONS_FILE = '_annotations.csv'
+  const LABELS_FILE = '_labels.csv'
+  const IMAGE_REGEX = /.(jpg|jpeg|png)$/i
+
+  const baseUrl = `/api/proxy/${endpoint}/${bucket}`
+
+  const fileList = () =>
+    fetch(baseUrl)
+      .then(handleErrors)
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
+      .then(data =>
+        Array.prototype.map.call(
+          data.getElementsByTagName('Contents'),
+          element => element.getElementsByTagName('Key')[0].innerHTML
+        )
+      )
+
+  const type = () =>
+    fetch(`${baseUrl}/${TYPE_FILE}`)
+      .then(handleErrors)
+      .then(response => response.text())
+
+  const labels = () =>
+    fetch(`${baseUrl}/${LABELS_FILE}`)
+      .then(handleErrors)
+      .then(response => response.text())
+
+  const annotations = () =>
+    fetch(`${baseUrl}/${ANNOTATIONS_FILE}`)
+      .then(handleErrors)
+      .then(response => response.text())
+
+  return {
+    type: () => validateCookies().then(type),
+    fileList: () => validateCookies().then(fileList),
+    labels: () => validateCookies().then(labels),
+    annotations: () => validateCookies().then(annotations)
+  }
+}
 
 export default (endpoint, bucket) => {
   const UNLABELED = 'Unlabeled'

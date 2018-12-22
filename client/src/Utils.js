@@ -97,7 +97,7 @@ export function namedCanvasToFile(namedCanvas) {
 
 export function handleErrors(response) {
   if (!response.ok) {
-    throw Error(response.statusText)
+    return Promise.reject(response.statusText)
   }
   return response
 }

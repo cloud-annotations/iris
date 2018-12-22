@@ -4,6 +4,7 @@ import EmptySet from './EmptySet'
 import putImages from 'api/putImages'
 import Classification from './Classification'
 import Localization from './Localization'
+import Collection from './Collection'
 import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
 import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
@@ -22,6 +23,24 @@ import './App.css'
 export default class App extends Component {
   constructor(props) {
     super(props)
+    const { bucket } = props.match.params
+    const endpoint = localStorage.getItem('loginUrl')
+
+    Collection.load(endpoint, bucket)
+      .then(({ type, images, labels, annotations }) => {
+        this.setState({
+          type: type
+        })
+        const collection = new Collection(type, images, labels, annotations)
+        console.log(collection.type)
+        console.log(collection.labels)
+        console.log(collection.images.all)
+        console.log(collection.annotations)
+      })
+      .catch(e => {
+        console.error(e)
+      })
+
     this.state = {
       saved: true,
       loading: true,
@@ -31,6 +50,12 @@ export default class App extends Component {
       sectionCount: { [ALL_IMAGES]: 0, [UNLABELED]: 0, [LABELED]: 0 }
     }
   }
+
+  // Init
+  // Do a check to see the annotation type
+  // Type: Pascal VOC / WatsonStudio / Simple Label
+  // Generate a list of the sections
+  // Generate a collection
 
   componentDidMount() {
     GoogleAnalytics.pageview('annotations')
@@ -178,11 +203,19 @@ export default class App extends Component {
           </div>
 
           {/* Depending on which bucket type */}
-          <Localization
-            currentSection={currentSection}
-            bucket={bucket}
-            onDataLoaded={this.handleDataLoaded}
-          />
+          {this.state.type === Collection.PASCAL_VOC ? (
+            <Localization
+              currentSection={currentSection}
+              bucket={bucket}
+              onDataLoaded={this.handleDataLoaded}
+            />
+          ) : (
+            <Classification
+              currentSection={currentSection}
+              bucket={bucket}
+              onDataLoaded={this.handleDataLoaded}
+            />
+          )}
         </Dropzone>
       </div>
     )
