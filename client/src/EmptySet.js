@@ -4,43 +4,9 @@ import './EmptySet.css'
 
 class EmptySet extends Component {
   render() {
-    const { forceHide, sections, collection, currentSection } = this.props
-    if (forceHide) {
+    const { show } = this.props
+    if (!show) {
       return ''
-    }
-
-    if (currentSection === ALL_IMAGES) {
-      const count = sections.reduce((acc, label) => {
-        return acc + collection[label].length
-      }, 0)
-      if (count !== 0) {
-        return ''
-      }
-    } else if (currentSection === UNLABELED) {
-      const count = sections.reduce((acc, label) => {
-        if (label === 'Unlabeled') {
-          return acc + collection[label].length
-        }
-        return acc
-      }, 0)
-      if (count !== 0) {
-        return ''
-      }
-    } else if (currentSection === LABELED) {
-      const count = sections.reduce((acc, label) => {
-        if (label !== 'Unlabeled') {
-          return acc + collection[label].length
-        }
-        return acc
-      }, 0)
-      if (count !== 0) {
-        return ''
-      }
-    } else {
-      const count = collection[currentSection].length
-      if (count !== 0) {
-        return ''
-      }
     }
 
     return (

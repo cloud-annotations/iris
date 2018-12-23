@@ -27,14 +27,15 @@ export default class App extends Component {
     const endpoint = localStorage.getItem('loginUrl')
 
     Collection.load(endpoint, bucket)
-      .then(({ type, images, labels, annotations }) => {
+      .then(({ type, labels, images, annotations }) => {
+        const collection = new Collection(type, labels, images, annotations)
         this.setState({
-          type: type
+          collection: collection,
+          loading: false
         })
-        const collection = new Collection(type, images, labels, annotations)
         console.log(collection.type)
         console.log(collection.labels)
-        console.log(collection.images.all)
+        console.log(collection.images)
         console.log(collection.annotations)
       })
       .catch(e => {
@@ -45,9 +46,7 @@ export default class App extends Component {
       saved: true,
       loading: true,
       dropzoneActive: false,
-      currentSection: ALL_IMAGES,
-      sectionList: [ALL_IMAGES, UNLABELED, LABELED],
-      sectionCount: { [ALL_IMAGES]: 0, [UNLABELED]: 0, [LABELED]: 0 }
+      currentSection: ALL_IMAGES
     }
   }
 
@@ -178,8 +177,12 @@ export default class App extends Component {
         />
         <Sidebar
           currentSection={currentSection}
-          sectionList={sectionList}
-          sectionCount={sectionCount}
+          allImagesCount={0}
+          labeledCount={0}
+          unlabeledCount={0}
+          sectionList={
+            this.state.collection ? this.state.collection.labels : []
+          }
           onSectionChanged={this.handleSectionChanged}
           onLabelAdded={this.handleLabelAdded}
           onLabelDeleted={this.handleLabelDeleted}
@@ -203,19 +206,20 @@ export default class App extends Component {
           </div>
 
           {/* Depending on which bucket type */}
-          {this.state.type === Collection.PASCAL_VOC ? (
-            <Localization
-              currentSection={currentSection}
-              bucket={bucket}
-              onDataLoaded={this.handleDataLoaded}
-            />
-          ) : (
-            <Classification
-              currentSection={currentSection}
-              bucket={bucket}
-              onDataLoaded={this.handleDataLoaded}
-            />
-          )}
+          {this.state.collection &&
+            (this.state.collection.type === Collection.PASCAL_VOC ? (
+              <Localization
+                collection={this.state.collection}
+                currentSection={currentSection}
+                bucket={bucket}
+              />
+            ) : (
+              <Classification
+                collection={this.state.collection}
+                currentSection={currentSection}
+                bucket={bucket}
+              />
+            ))}
         </Dropzone>
       </div>
     )

@@ -1,30 +1,21 @@
 import React, { Component } from 'react'
-import fetchImages from 'api/fetchImages'
 import fetchImage from 'api/fetchImage'
-import fetchAnnotation from 'api/fetchAnnotation'
 import Canvas from 'common/Canvas/Canvas'
 import ImageTileV2 from './ImageTileV2'
-import EmptySet from './EmptySet'
-import SelectionBar from './SelectionBar'
-import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
+
 import styles from './Localization.module.css'
 
 export default class App extends Component {
   constructor(props) {
     super(props)
     this.horizontalScrollRef = React.createRef()
-    this.initializeData()
     this.state = {
-      labelList: ['Unlabeled'],
-      collection: { Unlabeled: [] },
       selection: 0,
-      dropzoneActive: false,
-      cookieCheckInterval: null,
       image: null,
       imageWidth: 0,
       imageHeight: 0,
       bboxes: [],
-      label: 'Millennium Falcon',
+      label: props.collection.labels[0].name,
       mode: 'box'
     }
   }
@@ -50,7 +41,7 @@ export default class App extends Component {
         () => {
           this.loadForImage(
             this.props.bucket,
-            this.state.collection['Unlabeled'][this.state.selection]
+            this.props.collection.images.all[this.state.selection]
           )
         }
       )
@@ -63,7 +54,7 @@ export default class App extends Component {
         () => {
           this.loadForImage(
             this.props.bucket,
-            this.state.collection['Unlabeled'][this.state.selection]
+            this.props.collection.images.all[this.state.selection]
           )
         }
       )
@@ -86,44 +77,23 @@ export default class App extends Component {
     }
   }
 
-  initializeData = () => {
-    const { bucket, onDataLoaded } = this.props
-    fetchImages(localStorage.getItem('loginUrl'), bucket)
-      .then(res => {
-        onDataLoaded()
-        const image = res.collection['Unlabeled'][0]
-        this.loadForImage(bucket, image)
-        this.setState(res)
-      })
-      .catch(error => {
-        console.error(error)
-        if (error.message === 'Forbidden') {
-          this.props.history.push('/login')
-        }
-      })
-  }
-
   loadForImage = (bucket, image) => {
-    const annotationPromise = fetchAnnotation(
-      localStorage.getItem('loginUrl'),
-      bucket,
-      image
-    )
     const imagePromise = fetchImage(
       localStorage.getItem('loginUrl'),
       bucket,
       image
     )
-
-    Promise.all([imagePromise, annotationPromise])
       .then(res => {
-        console.log(res)
-        const bboxes = res[1].bboxes.map(bbox => {
-          const color = this.colorFromLabel(bbox.label)
-          bbox.color = color
-          return bbox
+        const bboxes = this.props.collection.annotations[image].bboxes.map(
+          bbox => {
+            const color = this.colorFromLabel(bbox.label)
+            return { ...bbox, color: color }
+          }
+        )
+        this.setState({
+          ...res,
+          bboxes: bboxes
         })
-        this.setState({ ...res[0], bboxes: bboxes })
       })
       .catch(error => {
         console.error(error)
@@ -137,10 +107,14 @@ export default class App extends Component {
   }
 
   colorFromLabel = label => {
-    const { labelList } = this.state
     const baseHue = 196
-    const spread = 360 / labelList.length
-    const index = labelList.indexOf(label)
+    const spread = 360 / this.props.collection.labels.length
+    const index = this.props.collection.labels.reduce((acc, current, i) => {
+      if (current.name === label) {
+        return i
+      }
+      return acc
+    }, 0)
     const hue = Math.round((index * spread + baseHue) % 360)
     return `hsl(${hue}, 100%, 50%)`
   }
@@ -249,9 +223,9 @@ export default class App extends Component {
             </div>
           </div>
           <div>{`Label: ${this.state.label}`}</div>
-          {this.state.labelList.map(label => (
-            <button value={label} onClick={this.handleLabelChanged}>
-              {label}
+          {this.props.collection.labels.map(label => (
+            <button value={label.name} onClick={this.handleLabelChanged}>
+              {label.name}
             </button>
           ))}
           {this.state.bboxes
@@ -301,7 +275,7 @@ export default class App extends Component {
             borderTop: '1px solid #dfe3e6'
           }}
         >
-          {this.state.collection['Unlabeled'].map((item, i) => {
+          {this.props.collection.images.all.map((item, i) => {
             return (
               <div
                 style={{ height: '80px', margin: '0 8px' }}

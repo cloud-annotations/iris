@@ -73,7 +73,9 @@ class Sidebar extends Component {
   render() {
     const {
       sectionList,
-      sectionCount,
+      allImagesCount,
+      labeledCount,
+      unlabeledCount,
       currentSection,
       onSectionChanged
     } = this.props
@@ -90,7 +92,7 @@ class Sidebar extends Component {
           >
             <div className="Sidebar-itemTitle">All images</div>
             <div className="Sidebar-itemCount">
-              {sectionCount[ALL_IMAGES].toLocaleString()}
+              {allImagesCount.toLocaleString()}
             </div>
           </div>
           <div
@@ -103,7 +105,7 @@ class Sidebar extends Component {
           >
             <div className="Sidebar-itemTitle">Labeled</div>
             <div className="Sidebar-itemCount">
-              {sectionCount[LABELED].toLocaleString()}
+              {labeledCount.toLocaleString()}
             </div>
           </div>
           <div
@@ -116,7 +118,7 @@ class Sidebar extends Component {
           >
             <div className="Sidebar-itemTitle">Unlabeled</div>
             <div className="Sidebar-itemCount">
-              {sectionCount[UNLABELED].toLocaleString()}
+              {unlabeledCount.toLocaleString()}
             </div>
           </div>
 
@@ -166,62 +168,56 @@ class Sidebar extends Component {
           </div>
         </div>
 
-        {sectionList
-          .filter(label => {
-            return (
-              label !== UNLABELED && label !== LABELED && label !== ALL_IMAGES
-            )
-          })
-          .map(label => {
-            return (
+        {sectionList.map(label => {
+          return (
+            <div
+              className={`Sidebar-Item ${
+                currentSection === label.name ? '--Active' : ''
+              } ${this.state.menuOpen === label.name ? '--NoHover' : ''}`}
+              onClick={() => {
+                onSectionChanged(label.name)
+              }}
+            >
+              <div className="Sidebar-itemTitle">{label.name}</div>
+              <div className="Sidebar-itemCount">
+                {label.count.toLocaleString()}
+              </div>
               <div
-                className={`Sidebar-Item ${
-                  currentSection === label ? '--Active' : ''
-                } ${this.state.menuOpen === label ? '--NoHover' : ''}`}
-                onClick={() => {
-                  onSectionChanged(label)
+                className="Sidebar-itemOverflow"
+                onClick={e => {
+                  this.submenu(e, label.name)
                 }}
               >
-                <div className="Sidebar-itemTitle">{label}</div>
-                <div className="Sidebar-itemCount">
-                  {sectionCount[label].toLocaleString()}
-                </div>
+                <svg width="3" height="15" viewBox="0 0 3 15">
+                  <path d="M0 1.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 7.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 13.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0" />
+                </svg>
+              </div>
+              <div
+                className={`Sidebar-itemOverflow-Menu ${
+                  this.state.menuOpen === label.name ? '--Active' : ''
+                }`}
+                onMouseLeave={this.clearMenu}
+              >
                 <div
-                  className="Sidebar-itemOverflow"
+                  className="Sidebar-itemOverflow-MenuItem --Dissabled"
                   onClick={e => {
-                    this.submenu(e, label)
+                    this.renameLabel(e, label.name)
                   }}
                 >
-                  <svg width="3" height="15" viewBox="0 0 3 15">
-                    <path d="M0 1.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 7.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 13.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0" />
-                  </svg>
+                  Rename
                 </div>
                 <div
-                  className={`Sidebar-itemOverflow-Menu ${
-                    this.state.menuOpen === label ? '--Active' : ''
-                  }`}
-                  onMouseLeave={this.clearMenu}
+                  className="Sidebar-itemOverflow-MenuItem --Danger"
+                  onClick={e => {
+                    this.deleteLabel(e, label.name)
+                  }}
                 >
-                  <div
-                    className="Sidebar-itemOverflow-MenuItem --Dissabled"
-                    onClick={e => {
-                      this.renameLabel(e, label)
-                    }}
-                  >
-                    Rename
-                  </div>
-                  <div
-                    className="Sidebar-itemOverflow-MenuItem --Danger"
-                    onClick={e => {
-                      this.deleteLabel(e, label)
-                    }}
-                  >
-                    Delete
-                  </div>
+                  Delete
                 </div>
               </div>
-            )
-          })}
+            </div>
+          )
+        })}
       </div>
     )
   }
