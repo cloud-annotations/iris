@@ -210,19 +210,21 @@ export default class App extends Component {
 
     const visibleLabels = this.props.collection.labels.filter(label => {
       return (
-        this.props.currentSection.name === ALL_IMAGES ||
-        (this.props.currentSection.name === LABELED &&
-          label.name !== 'Unlabeled') ||
-        (this.props.currentSection.name === UNLABELED &&
+        this.props.currentSection === ALL_IMAGES ||
+        (this.props.currentSection === LABELED && label.name !== 'Unlabeled') ||
+        (this.props.currentSection === UNLABELED &&
           label.name === 'Unlabeled') ||
         this.props.currentSection === label.name
       )
     })
 
-    const visibleCollection = visibleLabels.reduce((acc, label) => {
+    const visibleImages = visibleLabels.reduce((acc, label) => {
       acc[label.name] = this.props.collection.images[label.name]
       return acc
     }, {})
+
+    console.log(visibleLabels)
+    console.log(visibleImages)
 
     return (
       <div>
@@ -235,12 +237,16 @@ export default class App extends Component {
           deleteImages={this.deleteImages}
         />
         <EmptySet
-          show={!this.state.loading && visibleCollection.length === 0}
+          show={
+            !this.state.loading &&
+            // If all labels are empty show empty set.
+            visibleLabels.reduce((acc, label) => acc && label.count === 0, true)
+          }
         />
         <GridController
           className="Classification-Grid"
           sections={visibleLabels}
-          collection={visibleCollection}
+          collection={visibleImages}
           selection={this.state.selection}
           onSelectionChanged={this.onSelectionChanged}
           gridItem={<ImageTile bucket={this.props.bucket} />}

@@ -201,11 +201,11 @@ export default class GridController extends Component {
         {sections.map(
           (i => section => {
             return (
-              <div key={section}>
-                {collection[section].length > 0 && (
+              <div key={section.name}>
+                {section.count > 0 && (
                   <div>
                     <div className={styles.sectionTitle}>
-                      <div className={styles.sectionSpan}>{section}</div>
+                      <div className={styles.sectionSpan}>{section.name}</div>
                     </div>
                     <div
                       className={styles.grid}
@@ -213,12 +213,12 @@ export default class GridController extends Component {
                         this.gridRef = ref
                       }}
                     >
-                      {collection[section].map(itemData => {
+                      {collection[section.name].map(itemData => {
                         i++
                         return (
                           <GridItem
                             index={i}
-                            section={section}
+                            section={section.name}
                             key={itemData}
                             itemData={itemData}
                             selected={mergedSelection && mergedSelection[i]}
