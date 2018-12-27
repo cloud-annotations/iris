@@ -4,7 +4,7 @@ import ImageTile from './ImageTile'
 import EmptySet from './EmptySet'
 import SelectionBar from './SelectionBar'
 import { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
-import './App.css'
+import styles from './Classification.module.css'
 
 export default class Classification extends Component {
   state = {
@@ -79,7 +79,7 @@ export default class Classification extends Component {
         />
         <EmptySet show={!this.state.loading && isEmpty} />
         <GridController
-          className="Classification-Grid"
+          className={styles.grid}
           sections={labels}
           collection={images}
           selection={selection}

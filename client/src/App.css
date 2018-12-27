@@ -23,12 +23,6 @@
   bottom: 0px;
 }
 
-.Classification-Grid {
-  z-index: 1;
-  /* Temporary solution for not blocking the grid with the selection bar */
-  margin-top: 75px;
-}
-
 .App-DropTarget {
   position: fixed;
   top: 100px;
