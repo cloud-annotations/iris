@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-import localforage from 'localforage'
 import fetchImage from 'api/fetchImage'
 import styles from './ImageTileV2.module.css'
 

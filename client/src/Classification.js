@@ -17,6 +17,8 @@ export default class App extends Component {
     }
   }
 
+  // MARK: - Life cycle methods
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentSection !== this.props.currentSection) {
       this.deselectAll()
@@ -61,7 +63,7 @@ export default class App extends Component {
   //             return true
   //           })
   //
-  //           // Replace the current section with the filted section.
+  //           // Replace the current section with the filtered section.
   //           newCollection[label] = newSection
   //           count += section.length
   //         })
@@ -123,7 +125,7 @@ export default class App extends Component {
   //           return true
   //         })
   //
-  //         // Replace the current section with the filted section.
+  //         // Replace the current section with the filtered section.
   //         newCollection[label] = newSection
   //         count += section.length
   //       })
@@ -202,6 +204,8 @@ export default class App extends Component {
       selection: selection
     })
   }
+
+  // MARK: - Render method
 
   render() {
     const selectionCount = this.state.selection

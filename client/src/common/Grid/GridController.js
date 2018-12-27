@@ -100,17 +100,18 @@ export default class GridController extends Component {
   }
 
   handleItemEntered = (section, index) => {
-    const { collection, selection, sections, onSelectionChanged } = this.props
+    const { collection, selection, sections } = this.props
     const { dragging, dragStartIndex, dragStartSection } = this.state
 
     if (!dragging) {
       return
     }
 
-    const i = sections.indexOf(dragStartSection)
-    const sectionSizes = sections.map(section => collection[section].length)
-    const sectionStart = sectionSizes.slice(0, i).reduce((a, b) => a + b, 0)
-    const sectionEnd = sectionStart + sectionSizes[i]
+    const i = sections.findIndex(section => section.name === dragStartSection)
+    const sectionStart = sections
+      .slice(0, i)
+      .reduce((acc, b) => acc + b.count, 0)
+    const sectionEnd = sectionStart + sections[i].count
 
     const columnCount = this.calculateColumnCount()
     const normalizedStartIndex = dragStartIndex - sectionStart
