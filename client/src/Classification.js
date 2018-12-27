@@ -6,95 +6,85 @@ import SelectionBar from './SelectionBar'
 import { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
 import './App.css'
 
-export default class App extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      selection: null,
-      dropzoneActive: false,
-      cookieCheckInterval: null
-    }
+export default class Classification extends Component {
+  state = {
+    selection: []
   }
 
   // MARK: - Life cycle methods
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentSection !== this.props.currentSection) {
-      this.handleDeselectAll()
+      this.handleActionClearSelection()
     }
   }
 
   // MARK: - Event listeners
 
-  handleSelectionChanged = selection => {
-    this.setState({
-      selection: selection
-    })
+  handleChangeSelection = selection => {
+    this.setState({ selection: selection })
   }
 
-  handleDeselectAll = () => {
-    this.setState(prevState => {
-      const selection =
-        prevState.selection && prevState.selection.map(() => false)
-      return {
-        selection: selection,
-        lastSelected: null
-      }
-    })
+  handleActionClearSelection = () => {
+    this.handleChangeSelection([])
   }
 
-  handleLabelImages = () => {}
+  handleActionLabelImage = () => {}
 
-  handleDeleteImages = () => {}
+  handleActionDeleteImages = () => {}
 
-  handleCreateLabel = () => {}
+  handleActionCreateLabel = () => {}
+
+  // MARK: - Getter methods
+
+  getSelectionCount = selection => selection.filter(Boolean).length
+
+  getVisible = (collection, currentSection) => {
+    const labels = collection.labels.filter(
+      label =>
+        currentSection === ALL_IMAGES ||
+        (currentSection === LABELED && label.name !== 'Unlabeled') ||
+        (currentSection === UNLABELED && label.name === 'Unlabeled') ||
+        currentSection === label.name
+    )
+    const images = labels.reduce((acc, label) => {
+      acc[label.name] = collection.images[label.name]
+      return acc
+    }, {})
+    return [labels, images]
+  }
+
+  getIsEmpty = labels =>
+    labels.reduce((acc, label) => acc && label.count === 0, true)
 
   // MARK: - Render method
 
   render() {
-    const selectionCount = this.state.selection
-      ? this.state.selection.filter(item => item).length
-      : 0
+    const { selection } = this.state
+    const { collection, currentSection, bucket } = this.props
 
-    const visibleLabels = this.props.collection.labels.filter(label => {
-      return (
-        this.props.currentSection === ALL_IMAGES ||
-        (this.props.currentSection === LABELED && label.name !== 'Unlabeled') ||
-        (this.props.currentSection === UNLABELED &&
-          label.name === 'Unlabeled') ||
-        this.props.currentSection === label.name
-      )
-    })
-
-    const visibleImages = visibleLabels.reduce((acc, label) => {
-      acc[label.name] = this.props.collection.images[label.name]
-      return acc
-    }, {})
+    const selectionCount = this.getSelectionCount(selection)
+    const [labels, images] = this.getVisible(collection, currentSection)
+    const isEmpty = this.getIsEmpty(labels)
 
     return (
       <div>
         <SelectionBar
           selectionCount={selectionCount}
-          sections={this.props.collection.labels}
-          deselectAll={this.handleDeselectAll}
-          labelImages={this.handleLabelImages}
-          createLabel={this.handleCreateLabel}
-          deleteImages={this.handleDeleteImages}
+          sections={collection.labels}
+          deselectAll={this.handleActionClearSelection}
+          labelImages={this.handleActionLabelImage}
+          createLabel={this.handleActionCreateLabel}
+          deleteImages={this.handleActionDeleteImages}
         />
-        <EmptySet
-          show={
-            !this.state.loading &&
-            // If all labels are empty show empty set.
-            visibleLabels.reduce((acc, label) => acc && label.count === 0, true)
-          }
-        />
+        <EmptySet show={!this.state.loading && isEmpty} />
         <GridController
           className="Classification-Grid"
-          sections={visibleLabels}
-          collection={visibleImages}
-          selection={this.state.selection}
-          onSelectionChanged={this.handleSelectionChanged}
-          gridItem={<ImageTile bucket={this.props.bucket} />}
+          sections={labels}
+          collection={images}
+          selection={selection}
+          onSelectionChanged={this.handleChangeSelection}
+          gridItem={<ImageTile bucket={bucket} />}
         />
       </div>
     )
