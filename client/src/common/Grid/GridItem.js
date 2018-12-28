@@ -20,17 +20,14 @@ export default class GridItem extends Component {
   }
 
   render() {
-    const { selected, gridItem, itemData } = this.props
+    const { gridItem } = this.props
     return (
       <div
         onMouseDown={this.handleMouseDown}
         onMouseEnter={this.handleMouseEnter}
         onClick={this.handleClick}
       >
-        {React.cloneElement(gridItem, {
-          item: itemData,
-          selected: selected
-        })}
+        {gridItem}
       </div>
     )
   }

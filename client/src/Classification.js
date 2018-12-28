@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import GridController from 'common/Grid/GridController'
+import GridControllerV2 from 'common/Grid/GridControllerV2'
 import ImageTile from './ImageTile'
 import EmptySet from './EmptySet'
 import SelectionBar from './SelectionBar'
@@ -57,11 +57,37 @@ export default class Classification extends Component {
   getIsEmpty = labels =>
     labels.reduce((acc, label) => acc && label.count === 0, true)
 
+  // MARK: - GridControllerDelegate
+
+  gridControllerDelegate = (() => {
+    const { collection, currentSection, bucket } = this.props
+    const [labels, images] = this.getVisible(collection, currentSection)
+    return {
+      numberOfSections: labels.length,
+      numberOfItemsInSection: section => {
+        return labels[section].count
+      },
+      titleForHeaderInSection: section => {
+        return labels[section].name
+      },
+      cellForItemAt: (sectionIndex, index, selected) => {
+        const section = labels[sectionIndex].name
+        return (
+          <ImageTile
+            bucket={bucket}
+            selected={selected}
+            item={images[section][index]}
+          />
+        )
+      }
+    }
+  })()
+
   // MARK: - Render method
 
   render() {
     const { selection } = this.state
-    const { collection, currentSection, bucket } = this.props
+    const { collection, currentSection } = this.props
 
     const selectionCount = this.getSelectionCount(selection)
     const [labels, images] = this.getVisible(collection, currentSection)
@@ -78,13 +104,11 @@ export default class Classification extends Component {
           deleteImages={this.handleActionDeleteImages}
         />
         <EmptySet show={!this.state.loading && isEmpty} />
-        <GridController
+        <GridControllerV2
           className={styles.grid}
-          sections={labels}
-          collection={images}
+          delegate={this.gridControllerDelegate}
           selection={selection}
           onSelectionChanged={this.handleChangeSelection}
-          gridItem={<ImageTile bucket={bucket} />}
         />
       </div>
     )
