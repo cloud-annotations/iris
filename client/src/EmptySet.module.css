@@ -1,4 +1,4 @@
-.EmptySet {
+.base {
   width: 430px;
   height: 430px;
   margin: auto;
@@ -10,7 +10,7 @@
   user-select: none;
 }
 
-.EmptySet-Circle {
+.circle {
   border: 4px solid rgba(0, 0, 0, 0.04);
   border-radius: 50%;
   width: 430px;
@@ -20,28 +20,29 @@
   top: 0px;
 }
 
-.EmptySet-Image {
-  background: no-repeat url('images.png') -100px 0px;
+.image {
+  background: no-repeat url('images.png');
   background-size: 200px 125px;
   width: 100px;
   height: 125px;
   position: absolute;
-  left: calc(160px);
   top: 150px;
+}
+
+.image1 {
+  composes: image;
+  background-position: -100px 0px;
+  left: calc(160px);
   transform: rotate(20deg);
 }
 
-.EmptySet-Image2 {
-  background: no-repeat url('images.png') 0px 0px;
-  background-size: 200px 125px;
-  width: 100px;
-  height: 125px;
-  position: absolute;
+.image2 {
+  composes: image;
+  background-position: 0px 0px;
   left: calc(165px);
-  top: 150px;
 }
 
-.EmptySet-Text {
+.textContainer {
   bottom: 70px;
   color: rgb(144, 144, 144);
   height: 54px;
@@ -51,14 +52,17 @@
   width: 430px;
 }
 
-.EmptySet-Text-Big {
-  font-size: 18px;
+.text {
   margin-bottom: 8px;
   text-align: center;
 }
 
-.EmptySet-Text-Small {
+.largeText {
+  composes: text;
+  font-size: 18px;
+}
+
+.smallText {
+  composes: text;
   font-size: 13px;
-  margin-bottom: 8px;
-  text-align: center;
 }
