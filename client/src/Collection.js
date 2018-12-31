@@ -32,6 +32,13 @@ class Label {
   get count() {
     return this.#count
   }
+
+  toJSON() {
+    return {
+      name: this.#name,
+      count: this.#count
+    }
+  }
 }
 
 // Collection
@@ -91,26 +98,27 @@ export default class Collection {
 
       switch (type) {
         case Collection.PASCAL_VOC:
-          return localizationAnnotations(
-            endpoint,
-            bucket,
-            images,
-            labelNames
-          ).then(annotations => {
-            const { imagesForAnnotation, annotationsForImage } = annotations
-            const labels =
-              labelNames &&
-              labelNames.map(label => {
-                return new Label(label, imagesForAnnotation[label].length)
-              })
-            imagesForAnnotation.all = images
-            return {
-              type: type,
-              labels: labels,
-              images: imagesForAnnotation,
-              annotations: annotationsForImage
-            }
-          })
+          return doEverything(endpoint, bucket)
+        // return localizationAnnotations(
+        //   endpoint,
+        //   bucket,
+        //   images,
+        //   labelNames
+        // ).then(annotations => {
+        //   const { imagesForAnnotation, annotationsForImage } = annotations
+        //   const labels =
+        //     labelNames &&
+        //     labelNames.map(label => {
+        //       return new Label(label, imagesForAnnotation[label].length)
+        //     })
+        //   imagesForAnnotation.all = images
+        //   return {
+        //     type: type,
+        //     labels: labels,
+        //     images: imagesForAnnotation,
+        //     annotations: annotationsForImage
+        //   }
+        // })
         case Collection.WATSON_STUDIO:
         case Collection.SIMPLE_LABEL:
           const {
@@ -129,8 +137,9 @@ export default class Collection {
             images: imagesForAnnotation,
             annotations: annotationsForImage
           }
+        default:
+          return Promise.reject('Unrecognized annotation type')
       }
-      return Promise.reject('Unrecognized annotation type')
     })
   }
 
@@ -149,6 +158,29 @@ export default class Collection {
   get annotations() {
     return this.#annotations
   }
+
+  toJSON() {
+    return {
+      type: this.#type,
+      labels: this.#labels,
+      images: this.#images,
+      annotations: this.#annotations
+    }
+  }
+}
+
+const doEverything = (endpoint, bucket) => {
+  const baseUrl = `/api/proxy/${endpoint}/${bucket}/_annotations.json`
+  return fetch(baseUrl)
+    .then(response => response.json())
+    .then(json => {
+      return {
+        type: json.type,
+        labels: json.labels,
+        images: json.images,
+        annotations: json.annotations
+      }
+    })
 }
 
 const localizationAnnotations = (endpoint, bucket, images, labels) => {

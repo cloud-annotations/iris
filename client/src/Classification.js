@@ -87,7 +87,7 @@ export default class Classification extends Component {
 
   render() {
     const { selection } = this.state
-    const { collection, currentSection } = this.props
+    const { collection, currentSection, loading } = this.props
 
     const selectionCount = this.getSelectionCount(selection)
     const [labels, images] = this.getVisible(collection, currentSection)
@@ -103,7 +103,7 @@ export default class Classification extends Component {
           createLabel={this.handleActionCreateLabel}
           deleteImages={this.handleActionDeleteImages}
         />
-        <EmptySet show={!this.state.loading && isEmpty} />
+        <EmptySet show={!loading && isEmpty} />
         <GridControllerV2
           className={styles.grid}
           delegate={this.gridControllerDelegate()}

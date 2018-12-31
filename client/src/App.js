@@ -149,7 +149,13 @@ export default class App extends Component {
 
   render() {
     const { bucket } = this.props.match.params
-    const { dropzoneActive, loading, saved, currentSection } = this.state
+    const {
+      collection,
+      dropzoneActive,
+      loading,
+      saved,
+      currentSection
+    } = this.state
     return (
       <div>
         <BucketBar
@@ -162,7 +168,7 @@ export default class App extends Component {
           allImagesCount={0}
           labeledCount={0}
           unlabeledCount={0}
-          sectionList={this.state.collection.labels}
+          sectionList={collection.labels}
           onSectionChanged={this.handleSectionChanged}
           onLabelAdded={this.handleLabelAdded}
           onLabelDeleted={this.handleLabelDeleted}
@@ -186,15 +192,16 @@ export default class App extends Component {
           </div>
 
           {/* Depending on which bucket type */}
-          {this.state.collection.type === Collection.PASCAL_VOC ? (
+          {collection.type === Collection.PASCAL_VOC ? (
             <Localization
-              collection={this.state.collection}
+              collection={collection}
               currentSection={currentSection}
               bucket={bucket}
             />
           ) : (
             <Classification
-              collection={this.state.collection}
+              loading={loading}
+              collection={collection}
               currentSection={currentSection}
               bucket={bucket}
             />
