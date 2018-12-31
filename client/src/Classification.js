@@ -59,7 +59,7 @@ export default class Classification extends Component {
 
   // MARK: - GridControllerDelegate
 
-  gridControllerDelegate = (() => {
+  gridControllerDelegate = () => {
     const { collection, currentSection, bucket } = this.props
     const [labels, images] = this.getVisible(collection, currentSection)
     return {
@@ -81,7 +81,7 @@ export default class Classification extends Component {
         )
       }
     }
-  })()
+  }
 
   // MARK: - Render method
 
@@ -106,7 +106,7 @@ export default class Classification extends Component {
         <EmptySet show={!this.state.loading && isEmpty} />
         <GridControllerV2
           className={styles.grid}
-          delegate={this.gridControllerDelegate}
+          delegate={this.gridControllerDelegate()}
           selection={selection}
           onSelectionChanged={this.handleChangeSelection}
         />

@@ -1,12 +1,10 @@
 import React, { Component } from 'react'
 import BucketBar from './BucketBar'
-import EmptySet from './EmptySet'
 import putImages from 'api/putImages'
 import Classification from './Classification'
 import Localization from './Localization'
 import Collection from './Collection'
 import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
-import SelectionBar from './SelectionBar'
 import localforage from 'localforage'
 import { Loading } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
@@ -33,28 +31,19 @@ export default class App extends Component {
           collection: collection,
           loading: false
         })
-        console.log(collection.type)
-        console.log(collection.labels)
-        console.log(collection.images)
-        console.log(collection.annotations)
       })
-      .catch(e => {
-        console.error(e)
+      .catch(error => {
+        console.error(error)
       })
 
     this.state = {
+      collection: Collection.EMPTY,
       saved: true,
       loading: true,
       dropzoneActive: false,
       currentSection: ALL_IMAGES
     }
   }
-
-  // Init
-  // Do a check to see the annotation type
-  // Type: Pascal VOC / WatsonStudio / Simple Label
-  // Generate a list of the sections
-  // Generate a collection
 
   componentDidMount() {
     GoogleAnalytics.pageview('annotations')
@@ -160,14 +149,7 @@ export default class App extends Component {
 
   render() {
     const { bucket } = this.props.match.params
-    const {
-      dropzoneActive,
-      loading,
-      saved,
-      sectionList,
-      sectionCount,
-      currentSection
-    } = this.state
+    const { dropzoneActive, loading, saved, currentSection } = this.state
     return (
       <div>
         <BucketBar
@@ -180,9 +162,7 @@ export default class App extends Component {
           allImagesCount={0}
           labeledCount={0}
           unlabeledCount={0}
-          sectionList={
-            this.state.collection ? this.state.collection.labels : []
-          }
+          sectionList={this.state.collection.labels}
           onSectionChanged={this.handleSectionChanged}
           onLabelAdded={this.handleLabelAdded}
           onLabelDeleted={this.handleLabelDeleted}
@@ -206,20 +186,19 @@ export default class App extends Component {
           </div>
 
           {/* Depending on which bucket type */}
-          {this.state.collection &&
-            (this.state.collection.type === Collection.PASCAL_VOC ? (
-              <Localization
-                collection={this.state.collection}
-                currentSection={currentSection}
-                bucket={bucket}
-              />
-            ) : (
-              <Classification
-                collection={this.state.collection}
-                currentSection={currentSection}
-                bucket={bucket}
-              />
-            ))}
+          {this.state.collection.type === Collection.PASCAL_VOC ? (
+            <Localization
+              collection={this.state.collection}
+              currentSection={currentSection}
+              bucket={bucket}
+            />
+          ) : (
+            <Classification
+              collection={this.state.collection}
+              currentSection={currentSection}
+              bucket={bucket}
+            />
+          )}
         </Dropzone>
       </div>
     )

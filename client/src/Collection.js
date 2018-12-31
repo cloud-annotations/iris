@@ -53,15 +53,21 @@ export default class Collection {
   static PASCAL_VOC = 'Pascal VOC'
   static WATSON_STUDIO = 'WatsonStudio'
   static SIMPLE_LABEL = 'Simple Label'
+
   #type = ''
   #labels = []
   #images = {}
   #annotations = {}
+
   constructor(type, labels, images, annotations) {
     this.#type = type
     this.#labels = labels
     this.#images = images
     this.#annotations = annotations
+  }
+
+  static get EMPTY() {
+    return new Collection('', [], {}, {})
   }
 
   static load(endpoint, bucket) {

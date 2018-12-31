@@ -208,6 +208,10 @@ export default class GridController extends Component {
       <div className={className}>
         {(i =>
           [...Array(delegate.numberOfSections)].map((_, section) => {
+            const sectionCount = delegate.numberOfItemsInSection(section)
+            if (sectionCount === 0) {
+              return null
+            }
             return (
               <div>
                 <div className={styles.sectionTitle}>
@@ -216,26 +220,24 @@ export default class GridController extends Component {
                   </div>
                 </div>
                 <div className={styles.grid} ref={this.gridRef}>
-                  {[...Array(delegate.numberOfItemsInSection(section))].map(
-                    (_, index) => {
-                      i++
-                      const selected = mergedSelection[i]
-                      return (
-                        <GridItem
-                          index={i}
-                          section={section}
-                          onItemSelected={this.handleItemSelected}
-                          onDragStart={this.handleDragStart}
-                          onItemEntered={this.handleItemEntered}
-                          gridItem={delegate.cellForItemAt(
-                            section,
-                            index,
-                            selected
-                          )}
-                        />
-                      )
-                    }
-                  )}
+                  {[...Array(sectionCount)].map((_, index) => {
+                    i++
+                    const selected = mergedSelection[i]
+                    return (
+                      <GridItem
+                        index={i}
+                        section={section}
+                        onItemSelected={this.handleItemSelected}
+                        onDragStart={this.handleDragStart}
+                        onItemEntered={this.handleItemEntered}
+                        gridItem={delegate.cellForItemAt(
+                          section,
+                          index,
+                          selected
+                        )}
+                      />
+                    )
+                  })}
                 </div>
                 <div className={styles.gap} />
               </div>
