@@ -74,9 +74,9 @@ export default class GridController extends Component {
            *   type = !selection[index]
            * }
            */
+          const type = safeSelection[lastSelectedIndex] || !safeSelection[index]
           for (let i = min; i <= max; i++) {
-            safeSelection[i] =
-              safeSelection[lastSelectedIndex] || !safeSelection[index]
+            safeSelection[i] = type
           }
         } else {
           safeSelection[index] = !safeSelection[index]
@@ -105,18 +105,20 @@ export default class GridController extends Component {
   }
 
   handleItemEntered = (section, index) => {
-    const { delegate, selection, sections } = this.props
+    const { delegate, selection } = this.props
     const { dragging, dragStartIndex, dragStartSection } = this.state
 
     if (!dragging) {
       return
     }
 
-    const i = sections.findIndex(section => section.name === dragStartSection)
-    const sectionStart = sections
-      .slice(0, i)
-      .reduce((acc, b) => acc + b.count, 0)
-    const sectionEnd = sectionStart + sections[i].count
+    const sectionStart = [...Array(dragStartSection)].reduce(
+      (acc, _, i) => acc + delegate.numberOfItemsInSection(i),
+      0
+    )
+
+    const sectionEnd =
+      sectionStart + delegate.numberOfItemsInSection(dragStartSection)
 
     const columnCount = this.calculateColumnCount()
     const normalizedStartIndex = dragStartIndex - sectionStart
@@ -188,7 +190,7 @@ export default class GridController extends Component {
   calculateColumnCount = () =>
     parseInt(
       window
-        .getComputedStyle(this.gridRef, null)
+        .getComputedStyle(this.gridRef.current, null)
         .getPropertyValue('grid-template-columns')
         .split('px').length - 1,
       10
