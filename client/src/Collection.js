@@ -30,16 +30,6 @@ export default class Collection {
     const fileListPromise = Bucket.fileList()
     return Promise.all([collectionPromise, fileListPromise]).then(res => {
       const [collection, fileList] = res
-
-      // // // TMP_CONVERSION
-      // const tmpLabeled = collection.labels.reduce((acc, label) => {
-      //   return [...acc, ...collection.images[label.name]]
-      // }, [])
-      // const dedupedLabeled = [...new Set(tmpLabeled)]
-      // collection.images.labeled = dedupedLabeled
-      // collection.labels = collection.labels.map(label => label.name)
-      // // // TMP_CONVERSION
-
       const labeled = collection.images.labeled
       const images = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
       const unlabeled = images.filter(image => !labeled.includes(image))

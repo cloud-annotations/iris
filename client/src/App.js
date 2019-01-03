@@ -199,7 +199,7 @@ export default class App extends Component {
           </div>
 
           {/* Depending on which bucket type */}
-          {collection.type === Collection.LOCALIZATIONx ? (
+          {collection.type === Collection.LOCALIZATION ? (
             <Localization
               collection={collection}
               currentSection={currentSection}
