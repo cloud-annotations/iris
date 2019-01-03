@@ -8,12 +8,25 @@ export default class ImageTile extends Component {
       'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
   }
 
+  // MARK: - Life cycle methods
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.selected !== this.props.selected) {
+      if (nextProps.selected) {
+        this.props.onImageSelected(this.state.image)
+      }
+    }
+  }
+
   componentDidMount() {
     const { bucket, item } = this.props
     console.log("Hello, I'm a new kid.")
     fetchImage(localStorage.getItem('loginUrl'), bucket, item)
       .then(res => {
         this.setState(res)
+        if (this.props.selected) {
+          this.props.onImageSelected(res.image)
+        }
       })
       .catch(error => {
         console.error(error)

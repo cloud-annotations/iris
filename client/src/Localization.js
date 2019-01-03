@@ -1,116 +1,59 @@
 import React, { Component } from 'react'
-import fetchImage from 'api/fetchImage'
+// import fetchImage from 'api/fetchImage'
 import Canvas from 'common/Canvas/Canvas'
 import ImageTileV2 from './ImageTileV2'
+import HorizontalListController from 'common/HorizontalList/HorizontalListController'
 
 import styles from './Localization.module.css'
 
 export default class App extends Component {
-  constructor(props) {
-    super(props)
-    this.horizontalScrollRef = React.createRef()
-    this.state = {
-      selection: 0,
-      image: null,
-      imageWidth: 0,
-      imageHeight: 0,
-      bboxes: [],
-      label: props.collection.labels[0].name,
-      mode: 'box'
+  state = {
+    selection: 0,
+    image: null,
+    imageWidth: 0,
+    imageHeight: 0,
+    bboxes: [],
+    label: this.props.collection.labels[0],
+    mode: 'box'
+  }
+
+  // MARK: - Life cycle methods
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.currentSection !== this.props.currentSection) {
+      this.setState({ selection: 0 })
     }
   }
 
-  componentDidMount() {
-    document.addEventListener('mousewheel', this.blockSwipeBack, false)
-    document.addEventListener('keydown', this.handleKeyDown)
-  }
+  // MARK: - Event listeners
 
-  componentWillUnmount() {
-    document.removeEventListener('mousewheel', this.blockSwipeBack)
-    document.removeEventListener('keydown', this.handleKeyDown)
-  }
+  handleImageSelected = data => {
+    const { collection, currentSection } = this.props
+    const { selection } = this.state
 
-  handleKeyDown = e => {
-    if (e.which === 39) {
-      e.preventDefault()
-
-      this.setState(
-        prevState => ({
-          selection: prevState.selection + 1
-        }),
-        () => {
-          this.loadForImage(
-            this.props.bucket,
-            this.props.collection.images.all[this.state.selection]
-          )
-        }
-      )
-    } else if (e.which === 37) {
-      e.preventDefault()
-      this.setState(
-        prevState => ({
-          selection: prevState.selection - 1
-        }),
-        () => {
-          this.loadForImage(
-            this.props.bucket,
-            this.props.collection.images.all[this.state.selection]
-          )
-        }
-      )
+    const image = collection.images[currentSection][selection]
+    const annotation = collection.annotations[image] || {
+      bboxes: []
     }
-  }
-
-  blockSwipeBack = e => {
-    e.stopPropagation()
-    const scrollElement = this.horizontalScrollRef.current
-    if (!scrollElement.contains(e.target)) {
-      return
-    }
-
-    const max = scrollElement.scrollWidth - scrollElement.offsetWidth
-    const scrollPosition = scrollElement.scrollLeft + e.deltaX
-
-    if (scrollPosition < 0 || scrollPosition > max) {
-      e.preventDefault()
-      scrollElement.scrollLeft = Math.max(0, Math.min(max, scrollPosition))
-    }
-  }
-
-  loadForImage = (bucket, image) => {
-    const imagePromise = fetchImage(
-      localStorage.getItem('loginUrl'),
-      bucket,
-      image
-    )
-      .then(res => {
-        const bboxes = this.props.collection.annotations[image].bboxes.map(
-          bbox => {
-            const color = this.colorFromLabel(bbox.label)
-            return { ...bbox, color: color }
-          }
-        )
-        this.setState({
-          ...res,
-          bboxes: bboxes
-        })
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }
-
-  onSelectionChanged = selection => {
-    this.setState({
-      selection: selection
+    const bboxes = annotation.bboxes.map(bbox => {
+      const color = this.colorFromLabel(bbox.label)
+      return { ...bbox, color: color }
     })
+    this.setState({
+      image: data,
+      bboxes: bboxes
+    })
+  }
+
+  handleChangeSelection = selection => {
+    this.setState({ selection: selection })
   }
 
   colorFromLabel = label => {
     const baseHue = 196
     const spread = 360 / this.props.collection.labels.length
     const index = this.props.collection.labels.reduce((acc, current, i) => {
-      if (current.name === label) {
+      if (current === label) {
         return i
       }
       return acc
@@ -157,6 +100,9 @@ export default class App extends Component {
   }
 
   render() {
+    const { selection } = this.state
+    const { collection, currentSection, bucket } = this.props
+    const images = collection.images[currentSection]
     return (
       <div>
         <div
@@ -224,8 +170,8 @@ export default class App extends Component {
           </div>
           <div>{`Label: ${this.state.label}`}</div>
           {this.props.collection.labels.map(label => (
-            <button value={label.name} onClick={this.handleLabelChanged}>
-              {label.name}
+            <button value={label} onClick={this.handleLabelChanged}>
+              {label}
             </button>
           ))}
           {this.state.bboxes
@@ -261,39 +207,38 @@ export default class App extends Component {
               )
             })}
         </div>
-        <div
-          ref={this.horizontalScrollRef}
-          style={{
-            position: 'absolute',
-            bottom: '0',
-            left: '0',
-            right: '0',
-            height: '117px',
-            display: 'flex',
-            overflow: 'auto',
-            alignItems: 'center',
-            borderTop: '1px solid #dfe3e6'
-          }}
-        >
-          {this.props.collection.images.all.map((item, i) => {
-            return (
-              <div
-                style={{ height: '80px', margin: '0 8px' }}
-                onClick={() => {
-                  this.loadForImage(this.props.bucket, item)
-                  this.setState({ selection: i })
-                }}
-              >
-                <ImageTileV2
-                  selected={this.state.selection === i}
-                  bucket={this.props.bucket}
-                  item={item}
-                />
-              </div>
-            )
-          })}
-        </div>
+        <HorizontalListController
+          delegate={HorizontalListControllerDelegate(
+            this.handleImageSelected,
+            images,
+            bucket
+          )}
+          selection={selection}
+          onSelectionChanged={this.handleChangeSelection}
+        />
       </div>
+    )
+  }
+}
+
+// MARK: - HorizontalListControllerDelegate
+
+const HorizontalListControllerDelegate = (
+  handleImageSelected,
+  images,
+  bucket
+) => {
+  return {
+    numberOfItems: images.length,
+    keyForItemAt: index => images[index],
+    cellForItemAt: (index, selected) => (
+      <ImageTileV2
+        index={index}
+        onImageSelected={handleImageSelected}
+        bucket={bucket}
+        selected={selected}
+        item={images[index]}
+      />
     )
   }
 }

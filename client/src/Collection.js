@@ -34,6 +34,7 @@ export default class Collection {
       const images = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
       const unlabeled = images.filter(image => !labeled.includes(image))
       collection.images.unlabeled = unlabeled
+      collection.images.all = [...unlabeled, ...labeled]
       return collection
     })
   }

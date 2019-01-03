@@ -179,7 +179,7 @@ export default class App extends Component {
       <div onMouseDown={this.handleCanvasDragStart} className={styles.wrapper}>
         <img
           className={styles.image}
-          alt="cats"
+          alt=""
           draggable={false}
           src={this.props.image}
           onLoad={this.handleOnImageLoad}
