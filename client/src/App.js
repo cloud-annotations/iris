@@ -27,6 +27,7 @@ export default class App extends Component {
     Collection.load(endpoint, bucket)
       .then(({ type, labels, images, annotations }) => {
         const collection = new Collection(type, labels, images, annotations)
+        console.log(JSON.stringify(collection))
         this.setState({
           collection: collection,
           loading: false
@@ -156,6 +157,12 @@ export default class App extends Component {
       saved,
       currentSection
     } = this.state
+
+    const sections = collection.labels.map(label => ({
+      name: label,
+      count: collection.images[label].length
+    }))
+
     return (
       <div>
         <BucketBar
@@ -165,10 +172,10 @@ export default class App extends Component {
         />
         <Sidebar
           currentSection={currentSection}
-          allImagesCount={0}
-          labeledCount={0}
-          unlabeledCount={0}
-          sectionList={collection.labels}
+          allImagesCount={collection.images.all.length}
+          labeledCount={collection.images.labeled.length}
+          unlabeledCount={collection.images.unlabeled.length}
+          sectionList={sections}
           onSectionChanged={this.handleSectionChanged}
           onLabelAdded={this.handleLabelAdded}
           onLabelDeleted={this.handleLabelDeleted}
@@ -192,7 +199,7 @@ export default class App extends Component {
           </div>
 
           {/* Depending on which bucket type */}
-          {collection.type === Collection.PASCAL_VOC ? (
+          {collection.type === Collection.LOCALIZATIONx ? (
             <Localization
               collection={collection}
               currentSection={currentSection}

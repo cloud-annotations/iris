@@ -213,7 +213,7 @@ export default class GridController extends Component {
               return null
             }
             return (
-              <div>
+              <div key={delegate.keyForHeaderInSection(section)}>
                 <div className={styles.sectionTitle}>
                   <div className={styles.sectionSpan}>
                     {delegate.titleForHeaderInSection(section)}
@@ -226,6 +226,7 @@ export default class GridController extends Component {
                     return (
                       <GridItem
                         index={i}
+                        key={delegate.keyForItemAt(section, index)}
                         section={section}
                         onItemSelected={this.handleItemSelected}
                         onDragStart={this.handleDragStart}

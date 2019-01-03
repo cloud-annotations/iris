@@ -39,59 +39,38 @@ export default class Classification extends Component {
 
   getSelectionCount = selection => selection.filter(Boolean).length
 
-  getVisible = (collection, currentSection) => {
+  getVisibleLabels = (collection, currentSection) => {
     const labels = collection.labels.filter(
       label =>
         currentSection === ALL_IMAGES ||
-        (currentSection === LABELED && label.name !== 'Unlabeled') ||
-        (currentSection === UNLABELED && label.name === 'Unlabeled') ||
-        currentSection === label.name
+        currentSection === LABELED ||
+        currentSection === label
     )
-    const images = labels.reduce((acc, label) => {
-      acc[label.name] = collection.images[label.name]
-      return acc
-    }, {})
-    return [labels, images]
+
+    if (currentSection === ALL_IMAGES || currentSection === UNLABELED) {
+      return [UNLABELED, ...labels]
+    }
+
+    return labels
   }
 
-  getIsEmpty = labels =>
-    labels.reduce((acc, label) => acc && label.count === 0, true)
-
-  // MARK: - GridControllerDelegate
-
-  gridControllerDelegate = () => {
-    const { collection, currentSection, bucket } = this.props
-    const [labels, images] = this.getVisible(collection, currentSection)
-    return {
-      numberOfSections: labels.length,
-      numberOfItemsInSection: section => {
-        return labels[section].count
-      },
-      titleForHeaderInSection: section => {
-        return labels[section].name
-      },
-      cellForItemAt: (sectionIndex, index, selected) => {
-        const section = labels[sectionIndex].name
-        return (
-          <ImageTile
-            bucket={bucket}
-            selected={selected}
-            item={images[section][index]}
-          />
-        )
-      }
-    }
+  getIsEmpty = (collection, labels) => {
+    return labels.reduce(
+      (acc, label) => acc && collection.images[label].length === 0,
+      true
+    )
   }
 
   // MARK: - Render method
 
   render() {
     const { selection } = this.state
-    const { collection, currentSection, loading } = this.props
+    const { collection, currentSection, loading, bucket } = this.props
 
+    const { images } = collection
     const selectionCount = this.getSelectionCount(selection)
-    const [labels, images] = this.getVisible(collection, currentSection)
-    const isEmpty = this.getIsEmpty(labels)
+    const labels = this.getVisibleLabels(collection, currentSection)
+    const isEmpty = this.getIsEmpty(collection, labels)
 
     return (
       <div>
@@ -106,11 +85,43 @@ export default class Classification extends Component {
         <EmptySet show={!loading && isEmpty} />
         <GridControllerV2
           className={styles.grid}
-          delegate={this.gridControllerDelegate()}
+          delegate={GridControllerDelegate(labels, images, bucket)}
           selection={selection}
           onSelectionChanged={this.handleChangeSelection}
         />
       </div>
     )
+  }
+}
+
+// MARK: - GridControllerDelegate
+
+const GridControllerDelegate = (labels, images, bucket) => {
+  return {
+    numberOfSections: labels.length,
+
+    numberOfItemsInSection: sectionIndex => {
+      return images[labels[sectionIndex]].length
+    },
+    keyForHeaderInSection: sectionIndex => {
+      return labels[sectionIndex]
+    },
+    titleForHeaderInSection: sectionIndex => {
+      return labels[sectionIndex]
+    },
+    keyForItemAt: (sectionIndex, index) => {
+      const section = labels[sectionIndex]
+      return images[section][index]
+    },
+    cellForItemAt: (sectionIndex, index, selected) => {
+      const section = labels[sectionIndex]
+      return (
+        <ImageTile
+          bucket={bucket}
+          selected={selected}
+          item={images[section][index]}
+        />
+      )
+    }
   }
 }

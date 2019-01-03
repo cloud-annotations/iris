@@ -62,7 +62,7 @@ class SelectionBar extends Component {
 
     if (e.key === 'Enter') {
       const onlyLabels = sections.filter(label => {
-        return label.name !== 'Unlabeled'
+        return label !== 'Unlabeled'
       })
 
       if (this.filterList(this.state.filter, onlyLabels).length === 0) {
@@ -86,7 +86,7 @@ class SelectionBar extends Component {
     } = this.props
 
     const onlyLabels = sections.filter(label => {
-      return label.name !== 'Unlabeled'
+      return label !== 'Unlabeled'
     })
     return (
       <div className={`SelectionBar ${selectionCount > 0 ? '--Active' : ''}`}>
@@ -154,9 +154,9 @@ class SelectionBar extends Component {
                   >
                     <div className="SelectionBar-DropDown-MenuItem">
                       <span className="SelectionBar-DropDown-MenuItem-highlight">
-                        {section.name.substring(0, this.state.filter.length)}
+                        {section.substring(0, this.state.filter.length)}
                       </span>
-                      {section.name.substring(this.state.filter.length)}
+                      {section.substring(this.state.filter.length)}
                     </div>
                   </div>
                 )
