@@ -38,6 +38,11 @@ export const fetchTest = (endpoint, bucket) => {
       .then(handleErrors)
       .then(response => response.text())
 
+  const location = () =>
+    fetch(`${baseUrl}?location`)
+      .then(handleErrors)
+      .then(response => response.text())
+
   const labels = () =>
     fetch(`${baseUrl}/${LABELS_FILE}`)
       .then(handleErrors)
@@ -50,6 +55,7 @@ export const fetchTest = (endpoint, bucket) => {
 
   return {
     type: () => validateCookies().then(type),
+    location: () => validateCookies().then(location),
     fileList: () => validateCookies().then(fileList),
     labels: () => validateCookies().then(labels),
     annotations: () => validateCookies().then(annotations)

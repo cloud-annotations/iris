@@ -1,5 +1,4 @@
-import { fetchTest } from 'api/fetchImages'
-import fetchAnnotation from 'api/fetchAnnotation'
+import COS from 'api/COS'
 // Annotation
 // --static--
 // - label() -> Label
@@ -56,6 +55,7 @@ class Label {
 // - appendAnnotation(image, annotationId) -> new ClassificationCollection
 // - setAnnotation(image, annotationId) -> new ClassificationCollection
 // - removeAnnotation(image, annotationId) -> new ClassificationCollection
+const VERSION = '1.0'
 export default class Collection {
   static PASCAL_VOC = 'Pascal VOC'
   static WATSON_STUDIO = 'WatsonStudio'
@@ -78,68 +78,29 @@ export default class Collection {
   }
 
   static load(endpoint, bucket) {
-    const type = fetchTest(endpoint, bucket).type()
-    const fileList = noDependency(fetchTest(endpoint, bucket).fileList())
-    const labels = noDependency(fetchTest(endpoint, bucket).labels())
-    const annotations = noDependency(fetchTest(endpoint, bucket).annotations())
+    const Bucket = new COS(endpoint).bucket(bucket)
+    const collectionPromise = noDependency(Bucket.collection())
+    const fileListPromise = Bucket.fileList()
 
-    return Promise.all([type, fileList, labels, annotations]).then(values => {
-      const [dirtyType, fileList, labelsCsv, annotationsCsv] = values
+    return Promise.all([collectionPromise, fileListPromise]).then(res => {
+      const [collection, fileList] = res
+      // If collection is empty we probably haven't touched this project before.
+      // It could be:
+      // - WatsonStudio:
+      //    - Read only until they convert the project
+      //
+      // - ours, but they deleted the _annotations.json file:
+      // - external project, with a supported annotation structure:
+      //    - Generate an _annotations.json file
+      //
+      // - external project, with unrecognized annotation structure:
+      //    - Load any images in the bucket
 
-      const type = dirtyType.trim()
-
-      const images =
-        fileList && fileList.filter(fileName => fileName.match(IMAGE_REGEX))
-
-      const labelNames =
-        labelsCsv && labelsCsv.split('\n').filter(label => label.trim() !== '')
-
-      // TODO: We need to add the unlabeled images as well
-
-      switch (type) {
-        case Collection.PASCAL_VOC:
-          return doEverything(endpoint, bucket)
-        // return localizationAnnotations(
-        //   endpoint,
-        //   bucket,
-        //   images,
-        //   labelNames
-        // ).then(annotations => {
-        //   const { imagesForAnnotation, annotationsForImage } = annotations
-        //   const labels =
-        //     labelNames &&
-        //     labelNames.map(label => {
-        //       return new Label(label, imagesForAnnotation[label].length)
-        //     })
-        //   imagesForAnnotation.all = images
-        //   return {
-        //     type: type,
-        //     labels: labels,
-        //     images: imagesForAnnotation,
-        //     annotations: annotationsForImage
-        //   }
-        // })
-        case Collection.WATSON_STUDIO:
-        case Collection.SIMPLE_LABEL:
-          const {
-            imagesForAnnotation,
-            annotationsForImage
-          } = classificationAnnotations(annotationsCsv, images, labelNames)
-          const labels =
-            labelNames &&
-            labelNames.map(label => {
-              return new Label(label, imagesForAnnotation[label].length)
-            })
-          imagesForAnnotation.all = images
-          return {
-            type: type,
-            labels: labels,
-            images: imagesForAnnotation,
-            annotations: annotationsForImage
-          }
-        default:
-          return Promise.reject('Unrecognized annotation type')
-      }
+      const labeled = collection.images.labeled || []
+      const images = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
+      const unlabeled = images.filter(image => !labeled.includes(image))
+      collection.images.unlabeled = unlabeled
+      return collection
     })
   }
 
@@ -161,88 +122,12 @@ export default class Collection {
 
   toJSON() {
     return {
+      version: VERSION,
       type: this.#type,
       labels: this.#labels,
       images: this.#images,
       annotations: this.#annotations
     }
-  }
-}
-
-const doEverything = (endpoint, bucket) => {
-  const baseUrl = `/api/proxy/${endpoint}/${bucket}/_annotations.json`
-  return fetch(baseUrl)
-    .then(response => response.json())
-    .then(json => {
-      return {
-        type: json.type,
-        labels: json.labels,
-        images: json.images,
-        annotations: json.annotations
-      }
-    })
-}
-
-const localizationAnnotations = (endpoint, bucket, images, labels) => {
-  const annotationsPromise = images.map(image =>
-    noDependency(fetchAnnotation(endpoint, bucket, image))
-  )
-  return Promise.all(annotationsPromise).then(values => {
-    const imagesForAnnotation =
-      labels &&
-      labels.reduce((acc, label) => {
-        acc[label] = []
-        return acc
-      }, {})
-
-    const annotationsForImage = values.reduce((acc, annotation, i) => {
-      if (!annotation) {
-        return acc
-      }
-      annotation.bboxes.forEach(bbox => {
-        imagesForAnnotation[bbox.label] = [
-          images[i],
-          ...imagesForAnnotation[bbox.label]
-        ]
-      })
-      acc[images[i]] = annotation
-      return acc
-    }, {})
-    return {
-      imagesForAnnotation: imagesForAnnotation,
-      annotationsForImage: annotationsForImage
-    }
-  })
-}
-
-const classificationAnnotations = (annotationsCsv, images, labels) => {
-  const annotationsBase =
-    labels &&
-    labels.reduce((acc, label) => {
-      acc[label] = []
-      return acc
-    }, {})
-  const imagesForAnnotation =
-    annotationsCsv &&
-    annotationsCsv
-      .split('\n')
-      .filter(annotation => annotation.trim() !== '')
-      .reduce((acc, annotation) => {
-        const [image, label] = annotation.split(',')
-
-        acc[label] = [image, ...acc[label]]
-        return acc
-      }, annotationsBase)
-
-  const annotationsForImage = labels.reduce((acc, label) => {
-    imagesForAnnotation[label].forEach(image => {
-      acc[image] = label
-    })
-    return acc
-  }, {})
-  return {
-    imagesForAnnotation: imagesForAnnotation,
-    annotationsForImage: annotationsForImage
   }
 }
 

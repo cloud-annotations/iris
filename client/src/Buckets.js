@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import GoogleAnalytics from 'react-ga'
+import { fetchTest } from 'api/fetchImages'
 import {
   DataTable,
   DataTableSkeleton,
@@ -63,42 +64,77 @@ class Buckets extends Component {
   }
 
   populateBuckets = () => {
-    return new Promise((resolve, reject) => {
-      const url = `api/proxy/${localStorage.getItem(
-        'loginUrl'
-      )}`
-      const options = {
-        method: 'GET',
-        headers: {
-          'ibm-service-instance-id': localStorage.getItem('resourceId')
-        }
+    const url = `api/proxy/${localStorage.getItem('loginUrl')}`
+    const options = {
+      method: 'GET',
+      headers: {
+        'ibm-service-instance-id': localStorage.getItem('resourceId')
       }
-      const request = new Request(url)
-      fetch(request, options)
-        .then(handleErrors)
-        .then(response => response.text())
-        .then(str =>
-          new window.DOMParser().parseFromString(str, 'text/xml')
-        )
-        .then(data => {
-          console.log(data)
-          const elements = data.getElementsByTagName('Bucket')
-          const bucketList = Array.prototype.map.call(elements, element => {
-            const name = element.getElementsByTagName('Name')[0].innerHTML
-            const date = element.getElementsByTagName('CreationDate')[0]
-              .innerHTML
-            return {
-              id: name,
-              name: name,
-              created: new Date(date).toLocaleDateString()
-            }
-          })
-
-          this.props.cacheBucketList(bucketList)
-          resolve()
+    }
+    // console.time('Total time')
+    // console.time('Get initial bucket list')
+    return fetch(url, options)
+      .then(handleErrors)
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
+      .then(data => {
+        const elements = data.getElementsByTagName('Bucket')
+        const bucketList = Array.prototype.map.call(elements, element => {
+          const name = element.getElementsByTagName('Name')[0].innerHTML
+          const date = element.getElementsByTagName('CreationDate')[0].innerHTML
+          return {
+            id: name,
+            name: name,
+            created: new Date(date).toLocaleDateString()
+          }
         })
-        .catch(reject)
-    })
+
+        this.props.cacheBucketList(bucketList)
+
+        // console.timeEnd('Get initial bucket list')
+
+        // console.time('Get bucket locations')
+
+        // const noDependency = p => p.catch(() => undefined)
+        // const typePromises = bucketList.map(bucket =>
+        //   noDependency(
+        //     fetchTest(localStorage.getItem('loginUrl'), bucket.name).location()
+        //   ).then(location => ({
+        //     bucket: bucket,
+        //     location: location
+        //   }))
+        // )
+        // return Promise.all(typePromises)
+      })
+    // .then(res => {
+    //   console.timeEnd('Get bucket locations')
+    //   console.time('Get bucket type')
+    //   const noDependency = p => p.catch(() => undefined)
+    //   const typePromises = res
+    //     .filter(item => item.location === '')
+    //     .map(item =>
+    //       noDependency(
+    //         fetchTest(
+    //           localStorage.getItem('loginUrl'),
+    //           item.bucket.name
+    //         ).type()
+    //       ).then(type => ({
+    //         bucket: item.bucket,
+    //         type: type
+    //       }))
+    //     )
+    //   return Promise.all(typePromises)
+    // })
+    // .then(res => {
+    //   console.timeEnd('Get bucket type')
+    //   console.timeEnd('Total time')
+
+    //   console.log(res)
+    //   const buckets = res
+    //     .filter(item => item.type === '')
+    //     .map(item => item.bucket)
+    //   this.props.cacheBucketList(buckets)
+    // })
   }
 
   openModal = () => {
