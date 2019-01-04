@@ -2,11 +2,12 @@ import React, { Component } from 'react'
 import BucketBar from './BucketBar'
 import putImages from 'api/putImages'
 import Classification from './Classification'
+import CardChoice from './CardChoice'
 import Localization from './Localization'
 import Collection from './Collection'
 import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
 import localforage from 'localforage'
-import { Loading } from 'carbon-components-react'
+import { Loading, Modal } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
 import GoogleAnalytics from 'react-ga'
 import {
@@ -16,6 +17,11 @@ import {
   shrinkImage,
   namedCanvasToFile
 } from './Utils'
+
+import classification from './classification.png'
+import localization from './localization.png'
+
+import styles from './App.module.css'
 import './App.css'
 
 export default class App extends Component {
@@ -34,13 +40,18 @@ export default class App extends Component {
         })
       })
       .catch(error => {
-        console.error(error)
+        if (error === Collection.UNDEFINED_COLLECTION) {
+          this.setState({ modalActive: true })
+        } else {
+          console.error(error)
+        }
       })
 
     this.state = {
       collection: Collection.EMPTY,
       saved: true,
       loading: true,
+      modalActive: false,
       dropzoneActive: false,
       currentSection: ALL_IMAGES
     }
@@ -148,6 +159,14 @@ export default class App extends Component {
     this.setState({ loading: false })
   }
 
+  handleChoiceMade = () => {
+    this.setState({ modalActive: false })
+  }
+
+  handleCloseModal = () => {
+    this.props.history.push('/')
+  }
+
   render() {
     const { bucket } = this.props.match.params
     const {
@@ -165,6 +184,27 @@ export default class App extends Component {
 
     return (
       <div>
+        <Modal
+          className="Buckets-Modal-TextInput-Wrapper"
+          open={this.state.modalActive}
+          shouldSubmitOnEnter={true}
+          modalHeading="Annotation type"
+          primaryButtonText="Confirm"
+          secondaryButtonText="Cancel"
+          onRequestClose={this.handleCloseModal}
+          onRequestSubmit={this.handleChoiceMade}
+          onSecondarySubmit={this.handleCloseModal}
+        >
+          <div className={styles.choiceWrapper}>
+            <CardChoice
+              selected={true}
+              title="Classification"
+              image={classification}
+            />
+            <CardChoice title="Localization" image={localization} />
+          </div>
+        </Modal>
+
         <BucketBar
           saved={saved}
           bucket={bucket}

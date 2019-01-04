@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import GoogleAnalytics from 'react-ga'
 import { fetchTest } from 'api/fetchImages'
+import CardChoice from './CardChoice'
 import {
   DataTable,
   DataTableSkeleton,
@@ -14,8 +15,12 @@ import { validateCookies, handleErrors } from './Utils'
 import MD5 from 'crypto-js/md5'
 import Base64 from 'crypto-js/enc-base64'
 
+import classification from './classification.png'
+import localization from './localization.png'
+
 import 'carbon-components/css/carbon-components.min.css'
 import './Buckets.css'
+import styles from './Buckets.module.css'
 
 const {
   TableContainer,
@@ -232,7 +237,7 @@ class Buckets extends Component {
             )
           })
           .catch(error => {
-            if (error.message === 'Conflict') {
+            if (error === 'Conflict') {
               this.setState({
                 loading: false,
                 invalidText: NAME_EXISTS,
@@ -370,6 +375,14 @@ class Buckets extends Component {
             invalid={this.state.invalid}
             data-modal-primary-focus
           />
+          <div className={styles.choiceWrapper}>
+            <CardChoice
+              selected={true}
+              title="Classification"
+              image={classification}
+            />
+            <CardChoice title="Localization" image={localization} />
+          </div>
         </Modal>
 
         <div className="Buckets-Table">

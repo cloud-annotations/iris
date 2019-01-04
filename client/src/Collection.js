@@ -5,6 +5,7 @@ const optional = p => p.catch(() => undefined)
 
 const VERSION = '1.0'
 export default class Collection {
+  static UNDEFINED_COLLECTION = 'undefined_collection'
   static LOCALIZATION = 'localization'
   static CLASSIFICATION = 'classification'
 
@@ -30,12 +31,22 @@ export default class Collection {
     const fileListPromise = Bucket.fileList()
     return Promise.all([collectionPromise, fileListPromise]).then(res => {
       const [collection, fileList] = res
-      const labeled = collection.images.labeled
       const images = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
-      const unlabeled = images.filter(image => !labeled.includes(image))
-      collection.images.unlabeled = unlabeled
-      collection.images.all = [...unlabeled, ...labeled]
-      return collection
+      if (collection) {
+        const labeled = collection.images.labeled
+        const unlabeled = images.filter(image => !labeled.includes(image))
+        collection.images.unlabeled = unlabeled
+        collection.images.all = [...unlabeled, ...labeled]
+        return collection
+      } else {
+        return Promise.reject(Collection.UNDEFINED_COLLECTION)
+        // return {
+        //   type: '',
+        //   labels: [],
+        //   images: { all: images, labeled: [], unlabeled: images },
+        //   annotations: {}
+        // }
+      }
     })
   }
 

@@ -1,0 +1,34 @@
+.wrapper {
+  background-color: #f4f7fb;
+  padding: 14px 16px 16px 16px;
+}
+
+.wrapperActive {
+  composes: wrapper;
+  border: solid 2px #3f72b0;
+}
+
+.titleWrapper {
+  display: flex;
+}
+
+.title {
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 16px;
+  color: #152935;
+  font-weight: 600;
+}
+
+.check {
+  margin-left: auto;
+  height: 16px;
+  width: 16px;
+  fill: #3f72b0;
+}
+
+.image {
+  margin: 16px 0 0 0;
+  width: 100%;
+  height: auto;
+}
