@@ -65,7 +65,6 @@ export default class App extends Component {
   handleCoordinatesChanged = (bbox, index) => {
     this.setState(prevState => {
       const bboxes = [...prevState.bboxes]
-
       bboxes[index] = bbox
       return { bboxes: bboxes }
     })

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import HorizontalListItem from './HorizontalListItem'
-// import styles from './HorizontalListController.module.css'
 
 export default class HorizontalListController extends Component {
   horizontalScrollRef = React.createRef()
@@ -16,33 +15,14 @@ export default class HorizontalListController extends Component {
   }
 
   handleKeyDown = e => {
-    // if (e.which === 39) {
-    //   e.preventDefault()
-    //   this.setState(
-    //     prevState => ({
-    //       selection: prevState.selection + 1
-    //     }),
-    //     () => {
-    //       this.loadForImage(
-    //         this.props.bucket,
-    //         this.props.collection.images.all[this.state.selection]
-    //       )
-    //     }
-    //   )
-    // } else if (e.which === 37) {
-    //   e.preventDefault()
-    //   this.setState(
-    //     prevState => ({
-    //       selection: prevState.selection - 1
-    //     }),
-    //     () => {
-    //       this.loadForImage(
-    //         this.props.bucket,
-    //         this.props.collection.images.all[this.state.selection]
-    //       )
-    //     }
-    //   )
-    // }
+    const { onSelectionChanged, selection, delegate } = this.props
+    if (e.which === 39) {
+      e.preventDefault()
+      onSelectionChanged(Math.min(selection + 1, delegate.numberOfItems - 1))
+    } else if (e.which === 37) {
+      e.preventDefault()
+      onSelectionChanged(Math.max(selection - 1, 0))
+    }
   }
 
   blockSwipeBack = e => {
