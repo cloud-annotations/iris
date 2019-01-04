@@ -49,6 +49,7 @@ export default class App extends Component {
 
     this.state = {
       collection: Collection.EMPTY,
+      choice: Collection.CLASSIFICATION,
       saved: true,
       loading: true,
       modalActive: false,
@@ -167,6 +168,14 @@ export default class App extends Component {
     this.props.history.push('/')
   }
 
+  handleChooseClassification = () => {
+    this.setState({ choice: Collection.CLASSIFICATION })
+  }
+
+  handleChooseLocalization = () => {
+    this.setState({ choice: Collection.LOCALIZATION })
+  }
+
   render() {
     const { bucket } = this.props.match.params
     const {
@@ -197,11 +206,17 @@ export default class App extends Component {
         >
           <div className={styles.choiceWrapper}>
             <CardChoice
-              selected={true}
+              onClick={this.handleChooseClassification}
+              selected={this.state.choice === Collection.CLASSIFICATION}
               title="Classification"
               image={classification}
             />
-            <CardChoice title="Localization" image={localization} />
+            <CardChoice
+              onClick={this.handleChooseLocalization}
+              selected={this.state.choice === Collection.LOCALIZATION}
+              title="Localization"
+              image={localization}
+            />
           </div>
         </Modal>
 

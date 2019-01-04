@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import GoogleAnalytics from 'react-ga'
 import { fetchTest } from 'api/fetchImages'
+import Collection from './Collection'
 import CardChoice from './CardChoice'
 import {
   DataTable,
@@ -45,6 +46,7 @@ class Buckets extends Component {
     this.initializeData()
     this.state = {
       modalOpen: false,
+      choice: Collection.CLASSIFICATION,
       textInputBucketName: '',
       invalidText: '',
       invalid: false,
@@ -346,6 +348,14 @@ class Buckets extends Component {
       })
   }
 
+  handleChooseClassification = () => {
+    this.setState({ choice: Collection.CLASSIFICATION })
+  }
+
+  handleChooseLocalization = () => {
+    this.setState({ choice: Collection.LOCALIZATION })
+  }
+
   render() {
     const { buckets } = this.props
     const headers = [
@@ -377,11 +387,17 @@ class Buckets extends Component {
           />
           <div className={styles.choiceWrapper}>
             <CardChoice
-              selected={true}
+              onClick={this.handleChooseClassification}
+              selected={this.state.choice === Collection.CLASSIFICATION}
               title="Classification"
               image={classification}
             />
-            <CardChoice title="Localization" image={localization} />
+            <CardChoice
+              onClick={this.handleChooseLocalization}
+              selected={this.state.choice === Collection.LOCALIZATION}
+              title="Localization"
+              image={localization}
+            />
           </div>
         </Modal>
 

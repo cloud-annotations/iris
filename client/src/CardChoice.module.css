@@ -1,11 +1,12 @@
 .wrapper {
   background-color: #f4f7fb;
-  padding: 14px 16px 16px 16px;
+  padding: 12px 14px 14px 14px;
+  border: solid 2px transparent;
 }
 
 .wrapperActive {
   composes: wrapper;
-  border: solid 2px #3f72b0;
+  border-color: #3f72b0;
 }
 
 .titleWrapper {
