@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 // import fetchImage from 'api/fetchImage'
 import Canvas from 'common/Canvas/Canvas'
 import ImageTileV2 from './ImageTileV2'
+import CrossHair from './CrossHair'
 import HorizontalListController from 'common/HorizontalList/HorizontalListController'
 
 import styles from './Localization.module.css'
@@ -106,6 +107,7 @@ export default class App extends Component {
       <div>
         <div
           style={{
+            backgroundColor: '#f4f7fb',
             position: 'absolute',
             bottom: '117px',
             left: '0',
@@ -116,13 +118,27 @@ export default class App extends Component {
             alignItems: 'center'
           }}
         >
-          <Canvas
-            mode={this.state.mode}
-            bboxes={this.state.bboxes}
-            image={this.state.image}
-            onDrawStarted={this.handleDrawStarted}
-            onCoordinatesChanged={this.handleCoordinatesChanged}
-            onImageDimensionChanged={this.handleImageDimensionChanged}
+          <CrossHair
+            children={
+              <div
+                style={{
+                  height: '100%',
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}
+              >
+                <Canvas
+                  mode={this.state.mode}
+                  bboxes={this.state.bboxes}
+                  image={this.state.image}
+                  onDrawStarted={this.handleDrawStarted}
+                  onCoordinatesChanged={this.handleCoordinatesChanged}
+                  onImageDimensionChanged={this.handleImageDimensionChanged}
+                />
+              </div>
+            }
           />
         </div>
         <div className={styles.sidebar}>

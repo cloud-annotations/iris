@@ -256,12 +256,14 @@ export default class App extends Component {
           {/* Depending on which bucket type */}
           {collection.type === Collection.LOCALIZATION ? (
             <Localization
+              history={this.props.history}
               collection={collection}
               currentSection={currentSection}
               bucket={bucket}
             />
           ) : (
             <Classification
+              history={this.props.history}
               loading={loading}
               collection={collection}
               currentSection={currentSection}
