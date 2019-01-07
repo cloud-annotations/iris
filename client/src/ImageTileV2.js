@@ -4,9 +4,12 @@ import styles from './ImageTileV2.module.css'
 
 export default class ImageTile extends Component {
   state = {
+    loaded: false,
     image:
       'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
   }
+
+  imageRef = React.createRef()
 
   // MARK: - Life cycle methods
 
@@ -19,18 +22,33 @@ export default class ImageTile extends Component {
   }
 
   componentDidMount() {
-    const { bucket, item } = this.props
     console.log("Hello, I'm a new kid.")
-    fetchImage(localStorage.getItem('loginUrl'), bucket, item)
-      .then(res => {
-        this.setState(res)
-        if (this.props.selected) {
-          this.props.onImageSelected(res.image)
-        }
-      })
-      .catch(error => {
-        console.error(error)
-      })
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.0
+    }
+    this.observer = new IntersectionObserver(this.handleObserver, options)
+    this.observer.observe(this.imageRef.current)
+  }
+
+  handleObserver = (entries, observer) => {
+    const { bucket, item } = this.props
+
+    entries.forEach(entry => {
+      if (entry.isIntersecting & !this.state.loaded) {
+        fetchImage(localStorage.getItem('loginUrl'), bucket, item)
+          .then(res => {
+            this.setState({ ...res, loaded: true })
+            if (this.props.selected) {
+              this.props.onImageSelected(res.image)
+            }
+          })
+          .catch(error => {
+            console.error(error)
+          })
+      }
+    })
   }
 
   render() {
@@ -38,6 +56,7 @@ export default class ImageTile extends Component {
     return (
       <div className={selected ? styles.selected : styles.container}>
         <img
+          ref={this.imageRef}
           draggable={false}
           className={styles.image}
           alt=""
