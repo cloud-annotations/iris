@@ -55,13 +55,13 @@ export default class HorizontalListController extends Component {
       return
     }
 
+    e.preventDefault()
     const max = scrollElement.scrollWidth - scrollElement.offsetWidth
-    const scrollPosition = scrollElement.scrollLeft + e.deltaX
-
-    if (scrollPosition < 0 || scrollPosition > max) {
-      e.preventDefault()
-      scrollElement.scrollLeft = Math.max(0, Math.min(max, scrollPosition))
-    }
+    const scrollPosition =
+      Math.abs(e.deltaX) > Math.abs(e.deltaY)
+        ? scrollElement.scrollLeft + e.deltaX
+        : scrollElement.scrollLeft + e.deltaY
+    scrollElement.scrollLeft = Math.max(0, Math.min(max, scrollPosition))
   }
 
   handleItemSelected = (e, index) => {
