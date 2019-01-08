@@ -4,7 +4,6 @@ import styles from './ImageTileV2.module.css'
 
 export default class ImageTile extends PureComponent {
   state = {
-    loaded: false,
     image:
       'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
   }
