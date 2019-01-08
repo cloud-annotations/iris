@@ -7,9 +7,9 @@ export default class HorizontalListItem extends PureComponent {
   }
 
   render() {
-    const { listItem, style } = this.props
+    const { listItem, style, id } = this.props
     return (
-      <div style={style} onClick={this.handleClick}>
+      <div id={id} style={style} onClick={this.handleClick}>
         {listItem}
       </div>
     )

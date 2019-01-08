@@ -36,15 +36,23 @@ export default class HorizontalListController extends Component {
   handleKeyDown = e => {
     const { onSelectionChanged, selection, delegate } = this.props
     const charCode = String.fromCharCode(e.which).toLowerCase()
+    const left = Math.max(selection - 1, 0)
+    const right = Math.min(selection + 1, delegate.numberOfItems - 1)
     if (e.which === 39) {
       e.preventDefault()
-      onSelectionChanged(Math.min(selection + 1, delegate.numberOfItems - 1))
+      onSelectionChanged(right)
+      const target = document.getElementById(delegate.keyForItemAt(right))
+      target.parentNode.scrollLeft = target.offsetLeft
     } else if (e.which === 37) {
       e.preventDefault()
-      onSelectionChanged(Math.max(selection - 1, 0))
+      onSelectionChanged(left)
+      const target = document.getElementById(delegate.keyForItemAt(left))
+      target.parentNode.scrollLeft = target.offsetLeft
     } else if (charCode === ' ') {
       e.preventDefault()
-      onSelectionChanged(Math.min(selection + 1, delegate.numberOfItems - 1))
+      onSelectionChanged(right)
+      const target = document.getElementById(delegate.keyForItemAt(right))
+      target.parentNode.scrollLeft = target.offsetLeft
     }
   }
 
@@ -90,6 +98,7 @@ export default class HorizontalListController extends Component {
           return (
             <HorizontalListItem
               index={i}
+              id={delegate.keyForItemAt(i)}
               key={delegate.keyForItemAt(i)}
               style={{ height: '80px', margin: '0 8px' }}
               onItemSelected={this.handleItemSelected}
