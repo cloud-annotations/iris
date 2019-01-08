@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import fetchImage from 'api/fetchImage'
 import styles from './ImageTileV2.module.css'
 
-export default class ImageTile extends Component {
+export default class ImageTile extends PureComponent {
   state = {
     loaded: false,
     image:

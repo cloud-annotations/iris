@@ -1,6 +1,6 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 
-export default class HorizontalListItem extends Component {
+export default class HorizontalListItem extends PureComponent {
   handleClick = e => {
     const { onItemSelected, index } = this.props
     onItemSelected(e, index)

@@ -245,6 +245,7 @@ const HorizontalListControllerDelegate = (
 ) => {
   return {
     numberOfItems: images.length,
+    keyForDataSet: images,
     keyForItemAt: index => images[index],
     cellForItemAt: (index, selected) => (
       <ImageTileV2

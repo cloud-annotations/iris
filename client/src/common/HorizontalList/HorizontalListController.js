@@ -1,8 +1,27 @@
 import React, { Component } from 'react'
 import HorizontalListItem from './HorizontalListItem'
 
+const quickEquals = (array1, array2) => {
+  if (!array1) return false
+  if (!array2) return false
+  if (array1.length !== array2.length) return false
+  for (let i = 0; i < array1.length; i++) {
+    if (array1[i] !== array2[i]) return false
+  }
+  return true
+}
+
 export default class HorizontalListController extends Component {
   horizontalScrollRef = React.createRef()
+
+  shouldComponentUpdate(nextProps) {
+    return (
+      !quickEquals(
+        nextProps.delegate.keyForDataSet,
+        this.props.delegate.keyForDataSet
+      ) || nextProps.selection !== this.props.selection
+    )
+  }
 
   componentDidMount() {
     document.addEventListener('mousewheel', this.blockSwipeBack, false)
@@ -63,15 +82,18 @@ export default class HorizontalListController extends Component {
           borderTop: '1px solid #dfe3e6'
         }}
       >
-        {[...Array(delegate.numberOfItems)].map((_, i) => (
-          <HorizontalListItem
-            index={i}
-            key={delegate.keyForItemAt(i)}
-            style={{ height: '80px', margin: '0 8px' }}
-            onItemSelected={this.handleItemSelected}
-            listItem={delegate.cellForItemAt(i, selection === i)}
-          />
-        ))}
+        {[...Array(delegate.numberOfItems)].map((_, i) => {
+          console.log('im doing real work')
+          return (
+            <HorizontalListItem
+              index={i}
+              key={delegate.keyForItemAt(i)}
+              style={{ height: '80px', margin: '0 8px' }}
+              onItemSelected={this.handleItemSelected}
+              listItem={delegate.cellForItemAt(i, selection === i)}
+            />
+          )
+        })}
       </div>
     )
   }
