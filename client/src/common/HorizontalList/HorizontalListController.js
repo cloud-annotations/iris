@@ -35,12 +35,16 @@ export default class HorizontalListController extends Component {
 
   handleKeyDown = e => {
     const { onSelectionChanged, selection, delegate } = this.props
+    const charCode = String.fromCharCode(e.which).toLowerCase()
     if (e.which === 39) {
       e.preventDefault()
       onSelectionChanged(Math.min(selection + 1, delegate.numberOfItems - 1))
     } else if (e.which === 37) {
       e.preventDefault()
       onSelectionChanged(Math.max(selection - 1, 0))
+    } else if (charCode === ' ') {
+      e.preventDefault()
+      onSelectionChanged(Math.min(selection + 1, delegate.numberOfItems - 1))
     }
   }
 
@@ -83,7 +87,6 @@ export default class HorizontalListController extends Component {
         }}
       >
         {[...Array(delegate.numberOfItems)].map((_, i) => {
-          console.log('im doing real work')
           return (
             <HorizontalListItem
               index={i}

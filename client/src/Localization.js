@@ -14,11 +14,20 @@ export default class App extends Component {
     imageWidth: 0,
     imageHeight: 0,
     bboxes: [],
+    labelIndex: 0,
     label: this.props.collection.labels[0],
     mode: 'box'
   }
 
   // MARK: - Life cycle methods
+
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeyDown)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeyDown)
+  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentSection !== this.props.currentSection) {
@@ -27,6 +36,21 @@ export default class App extends Component {
   }
 
   // MARK: - Event listeners
+
+  handleKeyDown = event => {
+    const charCode = String.fromCharCode(event.which).toLowerCase()
+    if (charCode === 'q') {
+      event.preventDefault()
+      this.setState(prevState => {
+        const newIndex =
+          (prevState.labelIndex + 1) % this.props.collection.labels.length
+        return {
+          labelIndex: newIndex,
+          label: this.props.collection.labels[newIndex]
+        }
+      })
+    }
+  }
 
   handleImageSelected = data => {
     const { collection, currentSection } = this.props
