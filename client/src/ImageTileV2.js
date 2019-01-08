@@ -32,14 +32,19 @@ export default class ImageTile extends PureComponent {
     this.observer.observe(this.imageRef.current)
   }
 
+  componentWillUnmount() {
+    this.observer.unobserve(this.imageRef.current)
+  }
+
   handleObserver = (entries, observer) => {
     const { bucket, item } = this.props
 
     entries.forEach(entry => {
-      if (entry.isIntersecting & !this.state.loaded) {
+      if (entry.isIntersecting) {
+        observer.unobserve(entry.target)
         fetchImage(localStorage.getItem('loginUrl'), bucket, item)
           .then(res => {
-            this.setState({ ...res, loaded: true })
+            this.setState(res)
             if (this.props.selected) {
               this.props.onImageSelected(res.image)
             }
