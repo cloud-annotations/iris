@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import Canvas from 'common/Canvas/Canvas'
 import ImageTileV2 from './ImageTileV2'
 import CrossHair from './CrossHair'
+import ToolsPanel from './ToolsPanel'
 import HorizontalListController from 'common/HorizontalList/HorizontalListController'
 
 import styles from './Localization.module.css'
@@ -136,10 +137,7 @@ export default class App extends Component {
             bottom: '117px',
             left: '0',
             right: '209px',
-            top: '0',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center'
+            top: '0'
           }}
         >
           <CrossHair
@@ -165,87 +163,17 @@ export default class App extends Component {
             }
           />
         </div>
-        <div className={styles.sidebar}>
-          <div>Tools</div>
-          <div className={styles.tools}>
-            <div
-              className={
-                this.state.mode === 'move'
-                  ? styles.activeToolWrapper
-                  : styles.toolWrapper
-              }
-              onClick={() => {
-                this.handleModeChanged('move')
-              }}
-            >
-              <svg
-                className={styles.move}
-                width="20"
-                height="20"
-                viewBox="0 0 40 40"
-              >
-                <path d="M19,11h2V29H19V11Zm-8,8H29v2H11V19ZM21,35H19l-4-6H25ZM35,19v2l-6,4V15ZM5,21V19l6-4V25ZM19,5h2l4,6H15Z" />
-              </svg>
-            </div>
-            <div
-              className={
-                this.state.mode === 'box'
-                  ? styles.activeToolWrapper
-                  : styles.toolWrapper
-              }
-              onClick={() => {
-                this.handleModeChanged('box')
-              }}
-            >
-              <svg
-                className={styles.box}
-                width="20"
-                height="20"
-                viewBox="0 0 40 40"
-              >
-                <rect x="4" y="8" width="32" height="24" />
-              </svg>
-            </div>
-          </div>
-          <div>{`Label: ${this.state.label}`}</div>
-          {this.props.collection.labels.map(label => (
-            <button value={label} onClick={this.handleLabelChanged}>
-              {label}
-            </button>
-          ))}
-          {this.state.bboxes
-            .sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase())
-            .map(box => {
-              const imageHeight = this.state.imageHeight
-              const imageWidth = this.state.imageWidth
-
-              const cropHeight = 20
-              const cropWidth = 30
-
-              const scale = cropWidth / ((box.x2 - box.x) * imageWidth)
-              const objHeight = scale * (box.y2 - box.y) * imageHeight
-              const centerOffset = (cropHeight - objHeight) / 2
-              const xOffset = -box.x * scale * imageWidth
-              const yOffset = -box.y * scale * imageHeight
-              const backgroundSize = scale * (100 / cropWidth) * imageWidth
-
-              return (
-                <div>
-                  <div
-                    style={{
-                      backgroundImage: `url(${this.state.image})`,
-                      height: `${cropHeight}px`,
-                      width: `${cropWidth}px`,
-                      backgroundPosition: `${xOffset}px ${yOffset +
-                        centerOffset}px`,
-                      backgroundSize: `${backgroundSize}%`
-                    }}
-                  />
-                  <div>{box.label}</div>
-                </div>
-              )
-            })}
-        </div>
+        <ToolsPanel
+          labels={this.props.collection.labels}
+          mode={this.state.mode}
+          label={this.state.label}
+          bboxes={this.state.bboxes}
+          imageHeight={this.state.imageHeight}
+          imageWidth={this.state.imageWidth}
+          image={this.state.image}
+          onModeChanged={this.handleModeChanged}
+          onLabelChanged={this.handleLabelChanged}
+        />
         <HorizontalListController
           delegate={HorizontalListControllerDelegate(
             this.handleImageSelected,

@@ -1,0 +1,76 @@
+.sidebar {
+  position: absolute;
+  border-left: 1px solid #dfe3e6;
+  width: 209px;
+  top: 0;
+  bottom: 117px;
+  right: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sectionText {
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #5a6872;
+  opacity: 0.5;
+  padding: 9px 0;
+  line-height: 23px;
+}
+
+.labelText {
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #162934;
+  /* padding: 9px 0;
+  line-height: 23px; */
+}
+
+.tools {
+  display: flex;
+}
+
+.toolWrapper {
+  background-color: transparent;
+  height: 26px;
+  width: 26px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
+
+.activeToolWrapper {
+  composes: toolWrapper;
+  background-color: #4e7cb6;
+}
+
+.box {
+  fill: #4e7cb6;
+  fill-opacity: 0.2;
+  stroke: #4e7cb6;
+  stroke-width: 2px;
+}
+
+.move {
+  fill: #4e7cb6;
+}
+
+.activeToolWrapper .box {
+  fill: #ffffff;
+  stroke: #ffffff;
+}
+
+.activeToolWrapper .move {
+  fill: #ffffff;
+}
+
+.annotationWrapper {
+  display: flex;
+  margin: 0 0 12px 0;
+}
