@@ -2,6 +2,8 @@
   "name": "watson-ml",
   "version": "0.1.0",
   "scripts": {
+    "client-remove": "cd client && yarn remove",
+    "client-add": "cd client && yarn add",
     "client": "cd client && yarn start",
     "build": "cd client && npm run build",
     "deploy": "yarn build && ./deploy.sh",

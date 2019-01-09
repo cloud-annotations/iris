@@ -2,6 +2,8 @@ import React, { PureComponent } from 'react'
 import fetchImage from 'api/fetchImage'
 import styles from './ImageTileV2.module.css'
 
+import 'intersection-observer'
+
 export default class ImageTile extends PureComponent {
   state = {
     image:
