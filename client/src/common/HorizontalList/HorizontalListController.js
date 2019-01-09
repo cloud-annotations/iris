@@ -42,17 +42,20 @@ export default class HorizontalListController extends Component {
       e.preventDefault()
       onSelectionChanged(right)
       const target = document.getElementById(delegate.keyForItemAt(right))
-      target.parentNode.scrollLeft = target.offsetLeft
+      target.parentNode.scrollLeft =
+        target.offsetLeft - (target.parentNode.offsetWidth / 2 - 208)
     } else if (e.which === 37) {
       e.preventDefault()
       onSelectionChanged(left)
       const target = document.getElementById(delegate.keyForItemAt(left))
-      target.parentNode.scrollLeft = target.offsetLeft
+      target.parentNode.scrollLeft =
+        target.offsetLeft - (target.parentNode.offsetWidth / 2 - 208)
     } else if (charCode === ' ') {
       e.preventDefault()
       onSelectionChanged(right)
       const target = document.getElementById(delegate.keyForItemAt(right))
-      target.parentNode.scrollLeft = target.offsetLeft
+      target.parentNode.scrollLeft =
+        target.offsetLeft - (target.parentNode.offsetWidth / 2 - 208)
     }
   }
 
