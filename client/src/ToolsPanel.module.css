@@ -5,7 +5,9 @@
   top: 0;
   bottom: 117px;
   right: 0;
+  padding: 8px 12px 0 12px;
   overflow: auto;
+  overflow-x: none;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -26,8 +28,11 @@
   font-size: 14px;
   font-weight: 500;
   color: #162934;
-  /* padding: 9px 0;
-  line-height: 23px; */
+  margin-left: 12px;
+}
+
+.dropDownWrapper {
+  margin: 20px 0;
 }
 
 .tools {
@@ -72,5 +77,6 @@
 
 .annotationWrapper {
   display: flex;
+  align-items: center;
   margin: 0 0 12px 0;
 }

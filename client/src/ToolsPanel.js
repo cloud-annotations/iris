@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import DropDown from './DropDown'
 import styles from './ToolsPanel.module.css'
 
 export default class ToolsPanel extends Component {
@@ -53,12 +54,9 @@ export default class ToolsPanel extends Component {
             </svg>
           </div>
         </div>
-        <div>{`Label: ${label}`}</div>
-        {/* {labels.map(label => (
-            <button value={label} onClick={onLabelChanged}>
-              {label}
-            </button>
-          ))} */}
+        <div className={styles.dropDownWrapper}>
+          <DropDown label={label} labels={labels} onItemChosen={() => {}} />
+        </div>
         <div className={styles.sectionText}>Annotations</div>
         {bboxes
           .sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase())
@@ -85,7 +83,7 @@ export default class ToolsPanel extends Component {
                     backgroundSize: `${backgroundSize}%`
                   }}
                 />
-                <div>{box.label}</div>
+                <div className={styles.labelText}>{box.label}</div>
               </div>
             )
           })}

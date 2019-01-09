@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
-import './Template.css'
+import styles from './Template.module.css'
 
-class Template extends Component {
+export default class Template extends Component {
   render() {
     return <div>Template</div>
   }
 }
-
-export default Template
