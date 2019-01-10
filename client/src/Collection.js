@@ -39,15 +39,19 @@ export default class Collection {
         collection.images.all = [...unlabeled, ...labeled]
         return collection
       } else {
-        return Promise.reject(Collection.UNDEFINED_COLLECTION)
-        // return {
-        //   type: '',
-        //   labels: [],
-        //   images: { all: images, labeled: [], unlabeled: images },
-        //   annotations: {}
-        // }
+        // return Promise.reject(Collection.UNDEFINED_COLLECTION)
+        return {
+          type: null,
+          labels: [],
+          images: { all: images, labeled: [], unlabeled: images },
+          annotations: {}
+        }
       }
     })
+  }
+
+  setType(type) {
+    return new Collection(type, this.#labels, this.#images, this.#annotations)
   }
 
   get type() {

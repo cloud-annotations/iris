@@ -33,18 +33,21 @@ export default class App extends Component {
     Collection.load(endpoint, bucket)
       .then(({ type, labels, images, annotations }) => {
         const collection = new Collection(type, labels, images, annotations)
-        console.log(JSON.stringify(collection))
-        this.setState({
-          collection: collection,
-          loading: false
-        })
+        if (collection.type === null) {
+          this.setState({
+            collection: collection,
+            loading: false,
+            modalActive: true
+          })
+        } else {
+          this.setState({
+            collection: collection,
+            loading: false
+          })
+        }
       })
       .catch(error => {
-        if (error === Collection.UNDEFINED_COLLECTION) {
-          this.setState({ modalActive: true })
-        } else {
-          console.error(error)
-        }
+        console.error(error)
       })
 
     this.state = {
@@ -161,7 +164,10 @@ export default class App extends Component {
   }
 
   handleChoiceMade = () => {
-    this.setState({ modalActive: false })
+    this.setState(prevState => {
+      const collection = prevState.collection.setType(prevState.choice)
+      return { collection: collection, modalActive: false }
+    })
   }
 
   handleCloseModal = () => {
@@ -254,22 +260,31 @@ export default class App extends Component {
           </div>
 
           {/* Depending on which bucket type */}
-          {collection.type === Collection.LOCALIZATION ? (
-            <Localization
-              history={this.props.history}
-              collection={collection}
-              currentSection={currentSection}
-              bucket={bucket}
-            />
-          ) : (
-            <Classification
-              history={this.props.history}
-              loading={loading}
-              collection={collection}
-              currentSection={currentSection}
-              bucket={bucket}
-            />
-          )}
+          {(() => {
+            switch (collection.type) {
+              case Collection.LOCALIZATION:
+                return (
+                  <Localization
+                    history={this.props.history}
+                    collection={collection}
+                    currentSection={currentSection}
+                    bucket={bucket}
+                  />
+                )
+              case Collection.CLASSIFICATION:
+                return (
+                  <Classification
+                    history={this.props.history}
+                    loading={loading}
+                    collection={collection}
+                    currentSection={currentSection}
+                    bucket={bucket}
+                  />
+                )
+              default:
+                return null
+            }
+          })()}
         </Dropzone>
       </div>
     )
