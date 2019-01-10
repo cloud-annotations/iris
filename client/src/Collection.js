@@ -50,7 +50,9 @@ export default class Collection {
     })
   }
 
-  setType(type) {
+  setType(type, syncComplete) {
+    // TODO: Actually sync the changes.
+    setTimeout(syncComplete, 3000)
     return new Collection(type, this.#labels, this.#images, this.#annotations)
   }
 

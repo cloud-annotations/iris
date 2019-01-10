@@ -163,10 +163,17 @@ export default class App extends Component {
     this.setState({ loading: false })
   }
 
+  handleSyncComplete = () => {
+    this.setState({ saved: true })
+  }
+
   handleChoiceMade = () => {
     this.setState(prevState => {
-      const collection = prevState.collection.setType(prevState.choice)
-      return { collection: collection, modalActive: false }
+      const collection = prevState.collection.setType(
+        prevState.choice,
+        this.handleSyncComplete
+      )
+      return { saved: false, collection: collection, modalActive: false }
     })
   }
 
