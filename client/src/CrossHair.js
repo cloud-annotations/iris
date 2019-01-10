@@ -24,37 +24,35 @@ export default class CrossHair extends Component {
     document.removeEventListener('mousemove', this.handleMouseMove)
   }
 
-  handleMouseLeave = () => {
-    this.centerDotRef.current.style.visibility = 'hidden'
+  setVisibility = visibility => {
+    this.centerDotRef.current.style.visibility = visibility
 
-    this.centerLeftRef.current.style.visibility = 'hidden'
-    this.centerRightRef.current.style.visibility = 'hidden'
-    this.centerTopRef.current.style.visibility = 'hidden'
-    this.centerBottomRef.current.style.visibility = 'hidden'
+    this.centerLeftRef.current.style.visibility = visibility
+    this.centerRightRef.current.style.visibility = visibility
+    this.centerTopRef.current.style.visibility = visibility
+    this.centerBottomRef.current.style.visibility = visibility
 
-    this.crosshairLeftRef.current.style.visibility = 'hidden'
-    this.crosshairRightRef.current.style.visibility = 'hidden'
-    this.crosshairTopRef.current.style.visibility = 'hidden'
-    this.crosshairBottomRef.current.style.visibility = 'hidden'
+    this.crosshairLeftRef.current.style.visibility = visibility
+    this.crosshairRightRef.current.style.visibility = visibility
+    this.crosshairTopRef.current.style.visibility = visibility
+    this.crosshairBottomRef.current.style.visibility = visibility
   }
 
   handleMouseEnter = () => {
-    this.centerDotRef.current.style.visibility = 'visible'
+    this.setVisibility('visible')
+  }
 
-    this.centerLeftRef.current.style.visibility = 'visible'
-    this.centerRightRef.current.style.visibility = 'visible'
-    this.centerTopRef.current.style.visibility = 'visible'
-    this.centerBottomRef.current.style.visibility = 'visible'
-
-    this.crosshairLeftRef.current.style.visibility = 'visible'
-    this.crosshairRightRef.current.style.visibility = 'visible'
-    this.crosshairTopRef.current.style.visibility = 'visible'
-    this.crosshairBottomRef.current.style.visibility = 'visible'
+  handleMouseLeave = () => {
+    this.setVisibility('hidden')
   }
 
   handleMouseMove = e => {
     if (!this.wrapperRef.current) {
       return
+    }
+
+    if (this.wrapperRef.current.contains(e.target)) {
+      this.setVisibility('visible')
     }
 
     const rect = this.wrapperRef.current.getBoundingClientRect()
@@ -86,9 +84,9 @@ export default class CrossHair extends Component {
   }
 
   render() {
-    const { active } = this.props
+    const { active, children, color } = this.props
     if (!active) {
-      return this.props.children
+      return children
     }
     return (
       <div
@@ -97,14 +95,34 @@ export default class CrossHair extends Component {
         onMouseEnter={this.handleMouseEnter}
         className={styles.wrapper}
       >
-        {this.props.children}
+        {children}
 
-        <div ref={this.centerDotRef} className={styles.hairDot} />
+        <div
+          style={{ background: `padding-box ${color}` }}
+          ref={this.centerDotRef}
+          className={styles.hairDot}
+        />
 
-        <div ref={this.centerLeftRef} className={styles.hairCenterH} />
-        <div ref={this.centerRightRef} className={styles.hairCenterH} />
-        <div ref={this.centerTopRef} className={styles.hairCenterV} />
-        <div ref={this.centerBottomRef} className={styles.hairCenterV} />
+        <div
+          style={{ background: `padding-box ${color}` }}
+          ref={this.centerLeftRef}
+          className={styles.hairCenterH}
+        />
+        <div
+          style={{ background: `padding-box ${color}` }}
+          ref={this.centerRightRef}
+          className={styles.hairCenterH}
+        />
+        <div
+          style={{ background: `padding-box ${color}` }}
+          ref={this.centerTopRef}
+          className={styles.hairCenterV}
+        />
+        <div
+          style={{ background: `padding-box ${color}` }}
+          ref={this.centerBottomRef}
+          className={styles.hairCenterV}
+        />
 
         <div ref={this.crosshairLeftRef} className={styles.hairH} />
         <div ref={this.crosshairRightRef} className={styles.hairH} />

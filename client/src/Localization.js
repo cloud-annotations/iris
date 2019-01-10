@@ -50,6 +50,13 @@ export default class App extends Component {
           label: this.props.collection.labels[newIndex]
         }
       })
+    } else if (charCode === 'a') {
+      event.preventDefault()
+      this.setState(prevState => {
+        return {
+          mode: prevState.mode === 'move' ? 'box' : 'move'
+        }
+      })
     }
   }
 
@@ -141,6 +148,7 @@ export default class App extends Component {
           }}
         >
           <CrossHair
+            color={this.colorFromLabel(this.state.label)}
             active={this.state.mode === 'box'}
             children={
               <div
