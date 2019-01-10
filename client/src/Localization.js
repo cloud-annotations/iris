@@ -53,7 +53,6 @@ export default class App extends Component {
         }
       })
     } else if (event.ctrlKey || event.metaKey) {
-      event.preventDefault()
       this.setState({ mode: 'move' })
     }
   }
