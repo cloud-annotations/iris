@@ -24,10 +24,12 @@ export default class App extends Component {
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown)
+    document.addEventListener('keyup', this.handleKeyUp)
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown)
+    document.removeEventListener('keyup', this.handleKeyUp)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -50,14 +52,14 @@ export default class App extends Component {
           label: this.props.collection.labels[newIndex]
         }
       })
-    } else if (charCode === 'a') {
+    } else if (event.ctrlKey || event.metaKey) {
       event.preventDefault()
-      this.setState(prevState => {
-        return {
-          mode: prevState.mode === 'move' ? 'box' : 'move'
-        }
-      })
+      this.setState({ mode: 'move' })
     }
+  }
+
+  handleKeyUp = e => {
+    this.setState({ mode: 'box' })
   }
 
   handleImageSelected = data => {
