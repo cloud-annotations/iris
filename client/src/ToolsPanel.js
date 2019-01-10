@@ -61,14 +61,21 @@ export default class ToolsPanel extends Component {
         {bboxes
           .sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase())
           .map(box => {
+            const [x1, x2] = [box.x, box.x2].sort((a, b) => a - b)
+            const [y1, y2] = [box.y, box.y2].sort((a, b) => a - b)
+
             const cropHeight = 20
             const cropWidth = 30
 
-            const scale = cropWidth / ((box.x2 - box.x) * imageWidth)
-            const objHeight = scale * (box.y2 - box.y) * imageHeight
-            const centerOffset = (cropHeight - objHeight) / 2
-            const xOffset = -box.x * scale * imageWidth
-            const yOffset = -box.y * scale * imageHeight
+            // To prevent division by zero.
+            const boxWidth = Math.max((x2 - x1) * imageWidth, 1)
+            const boxHeight = Math.max((y2 - y1) * imageHeight, 1)
+
+            const scale = cropWidth / boxWidth
+            const scaledHeight = scale * boxHeight
+            const centerOffset = (cropHeight - scaledHeight) / 2
+            const xOffset = -x1 * scale * imageWidth
+            const yOffset = -y1 * scale * imageHeight
             const backgroundSize = scale * (100 / cropWidth) * imageWidth
 
             return (
