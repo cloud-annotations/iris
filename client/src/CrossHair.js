@@ -53,6 +53,10 @@ export default class CrossHair extends Component {
   }
 
   handleMouseMove = e => {
+    if (!this.wrapperRef.current) {
+      return
+    }
+
     const rect = this.wrapperRef.current.getBoundingClientRect()
     const mX = e.clientX - rect.left
     const mY = e.clientY - rect.top
@@ -82,6 +86,10 @@ export default class CrossHair extends Component {
   }
 
   render() {
+    const { active } = this.props
+    if (!active) {
+      return this.props.children
+    }
     return (
       <div
         ref={this.wrapperRef}

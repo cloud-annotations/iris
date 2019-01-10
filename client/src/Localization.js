@@ -141,6 +141,7 @@ export default class App extends Component {
           }}
         >
           <CrossHair
+            active={this.state.mode === 'box'}
             children={
               <div
                 style={{
