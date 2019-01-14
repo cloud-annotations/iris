@@ -31,7 +31,7 @@ class Sidebar extends Component {
     const { sectionList, onLabelAdded } = this.props
     const labelName = this.labelNameInput.value
     const trimmedCompare = sectionList.filter(label => {
-      return labelName.trim() === label.trim()
+      return labelName.trim() === label.name.trim()
     })
     if (labelName === '' || trimmedCompare.length > 0) {
       return

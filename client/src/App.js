@@ -33,7 +33,8 @@ export default class App extends Component {
     Collection.load(endpoint, bucket)
       .then(({ type, labels, images, annotations }) => {
         const collection = new Collection(type, labels, images, annotations)
-        if (collection.type === null) {
+        console.log(JSON.stringify(collection))
+        if (collection.type === undefined) {
           this.setState({
             collection: collection,
             loading: false,
@@ -52,7 +53,7 @@ export default class App extends Component {
 
     this.state = {
       collection: Collection.EMPTY,
-      choice: Collection.CLASSIFICATION,
+      choice: 'classification',
       saved: true,
       loading: true,
       modalActive: false,
@@ -155,9 +156,25 @@ export default class App extends Component {
     this.setState({ currentSection: label })
   }
 
-  handleLabelAdded = () => {}
+  handleLabelAdded = label => {
+    this.setState(prevState => {
+      const collection = prevState.collection.addLabel(
+        label,
+        this.handleSyncComplete
+      )
+      return { saved: false, collection: collection }
+    })
+  }
 
-  handleLabelDeleted = () => {}
+  handleLabelDeleted = label => {
+    this.setState(prevState => {
+      const collection = prevState.collection.removeLabel(
+        label,
+        this.handleSyncComplete
+      )
+      return { saved: false, collection: collection }
+    })
+  }
 
   handleDataLoaded = () => {
     this.setState({ loading: false })
@@ -182,11 +199,11 @@ export default class App extends Component {
   }
 
   handleChooseClassification = () => {
-    this.setState({ choice: Collection.CLASSIFICATION })
+    this.setState({ choice: 'classification' })
   }
 
   handleChooseLocalization = () => {
-    this.setState({ choice: Collection.LOCALIZATION })
+    this.setState({ choice: 'localization' })
   }
 
   render() {
@@ -220,13 +237,13 @@ export default class App extends Component {
           <div className={styles.choiceWrapper}>
             <CardChoice
               onClick={this.handleChooseClassification}
-              selected={this.state.choice === Collection.CLASSIFICATION}
+              selected={this.state.choice === 'classification'}
               title="Classification"
               image={classification}
             />
             <CardChoice
               onClick={this.handleChooseLocalization}
-              selected={this.state.choice === Collection.LOCALIZATION}
+              selected={this.state.choice === 'localization'}
               title="Localization"
               image={localization}
             />
@@ -269,7 +286,7 @@ export default class App extends Component {
           {/* Depending on which bucket type */}
           {(() => {
             switch (collection.type) {
-              case Collection.LOCALIZATION:
+              case 'localization':
                 return (
                   <Localization
                     history={this.props.history}
@@ -278,7 +295,7 @@ export default class App extends Component {
                     bucket={bucket}
                   />
                 )
-              case Collection.CLASSIFICATION:
+              case 'classification':
                 return (
                   <Classification
                     history={this.props.history}
