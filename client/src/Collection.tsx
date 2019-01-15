@@ -21,8 +21,7 @@ interface Annotation {
 }
 
 interface Annotations {
-  // We should remove the `bboxes` object and just have `Annotation[]`.
-  [key: string]: { bboxes: Annotation[] }
+  [key: string]: Annotation[]
 }
 
 type SyncCallback = () => void
@@ -50,7 +49,10 @@ export default class Collection {
     )
   }
 
-  public static load(endpoint: string, bucket: string): Promise<Collection> {
+  public static async load(
+    endpoint: string,
+    bucket: string
+  ): Promise<Collection> {
     const Bucket = new COS(endpoint).bucket(bucket)
     const collectionPromise = optional(Bucket.collection())
     const fileListPromise = Bucket.fileList()
@@ -114,12 +116,11 @@ export default class Collection {
       if (!this._annotations[image]) {
         return acc
       }
-      // This works for localization, but will be different for classification.
-      const imageAnnotations = this._annotations[image].bboxes.filter(
+      const imageAnnotations = this._annotations[image].filter(
         a => a.label !== label
       )
       if (imageAnnotations.length !== 0) {
-        acc[image] = { bboxes: imageAnnotations }
+        acc[image] = imageAnnotations
       }
       return acc
     }, {})
@@ -144,22 +145,64 @@ export default class Collection {
     return this._annotations
   }
 
-  public addAnnotation(
+  public setAnnotation(
     image: string,
-    annotation: Annotation,
+    annotation: Annotation[],
     syncComplete: SyncCallback
   ): Collection {
     setTimeout(syncComplete, 3000)
-    return Collection.EMPTY
-  }
+    const images = { ...this._images }
+    const annotations = { ...this._annotations }
 
-  public removeAnnotation(
-    image: string,
-    annotation: Annotation,
-    syncComplete: SyncCallback
-  ): Collection {
-    setTimeout(syncComplete, 3000)
-    return Collection.EMPTY
+    const oldLabels = (annotations[image] || []).reduce(
+      (acc: Set<string>, annotation: Annotation) => {
+        acc.add(annotation.label)
+        return acc
+      },
+      new Set()
+    )
+
+    const newLabels = annotation.reduce(
+      (acc: Set<string>, annotation: Annotation) => {
+        acc.add(annotation.label)
+        return acc
+      },
+      new Set()
+    )
+
+    const filteredImages = [...oldLabels].reduce(
+      (acc: Images, label: string) => {
+        // Remove image from any labels that it no longer has.
+        if (!newLabels.has(label)) {
+          acc[label] = acc[label].filter(i => i !== image)
+        }
+        return acc
+      },
+      images
+    )
+
+    const addedImages = [...newLabels].reduce((acc: Images, label: string) => {
+      // Add image to anything it didn't belong to.
+      if (!oldLabels.has(label)) {
+        acc[label] = [image, ...acc[label]]
+      }
+      return acc
+    }, filteredImages)
+
+    if (newLabels.size === 0) {
+      // The image is now unlabeled, remove it from the labeled category.
+      addedImages.labeled = addedImages.labeled.filter(i => i !== image)
+      // Add it to the unlabeled category.
+      addedImages.unlabeled = [...new Set([...addedImages.unlabeled, image])]
+    } else {
+      // The image is now labeled, remove it from the unlabeled category.
+      addedImages.unlabeled = addedImages.unlabeled.filter(i => i !== image)
+      // Add it to the labeled category.
+      addedImages.labeled = [...new Set([...addedImages.labeled, image])]
+    }
+
+    annotations[image] = annotation
+    return new Collection(this._type, this._labels, addedImages, annotations)
   }
 
   toJSON() {

@@ -33,6 +33,26 @@ export default class App extends Component {
     Collection.load(endpoint, bucket)
       .then(({ type, labels, images, annotations }) => {
         const collection = new Collection(type, labels, images, annotations)
+
+        // let obj = JSON.parse(JSON.stringify(collection))
+        // const _annotations = obj.annotations.reduce((acc, annotation, i) => {
+        //   acc[
+        //     obj.images.labeled[obj.images.labeled.length - 1 - i]
+        //   ] = annotation
+        //   return acc
+        // }, {})
+
+        // obj.annotations = _annotations
+        // console.log(JSON.stringify(obj))
+
+        // fucked this up... lol..
+        // let obj = JSON.parse(JSON.stringify(collection))
+        // const _annotations = Object.keys(obj.annotations).map(
+        //   key => obj.annotations[key].bboxes
+        // )
+
+        // obj.annotations = _annotations
+
         console.log(JSON.stringify(collection))
         if (collection.type === undefined) {
           this.setState({
@@ -176,6 +196,17 @@ export default class App extends Component {
     })
   }
 
+  handleAnnotationAdded = (image, boxes) => {
+    this.setState(prevState => {
+      const collection = prevState.collection.setAnnotation(
+        image,
+        boxes,
+        this.handleSyncComplete
+      )
+      return { saved: false, collection: collection }
+    })
+  }
+
   handleDataLoaded = () => {
     this.setState({ loading: false })
   }
@@ -292,6 +323,7 @@ export default class App extends Component {
                     history={this.props.history}
                     collection={collection}
                     currentSection={currentSection}
+                    onAnnotationAdded={this.handleAnnotationAdded}
                     bucket={bucket}
                   />
                 )

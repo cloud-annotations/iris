@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 // import fetchImage from 'api/fetchImage'
-import Canvas from 'common/Canvas/Canvas'
+import Canvas from './common/Canvas/Canvas'
 import ImageTileV2 from './ImageTileV2'
 import CrossHair from './CrossHair'
 import ToolsPanel from './ToolsPanel'
@@ -10,6 +10,7 @@ import styles from './Localization.module.css'
 
 export default class App extends Component {
   state = {
+    // editing: this.props.collection.images[this.props.currentSection][0],
     selection: 0,
     image: null,
     imageWidth: 0,
@@ -66,10 +67,8 @@ export default class App extends Component {
     const { selection } = this.state
 
     const image = collection.images[currentSection][selection]
-    const annotation = collection.annotations[image] || {
-      bboxes: []
-    }
-    const bboxes = annotation.bboxes.map(bbox => {
+    const annotations = collection.annotations[image] || []
+    const bboxes = annotations.map(bbox => {
       const color = this.colorFromLabel(bbox.label)
       return { ...bbox, color: color }
     })
@@ -100,6 +99,18 @@ export default class App extends Component {
     this.setState(prevState => {
       const bboxes = [...prevState.bboxes]
       bboxes[index] = bbox
+      return { bboxes: bboxes }
+    })
+  }
+
+  handleBoxFinished = (bbox, index) => {
+    const { selection } = this.state
+    const { onAnnotationAdded, collection, currentSection } = this.props
+    this.setState(prevState => {
+      const bboxes = [...prevState.bboxes]
+      bboxes[index] = bbox
+      const image = collection.images[currentSection][selection]
+      onAnnotationAdded(image, bboxes)
       return { bboxes: bboxes }
     })
   }
@@ -167,6 +178,7 @@ export default class App extends Component {
                   image={this.state.image}
                   onDrawStarted={this.handleDrawStarted}
                   onCoordinatesChanged={this.handleCoordinatesChanged}
+                  onBoxFinished={this.handleBoxFinished}
                   onImageDimensionChanged={this.handleImageDimensionChanged}
                 />
               </div>

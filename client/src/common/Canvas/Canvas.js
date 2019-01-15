@@ -133,7 +133,7 @@ export default class App extends Component {
   }
 
   handleDragEnd = e => {
-    const { onCoordinatesChanged, bboxes } = this.props
+    const { onBoxFinished, bboxes } = this.props
     const { dragging, box } = this.state
 
     if (!dragging) {
@@ -142,7 +142,7 @@ export default class App extends Component {
 
     const { x, y, x2, y2, ...rest } = bboxes[box]
 
-    onCoordinatesChanged(
+    onBoxFinished(
       {
         x: Math.min(x, x2),
         y: Math.min(y, y2),
