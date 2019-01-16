@@ -193,12 +193,12 @@ export default class Collection {
       // The image is now unlabeled, remove it from the labeled category.
       addedImages.labeled = addedImages.labeled.filter(i => i !== image)
       // Add it to the unlabeled category.
-      addedImages.unlabeled = [...new Set([...addedImages.unlabeled, image])]
+      addedImages.unlabeled = [...new Set([image, ...addedImages.unlabeled])]
     } else {
       // The image is now labeled, remove it from the unlabeled category.
       addedImages.unlabeled = addedImages.unlabeled.filter(i => i !== image)
       // Add it to the labeled category.
-      addedImages.labeled = [...new Set([...addedImages.labeled, image])]
+      addedImages.labeled = [...new Set([image, ...addedImages.labeled])]
     }
 
     const cleanedAnnotation = annotation.map(annotation => {

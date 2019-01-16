@@ -10,6 +10,7 @@ import styles from './Localization.module.css'
 
 export default class App extends Component {
   state = {
+    editing: this.props.collection.images[this.props.currentSection][0],
     selection: 0,
     image: null,
     imageWidth: 0,
@@ -34,8 +35,18 @@ export default class App extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentSection !== this.props.currentSection) {
-      this.setState({ selection: 0 })
+      this.setSelection(0, nextProps)
     }
+  }
+
+  // MARK: - Set selection
+
+  // This feels a bit hacky, however we need a way to persist the image we are
+  // editing when it's actual section changes.
+  setSelection = (selection, props) => {
+    const { collection, currentSection } = props
+    const editing = collection.images[currentSection][selection]
+    this.setState({ editing: editing, selection: selection })
   }
 
   // MARK: - Event listeners
@@ -62,11 +73,10 @@ export default class App extends Component {
   }
 
   handleImageSelected = data => {
-    const { collection, currentSection } = this.props
-    const { selection } = this.state
+    const { editing } = this.state
+    const { collection } = this.props
 
-    const image = collection.images[currentSection][selection]
-    const annotations = collection.annotations[image] || []
+    const annotations = collection.annotations[editing] || []
     const bboxes = annotations.map(bbox => {
       const color = this.colorFromLabel(bbox.label)
       return { ...bbox, color: color }
@@ -78,7 +88,7 @@ export default class App extends Component {
   }
 
   handleChangeSelection = selection => {
-    this.setState({ selection: selection })
+    this.setSelection(selection, this.props)
   }
 
   colorFromLabel = label => {
@@ -103,13 +113,12 @@ export default class App extends Component {
   }
 
   handleBoxFinished = (bbox, index) => {
-    const { selection } = this.state
-    const { onAnnotationAdded, collection, currentSection } = this.props
+    const { editing } = this.state
+    const { onAnnotationAdded } = this.props
     this.setState(prevState => {
       const bboxes = [...prevState.bboxes]
       bboxes[index] = bbox
-      const image = collection.images[currentSection][selection]
-      onAnnotationAdded(image, bboxes)
+      onAnnotationAdded(editing, bboxes)
       return { bboxes: bboxes }
     })
   }
@@ -140,8 +149,8 @@ export default class App extends Component {
   }
 
   handleDelete = box => {
-    const { selection } = this.state
-    const { onAnnotationAdded, collection, currentSection } = this.props
+    const { editing } = this.state
+    const { onAnnotationAdded } = this.props
 
     this.setState(prevState => {
       const bboxes = prevState.bboxes.filter(
@@ -152,8 +161,7 @@ export default class App extends Component {
           bbox.y2 !== box.y2 ||
           bbox.label !== box.label
       )
-      const image = collection.images[currentSection][selection]
-      onAnnotationAdded(image, bboxes)
+      onAnnotationAdded(editing, bboxes)
       return { bboxes: bboxes }
     })
   }
@@ -166,9 +174,21 @@ export default class App extends Component {
   }
 
   render() {
-    const { selection } = this.state
+    const { editing, selection } = this.state
     const { collection, currentSection, bucket } = this.props
-    const images = collection.images[currentSection]
+    const images = [...collection.images[currentSection]]
+    // If our list doesn't include the image we are editing, slip it in there.
+    let skipShimHackBad = false
+    if (editing && !images.includes(editing)) {
+      images.splice(selection, 0, editing)
+      skipShimHackBad = true
+    } else if (editing) {
+      const index = images.indexOf(editing)
+      if (index !== -1) {
+        images.splice(index, 1)
+      }
+      images.splice(selection, 0, editing)
+    }
     return (
       <div>
         <div
@@ -226,6 +246,7 @@ export default class App extends Component {
             images,
             bucket
           )}
+          skipShimHackBad={skipShimHackBad}
           selection={selection}
           onSelectionChanged={this.handleChangeSelection}
         />
