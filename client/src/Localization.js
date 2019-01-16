@@ -178,6 +178,9 @@ export default class App extends Component {
     const { collection, currentSection, bucket } = this.props
     const images = [...collection.images[currentSection]]
     // If our list doesn't include the image we are editing, slip it in there.
+    // This makes me queazy, but I can't think of a better approach.
+    // the other thing we could do is not sync until they change to a new photo
+    // but we could end up with a lot of data loss.
     let skipShimHackBad = false
     if (editing && !images.includes(editing)) {
       images.splice(selection, 0, editing)
