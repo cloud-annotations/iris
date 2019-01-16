@@ -314,6 +314,7 @@ export default class App extends Component {
                     loading={loading}
                     collection={collection}
                     currentSection={currentSection}
+                    onAnnotationAdded={this.handleAnnotationAdded}
                     bucket={bucket}
                   />
                 )

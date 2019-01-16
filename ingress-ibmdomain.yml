@@ -5,7 +5,7 @@ metadata:
 spec:
   tls:
   - hosts:
-    -  annotations.us-east.containers.appdomain.cloud
+    - annotations.us-east.containers.appdomain.cloud
     secretName: annotations
   rules:
   - host: annotations.us-east.containers.appdomain.cloud

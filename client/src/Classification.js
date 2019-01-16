@@ -29,7 +29,11 @@ export default class Classification extends Component {
     this.handleChangeSelection([])
   }
 
-  handleActionLabelImage = () => {}
+  handleActionLabelImage = label => {
+    // const { selection } = this.state
+    // const { onAnnotationAdded, collection, currentSection } = this.props
+    // onAnnotationAdded(collection.images[currentSection][selection], label)
+  }
 
   handleActionDeleteImages = () => {}
 

@@ -6,7 +6,8 @@
     "client-add": "cd client && yarn add",
     "client": "cd client && yarn start",
     "build": "cd client && npm run build",
-    "deploy": "yarn build && ./deploy.sh",
+    "deploy": "yarn build && export DEPLOY_TO=production && ./deploy.sh",
+    "stage": "yarn build && export DEPLOY_TO=staging && ./deploy.sh",
     "server": "nodemon server.js",
     "start": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },
