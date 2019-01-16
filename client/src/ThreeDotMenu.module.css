@@ -1,0 +1,68 @@
+.dots {
+  visibility: visible;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  fill: #5a6872;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.dots:hover {
+  opacity: 1;
+}
+
+.menuCard {
+  visibility: collapse;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: white;
+  z-index: 1;
+  box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: transform ease 100ms;
+  transform: scaleX(0.5) scaleY(0.5);
+  transform-origin: top right;
+}
+
+.menuCardActive {
+  composes: menuCard;
+  visibility: visible;
+  transform: scaleX(1) scaleY(1);
+}
+
+.menuItem {
+  padding: 6px 20px;
+  color: #152935;
+  font-size: 14px;
+  line-height: 23px;
+  font-weight: 500;
+}
+
+.menuItem:hover {
+  background-color: rgba(85, 150, 230, 0.1);
+  color: #3d70b2;
+}
+
+.menuItemDanger {
+  composes: menuItem;
+}
+
+.menuItemDanger:hover {
+  background-color: #e0182d;
+  color: #ffffff;
+}
+
+.menuItemDisabled {
+  composes: menuItem;
+  opacity: 0.2;
+}
+
+.menuItemDisabled:hover {
+  background-color: transparent;
+  color: #152935;
+}

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import DropDown from './DropDown'
 import styles from './ToolsPanel.module.css'
+import ThreeDotMenu from './ThreeDotMenu'
 
 export default class ToolsPanel extends Component {
   render() {
@@ -13,7 +14,8 @@ export default class ToolsPanel extends Component {
       imageWidth,
       image,
       onModeChanged,
-      onLabelChanged
+      onRelabel,
+      onDelete
     } = this.props
     return (
       <div className={styles.sidebar}>
@@ -91,6 +93,24 @@ export default class ToolsPanel extends Component {
                   }}
                 />
                 <div className={styles.labelText}>{box.label}</div>
+                <ThreeDotMenu
+                  items={[
+                    {
+                      text: 'Change label',
+                      type: 'disabled',
+                      onItemChosen: () => {
+                        onRelabel(box)
+                      }
+                    },
+                    {
+                      text: 'Delete',
+                      type: 'danger',
+                      onItemChosen: () => {
+                        onDelete(box)
+                      }
+                    }
+                  ]}
+                />
               </div>
             )
           })}

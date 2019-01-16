@@ -201,7 +201,23 @@ export default class Collection {
       addedImages.labeled = [...new Set([...addedImages.labeled, image])]
     }
 
-    annotations[image] = annotation
+    const cleanedAnnotation = annotation.map(annotation => {
+      switch (this._type) {
+        case 'localization':
+          return {
+            x: annotation.x,
+            x2: annotation.x2,
+            y: annotation.y,
+            y2: annotation.y2,
+            label: annotation.label
+          }
+        case 'classification':
+        default:
+          return { label: annotation.label }
+      }
+    })
+
+    annotations[image] = cleanedAnnotation
     return new Collection(this._type, this._labels, addedImages, annotations)
   }
 

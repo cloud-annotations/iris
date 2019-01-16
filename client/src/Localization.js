@@ -10,7 +10,6 @@ import styles from './Localization.module.css'
 
 export default class App extends Component {
   state = {
-    // editing: this.props.collection.images[this.props.currentSection][0],
     selection: 0,
     image: null,
     imageWidth: 0,
@@ -136,6 +135,29 @@ export default class App extends Component {
     })
   }
 
+  handleRelabel = box => {
+    console.log(box)
+  }
+
+  handleDelete = box => {
+    const { selection } = this.state
+    const { onAnnotationAdded, collection, currentSection } = this.props
+
+    this.setState(prevState => {
+      const bboxes = prevState.bboxes.filter(
+        bbox =>
+          bbox.x !== box.x ||
+          bbox.x2 !== box.x2 ||
+          bbox.y !== box.y ||
+          bbox.y2 !== box.y2 ||
+          bbox.label !== box.label
+      )
+      const image = collection.images[currentSection][selection]
+      onAnnotationAdded(image, bboxes)
+      return { bboxes: bboxes }
+    })
+  }
+
   handleImageDimensionChanged = (width, height) => {
     this.setState({
       imageWidth: width,
@@ -195,6 +217,8 @@ export default class App extends Component {
           image={this.state.image}
           onModeChanged={this.handleModeChanged}
           onLabelChanged={this.handleLabelChanged}
+          onRelabel={this.handleRelabel}
+          onDelete={this.handleDelete}
         />
         <HorizontalListController
           delegate={HorizontalListControllerDelegate(
