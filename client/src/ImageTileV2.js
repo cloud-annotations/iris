@@ -24,11 +24,7 @@ export default class ImageTile extends PureComponent {
 
   componentDidMount() {
     console.log("Hello, I'm a new kid.")
-    const options = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.0
-    }
+    const options = { root: null, rootMargin: '0px', threshold: 0.0 }
     this.observer = new IntersectionObserver(this.handleObserver, options)
     this.observer.observe(this.imageRef.current)
   }
