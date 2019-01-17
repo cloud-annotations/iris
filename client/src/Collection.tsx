@@ -226,6 +226,7 @@ export default class Collection {
     labelName: string,
     syncComplete: SyncCallback
   ): Collection {
+    setTimeout(syncComplete, 3000)
     const oldImages = { ...this._images }
     const annotations = { ...this._annotations }
 
@@ -254,6 +255,35 @@ export default class Collection {
     images.forEach(image => {
       annotations[image] = [{ label: labelName }]
     })
+
+    return new Collection(this._type, this._labels, newImages, annotations)
+  }
+
+  public unlabelImages(
+    images: string[],
+    syncComplete: SyncCallback
+  ): Collection {
+    setTimeout(syncComplete, 3000)
+    const oldImages = { ...this._images }
+    const annotations = { ...this._annotations }
+
+    const oldLabels = images.map(image => annotations[image])
+
+    const newImages = oldLabels.reduce((acc, oldLabel, i) => {
+      if (!oldLabel) {
+        return acc
+      }
+      const imagesForAnnotation = acc[oldLabel[0].label].filter(
+        image => image !== images[i]
+      )
+      acc[oldLabel[0].label] = imagesForAnnotation
+      return acc
+    }, oldImages)
+
+    const labeled = oldImages.labeled.filter(image => !images.includes(image))
+    newImages.labeled = labeled
+    const unlabeled = [...new Set([...images, ...oldImages.unlabeled])]
+    newImages.unlabeled = unlabeled
 
     return new Collection(this._type, this._labels, newImages, annotations)
   }

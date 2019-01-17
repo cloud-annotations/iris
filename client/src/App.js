@@ -198,6 +198,16 @@ export default class App extends Component {
     })
   }
 
+  handleImagesUnlabeled = images => {
+    this.setState(prevState => {
+      const collection = prevState.collection.unlabelImages(
+        images,
+        this.handleSyncComplete
+      )
+      return { saved: false, collection: collection }
+    })
+  }
+
   handleDataLoaded = () => {
     this.setState({ loading: false })
   }
@@ -327,6 +337,7 @@ export default class App extends Component {
                     collection={collection}
                     currentSection={currentSection}
                     onImagesLabeled={this.handleImagesLabeled}
+                    onImagesUnlabeled={this.handleImagesUnlabeled}
                     onLabelAdded={this.handleLabelAdded}
                     bucket={bucket}
                   />

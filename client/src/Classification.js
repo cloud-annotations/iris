@@ -40,6 +40,24 @@ export default class Classification extends Component {
     if (!collection.labels.includes(labelName)) {
       onLabelAdded(labelName)
     }
+    const images = this.getSelectedImages(selection, collection, currentSection)
+    onImagesLabeled(images, labelName)
+    this.handleClearSelection()
+  }
+
+  handleUnlabelImages = () => {
+    const { selection } = this.state
+    const { collection, currentSection, onImagesUnlabeled } = this.props
+    const images = this.getSelectedImages(selection, collection, currentSection)
+    onImagesUnlabeled(images)
+    this.handleClearSelection()
+  }
+
+  handleDeleteImages = () => {}
+
+  // MARK: - Getter methods
+
+  getSelectedImages = (selection, collection, currentSection) => {
     const visibleLabels = this.getVisibleLabels(
       collection.labels,
       currentSection
@@ -47,16 +65,8 @@ export default class Classification extends Component {
     const visibleImages = visibleLabels.reduce((acc, label) => {
       return [...acc, ...collection.images[label]]
     }, [])
-    const images = visibleImages.filter((_, i) => selection[i])
-    onImagesLabeled(images, labelName)
-    this.handleClearSelection()
+    return visibleImages.filter((_, i) => selection[i])
   }
-
-  handleUnlabelImages = () => {}
-
-  handleDeleteImages = () => {}
-
-  // MARK: - Getter methods
 
   getSelectionCount = selection => selection.filter(Boolean).length
 
