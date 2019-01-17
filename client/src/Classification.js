@@ -25,19 +25,21 @@ export default class Classification extends Component {
     this.setState({ selection: selection })
   }
 
-  handleActionClearSelection = () => {
+  handleClearSelection = () => {
     this.handleChangeSelection([])
   }
 
-  handleActionLabelImage = label => {
-    // const { selection } = this.state
-    // const { onAnnotationAdded, collection, currentSection } = this.props
-    // onAnnotationAdded(collection.images[currentSection][selection], label)
+  handleLabelChanged = labelName => {
+    const { collection, onLabelAdded } = this.props
+    if (!collection.labels.includes(labelName)) {
+      onLabelAdded(labelName)
+    }
+    // TODO: pass label up to app to sync to collection
   }
 
-  handleActionDeleteImages = () => {}
+  handleUnlabelImages = () => {}
 
-  handleActionCreateLabel = () => {}
+  handleDeleteImages = () => {}
 
   // MARK: - Getter methods
 
@@ -75,10 +77,10 @@ export default class Classification extends Component {
         <SelectionBar
           selectionCount={selectionCount}
           sections={visibleLabels}
-          deselectAll={this.handleActionClearSelection}
-          labelImages={this.handleActionLabelImage}
-          createLabel={this.handleActionCreateLabel}
-          deleteImages={this.handleActionDeleteImages}
+          deselectAll={this.handleClearSelection}
+          onItemChosen={this.handleLabelChanged}
+          unlabelImages={this.handleUnlabelImages}
+          deleteImages={this.handleDeleteImages}
         />
         <EmptySet show={!loading && isEmpty} />
         <GridControllerV2

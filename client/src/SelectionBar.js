@@ -3,81 +3,15 @@ import './SelectionBar.css'
 import DropDown from './DropDown'
 
 class SelectionBar extends Component {
-  state = {
-    showDropDown: false,
-    filter: ''
-  }
-
-  componentDidMount() {
-    document.addEventListener('mousedown', this.handleClickOutside)
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleClickOutside)
-  }
-
-  handleClickOutside = e => {
-    if (this.dropDownRef && !this.dropDownRef.contains(e.target)) {
-      this.filterFieldRef.value = ''
-      this.setState({
-        showDropDown: false,
-        filter: ''
-      })
-    }
-  }
-
-  filterList = (q, list) => {
-    const trimmed = q.trim()
-    if (trimmed === '') {
-      return list
-    }
-
-    return list
-      .filter(item => {
-        return item.toLowerCase().indexOf(trimmed.toLowerCase()) === 0
-      })
-      .sort((a, b) => {
-        return a.length - b.length
-      })
-  }
-
-  filterChange = e => {
-    this.setState({
-      filter: e.target.value
-    })
-  }
-
-  showDropDown = () => {
-    this.setState(
-      {
-        showDropDown: true
-      },
-      () => {
-        this.filterFieldRef.focus()
-      }
-    )
-  }
-
-  handleKeyPress = e => {
-    const { labelImages, createLabel, sections } = this.props
-
-    if (e.key === 'Enter') {
-      const onlyLabels = sections.filter(label => {
-        return label !== 'Unlabeled'
-      })
-
-      if (this.filterList(this.state.filter, onlyLabels).length === 0) {
-        createLabel(this.state.filter)
-        labelImages(this.state.filter)
-        return
-      }
-      const label = this.filterList(this.state.filter, onlyLabels)[0]
-      labelImages(label)
-    }
-  }
-
   render() {
-    const { selectionCount, sections, deleteImages, deselectAll } = this.props
+    const {
+      selectionCount,
+      sections,
+      onItemChosen,
+      unlabelImages,
+      deleteImages,
+      deselectAll
+    } = this.props
 
     const onlyLabels = sections.filter(label => {
       return label.toLowerCase() !== 'unlabeled'
@@ -88,13 +22,16 @@ class SelectionBar extends Component {
           <div className="SelectionBar-count">{`${selectionCount} selected`}</div>
         </div>
         <div className="">
-          <DropDown label="Label" labels={onlyLabels} bar />
+          <DropDown
+            label="Label"
+            labels={onlyLabels}
+            onItemChosen={onItemChosen}
+            bar
+          />
         </div>
         <div
           className="SelectionBar-Wrapper SelectionBar-Button"
-          onClick={() => {
-            alert('todo')
-          }}
+          onClick={unlabelImages}
         >
           <div>Unlabel</div>
         </div>
