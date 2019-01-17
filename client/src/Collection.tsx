@@ -221,6 +221,43 @@ export default class Collection {
     return new Collection(this._type, this._labels, addedImages, annotations)
   }
 
+  public labelImages(
+    images: string[],
+    labelName: string,
+    syncComplete: SyncCallback
+  ): Collection {
+    const oldImages = { ...this._images }
+    const annotations = { ...this._annotations }
+
+    const oldLabels = images.map(image => annotations[image])
+
+    const newImages = oldLabels.reduce((acc, oldLabel, i) => {
+      if (!oldLabel) {
+        return acc
+      }
+      const imagesForAnnotation = acc[oldLabel[0].label].filter(
+        image => image !== images[i]
+      )
+      acc[oldLabel[0].label] = imagesForAnnotation
+      return acc
+    }, oldImages)
+
+    newImages[labelName] = [...new Set([...images, ...oldImages[labelName]])]
+
+    const unlabeled = oldImages.unlabeled.filter(
+      image => !images.includes(image)
+    )
+    newImages.unlabeled = unlabeled
+    const labeled = [...new Set([...images, ...oldImages.labeled])]
+    newImages.labeled = labeled
+
+    images.forEach(image => {
+      annotations[image] = [{ label: labelName }]
+    })
+
+    return new Collection(this._type, this._labels, newImages, annotations)
+  }
+
   toJSON() {
     return {
       version: VERSION,

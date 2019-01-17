@@ -31,8 +31,6 @@ export default class GridController extends Component {
     intermediateSelection: null
   }
 
-  gridRef = React.createRef()
-
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('mouseup', this.handleDragEnd)
@@ -187,10 +185,11 @@ export default class GridController extends Component {
     )
   }
 
+  // Using react references caused issues when views in the grid dissapeared.
   calculateColumnCount = () =>
     parseInt(
       window
-        .getComputedStyle(this.gridRef.current, null)
+        .getComputedStyle(document.getElementById('grid'), null)
         .getPropertyValue('grid-template-columns')
         .split('px').length - 1,
       10
@@ -219,7 +218,7 @@ export default class GridController extends Component {
                     {delegate.titleForHeaderInSection(section)}
                   </div>
                 </div>
-                <div className={styles.grid} ref={this.gridRef}>
+                <div className={styles.grid} id="grid">
                   {[...Array(sectionCount)].map((_, index) => {
                     i++
                     const selected = mergedSelection[i]

@@ -15,7 +15,7 @@ export default class Classification extends Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentSection !== this.props.currentSection) {
-      this.handleActionClearSelection()
+      this.handleClearSelection()
     }
   }
 
@@ -30,11 +30,26 @@ export default class Classification extends Component {
   }
 
   handleLabelChanged = labelName => {
-    const { collection, onLabelAdded } = this.props
+    const { selection } = this.state
+    const {
+      collection,
+      currentSection,
+      onLabelAdded,
+      onImagesLabeled
+    } = this.props
     if (!collection.labels.includes(labelName)) {
       onLabelAdded(labelName)
     }
-    // TODO: pass label up to app to sync to collection
+    const visibleLabels = this.getVisibleLabels(
+      collection.labels,
+      currentSection
+    )
+    const visibleImages = visibleLabels.reduce((acc, label) => {
+      return [...acc, ...collection.images[label]]
+    }, [])
+    const images = visibleImages.filter((_, i) => selection[i])
+    onImagesLabeled(images, labelName)
+    this.handleClearSelection()
   }
 
   handleUnlabelImages = () => {}

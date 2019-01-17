@@ -187,6 +187,17 @@ export default class App extends Component {
     })
   }
 
+  handleImagesLabeled = (images, label) => {
+    this.setState(prevState => {
+      const collection = prevState.collection.labelImages(
+        images,
+        label,
+        this.handleSyncComplete
+      )
+      return { saved: false, collection: collection }
+    })
+  }
+
   handleDataLoaded = () => {
     this.setState({ loading: false })
   }
@@ -315,7 +326,7 @@ export default class App extends Component {
                     loading={loading}
                     collection={collection}
                     currentSection={currentSection}
-                    onAnnotationAdded={this.handleAnnotationAdded}
+                    onImagesLabeled={this.handleImagesLabeled}
                     onLabelAdded={this.handleLabelAdded}
                     bucket={bucket}
                   />
