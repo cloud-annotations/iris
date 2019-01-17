@@ -14,7 +14,7 @@ export default class App extends Component {
     image: null,
     imageWidth: 0,
     imageHeight: 0,
-    bboxes: [],
+    tmpBBoxes: null,
     selectedLabelName: this.props.collection.labels[0],
     mode: 'box'
   }
@@ -77,17 +77,8 @@ export default class App extends Component {
   }
 
   handleImageSelected = data => {
-    const { editing } = this.state
-    const { collection } = this.props
-
-    const annotations = collection.annotations[editing] || []
-    const bboxes = annotations.map(bbox => {
-      const color = this.colorFromLabel(bbox.label)
-      return { ...bbox, color: color }
-    })
     this.setState({
-      image: data,
-      bboxes: bboxes
+      image: data
     })
   }
 
@@ -104,31 +95,37 @@ export default class App extends Component {
   }
 
   handleCoordinatesChanged = (bbox, index) => {
+    const { collection } = this.props
     this.setState(prevState => {
-      const bboxes = [...prevState.bboxes]
+      const { editing, tmpBBoxes } = prevState
+      const _bboxes = tmpBBoxes || collection.annotations[editing] || []
+      const bboxes = [..._bboxes]
       bboxes[index] = bbox
-      return { bboxes: bboxes }
+      return { tmpBBoxes: bboxes }
     })
   }
 
   handleBoxFinished = (bbox, index) => {
-    const { editing } = this.state
-    const { onAnnotationAdded } = this.props
+    const { collection, onAnnotationAdded } = this.props
     this.setState(prevState => {
-      const bboxes = [...prevState.bboxes]
+      const { editing, tmpBBoxes } = prevState
+      const _bboxes = tmpBBoxes || collection.annotations[editing] || []
+      const bboxes = [..._bboxes]
       bboxes[index] = bbox
       onAnnotationAdded(editing, bboxes)
-      return { bboxes: bboxes }
+      return { tmpBBoxes: null }
     })
   }
 
   handleDrawStarted = bbox => {
-    const { selectedLabelName } = this.state
+    const { collection } = this.props
     this.setState(prevState => {
+      const { editing, tmpBBoxes, selectedLabelName } = prevState
       bbox.label = selectedLabelName
       bbox.color = this.colorFromLabel(selectedLabelName)
-      const bboxes = [bbox, ...prevState.bboxes]
-      return { bboxes: bboxes }
+      const _bboxes = tmpBBoxes || collection.annotations[editing] || []
+      const bboxes = [bbox, ..._bboxes]
+      return { tmpBBoxes: bboxes }
     })
   }
 
@@ -140,7 +137,6 @@ export default class App extends Component {
 
   handleLabelChanged = labelName => {
     const { collection, onLabelAdded } = this.props
-
     if (!collection.labels.includes(labelName)) {
       onLabelAdded(labelName)
     }
@@ -153,20 +149,17 @@ export default class App extends Component {
 
   handleDelete = box => {
     const { editing } = this.state
-    const { onAnnotationAdded } = this.props
+    const { collection, onAnnotationAdded } = this.props
 
-    this.setState(prevState => {
-      const bboxes = prevState.bboxes.filter(
-        bbox =>
-          bbox.x !== box.x ||
-          bbox.x2 !== box.x2 ||
-          bbox.y !== box.y ||
-          bbox.y2 !== box.y2 ||
-          bbox.label !== box.label
-      )
-      onAnnotationAdded(editing, bboxes)
-      return { bboxes: bboxes }
-    })
+    const bboxes = (collection.annotations[editing] || []).filter(
+      bbox =>
+        bbox.x !== box.x ||
+        bbox.x2 !== box.x2 ||
+        bbox.y !== box.y ||
+        bbox.y2 !== box.y2 ||
+        bbox.label !== box.label
+    )
+    onAnnotationAdded(editing, bboxes)
   }
 
   handleImageDimensionChanged = (width, height) => {
@@ -182,10 +175,10 @@ export default class App extends Component {
       selection,
       mode,
       selectedLabelName,
-      bboxes,
       image,
       imageHeight,
-      imageWidth
+      imageWidth,
+      tmpBBoxes
     } = this.state
     const { collection, currentSection, bucket } = this.props
     const images = [...collection.images[currentSection]]
@@ -206,6 +199,15 @@ export default class App extends Component {
     }
 
     const selectedLabelIndex = collection.labels.indexOf(selectedLabelName)
+
+    const bboxes = (tmpBBoxes || collection.annotations[editing] || []).map(
+      bbox => {
+        const color = this.colorFromLabel(bbox.label)
+        return { ...bbox, color: color }
+      }
+    )
+
+    console.log(bboxes)
 
     return (
       <div>
