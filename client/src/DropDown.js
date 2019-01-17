@@ -23,11 +23,7 @@ export default class DropDown extends Component {
       this.dropDownRef.current &&
       !this.dropDownRef.current.contains(e.target)
     ) {
-      this.filterFieldRef.current.value = ''
-      this.setState({
-        showDropDown: false,
-        filter: ''
-      })
+      this.hideDropDown()
     }
   }
 
@@ -63,6 +59,15 @@ export default class DropDown extends Component {
     )
   }
 
+  hideDropDown = () => {
+    this.filterFieldRef.current.blur()
+    this.filterFieldRef.current.value = ''
+    this.setState({
+      showDropDown: false,
+      filter: ''
+    })
+  }
+
   handleKeyPress = e => {
     const { onItemChosen, labels } = this.props
 
@@ -74,12 +79,20 @@ export default class DropDown extends Component {
       } else {
         onItemChosen(filteredList[0])
       }
+      this.hideDropDown()
     }
+  }
+
+  handleItemClick = (e, item) => {
+    const { onItemChosen } = this.props
+    e.stopPropagation()
+    onItemChosen(item)
+    this.hideDropDown()
   }
 
   render() {
     const { filter } = this.state
-    const { label, labels, onItemChosen } = this.props
+    const { label, labels } = this.props
 
     return (
       <div
@@ -103,8 +116,8 @@ export default class DropDown extends Component {
             this.filterList(filter, labels).length === 0 && (
               <div
                 className={styles.menuItemButton}
-                onClick={() => {
-                  onItemChosen(filter)
+                onClick={e => {
+                  this.handleItemClick(e, filter)
                 }}
               >
                 <div
@@ -116,8 +129,8 @@ export default class DropDown extends Component {
             return (
               <div
                 className={styles.menuItemWrapper}
-                onClick={() => {
-                  onItemChosen(section)
+                onClick={e => {
+                  this.handleItemClick(e, section)
                 }}
               >
                 <div className={styles.menuItem}>

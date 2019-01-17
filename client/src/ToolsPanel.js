@@ -8,12 +8,13 @@ export default class ToolsPanel extends Component {
     const {
       labels,
       mode,
-      label,
+      selectedLabel,
       bboxes,
       imageHeight,
       imageWidth,
       image,
       onModeChanged,
+      onLabelChanged,
       onRelabel,
       onDelete
     } = this.props
@@ -57,7 +58,11 @@ export default class ToolsPanel extends Component {
           </div>
         </div>
         <div className={styles.dropDownWrapper}>
-          <DropDown label={label} labels={labels} onItemChosen={() => {}} />
+          <DropDown
+            label={labels[selectedLabel]}
+            labels={labels}
+            onItemChosen={onLabelChanged}
+          />
         </div>
         <div className={styles.sectionText}>Annotations</div>
         {bboxes

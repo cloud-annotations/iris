@@ -1,5 +1,4 @@
 import React, { Component } from 'react'
-// import fetchImage from 'api/fetchImage'
 import Canvas from './common/Canvas/Canvas'
 import ImageTileV2 from './ImageTileV2'
 import CrossHair from './CrossHair'
@@ -16,8 +15,7 @@ export default class App extends Component {
     imageWidth: 0,
     imageHeight: 0,
     bboxes: [],
-    labelIndex: 0,
-    label: this.props.collection.labels[0],
+    selectedLabelName: this.props.collection.labels[0],
     mode: 'box'
   }
 
@@ -51,19 +49,25 @@ export default class App extends Component {
 
   // MARK: - Event listeners
 
-  handleKeyDown = event => {
-    const charCode = String.fromCharCode(event.which).toLowerCase()
+  handleKeyDown = e => {
+    if (document.activeElement.tagName.toLowerCase() === 'input') {
+      return
+    }
+
+    const charCode = String.fromCharCode(e.which).toLowerCase()
     if (charCode === 'q') {
-      event.preventDefault()
+      e.preventDefault()
       this.setState(prevState => {
-        const newIndex =
-          (prevState.labelIndex + 1) % this.props.collection.labels.length
+        const index = this.props.collection.labels.indexOf(
+          prevState.selectedLabelName
+        )
+        const newIndex = (index + 1) % this.props.collection.labels.length
+        const labelName = this.props.collection.labels[newIndex]
         return {
-          labelIndex: newIndex,
-          label: this.props.collection.labels[newIndex]
+          selectedLabelName: labelName
         }
       })
-    } else if (event.ctrlKey || event.metaKey) {
+    } else if (e.ctrlKey || e.metaKey) {
       this.setState({ mode: 'move' })
     }
   }
@@ -94,12 +98,7 @@ export default class App extends Component {
   colorFromLabel = label => {
     const baseHue = 196
     const spread = 360 / this.props.collection.labels.length
-    const index = this.props.collection.labels.reduce((acc, current, i) => {
-      if (current === label) {
-        return i
-      }
-      return acc
-    }, 0)
+    const index = this.props.collection.labels.indexOf(label)
     const hue = Math.round((index * spread + baseHue) % 360)
     return `hsl(${hue}, 100%, 50%)`
   }
@@ -124,9 +123,10 @@ export default class App extends Component {
   }
 
   handleDrawStarted = bbox => {
+    const { selectedLabelName } = this.state
     this.setState(prevState => {
-      bbox.label = this.state.label
-      bbox.color = this.colorFromLabel(this.state.label)
+      bbox.label = selectedLabelName
+      bbox.color = this.colorFromLabel(selectedLabelName)
       const bboxes = [bbox, ...prevState.bboxes]
       return { bboxes: bboxes }
     })
@@ -138,14 +138,17 @@ export default class App extends Component {
     })
   }
 
-  handleLabelChanged = e => {
-    this.setState({
-      label: e.target.value
-    })
+  handleLabelChanged = labelName => {
+    const { collection, onLabelAdded } = this.props
+
+    if (!collection.labels.includes(labelName)) {
+      onLabelAdded(labelName)
+    }
+    this.setState({ selectedLabelName: labelName })
   }
 
   handleRelabel = box => {
-    console.log(box)
+    // TODO: v3.
   }
 
   handleDelete = box => {
@@ -174,7 +177,16 @@ export default class App extends Component {
   }
 
   render() {
-    const { editing, selection } = this.state
+    const {
+      editing,
+      selection,
+      mode,
+      selectedLabelName,
+      bboxes,
+      image,
+      imageHeight,
+      imageWidth
+    } = this.state
     const { collection, currentSection, bucket } = this.props
     const images = [...collection.images[currentSection]]
     // If our list doesn't include the image we are editing, slip it in there.
@@ -192,6 +204,9 @@ export default class App extends Component {
       }
       images.splice(selection, 0, editing)
     }
+
+    const selectedLabelIndex = collection.labels.indexOf(selectedLabelName)
+
     return (
       <div>
         <div
@@ -205,8 +220,8 @@ export default class App extends Component {
           }}
         >
           <CrossHair
-            color={this.colorFromLabel(this.state.label)}
-            active={this.state.mode === 'box'}
+            color={this.colorFromLabel(selectedLabelName)}
+            active={mode === 'box'}
             children={
               <div
                 style={{
@@ -218,9 +233,9 @@ export default class App extends Component {
                 }}
               >
                 <Canvas
-                  mode={this.state.mode}
-                  bboxes={this.state.bboxes}
-                  image={this.state.image}
+                  mode={mode}
+                  bboxes={bboxes}
+                  image={image}
                   onDrawStarted={this.handleDrawStarted}
                   onCoordinatesChanged={this.handleCoordinatesChanged}
                   onBoxFinished={this.handleBoxFinished}
@@ -232,12 +247,12 @@ export default class App extends Component {
         </div>
         <ToolsPanel
           labels={this.props.collection.labels}
-          mode={this.state.mode}
-          label={this.state.label}
-          bboxes={this.state.bboxes}
-          imageHeight={this.state.imageHeight}
-          imageWidth={this.state.imageWidth}
-          image={this.state.image}
+          mode={mode}
+          selectedLabel={selectedLabelIndex}
+          bboxes={bboxes}
+          imageHeight={imageHeight}
+          imageWidth={imageWidth}
+          image={image}
           onModeChanged={this.handleModeChanged}
           onLabelChanged={this.handleLabelChanged}
           onRelabel={this.handleRelabel}

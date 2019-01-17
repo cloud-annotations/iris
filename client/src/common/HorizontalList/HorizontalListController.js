@@ -34,6 +34,10 @@ export default class HorizontalListController extends Component {
   }
 
   handleKeyDown = e => {
+    if (document.activeElement.tagName.toLowerCase() === 'input') {
+      return
+    }
+
     const {
       onSelectionChanged,
       selection,
