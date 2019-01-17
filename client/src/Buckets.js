@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 import GoogleAnalytics from 'react-ga'
-import { fetchTest } from 'api/fetchImages'
 import Collection from './Collection'
-import CardChoice from './CardChoice'
 import {
   DataTable,
   DataTableSkeleton,
@@ -15,9 +13,6 @@ import { validateCookies, handleErrors } from './Utils'
 
 import MD5 from 'crypto-js/md5'
 import Base64 from 'crypto-js/enc-base64'
-
-import classification from './classification.png'
-import localization from './localization.png'
 
 import 'carbon-components/css/carbon-components.min.css'
 import './Buckets.css'
@@ -46,7 +41,6 @@ class Buckets extends Component {
     this.initializeData()
     this.state = {
       modalOpen: false,
-      choice: Collection.CLASSIFICATION,
       textInputBucketName: '',
       invalidText: '',
       invalid: false,
@@ -78,8 +72,6 @@ class Buckets extends Component {
         'ibm-service-instance-id': localStorage.getItem('resourceId')
       }
     }
-    // console.time('Total time')
-    // console.time('Get initial bucket list')
     return fetch(url, options)
       .then(handleErrors)
       .then(response => response.text())
@@ -348,14 +340,6 @@ class Buckets extends Component {
       })
   }
 
-  handleChooseClassification = () => {
-    this.setState({ choice: Collection.CLASSIFICATION })
-  }
-
-  handleChooseLocalization = () => {
-    this.setState({ choice: Collection.LOCALIZATION })
-  }
-
   render() {
     const { buckets } = this.props
     const headers = [
@@ -385,20 +369,6 @@ class Buckets extends Component {
             invalid={this.state.invalid}
             data-modal-primary-focus
           />
-          <div className={styles.choiceWrapper}>
-            <CardChoice
-              onClick={this.handleChooseClassification}
-              selected={this.state.choice === Collection.CLASSIFICATION}
-              title="Classification"
-              image={classification}
-            />
-            <CardChoice
-              onClick={this.handleChooseLocalization}
-              selected={this.state.choice === Collection.LOCALIZATION}
-              title="Localization"
-              image={localization}
-            />
-          </div>
         </Modal>
 
         <div className="Buckets-Table">
