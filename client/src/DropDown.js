@@ -91,15 +91,23 @@ export default class DropDown extends Component {
   }
 
   render() {
-    const { filter } = this.state
-    const { label, labels } = this.props
+    const { filter, showDropDown } = this.state
+    const { label, labels, bar } = this.props
+
+    const style = (() => {
+      if (bar && showDropDown) {
+        return styles.barActive
+      } else if (bar) {
+        return styles.bar
+      } else if (showDropDown) {
+        return styles.active
+      } else {
+        return styles.default
+      }
+    })()
 
     return (
-      <div
-        onClick={this.showDropDown}
-        className={this.state.showDropDown ? styles.active : styles.default}
-        ref={this.dropDownRef}
-      >
+      <div onClick={this.showDropDown} className={style} ref={this.dropDownRef}>
         {label}
         <svg className={styles.icon} width="10" height="5" viewBox="0 0 10 5">
           <path d="M0 0l5 4.998L10 0z" />

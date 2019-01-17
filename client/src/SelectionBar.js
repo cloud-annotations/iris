@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import './SelectionBar.css'
+import DropDown from './DropDown'
 
 class SelectionBar extends Component {
   state = {
@@ -76,105 +77,26 @@ class SelectionBar extends Component {
   }
 
   render() {
-    const {
-      selectionCount,
-      sections,
-      labelImages,
-      deleteImages,
-      deselectAll,
-      createLabel
-    } = this.props
+    const { selectionCount, sections, deleteImages, deselectAll } = this.props
 
     const onlyLabels = sections.filter(label => {
-      return label !== 'Unlabeled'
+      return label.toLowerCase() !== 'unlabeled'
     })
     return (
       <div className={`SelectionBar ${selectionCount > 0 ? '--Active' : ''}`}>
         <div className="SelectionBar-Wrapper SelectionBar-count-Wrapper">
           <div className="SelectionBar-count">{`${selectionCount} selected`}</div>
         </div>
+        <div className="">
+          <DropDown label="Label" labels={onlyLabels} bar />
+        </div>
         <div
           className="SelectionBar-Wrapper SelectionBar-Button"
-          onClick={this.showDropDown}
+          onClick={() => {
+            alert('todo')
+          }}
         >
-          <div
-            className={`SelectionBar-DropDown ${
-              this.state.showDropDown ? '--Active' : ''
-            }`}
-            ref={input => {
-              this.dropDownRef = input
-            }}
-          >
-            Label{' '}
-            <svg
-              className="SelectionBar-dropdown-Icon"
-              width="10"
-              height="5"
-              viewBox="0 0 10 5"
-            >
-              <path d="M0 0l5 4.998L10 0z" />
-            </svg>
-            <input
-              className="SelectionBar-DropDown-Filter"
-              placeholder="Label"
-              onChange={this.filterChange}
-              ref={input => {
-                this.filterFieldRef = input
-              }}
-              onKeyPress={this.handleKeyPress}
-            />
-            <div
-              className={`SelectionBar-DropDown-Menu ${
-                this.state.filter.trim() !== '' ? '--Filtering' : ''
-              }`}
-            >
-              {this.state.filter.trim() !== '' &&
-              this.filterList(this.state.filter, onlyLabels).length === 0 ? (
-                <div
-                  className="SelectionBar-DropDown-MenuItemWrapper-Button"
-                  onClick={() => {
-                    createLabel(this.state.filter)
-                    labelImages(this.state.filter)
-                  }}
-                >
-                  <div className="SelectionBar-DropDown-MenuItem">{`Create label "${
-                    this.state.filter
-                  }"`}</div>
-                </div>
-              ) : (
-                ''
-              )}
-              {this.filterList(this.state.filter, onlyLabels).map(section => {
-                return (
-                  <div
-                    className="SelectionBar-DropDown-MenuItemWrapper"
-                    onClick={() => {
-                      labelImages(section)
-                    }}
-                  >
-                    <div className="SelectionBar-DropDown-MenuItem">
-                      <span className="SelectionBar-DropDown-MenuItem-highlight">
-                        {section.substring(0, this.state.filter.length)}
-                      </span>
-                      {section.substring(this.state.filter.length)}
-                    </div>
-                  </div>
-                )
-              })}
-              {this.state.filter.trim() === '' ? (
-                <div
-                  className="SelectionBar-DropDown-MenuItemWrapper"
-                  onClick={() => {
-                    labelImages('Unlabeled')
-                  }}
-                >
-                  <div className="SelectionBar-DropDown-MenuItem">Unlabel</div>
-                </div>
-              ) : (
-                ''
-              )}
-            </div>
-          </div>
+          <div>Unlabel</div>
         </div>
         <div
           className="SelectionBar-Wrapper SelectionBar-Button"
