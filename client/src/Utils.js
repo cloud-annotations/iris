@@ -28,21 +28,21 @@ export function generateUUID() {
   return uuid
 }
 
-export function getDataTransferItems(event) {
+export function getDataTransferItems(e) {
   let dataTransferItemsList = []
-  if (event.dataTransfer) {
-    const dt = event.dataTransfer
+  if (e.dataTransfer) {
+    const dt = e.dataTransfer
     if (dt.files && dt.files.length) {
       dataTransferItemsList = dt.files
     } else if (dt.items && dt.items.length) {
       // During the drag even the dataTransfer.files is null
-      // but Chrome implements some drag store, which is accesible via dataTransfer.items
+      // but Chrome implements some drag store, which is accessible via dataTransfer.items
       return Array.prototype.slice
         .call(dt.items)
         .filter(item => item.kind === 'file')
     }
-  } else if (event.target && event.target.files) {
-    dataTransferItemsList = event.target.files
+  } else if (e.target && e.target.files) {
+    dataTransferItemsList = e.target.files
   }
   // Convert from DataTransferItemsList to the native Array
   return Array.prototype.slice.call(dataTransferItemsList)

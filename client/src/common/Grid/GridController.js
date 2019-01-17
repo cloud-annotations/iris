@@ -38,11 +38,11 @@ export default class GridController extends Component {
     document.removeEventListener('mouseup', this.handleDragEnd)
   }
 
-  handleKeyDown = event => {
-    const charCode = String.fromCharCode(event.which).toLowerCase()
+  handleKeyDown = e => {
+    const char = e.key.toLowerCase()
     // For MAC we can use metaKey to detect cmd key
-    if ((event.ctrlKey || event.metaKey) && charCode === 'a') {
-      event.preventDefault()
+    if ((e.ctrlKey || e.metaKey) && char === 'a') {
+      e.preventDefault()
       this.selectAll()
     }
   }

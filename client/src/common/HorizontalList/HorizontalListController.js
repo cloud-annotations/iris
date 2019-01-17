@@ -44,13 +44,13 @@ export default class HorizontalListController extends Component {
       delegate,
       skipShimHackBad
     } = this.props
-    const charCode = String.fromCharCode(e.which).toLowerCase()
+    const char = e.key.toLowerCase()
 
     const left = Math.max(selection - 1, 0)
     const right = skipShimHackBad
       ? Math.min(selection, delegate.numberOfItems - 1)
       : Math.min(selection + 1, delegate.numberOfItems - 1)
-    if (e.which === 39) {
+    if (char === 'arrowright') {
       e.preventDefault()
       onSelectionChanged(right)
       const target = document.getElementById(delegate.keyForItemAt(right))
@@ -59,7 +59,7 @@ export default class HorizontalListController extends Component {
       }
       target.parentNode.scrollLeft =
         target.offsetLeft - (target.parentNode.offsetWidth / 2 - 208)
-    } else if (e.which === 37) {
+    } else if (char === 'arrowleft') {
       e.preventDefault()
       onSelectionChanged(left)
       const target = document.getElementById(delegate.keyForItemAt(left))
@@ -68,7 +68,7 @@ export default class HorizontalListController extends Component {
       }
       target.parentNode.scrollLeft =
         target.offsetLeft - (target.parentNode.offsetWidth / 2 - 208)
-    } else if (charCode === ' ') {
+    } else if (char === ' ') {
       e.preventDefault()
       onSelectionChanged(right)
       const target = document.getElementById(delegate.keyForItemAt(right))

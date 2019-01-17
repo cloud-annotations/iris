@@ -54,8 +54,8 @@ export default class App extends Component {
       return
     }
 
-    const charCode = String.fromCharCode(e.which).toLowerCase()
-    if (charCode === 'q') {
+    const char = e.key.toLowerCase()
+    if (char === 'q') {
       e.preventDefault()
       this.setState(prevState => {
         const index = this.props.collection.labels.indexOf(
@@ -73,7 +73,10 @@ export default class App extends Component {
   }
 
   handleKeyUp = e => {
-    this.setState({ mode: 'box' })
+    const char = e.key.toLowerCase()
+    if (char === 'meta' || char === 'control') {
+      this.setState({ mode: 'box' })
+    }
   }
 
   handleImageSelected = data => {
@@ -206,9 +209,6 @@ export default class App extends Component {
         return { ...bbox, color: color }
       }
     )
-
-    console.log(bboxes)
-
     return (
       <div>
         <div
