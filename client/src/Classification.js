@@ -31,15 +31,7 @@ export default class Classification extends Component {
 
   handleLabelChanged = labelName => {
     const { selection } = this.state
-    const {
-      collection,
-      currentSection,
-      onLabelAdded,
-      onImagesLabeled
-    } = this.props
-    if (!collection.labels.includes(labelName)) {
-      onLabelAdded(labelName)
-    }
+    const { collection, currentSection, onImagesLabeled } = this.props
     const images = this.getSelectedImages(selection, collection, currentSection)
     onImagesLabeled(images, labelName)
     this.handleClearSelection()

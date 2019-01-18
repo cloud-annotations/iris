@@ -158,11 +158,15 @@ export default class App extends Component {
 
   handleLabelAdded = label => {
     this.setState(prevState => {
-      const collection = prevState.collection.addLabel(
-        label,
-        this.handleSyncComplete
-      )
-      return { saved: false, collection: collection }
+      try {
+        const collection = prevState.collection.addLabel(
+          label,
+          this.handleSyncComplete
+        )
+        return { saved: false, collection: collection }
+      } catch (error) {
+        console.error(error)
+      }
     })
   }
 
@@ -189,12 +193,16 @@ export default class App extends Component {
 
   handleImagesLabeled = (images, label) => {
     this.setState(prevState => {
-      const collection = prevState.collection.labelImages(
-        images,
-        label,
-        this.handleSyncComplete
-      )
-      return { saved: false, collection: collection }
+      try {
+        const collection = prevState.collection.labelImages(
+          images,
+          label,
+          this.handleSyncComplete
+        )
+        return { saved: false, collection: collection }
+      } catch (error) {
+        console.error(error)
+      }
     })
   }
 

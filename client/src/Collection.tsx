@@ -90,6 +90,14 @@ export default class Collection {
   }
 
   public addLabel(label: string, syncComplete: SyncCallback): Collection {
+    if (
+      this._labels.includes(label) ||
+      label.toLowerCase() === 'all' ||
+      label.toLowerCase() === 'unlabeled' ||
+      label.toLowerCase() === 'labeled'
+    ) {
+      throw new Error('Illegal label name')
+    }
     setTimeout(syncComplete, 3000)
     const images = { ...this._images }
     images[label] = []
@@ -227,7 +235,24 @@ export default class Collection {
     syncComplete: SyncCallback
   ): Collection {
     setTimeout(syncComplete, 3000)
+    if (
+      labelName.toLowerCase() === 'all' ||
+      labelName.toLowerCase() === 'unlabeled' ||
+      labelName.toLowerCase() === 'labeled'
+    ) {
+      throw new Error('Illegal label name')
+    }
+
     const oldImages = { ...this._images }
+
+    const labels = (() => {
+      if (!this._labels.includes(labelName)) {
+        oldImages[labelName] = []
+        return [labelName, ...this._labels]
+      }
+      return [...this._labels]
+    })()
+
     const annotations = { ...this._annotations }
 
     const oldLabels = images.map(image => annotations[image])
@@ -256,7 +281,7 @@ export default class Collection {
       annotations[image] = [{ label: labelName }]
     })
 
-    return new Collection(this._type, this._labels, newImages, annotations)
+    return new Collection(this._type, labels, newImages, annotations)
   }
 
   public unlabelImages(
