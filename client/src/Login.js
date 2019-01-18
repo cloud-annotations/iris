@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Select, SelectItemGroup, SelectItem } from 'carbon-components-react'
 import GoogleAnalytics from 'react-ga'
+import { handleErrors } from './Utils'
 import './Login.css'
 
 let enpoints = {
@@ -117,13 +118,7 @@ class Login extends Component {
     }
     const request = new Request(url)
     fetch(request, options)
-      .then(response => {
-        if (!response.ok) {
-          // Fake a forbidden.
-          throw Error('Forbidden')
-        }
-        return response
-      })
+      .then(handleErrors)
       .then(() => {
         this.props.history.push('/')
       })

@@ -25,12 +25,14 @@ const isSuccess = (error, response) => {
 }
 
 const setToken = (res, json) => {
-  const { access_token, expiration, refresh_token } = json
+  const { access_token, refresh_token, expiration } = json
   res
     .cookie('token', access_token, {
       expires: new Date(expiration * 1000)
     })
-    .cookie('refresh_token', refresh_token)
+    .cookie('refresh_token', refresh_token, {
+      expires: new Date(expiration * 1000)
+    })
 }
 
 // Refresh token every request.
