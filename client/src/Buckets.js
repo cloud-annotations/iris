@@ -65,7 +65,7 @@ class Buckets extends Component {
   }
 
   populateBuckets = () => {
-    const url = `api/proxy/${localStorage.getItem('loginUrl')}`
+    const url = `/api/proxy/${localStorage.getItem('loginUrl')}`
     const options = {
       method: 'GET',
       headers: {
@@ -204,7 +204,7 @@ class Buckets extends Component {
         loading: true
       },
       () => {
-        const url = `api/proxy/${localStorage.getItem(
+        const url = `/api/proxy/${localStorage.getItem(
           'loginUrl'
         )}/${bucketName}`
         const options = {
@@ -259,7 +259,7 @@ class Buckets extends Component {
       }
     })
 
-    const url = `api/proxy/${localStorage.getItem('loginUrl')}/${bucketName}`
+    const url = `/api/proxy/${localStorage.getItem('loginUrl')}/${bucketName}`
     const options = { method: 'GET' }
     const request = new Request(url)
     fetch(request, options)
@@ -291,7 +291,7 @@ class Buckets extends Component {
         }
 
         const md5Hash = MD5(xmlString).toString(Base64)
-        const url = `api/proxy/${localStorage.getItem(
+        const url = `/api/proxy/${localStorage.getItem(
           'loginUrl'
         )}/${bucketName}?delete=`
         const options = {
@@ -306,7 +306,7 @@ class Buckets extends Component {
       })
       .then(handleErrors)
       .then(() => {
-        const url = `api/proxy/${localStorage.getItem(
+        const url = `/api/proxy/${localStorage.getItem(
           'loginUrl'
         )}/${bucketName}`
         const options = { method: 'DELETE' }

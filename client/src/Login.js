@@ -111,7 +111,7 @@ class Login extends Component {
     localStorage.setItem('resourceId', resourceId)
     localStorage.setItem('loginUrl', loginUrl)
 
-    const url = 'api/auth?apikey=' + apiKey
+    const url = '/api/auth?apikey=' + apiKey
     const options = {
       method: 'GET'
     }
