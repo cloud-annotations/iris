@@ -32,8 +32,14 @@ export default class App extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const { selectedLabelName } = this.state
     if (nextProps.currentSection !== this.props.currentSection) {
       this.setSelection(0, nextProps)
+    }
+    if (!selectedLabelName && nextProps.collection.labels[0]) {
+      this.setState({
+        selectedLabelName: nextProps.collection.labels[0]
+      })
     }
   }
 

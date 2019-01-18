@@ -159,6 +159,24 @@ export default class Collection {
     syncComplete: SyncCallback
   ): Collection {
     setTimeout(syncComplete, 3000)
+    // if (
+    //   labelName.toLowerCase() === 'all' ||
+    //   labelName.toLowerCase() === 'unlabeled' ||
+    //   labelName.toLowerCase() === 'labeled'
+    // ) {
+    //   throw new Error('Illegal label name')
+    // }
+
+    // const oldImages = { ...this._images }
+
+    // const labels = (() => {
+    //   if (!this._labels.includes(labelName)) {
+    //     oldImages[labelName] = []
+    //     return [labelName, ...this._labels]
+    //   }
+    //   return [...this._labels]
+    // })()
+
     const images = { ...this._images }
     const annotations = { ...this._annotations }
 
