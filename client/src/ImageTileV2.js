@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react'
 import fetchImage from 'api/fetchImage'
+import history from './history'
 import styles from './ImageTileV2.module.css'
 
 import 'intersection-observer'
@@ -48,6 +49,9 @@ export default class ImageTile extends PureComponent {
           })
           .catch(error => {
             console.error(error)
+            if (error.message === 'Forbidden') {
+              history.push('/login')
+            }
           })
       }
     })

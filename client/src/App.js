@@ -10,6 +10,7 @@ import localforage from 'localforage'
 import { Loading, Modal } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
 import GoogleAnalytics from 'react-ga'
+import history from './history'
 import {
   generateUUID,
   getDataTransferItems,
@@ -48,6 +49,9 @@ export default class App extends Component {
         }
       })
       .catch(error => {
+        if (error.message === 'Forbidden') {
+          history.push('/login')
+        }
         console.error(error)
       })
 
@@ -127,6 +131,9 @@ export default class App extends Component {
         return putImages(localStorage.getItem('loginUrl'), bucket, files)
       })
       .catch(error => {
+        if (error.message === 'Forbidden') {
+          history.push('/login')
+        }
         console.error(error)
       })
 
@@ -165,6 +172,9 @@ export default class App extends Component {
         )
         return { saved: false, collection: collection }
       } catch (error) {
+        if (error.message === 'Forbidden') {
+          history.push('/login')
+        }
         console.error(error)
       }
     })
@@ -197,6 +207,9 @@ export default class App extends Component {
         )
         return { saved: false, collection: collection }
       } catch (error) {
+        if (error.message === 'Forbidden') {
+          history.push('/login')
+        }
         console.error(error)
       }
     })
@@ -212,6 +225,9 @@ export default class App extends Component {
         )
         return { saved: false, collection: collection }
       } catch (error) {
+        if (error.message === 'Forbidden') {
+          history.push('/login')
+        }
         console.error(error)
       }
     })
@@ -246,7 +262,7 @@ export default class App extends Component {
   }
 
   handleCloseModal = () => {
-    this.props.history.push('/')
+    history.push('/')
   }
 
   handleChooseClassification = () => {
@@ -340,7 +356,6 @@ export default class App extends Component {
               case 'localization':
                 return (
                   <Localization
-                    history={this.props.history}
                     collection={collection}
                     currentSection={currentSection}
                     onAnnotationAdded={this.handleAnnotationAdded}
@@ -351,7 +366,6 @@ export default class App extends Component {
               case 'classification':
                 return (
                   <Classification
-                    history={this.props.history}
                     loading={loading}
                     collection={collection}
                     currentSection={currentSection}

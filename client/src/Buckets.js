@@ -14,6 +14,8 @@ import { validateCookies, handleErrors } from './Utils'
 import MD5 from 'crypto-js/md5'
 import Base64 from 'crypto-js/enc-base64'
 
+import history from './history'
+
 import 'carbon-components/css/carbon-components.min.css'
 import './Buckets.css'
 import styles from './Buckets.module.css'
@@ -59,7 +61,7 @@ class Buckets extends Component {
       .catch(error => {
         console.error(error)
         if (error.message === 'Forbidden') {
-          this.props.history.push('/login')
+          history.push('/login')
         }
       })
   }
@@ -231,6 +233,9 @@ class Buckets extends Component {
             )
           })
           .catch(error => {
+            if (error.message === 'Forbidden') {
+              history.push('/login')
+            }
             if (error === 'Conflict') {
               this.setState({
                 loading: false,
@@ -329,6 +334,9 @@ class Buckets extends Component {
       })
       .catch(error => {
         console.error(error)
+        if (error.message === 'Forbidden') {
+          history.push('/login')
+        }
         this.setState(prevState => {
           const loading = prevState.loadingBuckets.filter(bucket => {
             return bucketName !== bucket
@@ -406,7 +414,7 @@ class Buckets extends Component {
                         <TableRow
                           key={row.id}
                           onClick={() => {
-                            this.props.history.push(`/${row.id}`)
+                            history.push(`/${row.id}`)
                           }}
                         >
                           {row.cells.map(cell => (

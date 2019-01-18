@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Select, SelectItemGroup, SelectItem } from 'carbon-components-react'
 import GoogleAnalytics from 'react-ga'
 import { handleErrors } from './Utils'
+import history from './history'
 import './Login.css'
 
 let enpoints = {
@@ -120,9 +121,10 @@ class Login extends Component {
     fetch(request, options)
       .then(handleErrors)
       .then(() => {
-        this.props.history.push('/')
+        history.push('/')
       })
       .catch(error => {
+        // We are on the Login page so no need to redirect to /Login.
         console.error(error)
       })
   }

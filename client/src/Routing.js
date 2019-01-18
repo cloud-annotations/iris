@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import { Router, Route, Switch } from 'react-router-dom'
 import TitleBar from './TitleBar'
 import App from './App'
 import Login from './Login'
 import Buckets from './Buckets'
+import history from './history'
 
 class Routing extends Component {
   state = {
@@ -19,7 +20,7 @@ class Routing extends Component {
   render() {
     return (
       <div>
-        <Router>
+        <Router history={history}>
           <div>
             <Route path="/" component={TitleBar} />
             <Switch>

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { validateCookies } from './Utils'
+import history from './history'
 import './TitleBar.css'
 
 class TitleBar extends Component {
@@ -41,7 +42,7 @@ class TitleBar extends Component {
     document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
     validateCookies().catch(error => {
       if (error.message === 'Forbidden') {
-        this.props.history.push('/login')
+        history.push('/login')
       }
     })
   }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import fetchImage from 'api/fetchImage'
+import history from './history'
 import styles from './ImageTile.module.css'
 
 export default class ImageTile extends Component {
@@ -33,6 +34,9 @@ export default class ImageTile extends Component {
           })
           .catch(error => {
             console.error(error)
+            if (error.message === 'Forbidden') {
+              history.push('/login')
+            }
           })
       }
     })
