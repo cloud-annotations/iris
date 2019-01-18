@@ -176,18 +176,29 @@ export default class App extends Component {
         label,
         this.handleSyncComplete
       )
-      return { saved: false, collection: collection }
+      // Quick fix for deleting the active label.
+      const currentSection =
+        prevState.currentSection === label ? ALL_IMAGES : label
+      return {
+        saved: false,
+        collection: collection,
+        currentSection: currentSection
+      }
     })
   }
 
   handleAnnotationAdded = (image, boxes) => {
     this.setState(prevState => {
-      const collection = prevState.collection.setAnnotation(
-        image,
-        boxes,
-        this.handleSyncComplete
-      )
-      return { saved: false, collection: collection }
+      try {
+        const collection = prevState.collection.setAnnotation(
+          image,
+          boxes,
+          this.handleSyncComplete
+        )
+        return { saved: false, collection: collection }
+      } catch (error) {
+        console.error(error)
+      }
     })
   }
 

@@ -159,26 +159,34 @@ export default class Collection {
     syncComplete: SyncCallback
   ): Collection {
     setTimeout(syncComplete, 3000)
-    // if (
-    //   labelName.toLowerCase() === 'all' ||
-    //   labelName.toLowerCase() === 'unlabeled' ||
-    //   labelName.toLowerCase() === 'labeled'
-    // ) {
-    //   throw new Error('Illegal label name')
-    // }
 
-    // const oldImages = { ...this._images }
+    const UNTITLED = 'Untitled Label'
 
-    // const labels = (() => {
-    //   if (!this._labels.includes(labelName)) {
-    //     oldImages[labelName] = []
-    //     return [labelName, ...this._labels]
-    //   }
-    //   return [...this._labels]
-    // })()
+    annotation.forEach(annotation => {
+      if (
+        annotation.label &&
+        (annotation.label.toLowerCase() === 'all' ||
+          annotation.label.toLowerCase() === 'unlabeled' ||
+          annotation.label.toLowerCase() === 'labeled')
+      ) {
+        throw new Error('Illegal label name')
+      }
+    })
 
     const images = { ...this._images }
     const annotations = { ...this._annotations }
+
+    let labels = [...this._labels]
+    annotation = annotation.map(annotation => {
+      if (!annotation.label) {
+        annotation.label = UNTITLED
+        if (!this._labels.includes(UNTITLED)) {
+          images[UNTITLED] = []
+          labels = [UNTITLED, ...this._labels]
+        }
+      }
+      return annotation
+    })
 
     const oldLabels = (annotations[image] || []).reduce(
       (acc: Set<string>, annotation: Annotation) => {
@@ -244,7 +252,7 @@ export default class Collection {
     })
 
     annotations[image] = cleanedAnnotation
-    return new Collection(this._type, this._labels, addedImages, annotations)
+    return new Collection(this._type, labels, addedImages, annotations)
   }
 
   public labelImages(

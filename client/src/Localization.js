@@ -149,7 +149,14 @@ export default class App extends Component {
     if (!collection.labels.includes(labelName)) {
       onLabelAdded(labelName)
     }
-    this.setState({ selectedLabelName: labelName })
+    // Anticipate the bad name. (we should handle this better)
+    if (
+      labelName.toLowerCase() !== 'all' &&
+      labelName.toLowerCase() !== 'unlabeled' &&
+      labelName.toLowerCase() !== 'labeled'
+    ) {
+      this.setState({ selectedLabelName: labelName })
+    }
   }
 
   handleRelabel = box => {
