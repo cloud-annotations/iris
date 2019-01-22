@@ -1,4 +1,6 @@
+import localforage from 'localforage'
 import COS from './api/COS'
+import { generateUUID, readFile, shrinkImage, namedCanvasToFile } from './Utils'
 
 const IMAGE_REGEX = /.(jpg|jpeg|png)$/i
 const optional = (p: Promise<any>) => p.catch(() => undefined)
@@ -25,6 +27,7 @@ interface Annotations {
 }
 
 type SyncCallback = () => void
+type UpdatedCollectionCallback = (collection: Collection) => void
 
 const VERSION = '1.0'
 export default class Collection {
@@ -139,14 +142,130 @@ export default class Collection {
     return this._images
   }
 
-  public addImage(image: string, syncComplete: SyncCallback): Collection {
+  public addImages(
+    images: string[],
+    label: string,
+    onFileLoaded: UpdatedCollectionCallback,
+    syncComplete: SyncCallback
+  ): Collection {
     setTimeout(syncComplete, 3000)
-    return Collection.EMPTY
-  }
 
-  public removeImage(image: string, syncComplete: SyncCallback): Collection {
-    setTimeout(syncComplete, 3000)
-    return Collection.EMPTY
+    // Create a new collection padded with unique throw-away file names.
+    // These pseudo names can be used as keys when rendering lists in React.
+    const tmpNames = images.map(() => `${generateUUID()}.tmp`)
+
+    let collection = (() => {
+      if (label && this._type === 'classification') {
+        const images = {
+          ...this._images,
+          all: [...tmpNames, ...this._images.all],
+          labeled: [...tmpNames, ...this._images.labeled],
+          [label]: [...tmpNames, ...this._images[label]]
+        }
+        const annotations = tmpNames.reduce((acc, tmpName) => {
+          acc[tmpName] = [{ label: label }]
+          return acc
+        }, this._annotations)
+        return new Collection(this._type, this._labels, images, annotations)
+      }
+      const images = {
+        ...this._images,
+        all: [...tmpNames, ...this._images.all],
+        unlabeled: [...tmpNames, ...this._images.unlabeled]
+      }
+      return new Collection(this._type, this._labels, images, this._annotations)
+    })()
+
+    // TODO: We shouldn't always shrink the image.
+    const readFiles = images.map(file =>
+      readFile(file)
+        .then(image => shrinkImage(image))
+        .then(canvas => {
+          const name = `${generateUUID()}.jpg`
+          const dataURL = canvas.toDataURL('image/jpeg')
+          collection = (() => {
+            // Find a random tmp name.
+            const iInAll = collection._images.all.findIndex(item =>
+              item.endsWith('.tmp')
+            )
+            const tmpName = collection._images.all[iInAll]
+
+            if (label && collection._type === 'classification') {
+              // Find the same tmp name in other sections.
+              const iInLabeled = collection._images.labeled.findIndex(
+                item => item === tmpName
+              )
+              const iInLabel = collection._images[label].findIndex(
+                item => item === tmpName
+              )
+              // replace tmp names with the actual file name.
+              const newAll = [...collection._images.all]
+              newAll[iInAll] = name
+              const newLabeled = [...collection._images.labeled]
+              newLabeled[iInLabeled] = name
+              const newLabel = [...collection._images[label]]
+              newLabel[iInLabel] = name
+              const images = {
+                ...this._images,
+                all: newAll,
+                labeled: newLabeled,
+                [label]: newLabel
+              }
+
+              const annotations = { ...this._annotations }
+              delete annotations[tmpName]
+              annotations[name] = [{ label: label }]
+
+              return new Collection(
+                this._type,
+                this._labels,
+                images,
+                annotations
+              )
+            }
+
+            // Find the same tmp name in other sections.
+            const iInUnlabeled = collection._images.unlabeled.findIndex(
+              item => item === tmpName
+            )
+            // replace tmp names with the actual file name.
+            const newAll = [...collection._images.all]
+            newAll[iInAll] = name
+            const newUnlabeled = [...collection._images.unlabeled]
+            newUnlabeled[iInUnlabeled] = name
+
+            const images = {
+              ...collection._images,
+              all: newAll,
+              unlabeled: newUnlabeled
+            }
+            return new Collection(
+              collection._type,
+              collection._labels,
+              images,
+              collection._annotations
+            )
+          })()
+          onFileLoaded(collection)
+
+          // We don't care when this finishes, so it can break off on it's own.
+          localforage.setItem(name, dataURL)
+          return { canvas: canvas, name: name }
+        })
+        .then(namedCanvas => namedCanvasToFile(namedCanvas))
+    )
+
+    // const uploadRequest = Promise.all(readFiles)
+    //   .then(files => {
+    //     return putImages(localStorage.getItem('loginUrl'), bucket, files)
+    //   })
+    //   .catch(error => {
+    //     if (error.message === 'Forbidden') {
+    //       history.push('/login')
+    //     }
+    //     console.error(error)
+    //   })
+    return collection
   }
 
   public get annotations(): Annotations {

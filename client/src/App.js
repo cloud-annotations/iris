@@ -1,23 +1,15 @@
 import React, { Component } from 'react'
 import BucketBar from './BucketBar'
-import putImages from 'api/putImages'
 import Classification from './Classification'
 import CardChoice from './CardChoice'
 import Localization from './Localization'
 import Collection from './Collection'
 import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
-import localforage from 'localforage'
 import { Loading, Modal } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
 import GoogleAnalytics from 'react-ga'
 import history from './history'
-import {
-  generateUUID,
-  getDataTransferItems,
-  readFile,
-  shrinkImage,
-  namedCanvasToFile
-} from './Utils'
+import { getDataTransferItems } from './Utils'
 
 import classification from './classification.png'
 import localization from './localization.png'
@@ -71,74 +63,32 @@ export default class App extends Component {
   }
 
   uploadFiles = fileList => {
-    const { bucket } = this.props.match.params
-
-    // If a label tab is selected, images need to be labeled as such.
-    const label =
-      this.state.currentSection === UNLABELED ||
-      this.state.currentSection === LABELED ||
-      this.state.currentSection === ALL_IMAGES
-        ? 'Unlabeled'
-        : this.state.currentSection
-
-    // Inject tmp names so empty tiles show while the actual images are loading.
     this.setState(prevState => {
-      const collection = { ...prevState.collection }
+      const { currentSection, collection } = prevState
 
-      // We need a unique name to use as a key so react doesn't shit the bed.
-      const tmp = Array.apply(null, Array(fileList.length)).map(
-        () => `${generateUUID()}.tmp`
-      )
-
-      collection[label] = [...tmp, ...collection[label]]
-
-      const selection = Object.keys(collection).reduce((acc, key) => {
-        return [...acc, ...collection[key].map(() => false)]
-      }, [])
-
-      return {
-        collection: collection,
-        selection: selection
-      }
-    })
-
-    const readFiles = fileList.map(file =>
-      readFile(file)
-        .then(image => shrinkImage(image))
-        .then(canvas => {
-          const name = `${generateUUID()}.jpg`
-          const dataURL = canvas.toDataURL('image/jpeg')
-          // We don't care when this finishes, so it can break of on it's own.
-          localforage.setItem(name, dataURL).then(() => {
-            this.setState(prevState => {
-              const collection = { ...prevState.collection }
-              const index = collection[label].findIndex(item =>
-                item.endsWith('.tmp')
-              )
-              collection[label][index] = name
-              return {
-                collection: collection
-              }
-            })
-          })
-          return { canvas: canvas, name: name }
-        })
-        .then(namedCanvas => namedCanvasToFile(namedCanvas))
-    )
-
-    const uploadRequest = Promise.all(readFiles)
-      .then(files => {
-        return putImages(localStorage.getItem('loginUrl'), bucket, files)
-      })
-      .catch(error => {
-        if (error.message === 'Forbidden') {
-          history.push('/login')
+      // If a label tab is selected, images need to be labeled as such.
+      const label = (() => {
+        switch (currentSection) {
+          case UNLABELED:
+          case LABELED:
+          case ALL_IMAGES:
+            return undefined
+          default:
+            return currentSection
         }
-        console.error(error)
-      })
+      })()
 
-    this.annotationsToCsv()
-    this.changeRequest(uploadRequest)
+      const tmpCollection = collection.addImages(
+        fileList,
+        label,
+        intermediateCollection => {
+          console.log(intermediateCollection)
+          this.setState({ collection: intermediateCollection })
+        },
+        this.handleSyncComplete
+      )
+      return { saved: false, collection: tmpCollection }
+    })
   }
 
   handleDragEnter = () => {
