@@ -9,7 +9,7 @@ import { Loading, Modal } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
 import GoogleAnalytics from 'react-ga'
 import history from './history'
-import { getDataTransferItems } from './Utils'
+import { getDataTransferItems, readFile } from './Utils'
 
 import classification from './classification.png'
 import localization from './localization.png'
@@ -65,6 +65,21 @@ export default class App extends Component {
   uploadFiles = fileList => {
     this.setState(prevState => {
       const { currentSection, collection } = prevState
+      if (
+        collection.type === 'localization' &&
+        fileList[0].type.startsWith('video/')
+      ) {
+        const FPS = 3
+        collection.addVideo(
+          fileList[0],
+          FPS,
+          intermediateCollection => {
+            this.setState({ collection: intermediateCollection })
+          },
+          this.handleSyncComplete
+        )
+        return { saved: false }
+      }
 
       // If a label tab is selected, images need to be labeled as such.
       const label = (() => {
@@ -82,7 +97,6 @@ export default class App extends Component {
         fileList,
         label,
         intermediateCollection => {
-          console.log(intermediateCollection)
           this.setState({ collection: intermediateCollection })
         },
         this.handleSyncComplete

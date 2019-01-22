@@ -44,7 +44,7 @@ class BucketBar extends Component {
               this.fileInputEl = ref
             }}
             type="file"
-            accept="image/*"
+            accept="image/*,video/*"
             onChange={this.fileChange}
             multiple
           />

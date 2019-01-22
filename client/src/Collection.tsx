@@ -146,6 +146,82 @@ export default class Collection {
   public get images(): Images {
     return this._images
   }
+  public addVideo(
+    videoFile: any,
+    fps: number,
+    onFrameLoaded: UpdatedCollectionCallback,
+    syncComplete: SyncCallback
+  ): Collection {
+    setTimeout(syncComplete, 3000)
+    const fileURL = URL.createObjectURL(videoFile)
+    new Promise<HTMLVideoElement>((resolve, _) => {
+      const video = document.createElement('video')
+      video.onloadeddata = () => {
+        resolve(video)
+      }
+      video.src = fileURL
+    })
+      .then(video => {
+        const getCanvasForTime = (
+          video: HTMLVideoElement,
+          time: number,
+          canvases: HTMLCanvasElement[]
+        ) => {
+          return new Promise<HTMLCanvasElement[]>((resolve, _) => {
+            video.onseeked = () => {
+              console.log('canvas' + time)
+              const c = window.document.createElement('canvas')
+              const ctx = c.getContext('2d')
+              c.width = video.videoWidth
+              c.height = video.videoHeight
+              if (ctx) {
+                ctx.drawImage(video, 0, 0, c.width, c.height)
+              }
+              resolve([...canvases, c])
+            }
+            video.currentTime = time
+          })
+        }
+
+        if (!isNaN(video.duration)) {
+          return [...new Array(Math.floor(video.duration * fps))].reduce(
+            (acc, _, i) => {
+              return acc.then((canvases: HTMLCanvasElement[]) =>
+                getCanvasForTime(video, i / fps, canvases)
+              )
+            },
+            Promise.resolve([])
+          )
+        }
+      })
+      .then((canvases: HTMLCanvasElement[]) => {
+        console.log(`we got ${canvases.length} canvases`)
+        const canvasNames = canvases.map(canvas => {
+          const name = `${generateUUID()}.jpg`
+          const dataURL = canvas.toDataURL('image/jpeg')
+          localforage.setItem(name, dataURL)
+          return name
+        })
+        const collection = (() => {
+          const images = {
+            ...this._images,
+            all: [...canvasNames, ...this._images.all],
+            unlabeled: [...canvasNames, ...this._images.unlabeled]
+          }
+          return new Collection(
+            this._type,
+            this._labels,
+            images,
+            this._annotations
+          )
+        })()
+        onFrameLoaded(collection)
+      })
+      .catch(error => {
+        console.error(error)
+      })
+    return Collection.EMPTY
+  }
 
   public addImages(
     images: string[],
