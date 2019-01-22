@@ -1,6 +1,11 @@
 import localforage from 'localforage'
 import COS from './api/COS'
-import { generateUUID, readFile, shrinkImage, namedCanvasToFile } from './Utils'
+import {
+  generateUUID,
+  readFile,
+  namedCanvasToFile,
+  imageToCanvas
+} from './Utils'
 
 const IMAGE_REGEX = /.(jpg|jpeg|png)$/i
 const optional = (p: Promise<any>) => p.catch(() => undefined)
@@ -179,7 +184,12 @@ export default class Collection {
     // TODO: We shouldn't always shrink the image.
     const readFiles = images.map(file =>
       readFile(file)
-        .then(image => shrinkImage(image))
+        .then(image => {
+          if (this._type === 'classification') {
+            return imageToCanvas(image, 224, 224)
+          }
+          return imageToCanvas(image)
+        })
         .then(canvas => {
           const name = `${generateUUID()}.jpg`
           const dataURL = canvas.toDataURL('image/jpeg')

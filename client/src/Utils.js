@@ -65,15 +65,15 @@ export function readFile(file) {
   })
 }
 
-export function shrinkImage(imageSrc) {
+export function imageToCanvas(imageSrc, width, height) {
   return new Promise((resolve, reject) => {
     var img = new Image()
     img.onload = () => {
       const c = window.document.createElement('canvas')
       const ctx = c.getContext('2d')
-      c.width = 224
-      c.height = 224
-      ctx.drawImage(img, 0, 0, 224, 224)
+      c.width = width || img.width
+      c.height = height || img.height
+      ctx.drawImage(img, 0, 0, c.width, c.height)
 
       resolve(c)
     }
