@@ -38,18 +38,11 @@ export default class HorizontalListController extends Component {
       return
     }
 
-    const {
-      onSelectionChanged,
-      selection,
-      delegate,
-      skipShimHackBad
-    } = this.props
+    const { onSelectionChanged, selection, delegate } = this.props
     const char = e.key.toLowerCase()
 
     const left = Math.max(selection - 1, 0)
-    const right = skipShimHackBad
-      ? Math.min(selection, delegate.numberOfItems - 1)
-      : Math.min(selection + 1, delegate.numberOfItems - 1)
+    const right = Math.min(selection + 1, delegate.numberOfItems - 1)
     if (char === 'arrowright') {
       e.preventDefault()
       onSelectionChanged(right)
