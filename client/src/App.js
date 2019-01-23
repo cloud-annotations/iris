@@ -63,45 +63,61 @@ export default class App extends Component {
   }
 
   uploadFiles = fileList => {
-    this.setState(prevState => {
-      const { currentSection, collection } = prevState
-      if (
-        collection.type === 'localization' &&
-        fileList[0].type.startsWith('video/')
-      ) {
-        const FPS = 3
-        collection.addVideo(
-          fileList[0],
-          FPS,
+    const FPS = 3
+    const images = fileList.filter(file => file.type.startsWith('image/'))
+    const videos = fileList.filter(file => file.type.startsWith('video/'))
+    const { collection } = this.state
+    new Promise((resolve, reject) => {
+      if (collection.type === 'localization') {
+        videos
+          .reduce((acc, video) => {
+            return new Promise((resolve, _) => {
+              acc.then(newCollection =>
+                newCollection.addVideo(
+                  video,
+                  FPS,
+                  newerCollection => {
+                    this.setState({ collection: newerCollection }, () => {
+                      resolve(this.state.collection)
+                    })
+                  },
+                  this.handleSyncComplete
+                )
+              )
+            })
+          }, Promise.resolve(collection))
+          .then(() => {
+            resolve()
+          })
+      } else {
+        resolve()
+      }
+    }).then(() => {
+      this.setState(prevState => {
+        const { currentSection, collection } = prevState
+
+        // If a label tab is selected, images need to be labeled as such.
+        const label = (() => {
+          switch (currentSection) {
+            case UNLABELED:
+            case LABELED:
+            case ALL_IMAGES:
+              return undefined
+            default:
+              return currentSection
+          }
+        })()
+
+        const tmpCollection = collection.addImages(
+          images,
+          label,
           intermediateCollection => {
             this.setState({ collection: intermediateCollection })
           },
           this.handleSyncComplete
         )
-        return { saved: false }
-      }
-
-      // If a label tab is selected, images need to be labeled as such.
-      const label = (() => {
-        switch (currentSection) {
-          case UNLABELED:
-          case LABELED:
-          case ALL_IMAGES:
-            return undefined
-          default:
-            return currentSection
-        }
-      })()
-
-      const tmpCollection = collection.addImages(
-        fileList,
-        label,
-        intermediateCollection => {
-          this.setState({ collection: intermediateCollection })
-        },
-        this.handleSyncComplete
-      )
-      return { saved: false, collection: tmpCollection }
+        return { saved: false, collection: tmpCollection }
+      })
     })
   }
 
