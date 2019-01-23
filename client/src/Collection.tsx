@@ -169,7 +169,6 @@ export default class Collection {
         ) => {
           return new Promise<HTMLCanvasElement[]>((resolve, _) => {
             video.onseeked = () => {
-              console.log('canvas' + time)
               const c = window.document.createElement('canvas')
               const ctx = c.getContext('2d')
               c.width = video.videoWidth
@@ -195,7 +194,6 @@ export default class Collection {
         }
       })
       .then((canvases: HTMLCanvasElement[]) => {
-        console.log(`we got ${canvases.length} canvases`)
         const canvasNames = canvases.map(() => {
           const name = `${generateUUID()}.jpg`
           return name
@@ -563,7 +561,6 @@ export default class Collection {
       version: VERSION,
       type: this._type,
       labels: this._labels,
-      images: this._images,
       annotations: this._annotations
     }
   }

@@ -49,10 +49,20 @@ export default class COS {
       fetch(`${baseUrl}/${ANNOTATIONS_JSON}`)
         .then(response => response.json())
         .then(json => {
+          const images = Object.keys(json.annotations).reduce((acc, image) => {
+            const annotation = [...json.annotations[image]]
+            acc.labeled = [...new Set([...(acc.labeled || []), image])]
+            annotation.forEach(annotation => {
+              acc[annotation.label] = [
+                ...new Set([...(acc[annotation.label] || []), image])
+              ]
+            })
+            return acc
+          }, {})
           return {
             type: json.type,
             labels: json.labels,
-            images: json.images,
+            images: images,
             annotations: json.annotations
           }
         })
