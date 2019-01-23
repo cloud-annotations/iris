@@ -11,7 +11,15 @@ class BucketBar extends Component {
   }
 
   render() {
-    const { bucket, saved } = this.props
+    const { bucket, saved, accept } = this.props
+
+    const mediaAdd = (() => {
+      if (accept.includes('video/*')) {
+        return 'Add Media'
+      } else {
+        return 'Add Images'
+      }
+    })()
     return (
       <div className="BucketBar">
         <Link to="/" className="BucketBar-Button BucketBar-buckets-Wrapper">
@@ -38,13 +46,13 @@ class BucketBar extends Component {
           >
             <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
           </svg>
-          Add Images
+          {mediaAdd}
           <input
             ref={ref => {
               this.fileInputEl = ref
             }}
             type="file"
-            accept="image/*,video/*"
+            accept={accept}
             onChange={this.fileChange}
             multiple
           />

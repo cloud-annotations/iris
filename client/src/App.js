@@ -268,6 +268,9 @@ export default class App extends Component {
       count: collection.images[label].length
     }))
 
+    const accept =
+      collection.type === 'localization' ? 'image/*,video/*' : 'image/*'
+
     return (
       <div>
         <Modal
@@ -300,6 +303,7 @@ export default class App extends Component {
         <BucketBar
           saved={saved}
           bucket={bucket}
+          accept={accept}
           onFileChosen={this.handleFileChosen}
         />
         <Sidebar
@@ -316,7 +320,7 @@ export default class App extends Component {
           disableClick
           className="App-Parent"
           style={{ position: 'fixed' }}
-          accept="image/*"
+          accept={accept}
           onDrop={this.handleDrop}
           onDragEnter={this.handleDragEnter}
           onDragLeave={this.handleDragLeave}
