@@ -151,7 +151,7 @@ export default class Collection {
     fps: number,
     onFrameLoaded: UpdatedCollectionCallback,
     syncComplete: SyncCallback
-  ): Collection {
+  ): void {
     setTimeout(syncComplete, 3000)
     const fileURL = URL.createObjectURL(videoFile)
     new Promise<HTMLVideoElement>((resolve, _) => {
@@ -196,11 +196,13 @@ export default class Collection {
       })
       .then((canvases: HTMLCanvasElement[]) => {
         console.log(`we got ${canvases.length} canvases`)
-        const canvasNames = canvases.map(canvas => {
+        const canvasNames = canvases.map(() => {
           const name = `${generateUUID()}.jpg`
-          const dataURL = canvas.toDataURL('image/jpeg')
-          localforage.setItem(name, dataURL)
           return name
+        })
+        const promises = canvasNames.map((name, i) => {
+          const dataURL = canvases[i].toDataURL('image/jpeg')
+          return localforage.setItem(name, dataURL)
         })
         const collection = (() => {
           const images = {
@@ -215,12 +217,18 @@ export default class Collection {
             this._annotations
           )
         })()
+        return new Promise<Collection>((resolve, _) => {
+          Promise.all(promises).then(() => {
+            resolve(collection)
+          })
+        })
+      })
+      .then(collection => {
         onFrameLoaded(collection)
       })
       .catch(error => {
         console.error(error)
       })
-    return Collection.EMPTY
   }
 
   public addImages(
@@ -269,6 +277,16 @@ export default class Collection {
         .then(canvas => {
           const name = `${generateUUID()}.jpg`
           const dataURL = canvas.toDataURL('image/jpeg')
+          return new Promise<{ canvas: HTMLCanvasElement; name: string }>(
+            (resolve, _) => {
+              localforage.setItem(name, dataURL).then(() => {
+                resolve({ canvas: canvas, name: name })
+              })
+            }
+          )
+        })
+        .then(namedCanvas => {
+          const { name } = namedCanvas
           collection = (() => {
             // Find a random tmp name.
             const iInAll = collection._images.all.findIndex(item =>
@@ -333,12 +351,8 @@ export default class Collection {
             )
           })()
           onFileLoaded(collection)
-
-          // We don't care when this finishes, so it can break off on it's own.
-          localforage.setItem(name, dataURL)
-          return { canvas: canvas, name: name }
+          return namedCanvasToFile(namedCanvas)
         })
-        .then(namedCanvas => namedCanvasToFile(namedCanvas))
     )
 
     // const uploadRequest = Promise.all(readFiles)
