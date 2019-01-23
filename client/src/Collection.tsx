@@ -36,16 +36,23 @@ type UpdatedCollectionCallback = (collection: Collection) => void
 
 const VERSION = '1.0'
 export default class Collection {
+  private _bucket: any = undefined
+
   constructor(
     private _type: Type,
     private _labels: string[],
     private _images: Images,
-    private _annotations: Annotations
+    private _annotations: Annotations,
+    endpoint?: string,
+    bucket?: string
   ) {
     this._type = _type
     this._labels = _labels
     this._images = _images
     this._annotations = _annotations
+    if (endpoint && bucket) {
+      this._bucket = new COS(endpoint).bucket(bucket)
+    }
   }
 
   public static get EMPTY() {
@@ -69,8 +76,9 @@ export default class Collection {
         const [collection, fileList] = res
         const images = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
         if (collection) {
-          const labeled = collection.images.labeled
+          const labeled = collection.images.labeled || []
           const unlabeled = images.filter(image => !labeled.includes(image))
+          collection.images.labeled = labeled
           collection.images.unlabeled = unlabeled
           collection.images.all = [...unlabeled, ...labeled]
           return collection
@@ -84,13 +92,37 @@ export default class Collection {
     )
   }
 
+  private _syncBucket = (
+    collection: Collection,
+    syncComplete: SyncCallback
+  ) => {
+    const blob = new Blob([JSON.stringify(collection)], {
+      type: 'application/json;charset=utf-8;'
+    })
+    this._bucket
+      .putFile({
+        name: '_annotations.json',
+        blob: blob
+      })
+      .then(() => {
+        syncComplete()
+      })
+  }
+
   public get type(): Type {
     return this._type
   }
 
   public setType(type: Type, syncComplete: SyncCallback): Collection {
-    setTimeout(syncComplete, 3000)
-    return new Collection(type, this._labels, this._images, this._annotations)
+    const collection = new Collection(
+      type,
+      this._labels,
+      this._images,
+      this._annotations
+    )
+    collection._bucket = this._bucket
+    this._syncBucket(collection, syncComplete)
+    return collection
   }
 
   public get labels(): string[] {
@@ -106,19 +138,20 @@ export default class Collection {
     ) {
       throw new Error('Illegal label name')
     }
-    setTimeout(syncComplete, 3000)
     const images = { ...this._images }
     images[label] = []
-    return new Collection(
+    const collection = new Collection(
       this._type,
       [label, ...this._labels],
       images,
       this._annotations
     )
+    collection._bucket = this._bucket
+    this._syncBucket(collection, syncComplete)
+    return collection
   }
 
   public removeLabel(label: string, syncComplete: SyncCallback): Collection {
-    setTimeout(syncComplete, 3000)
     const images = { ...this._images }
     delete images[label]
     const labels = this._labels.filter(l => label !== l)
@@ -140,12 +173,17 @@ export default class Collection {
       }
       return acc
     }, {})
-    return new Collection(this._type, labels, images, annotations)
+    const collection = new Collection(this._type, labels, images, annotations)
+    collection._bucket = this._bucket
+    this._syncBucket(collection, syncComplete)
+    return collection
   }
 
   public get images(): Images {
     return this._images
   }
+
+  // TODO: sync me!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   public addVideo(
     videoFile: any,
     fps: number,
@@ -253,14 +291,28 @@ export default class Collection {
           acc[tmpName] = [{ label: label }]
           return acc
         }, this._annotations)
-        return new Collection(this._type, this._labels, images, annotations)
+        const newCollection = new Collection(
+          this._type,
+          this._labels,
+          images,
+          annotations
+        )
+        newCollection._bucket = this._bucket
+        return newCollection
       }
       const images = {
         ...this._images,
         all: [...tmpNames, ...this._images.all],
         unlabeled: [...tmpNames, ...this._images.unlabeled]
       }
-      return new Collection(this._type, this._labels, images, this._annotations)
+      const newCollection = new Collection(
+        this._type,
+        this._labels,
+        images,
+        this._annotations
+      )
+      newCollection._bucket = this._bucket
+      return newCollection
     })()
 
     // TODO: We shouldn't always shrink the image.
@@ -318,12 +370,14 @@ export default class Collection {
               delete annotations[tmpName]
               annotations[name] = [{ label: label }]
 
-              return new Collection(
+              const newCollection = new Collection(
                 this._type,
                 this._labels,
                 images,
                 annotations
               )
+              newCollection._bucket = this._bucket
+              return newCollection
             }
 
             // Find the same tmp name in other sections.
@@ -341,28 +395,28 @@ export default class Collection {
               all: newAll,
               unlabeled: newUnlabeled
             }
-            return new Collection(
+
+            const newCollection = new Collection(
               collection._type,
               collection._labels,
               images,
               collection._annotations
             )
+            newCollection._bucket = this._bucket
+            return newCollection
           })()
           onFileLoaded(collection)
           return namedCanvasToFile(namedCanvas)
         })
     )
 
-    // const uploadRequest = Promise.all(readFiles)
-    //   .then(files => {
-    //     return putImages(localStorage.getItem('loginUrl'), bucket, files)
-    //   })
-    //   .catch(error => {
-    //     if (error.message === 'Forbidden') {
-    //       history.push('/login')
-    //     }
-    //     console.error(error)
-    //   })
+    Promise.all(readFiles)
+      .then(files => {
+        return this._bucket.putImages(files)
+      })
+      .then(() => {
+        this._syncBucket(collection, syncComplete)
+      })
     return collection
   }
 
@@ -375,8 +429,6 @@ export default class Collection {
     annotation: Annotation[],
     syncComplete: SyncCallback
   ): Collection {
-    setTimeout(syncComplete, 3000)
-
     const UNTITLED = 'Untitled Label'
 
     annotation.forEach(annotation => {
@@ -469,7 +521,15 @@ export default class Collection {
     })
 
     annotations[image] = cleanedAnnotation
-    return new Collection(this._type, labels, addedImages, annotations)
+    const collection = new Collection(
+      this._type,
+      labels,
+      addedImages,
+      annotations
+    )
+    collection._bucket = this._bucket
+    this._syncBucket(collection, syncComplete)
+    return collection
   }
 
   public labelImages(
@@ -477,7 +537,6 @@ export default class Collection {
     labelName: string,
     syncComplete: SyncCallback
   ): Collection {
-    setTimeout(syncComplete, 3000)
     if (
       labelName.toLowerCase() === 'all' ||
       labelName.toLowerCase() === 'unlabeled' ||
@@ -523,15 +582,21 @@ export default class Collection {
     images.forEach(image => {
       annotations[image] = [{ label: labelName }]
     })
-
-    return new Collection(this._type, labels, newImages, annotations)
+    const collection = new Collection(
+      this._type,
+      labels,
+      newImages,
+      annotations
+    )
+    collection._bucket = this._bucket
+    this._syncBucket(collection, syncComplete)
+    return collection
   }
 
   public unlabelImages(
     images: string[],
     syncComplete: SyncCallback
   ): Collection {
-    setTimeout(syncComplete, 3000)
     const oldImages = { ...this._images }
     const annotations = { ...this._annotations }
 
@@ -553,7 +618,15 @@ export default class Collection {
     const unlabeled = [...new Set([...images, ...oldImages.unlabeled])]
     newImages.unlabeled = unlabeled
 
-    return new Collection(this._type, this._labels, newImages, annotations)
+    const collection = new Collection(
+      this._type,
+      this._labels,
+      newImages,
+      annotations
+    )
+    collection._bucket = this._bucket
+    this._syncBucket(collection, syncComplete)
+    return collection
   }
 
   toJSON() {

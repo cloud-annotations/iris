@@ -81,6 +81,15 @@ export default class COS {
       return Promise.all(requests).then(() => files.map(file => file.name))
     }
 
+    const putFile = file => {
+      const url = `${baseUrl}/${file.name}`
+      const options = {
+        method: 'PUT',
+        body: file.blob
+      }
+      return fetch(url, options).then(handleErrors)
+    }
+
     return {
       type: () => validateCookies().then(type),
       location: () => validateCookies().then(location),
@@ -88,7 +97,8 @@ export default class COS {
       labels: () => validateCookies().then(labels),
       annotations: () => validateCookies().then(annotations),
       collection: () => validateCookies().then(collection),
-      putImages: files => validateCookies().then(() => putImages(files))
+      putImages: files => validateCookies().then(() => putImages(files)),
+      putFile: file => validateCookies().then(() => putFile(file))
     }
   }
 }

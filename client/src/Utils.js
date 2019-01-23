@@ -90,9 +90,11 @@ export function canvasToBlob(canvas) {
 }
 
 export function namedCanvasToFile(namedCanvas) {
-  return namedCanvas.canvas.toBlob(blob => {
-    return { blob: blob, name: namedCanvas.name }
-  }, 'image/jpeg')
+  return new Promise((resolve, _) => {
+    namedCanvas.canvas.toBlob(blob => {
+      resolve({ blob: blob, name: namedCanvas.name })
+    }, 'image/jpeg')
+  })
 }
 
 export function handleErrors(response) {

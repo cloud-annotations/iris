@@ -25,7 +25,14 @@ export default class App extends Component {
 
     Collection.load(endpoint, bucket)
       .then(({ type, labels, images, annotations }) => {
-        const collection = new Collection(type, labels, images, annotations)
+        const collection = new Collection(
+          type,
+          labels,
+          images,
+          annotations,
+          endpoint,
+          bucket
+        )
         console.log(JSON.stringify(collection))
         if (collection.type === undefined) {
           this.setState({
