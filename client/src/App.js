@@ -57,7 +57,7 @@ export default class App extends Component {
     this.state = {
       collection: Collection.EMPTY,
       choice: 'classification',
-      saved: true,
+      saving: 0,
       loading: true,
       modalActive: false,
       dropzoneActive: false,
@@ -74,13 +74,14 @@ export default class App extends Component {
     const images = fileList.filter(file => file.type.startsWith('image/'))
     const videos = fileList.filter(file => file.type.startsWith('video/'))
     const { collection } = this.state
-    new Promise((resolve, reject) => {
+    new Promise((resolve, _) => {
       if (collection.type === 'localization') {
         videos
           .reduce((acc, video) => {
             return new Promise((resolve, _) => {
-              acc.then(newCollection =>
-                newCollection.addVideo(
+              acc.then(newCollection => {
+                this.setState(prevState => ({ saving: prevState.saving + 1 }))
+                return newCollection.addVideo(
                   video,
                   FPS,
                   newerCollection => {
@@ -90,7 +91,7 @@ export default class App extends Component {
                   },
                   this.handleSyncComplete
                 )
-              )
+              })
             })
           }, Promise.resolve(collection))
           .then(() => {
@@ -123,7 +124,7 @@ export default class App extends Component {
           },
           this.handleSyncComplete
         )
-        return { saved: false, collection: tmpCollection }
+        return { saving: prevState.saving + 1, collection: tmpCollection }
       })
     })
   }
@@ -157,7 +158,7 @@ export default class App extends Component {
           label,
           this.handleSyncComplete
         )
-        return { saved: false, collection: collection }
+        return { saving: prevState.saving + 1, collection: collection }
       } catch (error) {
         if (error.message === 'Forbidden') {
           history.push('/login')
@@ -177,7 +178,7 @@ export default class App extends Component {
       const currentSection =
         prevState.currentSection === label ? ALL_IMAGES : label
       return {
-        saved: false,
+        saving: prevState.saving + 1,
         collection: collection,
         currentSection: currentSection
       }
@@ -192,7 +193,7 @@ export default class App extends Component {
           boxes,
           this.handleSyncComplete
         )
-        return { saved: false, collection: collection }
+        return { saving: prevState.saving + 1, collection: collection }
       } catch (error) {
         if (error.message === 'Forbidden') {
           history.push('/login')
@@ -210,7 +211,7 @@ export default class App extends Component {
           label,
           this.handleSyncComplete
         )
-        return { saved: false, collection: collection }
+        return { saving: prevState.saving + 1, collection: collection }
       } catch (error) {
         if (error.message === 'Forbidden') {
           history.push('/login')
@@ -226,7 +227,7 @@ export default class App extends Component {
         images,
         this.handleSyncComplete
       )
-      return { saved: false, collection: collection }
+      return { saving: prevState.saving + 1, collection: collection }
     })
   }
 
@@ -235,7 +236,7 @@ export default class App extends Component {
   }
 
   handleSyncComplete = () => {
-    this.setState({ saved: true })
+    this.setState(prevState => ({ saving: prevState.saving - 1 }))
   }
 
   handleChoiceMade = () => {
@@ -244,7 +245,11 @@ export default class App extends Component {
         prevState.choice,
         this.handleSyncComplete
       )
-      return { saved: false, collection: collection, modalActive: false }
+      return {
+        saving: prevState.saving + 1,
+        collection: collection,
+        modalActive: false
+      }
     })
   }
 
@@ -266,7 +271,7 @@ export default class App extends Component {
       collection,
       dropzoneActive,
       loading,
-      saved,
+      saving,
       currentSection
     } = this.state
 
@@ -308,7 +313,7 @@ export default class App extends Component {
         </Modal>
 
         <BucketBar
-          saved={saved}
+          saved={saving === 0}
           bucket={bucket}
           accept={accept}
           onFileChosen={this.handleFileChosen}

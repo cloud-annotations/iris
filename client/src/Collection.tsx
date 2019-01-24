@@ -76,7 +76,7 @@ export default class Collection {
         const [collection, fileList] = res
         const images = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
         if (collection) {
-          const labeled = collection.images.labeled || []
+          const labeled = collection.images.labeled
           const unlabeled = images.filter(image => !labeled.includes(image))
           collection.images.labeled = labeled
           collection.images.unlabeled = unlabeled
@@ -183,14 +183,12 @@ export default class Collection {
     return this._images
   }
 
-  // TODO: sync me!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   public addVideo(
     videoFile: any,
     fps: number,
     onFrameLoaded: UpdatedCollectionCallback,
     syncComplete: SyncCallback
   ): void {
-    setTimeout(syncComplete, 3000)
     const fileURL = URL.createObjectURL(videoFile)
     new Promise<HTMLVideoElement>((resolve, _) => {
       const video = document.createElement('video')
@@ -236,6 +234,9 @@ export default class Collection {
           const name = `${generateUUID()}.jpg`
           return name
         })
+        const namedCanvases = canvasNames.map((name, i) => {
+          return { canvas: canvases[i], name: name }
+        })
         const promises = canvasNames.map((name, i) => {
           const dataURL = canvases[i].toDataURL('image/jpeg')
           return localforage.setItem(name, dataURL)
@@ -253,14 +254,26 @@ export default class Collection {
             this._annotations
           )
         })()
-        return new Promise<Collection>((resolve, _) => {
+        return new Promise<any>((resolve, _) => {
           Promise.all(promises).then(() => {
-            resolve(collection)
+            resolve({ collection: collection, namedCanvases: namedCanvases })
           })
         })
       })
-      .then(collection => {
+      .then(res => {
+        const { collection, namedCanvases } = res
+        // We don't need to sync the collection
+        collection._bucket = this._bucket
         onFrameLoaded(collection)
+        const toFilePromises = namedCanvases.map((namedCanvas: any) =>
+          namedCanvasToFile(namedCanvas)
+        )
+        return Promise.all(toFilePromises)
+      })
+      .then(images => this._bucket.putImages(images))
+      .then(() => {
+        syncComplete()
+        return
       })
       .catch(error => {
         console.error(error)
@@ -273,8 +286,6 @@ export default class Collection {
     onFileLoaded: UpdatedCollectionCallback,
     syncComplete: SyncCallback
   ): Collection {
-    setTimeout(syncComplete, 3000)
-
     // Create a new collection padded with unique throw-away file names.
     // These pseudo names can be used as keys when rendering lists in React.
     const tmpNames = images.map(() => `${generateUUID()}.tmp`)

@@ -45,7 +45,9 @@ export default class Classification extends Component {
     this.handleClearSelection()
   }
 
-  handleDeleteImages = () => {}
+  handleDeleteImages = () => {
+    alert('todo')
+  }
 
   // MARK: - Getter methods
 
