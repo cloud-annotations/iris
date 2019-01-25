@@ -64,7 +64,9 @@ export default class ToolsPanel extends Component {
             onItemChosen={onLabelChanged}
           />
         </div>
-        <div className={styles.sectionText}>Annotations</div>
+        {bboxes.length === 0 || (
+          <div className={styles.sectionText}>Annotations</div>
+        )}
         {/* sort mutates the original array, but issues on show in Safari */}
         {[...bboxes]
           .sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase())
