@@ -7,9 +7,8 @@ import Collection from './Collection'
 import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
 import { Loading, Modal } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
-import GoogleAnalytics from 'react-ga'
 import history from './history'
-import { getDataTransferItems, readFile } from './Utils'
+import { getDataTransferItems } from './Utils'
 
 import classification from './classification.png'
 import localization from './localization.png'
@@ -63,10 +62,6 @@ export default class App extends Component {
       dropzoneActive: false,
       currentSection: ALL_IMAGES
     }
-  }
-
-  componentDidMount() {
-    GoogleAnalytics.pageview('annotations')
   }
 
   uploadFiles = fileList => {

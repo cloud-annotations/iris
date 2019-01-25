@@ -4,6 +4,7 @@ import ImageTile from './ImageTile'
 import EmptySet from './EmptySet'
 import SelectionBar from './SelectionBar'
 import { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
+import GoogleAnalytics from 'react-ga'
 import styles from './Classification.module.css'
 
 export default class Classification extends Component {
@@ -12,6 +13,10 @@ export default class Classification extends Component {
   }
 
   // MARK: - Life cycle methods
+
+  componentDidMount() {
+    GoogleAnalytics.pageview('classification')
+  }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.currentSection !== this.props.currentSection) {

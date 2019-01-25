@@ -4,6 +4,7 @@ import ImageTileV2 from './ImageTileV2'
 import CrossHair from './CrossHair'
 import ToolsPanel from './ToolsPanel'
 import HorizontalListController from './common/HorizontalList/HorizontalListController'
+import GoogleAnalytics from 'react-ga'
 
 import styles from './Localization.module.css'
 
@@ -21,6 +22,7 @@ export default class App extends Component {
   // MARK: - Life cycle methods
 
   componentDidMount() {
+    GoogleAnalytics.pageview('localization')
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('keyup', this.handleKeyUp)
   }
