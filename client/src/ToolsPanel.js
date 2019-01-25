@@ -65,7 +65,7 @@ export default class ToolsPanel extends Component {
           />
         </div>
         <div className={styles.sectionText}>Annotations</div>
-        {/* Weird Safari issue, bboxes gets mutated...? */}
+        {/* sort mutates the original array, but issues on show in Safari */}
         {[...bboxes]
           .sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase())
           .map(box => {

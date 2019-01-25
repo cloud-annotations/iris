@@ -16,6 +16,8 @@ export default class App extends Component {
     box: 0
   }
 
+  canvasRef = React.createRef()
+
   componentDidMount() {
     window.addEventListener('resize', this.handleWindowResize)
     document.addEventListener('mouseup', this.handleDragEnd)
@@ -39,7 +41,7 @@ export default class App extends Component {
 
     const { imageWidth, imageHeight } = size
 
-    const rect = this.canvasRef.getBoundingClientRect()
+    const rect = this.canvasRef.current.getBoundingClientRect()
     const mX = (e.clientX - rect.left) / imageWidth
     const mY = (e.clientY - rect.top) / imageHeight
 
@@ -95,7 +97,7 @@ export default class App extends Component {
     const { x, y, x2, y2, ...rest } = bboxes[box]
     const { imageWidth, imageHeight } = size
 
-    const rect = this.canvasRef.getBoundingClientRect()
+    const rect = this.canvasRef.current.getBoundingClientRect()
     const mX = (e.clientX - rect.left) / imageWidth
     const mY = (e.clientY - rect.top) / imageHeight
 
@@ -157,20 +159,27 @@ export default class App extends Component {
 
   handleWindowResize = e => {
     const { onImageDimensionChanged } = this.props
-    onImageDimensionChanged(this.canvasRef.width, this.canvasRef.height)
+
+    onImageDimensionChanged(
+      this.canvasRef.current.clientWidth,
+      this.canvasRef.current.clientHeight
+    )
     this.setState({
       size: {
-        imageWidth: this.canvasRef.width,
-        imageHeight: this.canvasRef.height
+        imageWidth: this.canvasRef.current.clientWidth,
+        imageHeight: this.canvasRef.current.clientHeight
       }
     })
   }
 
   handleOnImageLoad = e => {
     const { onImageDimensionChanged } = this.props
-    onImageDimensionChanged(e.target.width, e.target.height)
+    onImageDimensionChanged(e.target.clientWidth, e.target.clientHeight)
     this.setState({
-      size: { imageWidth: e.target.width, imageHeight: e.target.height }
+      size: {
+        imageWidth: e.target.clientWidth,
+        imageHeight: e.target.clientHeight
+      }
     })
   }
 
@@ -183,9 +192,7 @@ export default class App extends Component {
           draggable={false}
           src={this.props.image}
           onLoad={this.handleOnImageLoad}
-          ref={ref => {
-            this.canvasRef = ref
-          }}
+          ref={this.canvasRef}
           onDragStart={e => {
             e.preventDefault()
           }}
