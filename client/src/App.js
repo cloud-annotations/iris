@@ -176,7 +176,9 @@ export default class App extends Component {
       )
       // Quick fix for deleting the active label.
       const currentSection =
-        prevState.currentSection === label ? ALL_IMAGES : label
+        prevState.currentSection === label
+          ? ALL_IMAGES
+          : prevState.currentSection
       return {
         saving: prevState.saving + 1,
         collection: collection,

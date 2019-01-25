@@ -37,7 +37,14 @@ export default class App extends Component {
       const editing = collection.images[currentSection][0]
       this.setState({ editing: editing })
     }
+    // If the labels were empty but now they aren't add it as the selected.
     if (!selectedLabelName && nextProps.collection.labels[0]) {
+      this.setState({
+        selectedLabelName: nextProps.collection.labels[0]
+      })
+    }
+    // If you delete the active dropdown label, it thinks it’s still selected.
+    if (!nextProps.collection.labels.includes(selectedLabelName)) {
       this.setState({
         selectedLabelName: nextProps.collection.labels[0]
       })

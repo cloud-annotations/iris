@@ -50,6 +50,7 @@ export default class ThreeDotMenu extends Component {
               <div
                 className={style}
                 onClick={e => {
+                  e.stopPropagation()
                   this.handleDismiss()
                   item.onItemChosen(e)
                 }}
