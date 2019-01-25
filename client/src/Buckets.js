@@ -59,7 +59,7 @@ class Buckets extends Component {
     return validateCookies()
       .then(() => this.populateBuckets())
       .catch(error => {
-        console.error(error)
+        console.log(error)
         if (error.message === 'Forbidden') {
           history.push('/login')
         }
@@ -236,7 +236,7 @@ class Buckets extends Component {
             if (error.message === 'Forbidden') {
               history.push('/login')
             }
-            if (error === 'Conflict') {
+            if (error.message === 'Conflict') {
               this.setState({
                 loading: false,
                 invalidText: NAME_EXISTS,
@@ -245,7 +245,7 @@ class Buckets extends Component {
             } else {
               this.setState({
                 loading: false,
-                invalidText: error.message.toString(),
+                invalidText: error.message,
                 invalid: true
               })
             }

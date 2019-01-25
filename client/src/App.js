@@ -155,10 +155,10 @@ export default class App extends Component {
         )
         return { saving: prevState.saving + 1, collection: collection }
       } catch (error) {
+        console.error(error)
         if (error.message === 'Forbidden') {
           history.push('/login')
         }
-        console.error(error)
       }
     })
   }
@@ -192,10 +192,10 @@ export default class App extends Component {
         )
         return { saving: prevState.saving + 1, collection: collection }
       } catch (error) {
+        console.error(error)
         if (error.message === 'Forbidden') {
           history.push('/login')
         }
-        console.error(error)
       }
     })
   }
@@ -210,10 +210,10 @@ export default class App extends Component {
         )
         return { saving: prevState.saving + 1, collection: collection }
       } catch (error) {
+        console.error(error)
         if (error.message === 'Forbidden') {
           history.push('/login')
         }
-        console.error(error)
       }
     })
   }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Select, SelectItemGroup, SelectItem } from 'carbon-components-react'
 import GoogleAnalytics from 'react-ga'
-import { handleErrors } from './Utils'
+import { handleErrors, validateCookies } from './Utils'
 import history from './history'
 import './Login.css'
 
@@ -90,6 +90,15 @@ class Login extends Component {
 
   componentDidMount() {
     GoogleAnalytics.pageview('login')
+    // Check if we are already logged in.
+    validateCookies()
+      .then(() => {
+        history.push('/')
+      })
+      .catch(error => {
+        // We are on the Login page so no need to redirect to /Login.
+        console.log(error)
+      })
   }
 
   handleUserInput = e => {

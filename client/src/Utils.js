@@ -99,16 +99,23 @@ export function namedCanvasToFile(namedCanvas) {
 
 export function handleErrors(response) {
   if (!response.ok) {
-    return Promise.reject(response.statusText)
+    if (response.statusText === 'Forbidden') {
+      document.cookie = 'token=; Max-Age=-99999999; path=/'
+      document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
+    }
+    return Promise.reject(new Error(response.statusText))
   }
   return response
 }
 
 export function validateCookies() {
   return new Promise((resolve, reject) => {
-    const cookie = getCookie('token')
-    if (cookie === '') {
-      reject(Error('Forbidden'))
+    const token = getCookie('token')
+    const refreshToken = getCookie('refresh_token')
+    if (token === '' || refreshToken === '') {
+      document.cookie = 'token=; Max-Age=-99999999; path=/'
+      document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
+      reject(new Error('Forbidden'))
     } else {
       resolve()
     }
