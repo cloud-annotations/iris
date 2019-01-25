@@ -39,7 +39,7 @@ export default class App extends Component {
 
     const { imageWidth, imageHeight } = size
 
-    const rect = this.cavasRef.getBoundingClientRect()
+    const rect = this.canvasRef.getBoundingClientRect()
     const mX = (e.clientX - rect.left) / imageWidth
     const mY = (e.clientY - rect.top) / imageHeight
 
@@ -95,7 +95,7 @@ export default class App extends Component {
     const { x, y, x2, y2, ...rest } = bboxes[box]
     const { imageWidth, imageHeight } = size
 
-    const rect = this.cavasRef.getBoundingClientRect()
+    const rect = this.canvasRef.getBoundingClientRect()
     const mX = (e.clientX - rect.left) / imageWidth
     const mY = (e.clientY - rect.top) / imageHeight
 
@@ -157,11 +157,11 @@ export default class App extends Component {
 
   handleWindowResize = e => {
     const { onImageDimensionChanged } = this.props
-    onImageDimensionChanged(this.cavasRef.width, this.cavasRef.height)
+    onImageDimensionChanged(this.canvasRef.width, this.canvasRef.height)
     this.setState({
       size: {
-        imageWidth: this.cavasRef.width,
-        imageHeight: this.cavasRef.height
+        imageWidth: this.canvasRef.width,
+        imageHeight: this.canvasRef.height
       }
     })
   }
@@ -184,7 +184,7 @@ export default class App extends Component {
           src={this.props.image}
           onLoad={this.handleOnImageLoad}
           ref={ref => {
-            this.cavasRef = ref
+            this.canvasRef = ref
           }}
           onDragStart={e => {
             e.preventDefault()

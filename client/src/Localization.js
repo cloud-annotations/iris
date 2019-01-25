@@ -207,6 +207,7 @@ export default class App extends Component {
         return { ...bbox, color: color }
       }
     )
+
     return (
       <div>
         <div
