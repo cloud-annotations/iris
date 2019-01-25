@@ -349,6 +349,7 @@ export default class App extends Component {
               case 'localization':
                 return (
                   <Localization
+                    loading={loading}
                     collection={collection}
                     currentSection={currentSection}
                     onAnnotationAdded={this.handleAnnotationAdded}

@@ -7,6 +7,7 @@ import HorizontalListController from './common/HorizontalList/HorizontalListCont
 import GoogleAnalytics from 'react-ga'
 
 import styles from './Localization.module.css'
+import EmptySet from './EmptySet'
 
 export default class App extends Component {
   state = {
@@ -189,6 +190,7 @@ export default class App extends Component {
 
   render() {
     const {
+      loading,
       editing,
       mode,
       selectedLabelName,
@@ -222,31 +224,35 @@ export default class App extends Component {
             top: '0'
           }}
         >
-          <CrossHair
-            color={this.colorFromLabel(selectedLabelName)}
-            active={mode === 'box'}
-            children={
-              <div
-                style={{
-                  height: '100%',
-                  width: '100%',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
-              >
-                <Canvas
-                  mode={mode}
-                  bboxes={bboxes}
-                  image={image}
-                  onDrawStarted={this.handleDrawStarted}
-                  onCoordinatesChanged={this.handleCoordinatesChanged}
-                  onBoxFinished={this.handleBoxFinished}
-                  onImageDimensionChanged={this.handleImageDimensionChanged}
-                />
-              </div>
-            }
-          />
+          {!loading && !editing ? (
+            <EmptySet show={!loading && !editing} />
+          ) : (
+            <CrossHair
+              color={this.colorFromLabel(selectedLabelName)}
+              active={mode === 'box'}
+              children={
+                <div
+                  style={{
+                    height: '100%',
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Canvas
+                    mode={mode}
+                    bboxes={bboxes}
+                    image={image}
+                    onDrawStarted={this.handleDrawStarted}
+                    onCoordinatesChanged={this.handleCoordinatesChanged}
+                    onBoxFinished={this.handleBoxFinished}
+                    onImageDimensionChanged={this.handleImageDimensionChanged}
+                  />
+                </div>
+              }
+            />
+          )}
         </div>
         <ToolsPanel
           labels={this.props.collection.labels}
