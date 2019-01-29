@@ -72,6 +72,7 @@ app.get('/api/auth', (req, res) => {
       Authorization: 'Basic Yng6Yng='
     }
   }
+
   request(options, (error, response, body) => {
     if (isSuccess(error, response)) {
       setToken(res, body)
