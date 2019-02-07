@@ -23,17 +23,33 @@ export default class COS {
         .then(handleErrors)
         .then(response => response.text())
 
-    const fileList = () =>
-      fetch(baseUrl)
+    const fileList = (continuationToken, list = []) =>
+      fetch(
+        `${baseUrl}?list-type=2${
+          continuationToken ? `&continuation-token=${continuationToken}` : ''
+        }`
+      )
         .then(handleErrors)
         .then(response => response.text())
         .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
-        .then(data =>
-          Array.prototype.map.call(
-            data.getElementsByTagName('Contents'),
-            element => element.getElementsByTagName('Key')[0].innerHTML
-          )
-        )
+        .then(data => {
+          const nextContinuationToken = Array.prototype.map.call(
+            data.getElementsByTagName('NextContinuationToken'),
+            element => element.innerHTML
+          )[0]
+          const currentList = [
+            ...list,
+            ...Array.prototype.map.call(
+              data.getElementsByTagName('Contents'),
+              element => element.getElementsByTagName('Key')[0].innerHTML
+            )
+          ]
+          if (nextContinuationToken) {
+            return fileList(nextContinuationToken, currentList)
+          } else {
+            return currentList
+          }
+        })
 
     const labels = () =>
       fetch(`${baseUrl}/${LABELS_CSV}`)
