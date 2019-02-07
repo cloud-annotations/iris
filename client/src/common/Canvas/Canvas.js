@@ -185,7 +185,11 @@ export default class App extends Component {
 
   render() {
     return (
-      <div onMouseDown={this.handleCanvasDragStart} className={styles.wrapper}>
+      <div
+        draggable={false}
+        onMouseDown={this.handleCanvasDragStart}
+        className={styles.wrapper}
+      >
         <img
           className={styles.image}
           alt=""

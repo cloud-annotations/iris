@@ -90,6 +90,7 @@ export default class CrossHair extends Component {
     }
     return (
       <div
+        draggable={false}
         ref={this.wrapperRef}
         onMouseLeave={this.handleMouseLeave}
         onMouseEnter={this.handleMouseEnter}
