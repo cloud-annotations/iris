@@ -1,56 +1,21 @@
 import React, { Component } from 'react'
-import { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
-import './EmptySet.css'
+import styles from './EmptySet.module.css'
 
-class EmptySet extends Component {
+export default class EmptySet extends Component {
   render() {
-    const { forceHide, sections, collection, currentSection } = this.props
-    if (forceHide) {
-      return ''
-    }
-
-    if (currentSection === ALL_IMAGES) {
-      const count = sections.reduce((acc, label) => {
-        return acc + collection[label].length
-      }, 0)
-      if (count !== 0) {
-        return ''
-      }
-    } else if (currentSection === UNLABELED) {
-      const count = sections.reduce((acc, label) => {
-        if (label === 'Unlabeled') {
-          return acc + collection[label].length
-        }
-        return acc
-      }, 0)
-      if (count !== 0) {
-        return ''
-      }
-    } else if (currentSection === LABELED) {
-      const count = sections.reduce((acc, label) => {
-        if (label !== 'Unlabeled') {
-          return acc + collection[label].length
-        }
-        return acc
-      }, 0)
-      if (count !== 0) {
-        return ''
-      }
-    } else {
-      const count = collection[currentSection].length
-      if (count !== 0) {
-        return ''
-      }
+    const { show } = this.props
+    if (!show) {
+      return null
     }
 
     return (
-      <div className="EmptySet">
-        <div className="EmptySet-Circle" />
-        <div className="EmptySet-Image" />
-        <div className="EmptySet-Image2" />
-        <div className="EmptySet-Text">
-          <div className="EmptySet-Text-Big">Drop images here</div>
-          <div className="EmptySet-Text-Small">
+      <div className={styles.base}>
+        <div className={styles.circle} />
+        <div className={styles.image1} />
+        <div className={styles.image2} />
+        <div className={styles.textContainer}>
+          <div className={styles.largeText}>Drop images here</div>
+          <div className={styles.smallText}>
             or use the “Add Images” button.
           </div>
         </div>
@@ -58,5 +23,3 @@ class EmptySet extends Component {
     )
   }
 }
-
-export default EmptySet

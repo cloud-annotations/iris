@@ -1,0 +1,21 @@
+.wrapper {
+  position: relative;
+  max-width: 80%;
+  height: 80%;
+}
+
+.blendMode {
+  mix-blend-mode: difference;
+  /* important for safari */
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.image {
+  user-select: none;
+  max-width: 100%;
+  max-height: 100%;
+}

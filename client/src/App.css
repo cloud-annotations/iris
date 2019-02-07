@@ -35,7 +35,7 @@
   visibility: hidden;
   background: radial-gradient(
     ellipse at center,
-    hsla(0, 0%, 100%, 1.0) 0%,
+    hsla(0, 0%, 100%, 1) 0%,
     hsla(0, 0%, 100%, 0.85) 65%,
     hsla(0, 0%, 100%, 0.85) 100%
   );

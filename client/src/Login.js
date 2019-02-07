@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import { Select, SelectItemGroup, SelectItem } from 'carbon-components-react'
 import GoogleAnalytics from 'react-ga'
+import { handleErrors, validateCookies } from './Utils'
+import history from './history'
 import './Login.css'
 
-let enpoints = {
+let endpoints = {
   'cross-region': [
     's3-api.us-geo.objectstorage.service.networklayer.com',
     's3-api.dal-us-geo.objectstorage.service.networklayer.com',
@@ -36,7 +38,7 @@ let enpoints = {
 }
 
 if (process.env.NODE_ENV === 'development') {
-  enpoints = {
+  endpoints = {
     'cross-region': [
       's3-api.us-geo.objectstorage.softlayer.net',
       's3-api.dal-us-geo.objectstorage.softlayer.net',
@@ -77,7 +79,7 @@ class Login extends Component {
 
     const resourceId = localStorage.getItem('resourceId') || ''
     const loginUrl =
-      localStorage.getItem('loginUrl') || enpoints['cross-region'][0]
+      localStorage.getItem('loginUrl') || endpoints['cross-region'][0]
 
     this.state = {
       resourceId: resourceId,
@@ -88,6 +90,15 @@ class Login extends Component {
 
   componentDidMount() {
     GoogleAnalytics.pageview('login')
+    // Check if we are already logged in.
+    validateCookies()
+      .then(() => {
+        history.push('/')
+      })
+      .catch(error => {
+        // We are on the Login page so no need to redirect to /Login.
+        console.log(error)
+      })
   }
 
   handleUserInput = e => {
@@ -96,7 +107,7 @@ class Login extends Component {
     this.setState({ [name]: value })
   }
 
-  onEnpointSelect = e => {
+  onEndpointSelect = e => {
     const loginUrl = e.target.options[e.target.selectedIndex].value
     this.setState({ loginUrl: loginUrl })
   }
@@ -111,23 +122,18 @@ class Login extends Component {
     localStorage.setItem('resourceId', resourceId)
     localStorage.setItem('loginUrl', loginUrl)
 
-    const url = 'api/auth?apikey=' + apiKey
+    const url = '/api/auth?apikey=' + apiKey
     const options = {
       method: 'GET'
     }
     const request = new Request(url)
     fetch(request, options)
-      .then(response => {
-        if (!response.ok) {
-          // Fake a forbidden.
-          throw Error('Forbidden')
-        }
-        return response
-      })
+      .then(handleErrors)
       .then(() => {
-        this.props.history.push('/')
+        history.push('/')
       })
       .catch(error => {
+        // We are on the Login page so no need to redirect to /Login.
         console.error(error)
       })
   }
@@ -161,14 +167,14 @@ class Login extends Component {
               <Select
                 className="Login-FormItem-Select"
                 hideLabel
-                onChange={this.onEnpointSelect}
+                onChange={this.onEndpointSelect}
                 id="select-1"
                 defaultValue={this.state.loginUrl}
               >
-                {Object.keys(enpoints).map(group => {
+                {Object.keys(endpoints).map(group => {
                   return (
                     <SelectItemGroup label={group}>
-                      {enpoints[group].map(url => (
+                      {endpoints[group].map(url => (
                         <SelectItem value={url} text={url} />
                       ))}
                     </SelectItemGroup>

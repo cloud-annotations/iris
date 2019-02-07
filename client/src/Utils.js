@@ -21,28 +21,28 @@ export function generateUUID() {
   var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(
     c
   ) {
-    var r = ((d + Math.random() * 16) % 16) | 0
+    var r = (d + Math.random() * 16) % 16 | 0
     d = Math.floor(d / 16)
     return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
   })
   return uuid
 }
 
-export function getDataTransferItems(event) {
+export function getDataTransferItems(e) {
   let dataTransferItemsList = []
-  if (event.dataTransfer) {
-    const dt = event.dataTransfer
+  if (e.dataTransfer) {
+    const dt = e.dataTransfer
     if (dt.files && dt.files.length) {
       dataTransferItemsList = dt.files
     } else if (dt.items && dt.items.length) {
       // During the drag even the dataTransfer.files is null
-      // but Chrome implements some drag store, which is accesible via dataTransfer.items
+      // but Chrome implements some drag store, which is accessible via dataTransfer.items
       return Array.prototype.slice
         .call(dt.items)
         .filter(item => item.kind === 'file')
     }
-  } else if (event.target && event.target.files) {
-    dataTransferItemsList = event.target.files
+  } else if (e.target && e.target.files) {
+    dataTransferItemsList = e.target.files
   }
   // Convert from DataTransferItemsList to the native Array
   return Array.prototype.slice.call(dataTransferItemsList)
@@ -65,15 +65,15 @@ export function readFile(file) {
   })
 }
 
-export function shrinkImage(imageSrc) {
+export function imageToCanvas(imageSrc, width, height) {
   return new Promise((resolve, reject) => {
     var img = new Image()
     img.onload = () => {
       const c = window.document.createElement('canvas')
       const ctx = c.getContext('2d')
-      c.width = 224
-      c.height = 224
-      ctx.drawImage(img, 0, 0, 224, 224)
+      c.width = width || img.width
+      c.height = height || img.height
+      ctx.drawImage(img, 0, 0, c.width, c.height)
 
       resolve(c)
     }
@@ -89,18 +89,33 @@ export function canvasToBlob(canvas) {
   })
 }
 
+export function namedCanvasToFile(namedCanvas) {
+  return new Promise((resolve, _) => {
+    namedCanvas.canvas.toBlob(blob => {
+      resolve({ blob: blob, name: namedCanvas.name })
+    }, 'image/jpeg')
+  })
+}
+
 export function handleErrors(response) {
   if (!response.ok) {
-    throw Error(response.statusText)
+    if (response.statusText === 'Forbidden') {
+      document.cookie = 'token=; Max-Age=-99999999; path=/'
+      document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
+    }
+    return Promise.reject(new Error(response.statusText))
   }
   return response
 }
 
 export function validateCookies() {
   return new Promise((resolve, reject) => {
-    const cookie = getCookie('token')
-    if (cookie === '') {
-      reject(Error('Forbidden'))
+    const token = getCookie('token')
+    const refreshToken = getCookie('refresh_token')
+    if (token === '' || refreshToken === '') {
+      document.cookie = 'token=; Max-Age=-99999999; path=/'
+      document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
+      reject(new Error('Forbidden'))
     } else {
       resolve()
     }

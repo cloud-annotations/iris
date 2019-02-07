@@ -28,14 +28,15 @@ class Sidebar extends Component {
   }
 
   createLabel = () => {
+    const { sectionList, onLabelAdded } = this.props
     const labelName = this.labelNameInput.value
-    const trimmedCompare = this.props.sections.filter(label => {
-      return labelName.trim() === label.trim()
+    const trimmedCompare = sectionList.filter(label => {
+      return labelName.trim() === label.name.trim()
     })
     if (labelName === '' || trimmedCompare.length > 0) {
       return
     }
-    this.props.createLabel(labelName)
+    onLabelAdded(labelName)
     this.labelNameInput.value = ''
   }
 
@@ -47,9 +48,10 @@ class Sidebar extends Component {
   }
 
   deleteLabel = (e, label) => {
+    const { onLabelDeleted } = this.props
     e.stopPropagation()
     this.clearMenu()
-    this.props.deleteLabel(label)
+    onLabelDeleted(label)
   }
 
   renameLabel = (e, label) => {
@@ -69,7 +71,14 @@ class Sidebar extends Component {
   }
 
   render() {
-    const { sections, chooseSection, collection, currentSection } = this.props
+    const {
+      sectionList,
+      allImagesCount,
+      labeledCount,
+      unlabeledCount,
+      currentSection,
+      onSectionChanged
+    } = this.props
     return (
       <div className="Sidebar">
         <div className="Sidebar-Fixed-Items">
@@ -78,16 +87,12 @@ class Sidebar extends Component {
               currentSection === ALL_IMAGES ? '--Active' : ''
             }`}
             onClick={() => {
-              chooseSection(ALL_IMAGES)
+              onSectionChanged(ALL_IMAGES)
             }}
           >
             <div className="Sidebar-itemTitle">All images</div>
             <div className="Sidebar-itemCount">
-              {sections
-                .reduce((acc, label) => {
-                  return acc + collection[label].length
-                }, 0)
-                .toLocaleString()}
+              {allImagesCount.toLocaleString()}
             </div>
           </div>
           <div
@@ -95,19 +100,12 @@ class Sidebar extends Component {
               currentSection === LABELED ? '--Active' : ''
             }`}
             onClick={() => {
-              chooseSection(LABELED)
+              onSectionChanged(LABELED)
             }}
           >
             <div className="Sidebar-itemTitle">Labeled</div>
             <div className="Sidebar-itemCount">
-              {sections
-                .reduce((acc, label) => {
-                  if (label !== 'Unlabeled') {
-                    return acc + collection[label].length
-                  }
-                  return acc
-                }, 0)
-                .toLocaleString()}
+              {labeledCount.toLocaleString()}
             </div>
           </div>
           <div
@@ -115,19 +113,12 @@ class Sidebar extends Component {
               currentSection === UNLABELED ? '--Active' : ''
             }`}
             onClick={() => {
-              chooseSection(UNLABELED)
+              onSectionChanged(UNLABELED)
             }}
           >
             <div className="Sidebar-itemTitle">Unlabeled</div>
             <div className="Sidebar-itemCount">
-              {sections
-                .reduce((acc, label) => {
-                  if (label === 'Unlabeled') {
-                    return acc + collection[label].length
-                  }
-                  return acc
-                }, 0)
-                .toLocaleString()}
+              {unlabeledCount.toLocaleString()}
             </div>
           </div>
 
@@ -177,60 +168,56 @@ class Sidebar extends Component {
           </div>
         </div>
 
-        {sections
-          .filter(label => {
-            return label !== 'Unlabeled'
-          })
-          .map(label => {
-            return (
+        {sectionList.map(label => {
+          return (
+            <div
+              className={`Sidebar-Item ${
+                currentSection === label.name ? '--Active' : ''
+              } ${this.state.menuOpen === label.name ? '--NoHover' : ''}`}
+              onClick={() => {
+                onSectionChanged(label.name)
+              }}
+            >
+              <div className="Sidebar-itemTitle">{label.name}</div>
+              <div className="Sidebar-itemCount">
+                {label.count.toLocaleString()}
+              </div>
               <div
-                className={`Sidebar-Item ${
-                  currentSection === label ? '--Active' : ''
-                } ${this.state.menuOpen === label ? '--NoHover' : ''}`}
-                onClick={() => {
-                  chooseSection(label)
+                className="Sidebar-itemOverflow"
+                onClick={e => {
+                  this.submenu(e, label.name)
                 }}
               >
-                <div className="Sidebar-itemTitle">{label}</div>
-                <div className="Sidebar-itemCount">
-                  {collection[label].length.toLocaleString()}
-                </div>
+                <svg width="3" height="15" viewBox="0 0 3 15">
+                  <path d="M0 1.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 7.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 13.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0" />
+                </svg>
+              </div>
+              <div
+                className={`Sidebar-itemOverflow-Menu ${
+                  this.state.menuOpen === label.name ? '--Active' : ''
+                }`}
+                onMouseLeave={this.clearMenu}
+              >
                 <div
-                  className="Sidebar-itemOverflow"
+                  className="Sidebar-itemOverflow-MenuItem --Dissabled"
                   onClick={e => {
-                    this.submenu(e, label)
+                    this.renameLabel(e, label.name)
                   }}
                 >
-                  <svg width="3" height="15" viewBox="0 0 3 15">
-                    <path d="M0 1.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 7.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 13.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0" />
-                  </svg>
+                  Rename
                 </div>
                 <div
-                  className={`Sidebar-itemOverflow-Menu ${
-                    this.state.menuOpen === label ? '--Active' : ''
-                  }`}
-                  onMouseLeave={this.clearMenu}
+                  className="Sidebar-itemOverflow-MenuItem --Danger"
+                  onClick={e => {
+                    this.deleteLabel(e, label.name)
+                  }}
                 >
-                  <div
-                    className="Sidebar-itemOverflow-MenuItem --Dissabled"
-                    onClick={e => {
-                      this.renameLabel(e, label)
-                    }}
-                  >
-                    Rename
-                  </div>
-                  <div
-                    className="Sidebar-itemOverflow-MenuItem --Danger"
-                    onClick={e => {
-                      this.deleteLabel(e, label)
-                    }}
-                  >
-                    Delete
-                  </div>
+                  Delete
                 </div>
               </div>
-            )
-          })}
+            </div>
+          )
+        })}
       </div>
     )
   }

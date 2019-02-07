@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import GoogleAnalytics from 'react-ga'
+import Collection from './Collection'
 import {
   DataTable,
   DataTableSkeleton,
@@ -13,8 +14,11 @@ import { validateCookies, handleErrors } from './Utils'
 import MD5 from 'crypto-js/md5'
 import Base64 from 'crypto-js/enc-base64'
 
+import history from './history'
+
 import 'carbon-components/css/carbon-components.min.css'
 import './Buckets.css'
+import styles from './Buckets.module.css'
 
 const {
   TableContainer,
@@ -55,47 +59,83 @@ class Buckets extends Component {
     return validateCookies()
       .then(() => this.populateBuckets())
       .catch(error => {
-        console.error(error)
+        console.log(error)
         if (error.message === 'Forbidden') {
-          this.props.history.push('/login')
+          history.push('/login')
         }
       })
   }
 
   populateBuckets = () => {
-    return new Promise((resolve, reject) => {
-      const url = `api/proxy/${localStorage.getItem(
-        'loginUrl'
-      )}?resourceId=${localStorage.getItem('resourceId')}`
-      const options = {
-        method: 'GET'
+    const url = `/api/proxy/${localStorage.getItem('loginUrl')}`
+    const options = {
+      method: 'GET',
+      headers: {
+        'ibm-service-instance-id': localStorage.getItem('resourceId')
       }
-      const request = new Request(url)
-      fetch(request, options)
-        .then(handleErrors)
-        .then(response => response.json())
-        .then(str =>
-          new window.DOMParser().parseFromString(str.xml, 'text/xml')
-        )
-        .then(data => {
-          console.log(data)
-          const elements = data.getElementsByTagName('Bucket')
-          const bucketList = Array.prototype.map.call(elements, element => {
-            const name = element.getElementsByTagName('Name')[0].innerHTML
-            const date = element.getElementsByTagName('CreationDate')[0]
-              .innerHTML
-            return {
-              id: name,
-              name: name,
-              created: new Date(date).toLocaleDateString()
-            }
-          })
-
-          this.props.cacheBucketList(bucketList)
-          resolve()
+    }
+    return fetch(url, options)
+      .then(handleErrors)
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
+      .then(data => {
+        const elements = data.getElementsByTagName('Bucket')
+        const bucketList = Array.prototype.map.call(elements, element => {
+          const name = element.getElementsByTagName('Name')[0].innerHTML
+          const date = element.getElementsByTagName('CreationDate')[0].innerHTML
+          return {
+            id: name,
+            name: name,
+            created: new Date(date).toLocaleDateString()
+          }
         })
-        .catch(reject)
-    })
+
+        this.props.cacheBucketList(bucketList)
+
+        // console.timeEnd('Get initial bucket list')
+
+        // console.time('Get bucket locations')
+
+        // const noDependency = p => p.catch(() => undefined)
+        // const typePromises = bucketList.map(bucket =>
+        //   noDependency(
+        //     fetchTest(localStorage.getItem('loginUrl'), bucket.name).location()
+        //   ).then(location => ({
+        //     bucket: bucket,
+        //     location: location
+        //   }))
+        // )
+        // return Promise.all(typePromises)
+      })
+    // .then(res => {
+    //   console.timeEnd('Get bucket locations')
+    //   console.time('Get bucket type')
+    //   const noDependency = p => p.catch(() => undefined)
+    //   const typePromises = res
+    //     .filter(item => item.location === '')
+    //     .map(item =>
+    //       noDependency(
+    //         fetchTest(
+    //           localStorage.getItem('loginUrl'),
+    //           item.bucket.name
+    //         ).type()
+    //       ).then(type => ({
+    //         bucket: item.bucket,
+    //         type: type
+    //       }))
+    //     )
+    //   return Promise.all(typePromises)
+    // })
+    // .then(res => {
+    //   console.timeEnd('Get bucket type')
+    //   console.timeEnd('Total time')
+
+    //   console.log(res)
+    //   const buckets = res
+    //     .filter(item => item.type === '')
+    //     .map(item => item.bucket)
+    //   this.props.cacheBucketList(buckets)
+    // })
   }
 
   openModal = () => {
@@ -166,11 +206,14 @@ class Buckets extends Component {
         loading: true
       },
       () => {
-        const url = `api/proxy/${localStorage.getItem(
+        const url = `/api/proxy/${localStorage.getItem(
           'loginUrl'
-        )}/${bucketName}?resourceId=${localStorage.getItem('resourceId')}`
+        )}/${bucketName}`
         const options = {
-          method: 'PUT'
+          method: 'PUT',
+          headers: {
+            'ibm-service-instance-id': localStorage.getItem('resourceId')
+          }
         }
         const request = new Request(url)
         fetch(request, options)
@@ -190,6 +233,9 @@ class Buckets extends Component {
             )
           })
           .catch(error => {
+            if (error.message === 'Forbidden') {
+              history.push('/login')
+            }
             if (error.message === 'Conflict') {
               this.setState({
                 loading: false,
@@ -199,7 +245,7 @@ class Buckets extends Component {
             } else {
               this.setState({
                 loading: false,
-                invalidText: error.message.toString(),
+                invalidText: error.message,
                 invalid: true
               })
             }
@@ -218,13 +264,13 @@ class Buckets extends Component {
       }
     })
 
-    const url = `api/proxy/${localStorage.getItem('loginUrl')}/${bucketName}`
+    const url = `/api/proxy/${localStorage.getItem('loginUrl')}/${bucketName}`
     const options = { method: 'GET' }
     const request = new Request(url)
     fetch(request, options)
       .then(handleErrors)
-      .then(response => response.json())
-      .then(str => new window.DOMParser().parseFromString(str.xml, 'text/xml'))
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
       .then(data => {
         console.log(data)
 
@@ -250,9 +296,9 @@ class Buckets extends Component {
         }
 
         const md5Hash = MD5(xmlString).toString(Base64)
-        const url = `api/proxy/${localStorage.getItem(
+        const url = `/api/proxy/${localStorage.getItem(
           'loginUrl'
-        )}/${bucketName}`
+        )}/${bucketName}?delete=`
         const options = {
           method: 'POST',
           body: xmlString,
@@ -265,7 +311,7 @@ class Buckets extends Component {
       })
       .then(handleErrors)
       .then(() => {
-        const url = `api/proxy/${localStorage.getItem(
+        const url = `/api/proxy/${localStorage.getItem(
           'loginUrl'
         )}/${bucketName}`
         const options = { method: 'DELETE' }
@@ -288,6 +334,9 @@ class Buckets extends Component {
       })
       .catch(error => {
         console.error(error)
+        if (error.message === 'Forbidden') {
+          history.push('/login')
+        }
         this.setState(prevState => {
           const loading = prevState.loadingBuckets.filter(bucket => {
             return bucketName !== bucket
@@ -365,7 +414,7 @@ class Buckets extends Component {
                         <TableRow
                           key={row.id}
                           onClick={() => {
-                            this.props.history.push(`/${row.id}`)
+                            history.push(`/${row.id}`)
                           }}
                         >
                           {row.cells.map(cell => (

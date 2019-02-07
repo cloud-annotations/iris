@@ -1,14 +1,25 @@
 #!/bin/bash
 
-export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/annotations/kube-config-wdc04-annotations.yml"
+if [ "$DEPLOY_TO" = "production" ]
+then
+  # PRODUCTION:
+  echo "Deploying to PRODUCTION..."
+  export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/annotations/kube-config-wdc04-annotations.yml"
+  CLUSTER="annotations"
+  URL="https://${CLUSTER}.us-east.containers.appdomain.cloud"
+  DEPLOYMENT="cloud-annotations-production"
+else
+  # STAGING:
+  echo "Deploying to STAGING..."
+  export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/staging.annotations/kube-config-wdc04-staging.annotations.yml"
+  CLUSTER="staging.annotations"
+  URL="https://stagingannotations.us-east.containers.appdomain.cloud"
+  DEPLOYMENT="cloud-annotations-staging"
+fi
 
-URL="https://annotations.us-east.containers.appdomain.cloud"
-
-DEPLOYMENT="cloud-annotations-production"
 PROJECT_ID="nypower"
 NAME="annotate"
-IMAGE_NAME="registry.ng.bluemix.net/$PROJECT_ID/$NAME:$(git rev-parse HEAD)"
-CLUSTER="annotations"
+IMAGE_NAME="registry.ng.bluemix.net/${PROJECT_ID}/${NAME}:$(git rev-parse HEAD)"
 
 function fail {
   echo $1 >&2
@@ -19,9 +30,11 @@ trap 'fail "The deployment was aborted. Message -- "' ERR
 
 function configure {
   echo "Validating configuration..."
+  [ ! -z "$CLUSTER" ] || fail "Configuration option is not set: CLUSTER"
   [ ! -z "$DEPLOYMENT" ] || fail "Configuration option is not set: DEPLOYMENT"
   [ ! -z "$PROJECT_ID" ] || fail "Configuration option is not set: PROJECT_ID"
   [ ! -z "$IMAGE_NAME" ] || fail "Configuration option is not set: IMAGE_NAME"
+  ibmcloud login -sso
 }
 
 function download_config {
@@ -36,7 +49,7 @@ function attempt_build {
 
 function set_image {
   echo Container build completed, updating $DEPLOYMENT ...
-  # kubectl run $DEPLOYMENT --image=$IMAGE_NAME
+  # kubectl run $DEPLOYMENT --image=$IMAGE_NAME # Must be run if this is a new DEPLOYMENT
   kubectl set image deployments/$DEPLOYMENT $DEPLOYMENT=$IMAGE_NAME
 }
 

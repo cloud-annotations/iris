@@ -1,4 +1,4 @@
-.ImageGrid {
+.grid {
   margin: 25px 50px 0 50px;
   grid-template-columns: repeat(auto-fill, 112px);
   grid-template-rows: repeat(auto-fill, 112px);
@@ -8,11 +8,11 @@
   justify-content: center;
 }
 
-.ImageGrid-Gap {
+.gap {
   margin: 80px;
 }
 
-.ImageGrid-Section-Title {
+.sectionTitle {
   display: grid;
   align-content: start;
   justify-content: center;
@@ -29,7 +29,7 @@
   line-height: normal;
 }
 
-.ImageGrid-Section-Span {
+.sectionSpan {
   grid-column: 1 / auto-fill;
   white-space: nowrap;
   overflow: hidden;

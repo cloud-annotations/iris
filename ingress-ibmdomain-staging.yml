@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-for-ibmdomain-http-and-https
+spec:
+  tls:
+  - hosts:
+    - stagingannotations.us-east.containers.appdomain.cloud
+    secretName: stagingannotations
+  rules:
+  - host: stagingannotations.us-east.containers.appdomain.cloud
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: stagingannotations
+          servicePort: 8080
+
+# kubectl apply -f ingress-ibmdomain-staging.yml
+# kubectl expose deployment/cloud-annotations-staging --type=NodePort --port=8080 --name=stagingannotations --target-port=8080

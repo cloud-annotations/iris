@@ -2,9 +2,12 @@
   "name": "watson-ml",
   "version": "0.1.0",
   "scripts": {
+    "client-remove": "cd client && yarn remove",
+    "client-add": "cd client && yarn add",
     "client": "cd client && yarn start",
     "build": "cd client && npm run build",
-    "deploy": "yarn build && ./deploy.sh",
+    "deploy": "yarn build && export DEPLOY_TO=production && ./deploy.sh",
+    "stage": "yarn build && export DEPLOY_TO=staging && ./deploy.sh",
     "server": "nodemon server.js",
     "start": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },
@@ -12,8 +15,7 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
     "frameguard": "^3.0.0",
-    "request": "^2.88.0",
-    "superagent": "^3.8.3"
+    "request": "^2.88.0"
   },
   "devDependencies": {
     "concurrently": "^3.6.0"
