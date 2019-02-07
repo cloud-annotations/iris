@@ -331,9 +331,9 @@ export default class Collection {
       readFile(file)
         .then(image => {
           if (this._type === 'classification') {
-            return imageToCanvas(image, 224, 224)
+            return imageToCanvas(image, 224, 224, 'scaleToFill')
           }
-          return imageToCanvas(image)
+          return imageToCanvas(image, 1500, 1500, 'scaleAspectFit')
         })
         .then(canvas => {
           const name = `${generateUUID()}.jpg`
