@@ -100,7 +100,7 @@ export default class Classification extends Component {
       <div>
         <SelectionBar
           selectionCount={selectionCount}
-          sections={visibleLabels}
+          sections={labels}
           deselectAll={this.handleClearSelection}
           onItemChosen={this.handleLabelChanged}
           unlabelImages={this.handleUnlabelImages}
