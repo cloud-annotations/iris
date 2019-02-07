@@ -65,14 +65,30 @@ export function readFile(file) {
   })
 }
 
-export function imageToCanvas(imageSrc, width, height) {
-  return new Promise((resolve, reject) => {
+export function imageToCanvas(imageSrc, width, height, mode) {
+  return new Promise((resolve, _) => {
     var img = new Image()
     img.onload = () => {
       const c = window.document.createElement('canvas')
       const ctx = c.getContext('2d')
-      c.width = width || img.width
-      c.height = height || img.height
+      if (mode === 'scaleToFill') {
+        c.width = width || img.width
+        c.height = height || img.height
+      } else if (mode === 'scaleAspectFit') {
+        if (img.width > img.height) {
+          const aspect = img.height / img.width
+          c.width = Math.min(img.width, width)
+          c.height = c.width * aspect
+        } else {
+          const aspect = img.width / img.height
+          c.height = Math.min(img.height, height)
+          c.width = c.height * aspect
+        }
+      } else {
+        c.width = width || img.width
+        c.height = height || img.height
+      }
+
       ctx.drawImage(img, 0, 0, c.width, c.height)
 
       resolve(c)
