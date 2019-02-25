@@ -11,13 +11,13 @@ app.use(cookieParser())
 app.use(frameguard()) // Prevent click jacking.
 
 // Redirect http to https.
-app.enable('trust proxy')
+// app.enable('trust proxy')
 app.use((req, res, next) => {
-  if (req.secure || process.env.NODE_ENV !== 'production') {
-    next()
-  } else {
-    res.redirect('https://' + req.headers.host + req.url)
-  }
+  // if (req.secure || process.env.NODE_ENV !== 'production') {
+  next()
+  // } else {
+  //   res.redirect('https://' + req.headers.host + req.url)
+  // }
 })
 
 const isSuccess = (error, response) => {

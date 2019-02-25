@@ -51,6 +51,7 @@ function set_image {
   echo Container build completed, updating $DEPLOYMENT ...
   # kubectl run $DEPLOYMENT --image=$IMAGE_NAME # Must be run if this is a new DEPLOYMENT
   kubectl set image deployments/$DEPLOYMENT $DEPLOYMENT=$IMAGE_NAME
+  kubectl scale deployment $DEPLOYMENT --replicas=6
 }
 
 configure
