@@ -51,7 +51,11 @@ export default class Classification extends Component {
   }
 
   handleDeleteImages = () => {
-    alert('todo')
+    const { selection } = this.state
+    const { collection, currentSection, onImagesDeleted } = this.props
+    const images = this.getSelectedImages(selection, collection, currentSection)
+    onImagesDeleted(images)
+    this.handleClearSelection()
   }
 
   // MARK: - Getter methods

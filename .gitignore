@@ -1,3 +1,10 @@
+*.pem
+ca.srl
+prod-*.yaml
+staging-*.yaml
+*tiller*
+rbac-config.yaml
+
 # Logs
 logs
 *.log

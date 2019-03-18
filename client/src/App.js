@@ -228,6 +228,16 @@ export default class App extends Component {
     })
   }
 
+  handleImagesDeleted = images => {
+    this.setState(prevState => {
+      const collection = prevState.collection.deleteImages(
+        images,
+        this.handleSyncComplete
+      )
+      return { saving: prevState.saving + 1, collection: collection }
+    })
+  }
+
   handleDataLoaded = () => {
     this.setState({ loading: false })
   }
@@ -365,6 +375,7 @@ export default class App extends Component {
                     currentSection={currentSection}
                     onImagesLabeled={this.handleImagesLabeled}
                     onImagesUnlabeled={this.handleImagesUnlabeled}
+                    onImagesDeleted={this.handleImagesDeleted}
                     onLabelAdded={this.handleLabelAdded}
                     bucket={bucket}
                   />

@@ -110,6 +110,19 @@ export default class COS {
       return fetch(url, options).then(handleErrors)
     }
 
+    const deleteFiles = files => {
+      const requests = files.map(file => deleteFile(file))
+      return Promise.all(requests)
+    }
+
+    const deleteFile = fileName => {
+      const url = `${baseUrl}/${fileName}`
+      const options = {
+        method: 'DELETE'
+      }
+      return fetch(url, options).then(handleErrors)
+    }
+
     return {
       type: () => validateCookies().then(type),
       location: () => validateCookies().then(location),
@@ -118,7 +131,8 @@ export default class COS {
       annotations: () => validateCookies().then(annotations),
       collection: () => validateCookies().then(collection),
       putImages: files => validateCookies().then(() => putImages(files)),
-      putFile: file => validateCookies().then(() => putFile(file))
+      putFile: file => validateCookies().then(() => putFile(file)),
+      deleteFiles: files => validateCookies().then(() => deleteFiles(files))
     }
   }
 }

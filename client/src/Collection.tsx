@@ -431,6 +431,33 @@ export default class Collection {
     return collection
   }
 
+  public deleteImages(
+    imageIds: [string],
+    syncComplete: SyncCallback
+  ): Collection {
+    const labels = [...this._labels]
+
+    const oldImages = { ...this._images }
+    const images = Object.keys(oldImages).reduce((acc, key) => {
+      acc[key] = oldImages[key].filter(image => !imageIds.includes(image))
+      return acc
+    }, oldImages)
+
+    const annotations = { ...this._annotations }
+    imageIds.forEach(imageId => {
+      delete annotations[imageId]
+    })
+
+    const collection = new Collection(this._type, labels, images, annotations)
+    collection._bucket = this._bucket
+
+    collection._bucket.deleteFiles(imageIds).then(() => {
+      this._syncBucket(collection, syncComplete)
+    })
+
+    return collection
+  }
+
   public get annotations(): Annotations {
     return this._annotations
   }
