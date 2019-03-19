@@ -326,7 +326,6 @@ export default class Collection {
       return newCollection
     })()
 
-    // TODO: We shouldn't always shrink the image.
     const readFiles = images.map(file =>
       readFile(file)
         .then(image => {
@@ -371,13 +370,13 @@ export default class Collection {
               const newLabel = [...collection._images[label]]
               newLabel[iInLabel] = name
               const images = {
-                ...this._images,
+                ...collection._images,
                 all: newAll,
                 labeled: newLabeled,
                 [label]: newLabel
               }
 
-              const annotations = { ...this._annotations }
+              const annotations = { ...collection._annotations }
               delete annotations[tmpName]
               annotations[name] = [{ label: label }]
 
@@ -428,6 +427,7 @@ export default class Collection {
       .then(() => {
         this._syncBucket(collection, syncComplete)
       })
+
     return collection
   }
 
