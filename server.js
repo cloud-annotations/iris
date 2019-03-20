@@ -11,14 +11,18 @@ app.use(cookieParser())
 app.use(frameguard()) // Prevent click jacking.
 
 // Redirect http to https.
-// app.enable('trust proxy')
-app.use((req, res, next) => {
-  // if (req.secure || process.env.NODE_ENV !== 'production') {
-  next()
-  // } else {
-  //   res.redirect('https://' + req.headers.host + req.url)
-  // }
-})
+app.enable('trust proxy')
+// app.use((req, res, next) => {
+//   if (req.headers.host === 'annotations.us-east.containers.appdomain.cloud') {
+//     res.redirect('https://' + 'cloud.annotations.ai' + req.url)
+//     return
+//   }
+//   if (req.secure || process.env.NODE_ENV !== 'production') {
+//     next()
+//   } else {
+//     res.redirect('https://' + req.headers.host + req.url)
+//   }
+// })
 
 const isSuccess = (error, response) => {
   return !error && response.statusCode === 200
