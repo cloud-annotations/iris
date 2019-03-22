@@ -16,8 +16,8 @@ const shouldRedirect = host => {
   }
   const www = 'www.annotations.ai'
   const nonwww = 'annotations.ai'
-  const ingress = 'annotations.us-east.containers.appdomain.cloud'
-  return check(host, www) || check(host, nonwww) || check(host, ingress)
+  // const ingress = 'annotations.us-east.containers.appdomain.cloud'
+  return check(host, www) || check(host, nonwww) //|| check(host, ingress)
 }
 
 app.enable('trust proxy')
