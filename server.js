@@ -10,19 +10,29 @@ const port = process.env.PORT || 9000
 app.use(cookieParser())
 app.use(frameguard()) // Prevent click jacking.
 
-// Redirect http to https.
+const shouldRedirect = host => {
+  const check = (host, check) => {
+    return host.slice(0, check.length) === check
+  }
+  const www = 'www.annotations.ai'
+  const nonwww = 'annotations.ai'
+  const ingress = 'annotations.us-east.containers.appdomain.cloud'
+  return check(host, www) || check(host, nonwww) || check(host, ingress)
+}
+
 app.enable('trust proxy')
-// app.use((req, res, next) => {
-//   if (req.headers.host === 'annotations.us-east.containers.appdomain.cloud') {
-//     res.redirect('https://' + 'cloud.annotations.ai' + req.url)
-//     return
-//   }
-//   if (req.secure || process.env.NODE_ENV !== 'production') {
-//     next()
-//   } else {
-//     res.redirect('https://' + req.headers.host + req.url)
-//   }
-// })
+app.use((req, res, next) => {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    shouldRedirect(req.headers.host)
+  ) {
+    return res.redirect(
+      301,
+      req.protocol + '://cloud.annotations.ai' + req.originalUrl
+    )
+  }
+  next()
+})
 
 const isSuccess = (error, response) => {
   return !error && response.statusCode === 200
