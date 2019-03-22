@@ -21,18 +21,18 @@ const shouldRedirect = host => {
 }
 
 app.enable('trust proxy')
-app.use((req, res, next) => {
-  if (
-    process.env.NODE_ENV === 'production' &&
-    shouldRedirect(req.headers.host)
-  ) {
-    return res.redirect(
-      301,
-      req.protocol + '://cloud.annotations.ai' + req.originalUrl
-    )
-  }
-  next()
-})
+// app.use((req, res, next) => {
+//   if (
+//     process.env.NODE_ENV === 'production' &&
+//     shouldRedirect(req.headers.host)
+//   ) {
+//     return res.redirect(
+//       301,
+//       req.protocol + '://cloud.annotations.ai' + req.originalUrl
+//     )
+//   }
+//   next()
+// })
 
 const isSuccess = (error, response) => {
   return !error && response.statusCode === 200
