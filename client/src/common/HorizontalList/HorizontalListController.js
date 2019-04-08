@@ -24,7 +24,9 @@ export default class HorizontalListController extends Component {
   }
 
   componentDidMount() {
-    document.addEventListener('mousewheel', this.blockSwipeBack, false)
+    document.addEventListener('mousewheel', this.blockSwipeBack, {
+      passive: false
+    })
     document.addEventListener('keydown', this.handleKeyDown)
   }
 

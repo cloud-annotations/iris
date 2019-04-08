@@ -6,6 +6,8 @@ import ToolsPanel from './ToolsPanel'
 import HorizontalListController from './common/HorizontalList/HorizontalListController'
 import GoogleAnalytics from 'react-ga'
 
+import { InlineLoading } from 'carbon-components-react'
+
 import styles from './Localization.module.css'
 import EmptySet from './EmptySet'
 
@@ -199,7 +201,7 @@ export default class App extends Component {
       imageWidth,
       tmpBBoxes
     } = this.state
-    const { collection, currentSection, bucket } = this.props
+    const { collection, currentSection, bucket, loadingVideos } = this.props
 
     const selectedLabelIndex = collection.labels.indexOf(selectedLabelName)
 
@@ -267,15 +269,46 @@ export default class App extends Component {
           onRelabel={this.handleRelabel}
           onDelete={this.handleDelete}
         />
-        <HorizontalListController
-          delegate={HorizontalListControllerDelegate(
-            this.handleImageSelected,
-            collection.images[currentSection],
-            bucket
-          )}
-          selection={selection}
-          onSelectionChanged={this.handleChangeSelection}
-        />
+
+        {loadingVideos > 0 && (
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '0',
+              left: '0',
+              width: '4em',
+              padding: '1em',
+              height: '117px',
+              display: 'flex',
+              overflow: 'auto',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderTop: '1px solid #dfe3e6',
+              borderRight: '1px solid #e7ebee'
+            }}
+          >
+            <InlineLoading success={false} />
+          </div>
+        )}
+
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '0',
+            left: loadingVideos > 0 ? '4em' : '0',
+            right: '0'
+          }}
+        >
+          <HorizontalListController
+            delegate={HorizontalListControllerDelegate(
+              this.handleImageSelected,
+              collection.images[currentSection],
+              bucket
+            )}
+            selection={selection}
+            onSelectionChanged={this.handleChangeSelection}
+          />
+        </div>
       </div>
     )
   }

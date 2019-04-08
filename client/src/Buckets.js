@@ -228,6 +228,7 @@ class Buckets extends Component {
               },
               () => {
                 this.closeModal()
+                history.push(bucketName)
                 this.initializeData()
               }
             )

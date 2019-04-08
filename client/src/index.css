@@ -3,6 +3,7 @@ body {
   padding: 0;
   background-color: #f5f7fa;
   -webkit-font-smoothing: antialiased;
+  overflow: hidden;
   /* text-rendering: optimizelegibility; */
 }
 

@@ -57,6 +57,7 @@ export default class App extends Component {
       collection: Collection.EMPTY,
       choice: 'classification',
       saving: 0,
+      loadingVideos: 0,
       loading: true,
       modalActive: false,
       dropzoneActive: false,
@@ -75,13 +76,19 @@ export default class App extends Component {
           .reduce((acc, video) => {
             return new Promise((resolve, _) => {
               acc.then(newCollection => {
-                this.setState(prevState => ({ saving: prevState.saving + 1 }))
+                this.setState(prevState => ({
+                  saving: prevState.saving + 1,
+                  loadingVideos: prevState.loadingVideos + 1
+                }))
                 return newCollection.addVideo(
                   video,
                   FPS,
                   newerCollection => {
                     this.setState({ collection: newerCollection }, () => {
                       resolve(this.state.collection)
+                      this.setState(prevState => ({
+                        loadingVideos: prevState.loadingVideos - 1
+                      }))
                     })
                   },
                   this.handleSyncComplete
@@ -279,7 +286,8 @@ export default class App extends Component {
       dropzoneActive,
       loading,
       saving,
-      currentSection
+      currentSection,
+      loadingVideos
     } = this.state
 
     const sections = collection.labels.map(label => ({
@@ -360,6 +368,7 @@ export default class App extends Component {
                 return (
                   <Localization
                     loading={loading}
+                    loadingVideos={loadingVideos}
                     collection={collection}
                     currentSection={currentSection}
                     onAnnotationAdded={this.handleAnnotationAdded}
