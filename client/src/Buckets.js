@@ -32,7 +32,7 @@ const {
 
 const INVALID_CHARS =
   'Must start and end in alphanumeric characters (from 3 to 255) limited to: lowercase, numbers and non-consecutive dots, and hyphens.'
-const TOO_SHORT = 'Must be at least 3 characters'
+const TOO_SHORT = 'Must be at least 3 characters.'
 const NAME_EXISTS =
   'This bucket name already exists in IBM Cloud Object Storage. Create a new globally unique name.'
 const EMPTY_NAME = 'Bucket name is required.'
@@ -91,51 +91,7 @@ class Buckets extends Component {
         })
 
         this.props.cacheBucketList(bucketList)
-
-        // console.timeEnd('Get initial bucket list')
-
-        // console.time('Get bucket locations')
-
-        // const noDependency = p => p.catch(() => undefined)
-        // const typePromises = bucketList.map(bucket =>
-        //   noDependency(
-        //     fetchTest(localStorage.getItem('loginUrl'), bucket.name).location()
-        //   ).then(location => ({
-        //     bucket: bucket,
-        //     location: location
-        //   }))
-        // )
-        // return Promise.all(typePromises)
       })
-    // .then(res => {
-    //   console.timeEnd('Get bucket locations')
-    //   console.time('Get bucket type')
-    //   const noDependency = p => p.catch(() => undefined)
-    //   const typePromises = res
-    //     .filter(item => item.location === '')
-    //     .map(item =>
-    //       noDependency(
-    //         fetchTest(
-    //           localStorage.getItem('loginUrl'),
-    //           item.bucket.name
-    //         ).type()
-    //       ).then(type => ({
-    //         bucket: item.bucket,
-    //         type: type
-    //       }))
-    //     )
-    //   return Promise.all(typePromises)
-    // })
-    // .then(res => {
-    //   console.timeEnd('Get bucket type')
-    //   console.timeEnd('Total time')
-
-    //   console.log(res)
-    //   const buckets = res
-    //     .filter(item => item.type === '')
-    //     .map(item => item.bucket)
-    //   this.props.cacheBucketList(buckets)
-    // })
   }
 
   openModal = () => {
@@ -146,7 +102,17 @@ class Buckets extends Component {
 
   closeModal = () => {
     this.setState({
-      modalOpen: false
+      // create bucket
+      modalOpen: false,
+      loading: false,
+      invalidText: '',
+      textInputBucketName: '',
+      invalid: false,
+      // delete bucket
+      modalDeleteBucket: false,
+      bucketToDelete: null,
+      textInputBucketToDelete: '',
+      invalidTextBucketToDelete: null
     })
   }
 
@@ -255,9 +221,34 @@ class Buckets extends Component {
     )
   }
 
-  deleteBucket = (e, bucketName) => {
+  onTextChangeBucketToDelete = e => {
+    const bucketName = e.target.value
+    this.setState({
+      textInputBucketToDelete: bucketName
+    })
+  }
+
+  promptDeleteBucket = (e, bucketName) => {
     e.stopPropagation()
 
+    this.setState({
+      bucketToDelete: bucketName,
+      modalDeleteBucket: true
+    })
+  }
+
+  checkDeleteBucket = () => {
+    if (this.state.textInputBucketToDelete !== this.state.bucketToDelete) {
+      this.setState({
+        invalidTextBucketToDelete: 'Bucket names do not match.'
+      })
+    } else {
+      this.deleteBucket(this.state.bucketToDelete)
+      this.closeModal()
+    }
+  }
+
+  deleteBucket = bucketName => {
     this.setState(prevState => {
       const loading = [...prevState.loadingBuckets, bucketName]
       return {
@@ -359,6 +350,39 @@ class Buckets extends Component {
       <div className="Buckets-Parent">
         <Modal
           className="Buckets-Modal-TextInput-Wrapper"
+          open={this.state.modalDeleteBucket}
+          shouldSubmitOnEnter={true}
+          danger={true}
+          modalHeading="Are you absolutely sure?"
+          primaryButtonText="Delete this bucket"
+          secondaryButtonText="Cancel"
+          onRequestClose={this.closeModal}
+          onRequestSubmit={this.checkDeleteBucket}
+          onSecondarySubmit={this.closeModal}
+        >
+          <p className="bx--modal-content__text">
+            This action <strong>cannot</strong> be undone. This will permanently
+            delete the bucket <strong>{this.state.bucketToDelete}</strong> and
+            all of its contents.
+          </p>
+          <br />
+          <p className="bx--modal-content__text">
+            Please type in the name of the bucket to confirm.
+          </p>
+          <br />
+          <TextInput
+            className="Buckets-Modal-TextInput"
+            placeholder=""
+            onChange={this.onTextChangeBucketToDelete}
+            value={this.state.textInputBucketToDelete}
+            invalidText={this.state.invalidTextBucketToDelete}
+            invalid={this.state.invalidTextBucketToDelete}
+            data-modal-primary-focus
+          />
+        </Modal>
+
+        <Modal
+          className="Buckets-Modal-TextInput-Wrapper"
           open={this.state.modalOpen}
           shouldSubmitOnEnter={true}
           modalHeading="Bucket name"
@@ -424,7 +448,7 @@ class Buckets extends Component {
                           <TableCell
                             className="Buckets-row-overflow"
                             onClick={e => {
-                              this.deleteBucket(e, row.id)
+                              this.promptDeleteBucket(e, row.id)
                             }}
                           >
                             {this.state.loadingBuckets.includes(row.id) ? (

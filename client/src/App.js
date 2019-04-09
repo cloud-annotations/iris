@@ -147,7 +147,7 @@ export default class App extends Component {
                 // This is a hacky way to handle this, but the page won't reload
                 // unless we switch to another page first.
                 history.push('/')
-                history.push(`/${bucket}`)
+                history.push(bucket)
               }
             })
           }
