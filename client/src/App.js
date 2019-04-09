@@ -15,6 +15,83 @@ import localization from './localization.png'
 
 import styles from './App.module.css'
 import './App.css'
+import COS from './api/COS'
+
+const endpointFinder = bucket => {
+  let endpoints = [
+    // cross-region
+    's3-api.us-geo.objectstorage.service.networklayer.com',
+    's3-api.dal-us-geo.objectstorage.service.networklayer.com',
+    's3-api.wdc-us-geo.objectstorage.service.networklayer.com',
+    's3-api.sjc-us-geo.objectstorage.service.networklayer.com',
+    's3.eu-geo.objectstorage.service.networklayer.com',
+    's3.ams-eu-geo.objectstorage.service.networklayer.com',
+    's3.fra-eu-geo.objectstorage.service.networklayer.com',
+    's3.mil-eu-geo.objectstorage.service.networklayer.com',
+    's3.ap-geo.objectstorage.service.networklayer.com',
+    's3.tok-ap-geo.objectstorage.service.networklayer.com',
+    's3.seo-ap-geo.objectstorage.service.networklayer.com',
+    's3.hkg-ap-geo.objectstorage.service.networklayer.com',
+    // regional
+    's3.us-south.objectstorage.service.networklayer.com',
+    's3.us-east.objectstorage.service.networklayer.com',
+    's3.eu-gb.objectstorage.service.networklayer.com',
+    's3.eu-de.objectstorage.service.networklayer.com',
+    's3.jp-tok.objectstorage.service.networklayer.com',
+    // single-site
+    's3.ams03.objectstorage.service.networklayer.com',
+    's3.che01.objectstorage.service.networklayer.com',
+    's3.mel01.objectstorage.service.networklayer.com',
+    's3.osl01.objectstorage.service.networklayer.com',
+    's3.tor01.objectstorage.service.networklayer.com',
+    's3.sao01.objectstorage.service.networklayer.com'
+  ]
+
+  if (process.env.NODE_ENV === 'development') {
+    endpoints = [
+      // cross-region
+      's3-api.us-geo.objectstorage.softlayer.net',
+      's3-api.dal-us-geo.objectstorage.softlayer.net',
+      's3-api.wdc-us-geo.objectstorage.softlayer.net',
+      's3-api.sjc-us-geo.objectstorage.softlayer.net',
+      's3.eu-geo.objectstorage.softlayer.net',
+      's3.ams-eu-geo.objectstorage.softlayer.net',
+      's3.fra-eu-geo.objectstorage.softlayer.net',
+      's3.mil-eu-geo.objectstorage.softlayer.net',
+      's3.ap-geo.objectstorage.softlayer.net',
+      's3.tok-ap-geo.objectstorage.softlayer.net',
+      's3.seo-ap-geo.objectstorage.softlayer.net',
+      's3.hkg-ap-geo.objectstorage.softlayer.net',
+      // regional
+      's3.us-south.objectstorage.softlayer.net',
+      's3.us-east.objectstorage.softlayer.net',
+      's3.eu-gb.objectstorage.softlayer.net',
+      's3.eu-de.objectstorage.softlayer.net',
+      's3.jp-tok.objectstorage.softlayer.net',
+      // single-site
+      's3.ams03.objectstorage.softlayer.net',
+      's3.che01.objectstorage.softlayer.net',
+      's3.mel01.objectstorage.softlayer.net',
+      's3.osl01.objectstorage.softlayer.net',
+      's3.tor01.objectstorage.softlayer.net',
+      's3.sao01.objectstorage.softlayer.net'
+    ]
+  }
+  const promises = endpoints.map(endpoint =>
+    new COS(endpoint)
+      .bucket(bucket)
+      .location()
+      .then(() => true)
+      .catch(() => false)
+  )
+  return Promise.all(promises).then(res => {
+    for (const i in res) {
+      if (res[i]) {
+        return endpoints[i]
+      }
+    }
+  })
+}
 
 export default class App extends Component {
   constructor(props) {
@@ -51,6 +128,30 @@ export default class App extends Component {
           history.push('/login')
         }
         console.error(error)
+
+        if (error.message !== 'Forbidden') {
+          const doSearch = window.confirm(
+            `Unable to find the bucket "${bucket}" in this region. Would you like to search other regions?`
+          )
+          if (doSearch) {
+            endpointFinder(bucket).then(realEndpoint => {
+              if (!realEndpoint) {
+                alert("Couldn't find bucket.")
+                return
+              }
+              const switchEndpoint = window.confirm(
+                `Bucket "${bucket}" found in region "${realEndpoint}". Would you like to switch to this region?`
+              )
+              if (switchEndpoint) {
+                localStorage.setItem('loginUrl', realEndpoint)
+                // This is a hacky way to handle this, but the page won't reload
+                // unless we switch to another page first.
+                history.push('/')
+                history.push(`/${bucket}`)
+              }
+            })
+          }
+        }
       })
 
     this.state = {

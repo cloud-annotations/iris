@@ -34,7 +34,7 @@ function configure {
   [ ! -z "$DEPLOYMENT" ] || fail "Configuration option is not set: DEPLOYMENT"
   [ ! -z "$PROJECT_ID" ] || fail "Configuration option is not set: PROJECT_ID"
   [ ! -z "$IMAGE_NAME" ] || fail "Configuration option is not set: IMAGE_NAME"
-  # ibmcloud login -sso
+  ibmcloud login -sso
 }
 
 function download_config {
