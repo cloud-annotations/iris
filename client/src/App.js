@@ -137,6 +137,7 @@ export default class App extends Component {
             endpointFinder(bucket).then(realEndpoint => {
               if (!realEndpoint) {
                 alert("Couldn't find bucket.")
+                history.push('/')
                 return
               }
               const switchEndpoint = window.confirm(
@@ -148,8 +149,14 @@ export default class App extends Component {
                 // unless we switch to another page first.
                 history.push('/')
                 history.push(bucket)
+                return
               }
+              history.push('/')
+              return
             })
+          } else {
+            history.push('/')
+            return
           }
         }
       })
