@@ -1,0 +1,31 @@
+.deleteImageWrapper {
+  position: absolute;
+  user-select: none;
+  cursor: pointer;
+  border-top: 1px solid #dfe3e6;
+  border-left: 1px solid #dfe3e6;
+  width: 209px;
+  height: 40px;
+  bottom: 117px;
+  right: 0;
+
+  display: flex;
+  overflow: auto;
+  align-items: center;
+  justify-content: center;
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #e0182d;
+}
+
+.deleteImageWrapper:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.deleteSVG {
+  fill: #e0182d;
+  margin-left: 12px;
+}

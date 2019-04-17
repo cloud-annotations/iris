@@ -481,6 +481,7 @@ export default class App extends Component {
                     currentSection={currentSection}
                     onAnnotationAdded={this.handleAnnotationAdded}
                     onLabelAdded={this.handleLabelAdded}
+                    onImagesDeleted={this.handleImagesDeleted}
                     bucket={bucket}
                   />
                 )

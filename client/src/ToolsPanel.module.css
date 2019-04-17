@@ -3,7 +3,7 @@
   border-left: 1px solid #dfe3e6;
   width: 209px;
   top: 0;
-  bottom: 117px;
+  bottom: 157px;
   right: 0;
   padding: 8px 12px 0 12px;
   overflow: auto;
@@ -83,7 +83,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  margin: 0 -12px; /* I don't like doing this */
+  margin: 0 -6px 0 -12px; /* I don't like doing this */
   padding: 9px 12px;
   line-height: 23px;
 }

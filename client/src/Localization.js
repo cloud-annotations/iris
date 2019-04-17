@@ -41,6 +41,11 @@ export default class App extends Component {
       const { collection, currentSection } = nextProps
       const editing = collection.images[currentSection][0]
       this.setState({ editing: editing })
+      // this is pretty lame...
+      const target = document.getElementById('HorizontalScroller')
+      if (target) {
+        target.scrollLeft = 0
+      }
     }
     // If the labels were empty but now they aren't add it as the selected.
     if (!selectedLabelName && nextProps.collection.labels[0]) {
@@ -168,6 +173,18 @@ export default class App extends Component {
     // TODO: v3.
   }
 
+  handleDeleteImage = () => {
+    const { editing } = this.state
+    const { onImagesDeleted, collection, currentSection } = this.props
+    const images = collection.images[currentSection]
+    const currentItem = images.indexOf(editing)
+    onImagesDeleted([editing])
+    const newSelect = images[currentItem + 1]
+    this.setState({
+      editing: newSelect
+    })
+  }
+
   handleDelete = box => {
     const { editing } = this.state
     const { collection, onAnnotationAdded } = this.props
@@ -269,6 +286,21 @@ export default class App extends Component {
           onRelabel={this.handleRelabel}
           onDelete={this.handleDelete}
         />
+        <div
+          className={styles.deleteImageWrapper}
+          onClick={this.handleDeleteImage}
+        >
+          <div>Delete Image</div>
+          <svg
+            className={styles.deleteSVG}
+            width="12"
+            height="16"
+            viewBox="0 0 12 16"
+          >
+            <path d="M11 4v11c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V4H0V3h12v1h-1zM2 4v11h8V4H2z" />
+            <path d="M4 6h1v7H4zm3 0h1v7H7zM3 1V0h6v1z" />
+          </svg>
+        </div>
 
         {loadingVideos > 0 && (
           <div

@@ -98,9 +98,11 @@ export default class HorizontalListController extends Component {
 
   render() {
     const { delegate, selection } = this.props
+
     return (
       <div
         ref={this.horizontalScrollRef}
+        id="HorizontalScroller"
         style={{
           position: 'absolute',
           bottom: '0',

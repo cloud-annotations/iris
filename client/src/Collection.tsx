@@ -462,6 +462,7 @@ export default class Collection {
     return this._annotations
   }
 
+  // TODO: BUG - when all labels are removed, we need to remove from "labeled"
   public setAnnotation(
     image: string,
     annotation: Annotation[],
@@ -559,6 +560,12 @@ export default class Collection {
     })
 
     annotations[image] = cleanedAnnotation
+
+    Object.keys(annotations).forEach(key => {
+      if (annotations[key].length === 0) {
+        delete annotations[key]
+      }
+    })
     const collection = new Collection(
       this._type,
       labels,
