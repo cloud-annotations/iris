@@ -17,7 +17,7 @@ else
   DEPLOYMENT="cloud-annotations-staging"
 fi
 
-PROJECT_ID="nypower"
+PROJECT_ID="mofi"
 NAME="annotate"
 IMAGE_NAME="registry.ng.bluemix.net/${PROJECT_ID}/${NAME}:$(git rev-parse HEAD)"
 
@@ -34,7 +34,7 @@ function configure {
   [ ! -z "$DEPLOYMENT" ] || fail "Configuration option is not set: DEPLOYMENT"
   [ ! -z "$PROJECT_ID" ] || fail "Configuration option is not set: PROJECT_ID"
   [ ! -z "$IMAGE_NAME" ] || fail "Configuration option is not set: IMAGE_NAME"
-  ibmcloud login -sso
+  # ibmcloud login -sso
 }
 
 function download_config {
