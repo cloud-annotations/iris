@@ -1,4 +1,4 @@
-FROM node:9.4.0-alpine
+FROM node:10.15.0-alpine
 COPY server.js .
 COPY package.json .
 COPY client/build client

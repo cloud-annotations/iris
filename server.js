@@ -19,9 +19,7 @@ io.on('connection', socket => {
       try {
         const count = io.sockets.adapter.rooms[socket.room].length
         io.to(socket.room).emit('theHeadCount', count)
-      } catch {
-        console.log()
-      }
+      } catch {}
     }
     socket.room = room
     socket.join(room)
