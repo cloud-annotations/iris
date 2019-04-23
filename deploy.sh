@@ -19,7 +19,7 @@ fi
 
 PROJECT_ID="mofi"
 NAME="annotate"
-IMAGE_NAME="us.icr.io/${PROJECT_ID}/${NAME}:$(git rev-parse HEAD)"
+IMAGE_NAME="registry.ng.bluemix.net/${PROJECT_ID}/${NAME}:$(git rev-parse HEAD)"
 
 function fail {
   echo $1 >&2
