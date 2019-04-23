@@ -17,7 +17,7 @@ else
   DEPLOYMENT="cloud-annotations-staging"
 fi
 
-PROJECT_ID="bourdakos1"
+PROJECT_ID="mofi"
 NAME="annotate"
 IMAGE_NAME="us.icr.io/${PROJECT_ID}/${NAME}:$(git rev-parse HEAD)"
 
