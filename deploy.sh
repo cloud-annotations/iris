@@ -61,4 +61,5 @@ set_image
 echo "Deployment complete"
 echo -e "\n$URL\n"
 
+
 /usr/bin/open -a "/Applications/Google Chrome.app" $URL
