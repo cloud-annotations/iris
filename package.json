@@ -15,7 +15,8 @@
     "cookie-parser": "^1.4.3",
     "express": "^4.16.3",
     "frameguard": "^3.0.0",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "socket.io": "^2.2.0"
   },
   "devDependencies": {
     "concurrently": "^3.6.0"

@@ -21,6 +21,32 @@
   color: #e0182d;
 }
 
+.roomHolder {
+  margin: 14px;
+  display: flex;
+}
+
+.chatHead {
+  margin-left: auto;
+  height: 32px;
+  width: 32px;
+  border: 2px solid rgb(244, 247, 251);
+  border-radius: 50%;
+  /* background-color: rgb(232, 234, 237); */
+  background-color: #4e7cb6;
+}
+
+.chatHead + .chatHead {
+  margin-left: -8px;
+}
+
+.chatHeadIcon {
+  fill: white;
+  margin: 4px;
+  width: 20px;
+  height: 20px;
+}
+
 .deleteImageWrapper:hover {
   background-color: rgba(0, 0, 0, 0.04);
 }

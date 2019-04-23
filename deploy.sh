@@ -19,7 +19,7 @@ fi
 
 PROJECT_ID="mofi"
 NAME="annotate"
-IMAGE_NAME="icr.us.io/${PROJECT_ID}/${NAME}:$(git rev-parse HEAD)"
+IMAGE_NAME="us.icr.io/${PROJECT_ID}/${NAME}:$(git rev-parse HEAD)"
 
 function fail {
   echo $1 >&2
@@ -51,7 +51,7 @@ function set_image {
   echo Container build completed, updating $DEPLOYMENT ...
   # kubectl run $DEPLOYMENT --image=$IMAGE_NAME # Must only be run if this is a new DEPLOYMENT
   kubectl set image deployments/$DEPLOYMENT $DEPLOYMENT=$IMAGE_NAME
-  kubectl scale deployment $DEPLOYMENT --replicas=6
+  # kubectl scale deployment $DEPLOYMENT --replicas=6
 }
 
 configure

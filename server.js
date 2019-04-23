@@ -5,7 +5,30 @@ const cookieParser = require('cookie-parser')
 const frameguard = require('frameguard')
 
 const app = express()
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
 const port = process.env.PORT || 9000
+
+app.use(express.static(__dirname + '/public'))
+
+//// socket playground
+io.on('connection', socket => {
+  socket.on('join', room => {
+    if (socket.room) {
+      socket.leave(socket.room)
+      try {
+        const count = io.sockets.adapter.rooms[socket.room].length
+        io.to(socket.room).emit('theHeadCount', count)
+      } catch {}
+    }
+    socket.room = room
+    socket.join(room)
+    console.log(`joining room "${room}"`)
+    const count = io.sockets.adapter.rooms[room].length
+    io.to(room).emit('theHeadCount', count)
+  })
+})
+////
 
 app.use(cookieParser())
 app.use(frameguard()) // Prevent click jacking.
@@ -119,4 +142,5 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-app.listen(port)
+// app.listen(port)
+http.listen(port, () => console.log('listening on port ' + port))
