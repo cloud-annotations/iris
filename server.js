@@ -13,7 +13,6 @@ const port = process.env.PORT || 9000
 app.use(express.static(__dirname + '/public'))
 
 if (process.env.NODE_ENV === 'production') {
-  console.log(process.env.REDIS_SERVICE_HOST)
   io.adapter(redis({ host: 'redis.default.svc.cluster.local', port: 6379 }))
 }
 
@@ -29,13 +28,16 @@ io.on('connection', socket => {
     }
     socket.room = room
     socket.join(room)
-    console.log(`joining room "${room}"`)
-    const count = io.sockets.adapter.rooms[room].length
-    io.to(room).emit('theHeadCount', count)
+    try {
+      const count = io.sockets.adapter.rooms[room].length
+      io.to(room).emit('theHeadCount', count)
+    } catch {}
   })
   socket.on('disconnect', () => {
-    const count = io.sockets.adapter.rooms[socket.room].length
-    io.to(socket.room).emit('theHeadCount', count)
+    try {
+      const count = io.sockets.adapter.rooms[socket.room].length
+      io.to(socket.room).emit('theHeadCount', count)
+    } catch {}
   })
 })
 ////
