@@ -10,6 +10,7 @@ spec:
         run: redis
     spec:
       containers:
-      - image: redis
-        name: redis
-      restartPolicy: Always
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: 6379

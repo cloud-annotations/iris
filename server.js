@@ -12,7 +12,7 @@ const port = process.env.PORT || 9000
 
 app.use(express.static(__dirname + '/public'))
 
-io.adapter(redis({ host: '172.30.122.190', port: 6379 }))
+io.adapter(redis({ host: '172.30.122.175', port: 6379 }))
 
 //// socket playground
 io.on('connection', socket => {
