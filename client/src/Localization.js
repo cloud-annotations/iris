@@ -280,8 +280,8 @@ export default class App extends Component {
               </div>
             ))}
             {overflowCount > 0 && (
-              <div className={styles.chatHead}>
-                <div>{overflowCount}</div>
+              <div className={styles.chatHeadOverflow}>
+                <div>+{overflowCount}</div>
               </div>
             )}
           </div>

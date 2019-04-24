@@ -12,8 +12,10 @@ const port = process.env.PORT || 9000
 
 app.use(express.static(__dirname + '/public'))
 
-console.log(process.env.REDIS_SERVICE_HOST)
-io.adapter(redis({ host: process.env.REDIS_SERVICE_HOST, port: 6379 }))
+if (process.env.NODE_ENV === 'production') {
+  console.log(process.env.REDIS_SERVICE_HOST)
+  io.adapter(redis({ host: 'redis.default.svc.cluster.local', port: 6379 }))
+}
 
 //// socket playground
 io.on('connection', socket => {
