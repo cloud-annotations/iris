@@ -33,6 +33,10 @@ io.on('connection', socket => {
     const count = io.sockets.adapter.rooms[room].length
     io.to(room).emit('theHeadCount', count)
   })
+  socket.on('disconnect', () => {
+    const count = io.sockets.adapter.rooms[socket.room].length
+    io.to(socket.room).emit('theHeadCount', count)
+  })
 })
 ////
 

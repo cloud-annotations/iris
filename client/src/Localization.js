@@ -109,7 +109,7 @@ export default class App extends Component {
 
   setEditingImage = editing => {
     const { bucket } = this.props
-    this.setState({ editing: editing })
+    this.setState({ editing: editing, editorCount: 1 })
     const room = `${localStorage.getItem('resourceId')}:${bucket}:${editing}`
     this.state.socket.emit('join', room)
     this.state.socket.on('theHeadCount', count => {
