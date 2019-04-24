@@ -7,6 +7,5 @@ RUN npm install &&\
     apk upgrade
 ENV PORT 8080
 ENV NODE_ENV production
-ENV REDIS_HOST redis.default.svc.cluster.local
 EXPOSE  8080
 CMD node server.js
