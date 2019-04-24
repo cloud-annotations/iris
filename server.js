@@ -12,8 +12,7 @@ const port = process.env.PORT || 9000
 
 app.use(express.static(__dirname + '/public'))
 
-console.log(process.env.VCAP_SERVICES)
-console.log(process.env.COMPOSE_REDIS_URI)
+console.log(process.env.REDIS_HOST)
 // io.adapter(redis({ host: credentials.hostname, port: credentials.port }))
 
 //// socket playground
