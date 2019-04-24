@@ -7,9 +7,14 @@ const frameguard = require('frameguard')
 const app = express()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
+const redis = require('socket.io-redis')
 const port = process.env.PORT || 9000
 
 app.use(express.static(__dirname + '/public'))
+
+console.log(process.env.VCAP_SERVICES)
+console.log(process.env.COMPOSE_REDIS_URI)
+// io.adapter(redis({ host: credentials.hostname, port: credentials.port }))
 
 //// socket playground
 io.on('connection', socket => {
