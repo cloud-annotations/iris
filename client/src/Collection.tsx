@@ -700,7 +700,7 @@ export default class Collection {
   }
 
   private _syncBucket = async (ops: Op[], syncComplete: SyncCallback) => {
-    const collection = (await this._bucket.collection()) as Collection
+    const collection = (await this._bucket.rawCollection()) as Collection
 
     ops.forEach(op => {
       switch (op.type) {
@@ -723,6 +723,9 @@ export default class Collection {
           break
       }
     })
+
+    // make sure we don't let redundant images collection slip by.
+    delete (collection as any).images
 
     const blob = new Blob([JSON.stringify(collection)], {
       type: 'application/json;charset=utf-8;'
