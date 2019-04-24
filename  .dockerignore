@@ -1,4 +1,7 @@
+secret.yaml
+
 .git/
+.vscode/
 node_modules/
 /client/public/
 /client/src/
