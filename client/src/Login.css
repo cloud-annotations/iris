@@ -49,6 +49,8 @@
 .Login-Button {
   border: 2px solid #3d70b2;
   color: #3d70b2;
+  cursor: pointer;
+  user-select: none;
   margin: 0 100px 0 auto;
   font-size: 16px;
   font-weight: 500;
