@@ -9,6 +9,7 @@ import { Loading, Modal } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
 import history from './history'
 import { getDataTransferItems } from './Utils'
+import io from 'socket.io-client'
 
 import classification from './classification.png'
 import localization from './localization.png'
@@ -161,8 +162,53 @@ export default class App extends Component {
         }
       })
 
+    const socket = io.connect()
+
+    socket.on('patch', res => {
+      let { op, value } = res
+      value = value.annotations
+      switch (op) {
+        case '+':
+          const collection = this.state.collection.localSetAnnotation(
+            value.image,
+            [
+              ...(this.state.collection.annotations[value.image] || []),
+              { ...value }
+            ]
+          )
+          this.setState({
+            collection: collection
+          })
+          return
+        case '-':
+          console.log(this.state.collection.annotations[value.image])
+          console.log(value)
+          const newAnnotations = (
+            this.state.collection.annotations[value.image] || []
+          ).filter(
+            annotation =>
+              !(
+                annotation.x === value.x &&
+                annotation.y === value.y &&
+                annotation.x2 === value.x2 &&
+                annotation.y2 === value.y2 &&
+                annotation.label === value.label
+              )
+          )
+          const collectionx = this.state.collection.localSetAnnotation(
+            value.image,
+            newAnnotations
+          )
+          this.setState({
+            collection: collectionx
+          })
+          return
+      }
+    })
+
     this.state = {
       collection: Collection.EMPTY,
+      socket: socket,
       choice: 'classification',
       saving: 0,
       loadingVideos: 0,
@@ -391,6 +437,7 @@ export default class App extends Component {
     const { bucket } = this.props.match.params
     const {
       collection,
+      socket,
       dropzoneActive,
       loading,
       saving,
@@ -478,6 +525,7 @@ export default class App extends Component {
                     loading={loading}
                     loadingVideos={loadingVideos}
                     collection={collection}
+                    socket={socket}
                     currentSection={currentSection}
                     onAnnotationAdded={this.handleAnnotationAdded}
                     onLabelAdded={this.handleLabelAdded}

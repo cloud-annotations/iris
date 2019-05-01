@@ -582,6 +582,118 @@ export default class Collection {
     return collection
   }
 
+  public localSetAnnotation(
+    image: string,
+    annotation: Annotation[]
+  ): Collection {
+    const UNTITLED = 'Untitled Label'
+
+    annotation.forEach(annotation => {
+      if (
+        annotation.label &&
+        (annotation.label.toLowerCase() === 'all' ||
+          annotation.label.toLowerCase() === 'unlabeled' ||
+          annotation.label.toLowerCase() === 'labeled')
+      ) {
+        throw new Error('Illegal label name')
+      }
+    })
+
+    const images = { ...this._images }
+    const annotations = { ...this._annotations }
+
+    let labels = [...this._labels]
+    annotation = annotation.map(annotation => {
+      if (!annotation.label) {
+        annotation.label = UNTITLED
+        if (!this._labels.includes(UNTITLED)) {
+          images[UNTITLED] = []
+          labels = [UNTITLED, ...this._labels]
+        }
+      }
+      return annotation
+    })
+
+    const oldLabels = (annotations[image] || []).reduce(
+      (acc: Set<string>, annotation: Annotation) => {
+        acc.add(annotation.label)
+        return acc
+      },
+      new Set()
+    )
+
+    const newLabels = annotation.reduce(
+      (acc: Set<string>, annotation: Annotation) => {
+        acc.add(annotation.label)
+        return acc
+      },
+      new Set()
+    )
+
+    const filteredImages = [...oldLabels].reduce(
+      (acc: Images, label: string) => {
+        // Remove image from any labels that it no longer has.
+        if (!newLabels.has(label)) {
+          acc[label] = acc[label].filter(i => i !== image)
+        }
+        return acc
+      },
+      images
+    )
+
+    const addedImages = [...newLabels].reduce((acc: Images, label: string) => {
+      // Add image to anything it didn't belong to.
+      if (!oldLabels.has(label)) {
+        acc[label] = [image, ...acc[label]]
+      }
+      return acc
+    }, filteredImages)
+
+    if (newLabels.size === 0) {
+      // The image is now unlabeled, remove it from the labeled category.
+      addedImages.labeled = addedImages.labeled.filter(i => i !== image)
+      // Add it to the unlabeled category.
+      addedImages.unlabeled = [...new Set([image, ...addedImages.unlabeled])]
+    } else {
+      // The image is now labeled, remove it from the unlabeled category.
+      addedImages.unlabeled = addedImages.unlabeled.filter(i => i !== image)
+      // Add it to the labeled category.
+      addedImages.labeled = [...new Set([image, ...addedImages.labeled])]
+    }
+
+    const cleanedAnnotation = annotation.map(annotation => {
+      switch (this._type) {
+        case 'localization':
+          return {
+            x: annotation.x,
+            x2: annotation.x2,
+            y: annotation.y,
+            y2: annotation.y2,
+            label: annotation.label
+          }
+        case 'classification':
+        default:
+          return { label: annotation.label }
+      }
+    })
+
+    annotations[image] = cleanedAnnotation
+
+    Object.keys(annotations).forEach(key => {
+      if (annotations[key].length === 0) {
+        delete annotations[key]
+      }
+    })
+    const collection = new Collection(
+      this._type,
+      labels,
+      addedImages,
+      annotations
+    )
+    collection._bucket = this._bucket
+    return collection
+  }
+
   public labelImages(
     images: string[],
     labelName: string,
@@ -739,6 +851,58 @@ export default class Collection {
     syncComplete(collection)
   }
 }
+
+// const ops = {
+//   labels: [
+//     { op: '-', value: 'pepsi' },
+//     { op: '+', value: 'pepsi' },
+//     { op: '+', value: 'coke' },
+//     { op: '+', value: 'pepsi' },
+//     { op: '-', value: 'coke' },
+//     { op: '+', value: 'coke' },
+//     { op: '+', value: 'coke' }
+//   ],
+//   // Not sure how to handle deleting an image. The file is gone, but someone
+//   // could still add an annotation post mortem.
+//   images: [{ op: '-', value: 'image3.jpg' }],
+//   annotations: [
+//     {
+//       op: '+',
+//       value: { image: 'image1.jpg', x: 0.16, x2: 0.58, y: 0.0,  y2: 0.65, label: 'coke' }
+//     },
+//     {
+//       op: '+',
+//       value: { image: 'image1.jpg', x: 0.2,  x2: 0.4, y: 0.2, y2: 0.4, label: 'coke' }
+//     },
+//     {
+//       op: '+',
+//       value: { image: 'image3.jpg', x: 0.1, x2: 0.2, y: 0.3, y2: 0.4, label: 'pepsi' }
+//     },
+//     {
+//       op: '+',
+//       value: { image: 'image2.jpg', x: 0.85, x2: 1, y: 0.4, y2: 0.81, label: 'coke' }
+//     },
+//     {
+//       op: '-',
+//       value: { image: 'image1.jpg', x: 0.2, x2: 0.4, y: 0.2, y2: 0.4, label: 'coke' }
+//     },
+//     {
+//       op: '+',
+//       value: { image: 'image2.jpg', x: 0, x2: 0.39, y: 0.28, y2: 0.81, label: 'pepsi' }
+//     }
+//   ]
+// }
+
+// const annotations = {
+//   labels: ['pepsi', 'coke'],
+//   annotations: {
+//     'image1.jpg': [{ x: 0.16, x2: 0.58, y: 0.0, y2: 0.65, label: 'coke' }],
+//     'image2.jpg': [
+//       { x: 0.85, x2: 1, y: 0.4, y2: 0.81, label: 'coke' },
+//       { x: 0, x2: 0.39, y: 0.28, y2: 0.81, label: 'pepsi' }
+//     ]
+//   }
+// }
 
 // const ops = [
 //   { op: 'DELETE_LABEL', id: 'label' },

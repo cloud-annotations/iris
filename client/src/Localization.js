@@ -5,7 +5,6 @@ import CrossHair from './CrossHair'
 import ToolsPanel from './ToolsPanel'
 import HorizontalListController from './common/HorizontalList/HorizontalListController'
 import GoogleAnalytics from 'react-ga'
-import io from 'socket.io-client'
 
 import { InlineLoading } from 'carbon-components-react'
 
@@ -30,12 +29,9 @@ export default class App extends Component {
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('keyup', this.handleKeyUp)
 
-    const socket = io.connect()
-    this.setState({ socket: socket }, () => {
-      this.setEditingImage(
-        this.props.collection.images[this.props.currentSection][0]
-      )
-    })
+    this.setEditingImage(
+      this.props.collection.images[this.props.currentSection][0]
+    )
   }
 
   componentWillUnmount() {
@@ -110,9 +106,8 @@ export default class App extends Component {
   setEditingImage = editing => {
     const { bucket } = this.props
     this.setState({ editing: editing, editorCount: 1 })
-    const room = `${localStorage.getItem('resourceId')}:${bucket}:${editing}`
-    this.state.socket.emit('join', room)
-    this.state.socket.on('theHeadCount', count => {
+    this.props.socket.emit('join', { bucket: bucket, image: editing })
+    this.props.socket.on('theHeadCount', count => {
       this.setState({ editorCount: count })
     })
   }
@@ -150,6 +145,36 @@ export default class App extends Component {
       const bboxes = [..._bboxes]
       bboxes[index] = bbox
       onAnnotationAdded(editing, bboxes)
+
+      //// real-time sandbox.
+      // determine if this is a new box
+      const { color, ...box } = bbox
+      if (bboxes.length > (collection.annotations[editing] || []).length) {
+        // new box
+        this.props.socket.emit('patch', {
+          op: '+',
+          value: {
+            annotations: { image: editing, ...box }
+          }
+        })
+      } else {
+        // old box
+        const { color, ...oldBox } = collection.annotations[editing][index]
+        this.props.socket.emit('patch', {
+          op: '-',
+          value: {
+            annotations: { image: editing, ...oldBox }
+          }
+        })
+        this.props.socket.emit('patch', {
+          op: '+',
+          value: {
+            annotations: { image: editing, ...box }
+          }
+        })
+      }
+      ////
+
       return { tmpBBoxes: null }
     })
   }
@@ -214,6 +239,14 @@ export default class App extends Component {
         bbox.label !== box.label
     )
     onAnnotationAdded(editing, bboxes)
+
+    const { color, ...oldBox } = box
+    this.props.socket.emit('patch', {
+      op: '-',
+      value: {
+        annotations: { image: editing, ...oldBox }
+      }
+    })
   }
 
   handleImageDimensionChanged = (width, height) => {
