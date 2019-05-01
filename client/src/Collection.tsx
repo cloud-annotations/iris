@@ -12,19 +12,6 @@ const optional = (p: Promise<any>) => p.catch(() => undefined)
 
 type Type = 'classification' | 'localization' | undefined
 
-type OpType =
-  | 'SET_ANNOTATION'
-  | 'INSERT_LABEL'
-  | 'DELETE_LABEL'
-  | 'DELETE_IMAGE'
-  | undefined
-
-interface Op {
-  type: OpType
-  id: string
-  value?: any
-}
-
 interface Images {
   all: string[]
   labeled: string[]
@@ -44,7 +31,7 @@ interface Annotations {
   [key: string]: Annotation[]
 }
 
-type SyncCallback = (collection?: Collection) => void
+type SyncCallback = () => void
 type UpdatedCollectionCallback = (collection: Collection) => void
 
 const VERSION = '1.0'
@@ -105,6 +92,25 @@ export default class Collection {
     )
   }
 
+  private _syncBucket = (
+    collection: Collection,
+    syncComplete: SyncCallback
+  ) => {
+    delete (collection as any).images
+
+    const blob = new Blob([JSON.stringify(collection)], {
+      type: 'application/json;charset=utf-8;'
+    })
+    this._bucket
+      .putFile({
+        name: '_annotations.json',
+        blob: blob
+      })
+      .then(() => {
+        syncComplete()
+      })
+  }
+
   public get type(): Type {
     return this._type
   }
@@ -117,7 +123,7 @@ export default class Collection {
       this._annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket([], syncComplete)
+    this._syncBucket(collection, syncComplete)
     return collection
   }
 
@@ -143,7 +149,7 @@ export default class Collection {
       this._annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket([{ type: 'INSERT_LABEL', id: label }], syncComplete)
+    this._syncBucket(collection, syncComplete)
     return collection
   }
 
@@ -171,7 +177,7 @@ export default class Collection {
     }, {})
     const collection = new Collection(this._type, labels, images, annotations)
     collection._bucket = this._bucket
-    this._syncBucket([{ type: 'DELETE_LABEL', id: label }], syncComplete)
+    this._syncBucket(collection, syncComplete)
     return collection
   }
 
@@ -421,7 +427,7 @@ export default class Collection {
         return this._bucket.putImages(files)
       })
       .then(() => {
-        this._syncBucket([], syncComplete)
+        this._syncBucket(collection, syncComplete)
       })
 
     return collection
@@ -448,14 +454,7 @@ export default class Collection {
     collection._bucket = this._bucket
 
     collection._bucket.deleteFiles(imageIds).then(() => {
-      const ops = imageIds.map(
-        imageId =>
-          ({
-            type: 'DELETE_IMAGE',
-            id: imageId
-          } as Op)
-      )
-      this._syncBucket(ops, syncComplete)
+      this._syncBucket(collection, syncComplete)
     })
 
     return collection
@@ -575,16 +574,14 @@ export default class Collection {
       annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(
-      [{ type: 'SET_ANNOTATION', id: image, value: cleanedAnnotation }],
-      syncComplete
-    )
+    this._syncBucket(collection, syncComplete)
     return collection
   }
 
   public localSetAnnotation(
     image: string,
-    annotation: Annotation[]
+    annotation: Annotation[],
+    syncComplete: SyncCallback
   ): Collection {
     const UNTITLED = 'Untitled Label'
 
@@ -751,13 +748,7 @@ export default class Collection {
       annotations
     )
     collection._bucket = this._bucket
-
-    const ops = images.map(image => ({
-      type: 'SET_ANNOTATION',
-      id: image,
-      value: [{ label: labelName }]
-    }))
-    this._syncBucket(ops as Op[], syncComplete)
+    this._syncBucket(collection, syncComplete)
     return collection
   }
 
@@ -793,12 +784,7 @@ export default class Collection {
       annotations
     )
     collection._bucket = this._bucket
-    const ops = images.map(image => ({
-      type: 'SET_ANNOTATION',
-      id: image,
-      value: []
-    }))
-    this._syncBucket(ops as Op[], syncComplete)
+    this._syncBucket(collection, syncComplete)
     return collection
   }
 
@@ -810,106 +796,4 @@ export default class Collection {
       annotations: this._annotations
     }
   }
-
-  private _syncBucket = async (ops: Op[], syncComplete: SyncCallback) => {
-    const collection = (await this._bucket.rawCollection()) as Collection
-
-    ops.forEach(op => {
-      switch (op.type) {
-        case 'INSERT_LABEL':
-          collection.labels.push(op.id)
-          break
-        case 'SET_ANNOTATION':
-          collection.annotations[op.id] = op.value
-          if (collection.annotations[op.id].length === 0) {
-            delete collection.annotations[op.id]
-          }
-          break
-        case 'DELETE_IMAGE':
-          delete collection.annotations[op.id]
-          break
-        case 'DELETE_LABEL':
-          collection.labels.filter(label => label !== op.id)
-          break
-        default:
-          break
-      }
-    })
-
-    // make sure we don't let redundant images collection slip by.
-    delete (collection as any).images
-
-    const blob = new Blob([JSON.stringify(collection)], {
-      type: 'application/json;charset=utf-8;'
-    })
-
-    await this._bucket.putFile({
-      name: '_annotations.json',
-      blob: blob
-    })
-
-    syncComplete(collection)
-  }
 }
-
-// const ops = {
-//   labels: [
-//     { op: '-', value: 'pepsi' },
-//     { op: '+', value: 'pepsi' },
-//     { op: '+', value: 'coke' },
-//     { op: '+', value: 'pepsi' },
-//     { op: '-', value: 'coke' },
-//     { op: '+', value: 'coke' },
-//     { op: '+', value: 'coke' }
-//   ],
-//   // Not sure how to handle deleting an image. The file is gone, but someone
-//   // could still add an annotation post mortem.
-//   images: [{ op: '-', value: 'image3.jpg' }],
-//   annotations: [
-//     {
-//       op: '+',
-//       value: { image: 'image1.jpg', x: 0.16, x2: 0.58, y: 0.0,  y2: 0.65, label: 'coke' }
-//     },
-//     {
-//       op: '+',
-//       value: { image: 'image1.jpg', x: 0.2,  x2: 0.4, y: 0.2, y2: 0.4, label: 'coke' }
-//     },
-//     {
-//       op: '+',
-//       value: { image: 'image3.jpg', x: 0.1, x2: 0.2, y: 0.3, y2: 0.4, label: 'pepsi' }
-//     },
-//     {
-//       op: '+',
-//       value: { image: 'image2.jpg', x: 0.85, x2: 1, y: 0.4, y2: 0.81, label: 'coke' }
-//     },
-//     {
-//       op: '-',
-//       value: { image: 'image1.jpg', x: 0.2, x2: 0.4, y: 0.2, y2: 0.4, label: 'coke' }
-//     },
-//     {
-//       op: '+',
-//       value: { image: 'image2.jpg', x: 0, x2: 0.39, y: 0.28, y2: 0.81, label: 'pepsi' }
-//     }
-//   ]
-// }
-
-// const annotations = {
-//   labels: ['pepsi', 'coke'],
-//   annotations: {
-//     'image1.jpg': [{ x: 0.16, x2: 0.58, y: 0.0, y2: 0.65, label: 'coke' }],
-//     'image2.jpg': [
-//       { x: 0.85, x2: 1, y: 0.4, y2: 0.81, label: 'coke' },
-//       { x: 0, x2: 0.39, y: 0.28, y2: 0.81, label: 'pepsi' }
-//     ]
-//   }
-// }
-
-// const ops = [
-//   { op: 'DELETE_LABEL', id: 'label' },
-//   { op: 'SET_ANNOTATION', id: 'image-id', value: '[]' }
-// ]
-// this._syncBucket(ops, syncComplete)
-
-// images don't need to be diffed they can be added and deleted as need be,
-// only changing the annotation.json needs to be validated.
-// welllll deleting an annotated image need to be sunc...
