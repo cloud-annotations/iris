@@ -224,6 +224,15 @@ export default class App extends Component {
     onImagesDeleted([editing])
     const newSelect = images[currentItem + 1]
     this.setEditingImage(newSelect)
+
+    //// real-time sandbox.
+    this.props.socket.emit('patch', {
+      op: '-',
+      value: {
+        images: { image: editing }
+      }
+    })
+    ////
   }
 
   handleDelete = box => {

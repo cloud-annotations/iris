@@ -123,7 +123,9 @@ export default class Collection {
       this._annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 
@@ -149,7 +151,9 @@ export default class Collection {
       this._annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 
@@ -177,7 +181,9 @@ export default class Collection {
     }, {})
     const collection = new Collection(this._type, labels, images, annotations)
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 
@@ -427,7 +433,9 @@ export default class Collection {
         return this._bucket.putImages(files)
       })
       .then(() => {
-        this._syncBucket(collection, syncComplete)
+        if (syncComplete) {
+          this._syncBucket(collection, syncComplete)
+        }
       })
 
     return collection
@@ -454,7 +462,9 @@ export default class Collection {
     collection._bucket = this._bucket
 
     collection._bucket.deleteFiles(imageIds).then(() => {
-      this._syncBucket(collection, syncComplete)
+      if (syncComplete) {
+        this._syncBucket(collection, syncComplete)
+      }
     })
 
     return collection
@@ -469,119 +479,16 @@ export default class Collection {
     annotation: Annotation[],
     syncComplete: SyncCallback
   ): Collection {
-    const UNTITLED = 'Untitled Label'
-
-    annotation.forEach(annotation => {
-      if (
-        annotation.label &&
-        (annotation.label.toLowerCase() === 'all' ||
-          annotation.label.toLowerCase() === 'unlabeled' ||
-          annotation.label.toLowerCase() === 'labeled')
-      ) {
-        throw new Error('Illegal label name')
-      }
-    })
-
-    const images = { ...this._images }
-    const annotations = { ...this._annotations }
-
-    let labels = [...this._labels]
-    annotation = annotation.map(annotation => {
-      if (!annotation.label) {
-        annotation.label = UNTITLED
-        if (!this._labels.includes(UNTITLED)) {
-          images[UNTITLED] = []
-          labels = [UNTITLED, ...this._labels]
-        }
-      }
-      return annotation
-    })
-
-    const oldLabels = (annotations[image] || []).reduce(
-      (acc: Set<string>, annotation: Annotation) => {
-        acc.add(annotation.label)
-        return acc
-      },
-      new Set()
-    )
-
-    const newLabels = annotation.reduce(
-      (acc: Set<string>, annotation: Annotation) => {
-        acc.add(annotation.label)
-        return acc
-      },
-      new Set()
-    )
-
-    const filteredImages = [...oldLabels].reduce(
-      (acc: Images, label: string) => {
-        // Remove image from any labels that it no longer has.
-        if (!newLabels.has(label)) {
-          acc[label] = acc[label].filter(i => i !== image)
-        }
-        return acc
-      },
-      images
-    )
-
-    const addedImages = [...newLabels].reduce((acc: Images, label: string) => {
-      // Add image to anything it didn't belong to.
-      if (!oldLabels.has(label)) {
-        acc[label] = [image, ...acc[label]]
-      }
-      return acc
-    }, filteredImages)
-
-    if (newLabels.size === 0) {
-      // The image is now unlabeled, remove it from the labeled category.
-      addedImages.labeled = addedImages.labeled.filter(i => i !== image)
-      // Add it to the unlabeled category.
-      addedImages.unlabeled = [...new Set([image, ...addedImages.unlabeled])]
-    } else {
-      // The image is now labeled, remove it from the unlabeled category.
-      addedImages.unlabeled = addedImages.unlabeled.filter(i => i !== image)
-      // Add it to the labeled category.
-      addedImages.labeled = [...new Set([image, ...addedImages.labeled])]
+    const collection = this.localSetAnnotation(image, annotation)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
     }
-
-    const cleanedAnnotation = annotation.map(annotation => {
-      switch (this._type) {
-        case 'localization':
-          return {
-            x: annotation.x,
-            x2: annotation.x2,
-            y: annotation.y,
-            y2: annotation.y2,
-            label: annotation.label
-          }
-        case 'classification':
-        default:
-          return { label: annotation.label }
-      }
-    })
-
-    annotations[image] = cleanedAnnotation
-
-    Object.keys(annotations).forEach(key => {
-      if (annotations[key].length === 0) {
-        delete annotations[key]
-      }
-    })
-    const collection = new Collection(
-      this._type,
-      labels,
-      addedImages,
-      annotations
-    )
-    collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
     return collection
   }
 
   public localSetAnnotation(
     image: string,
-    annotation: Annotation[],
-    syncComplete: SyncCallback
+    annotation: Annotation[]
   ): Collection {
     const UNTITLED = 'Untitled Label'
 
@@ -748,7 +655,9 @@ export default class Collection {
       annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 
@@ -784,7 +693,9 @@ export default class Collection {
       annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 

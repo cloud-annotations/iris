@@ -165,44 +165,79 @@ export default class App extends Component {
     const socket = io.connect()
 
     socket.on('patch', res => {
-      let { op, value } = res
-      value = value.annotations
-      switch (op) {
-        case '+':
-          const collection = this.state.collection.localSetAnnotation(
-            value.image,
+      const { op, value } = res
+      const { annotations, images, labels } = value
+      if (annotations) {
+        if (op === '+') {
+          const collection = this.state.collection.setAnnotation(
+            annotations.image,
             [
-              ...(this.state.collection.annotations[value.image] || []),
-              { ...value }
-            ]
+              ...(this.state.collection.annotations[annotations.image] || []),
+              { ...annotations }
+            ],
+            false
           )
           this.setState({
             collection: collection
           })
           return
-        case '-':
-          console.log(this.state.collection.annotations[value.image])
-          console.log(value)
+        }
+        if (op === '-') {
           const newAnnotations = (
-            this.state.collection.annotations[value.image] || []
+            this.state.collection.annotations[annotations.image] || []
           ).filter(
             annotation =>
               !(
-                annotation.x === value.x &&
-                annotation.y === value.y &&
-                annotation.x2 === value.x2 &&
-                annotation.y2 === value.y2 &&
-                annotation.label === value.label
+                annotation.x === annotations.x &&
+                annotation.y === annotations.y &&
+                annotation.x2 === annotations.x2 &&
+                annotation.y2 === annotations.y2 &&
+                annotation.label === annotations.label
               )
           )
-          const collectionx = this.state.collection.localSetAnnotation(
-            value.image,
-            newAnnotations
+          const collection = this.state.collection.setAnnotation(
+            annotations.image,
+            newAnnotations,
+            false
           )
           this.setState({
-            collection: collectionx
+            collection: collection
           })
           return
+        }
+      }
+
+      if (images) {
+        if (op === '-') {
+          const collection = this.state.collection.deleteImages(
+            [images.image],
+            false
+          )
+          this.setState({
+            collection: collection
+          })
+          return
+        }
+      }
+
+      if (labels) {
+        if (op === '+') {
+          const collection = this.state.collection.addLabel(labels.label, false)
+          this.setState({
+            collection: collection
+          })
+          return
+        }
+        if (op === '-') {
+          const collection = this.state.collection.removeLabel(
+            labels.label,
+            false
+          )
+          this.setState({
+            collection: collection
+          })
+          return
+        }
       }
     })
 
@@ -322,6 +357,15 @@ export default class App extends Component {
         }
       }
     })
+
+    //// real-time sandbox.
+    this.state.socket.emit('patch', {
+      op: '+',
+      value: {
+        labels: { label: label }
+      }
+    })
+    ////
   }
 
   handleLabelDeleted = label => {
@@ -341,6 +385,15 @@ export default class App extends Component {
         currentSection: currentSection
       }
     })
+
+    //// real-time sandbox.
+    this.state.socket.emit('patch', {
+      op: '-',
+      value: {
+        labels: { label: label }
+      }
+    })
+    ////
   }
 
   handleAnnotationAdded = (image, boxes) => {
