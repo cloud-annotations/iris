@@ -48,6 +48,8 @@ io.on('connection', socket => {
       socket.join(socket.image)
     } else if (socket.image !== imageRoom) {
       socket.leave(socket.image)
+      // let the room know that it left.
+      broadcastRoomCount(socket.image)
       socket.image = imageRoom
       socket.join(socket.image)
     }
