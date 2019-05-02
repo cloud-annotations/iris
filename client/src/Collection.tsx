@@ -441,6 +441,22 @@ export default class Collection {
     return collection
   }
 
+  public updateImages(image: [string]): Collection {
+    const images = {
+      ...this._images,
+      all: [...image, ...this._images.all],
+      unlabeled: [...image, ...this._images.unlabeled]
+    }
+    const collection = new Collection(
+      this._type,
+      this._labels,
+      images,
+      this._annotations
+    )
+    collection._bucket = this._bucket
+    return collection
+  }
+
   public deleteImages(
     imageIds: [string],
     syncComplete: SyncCallback

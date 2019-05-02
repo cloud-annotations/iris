@@ -18,8 +18,9 @@ if (process.env.NODE_ENV === 'production') {
 
 const broadcastRoomCount = room => {
   try {
-    const count = io.sockets.adapter.rooms[room].length
-    io.to(room).emit('theHeadCount', count)
+    io.in(room).clients((_, clients) => {
+      io.to(room).emit('theHeadCount', clients.length)
+    })
   } catch {}
 }
 

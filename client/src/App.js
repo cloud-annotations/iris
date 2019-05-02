@@ -208,6 +208,17 @@ export default class App extends Component {
       }
 
       if (images) {
+        if (op === '+') {
+          const collection = this.state.collection.updateImages(
+            images.images,
+            false
+          )
+          this.setState({
+            collection: collection
+          })
+          return
+        }
+
         if (op === '-') {
           const collection = this.state.collection.deleteImages(
             [images.image],
