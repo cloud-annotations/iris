@@ -13,7 +13,7 @@ import EmptySet from './EmptySet'
 
 export default class App extends Component {
   state = {
-    editing: this.props.collection.images[this.props.currentSection][0],
+    editing: null,
     image: null,
     imageWidth: 0,
     imageHeight: 0,
@@ -28,6 +28,10 @@ export default class App extends Component {
     GoogleAnalytics.pageview('localization')
     document.addEventListener('keydown', this.handleKeyDown)
     document.addEventListener('keyup', this.handleKeyUp)
+
+    this.setEditingImage(
+      this.props.collection.images[this.props.currentSection][0]
+    )
   }
 
   componentWillUnmount() {
@@ -40,7 +44,7 @@ export default class App extends Component {
     if (nextProps.currentSection !== this.props.currentSection) {
       const { collection, currentSection } = nextProps
       const editing = collection.images[currentSection][0]
-      this.setState({ editing: editing })
+      this.setEditingImage(editing)
       // this is pretty lame...
       const target = document.getElementById('HorizontalScroller')
       if (target) {
@@ -99,10 +103,19 @@ export default class App extends Component {
     })
   }
 
+  setEditingImage = editing => {
+    const { bucket } = this.props
+    this.setState({ editing: editing, editorCount: 1 })
+    this.props.socket.emit('join', { bucket: bucket, image: editing })
+    this.props.socket.on('theHeadCount', count => {
+      this.setState({ editorCount: count })
+    })
+  }
+
   handleChangeSelection = selection => {
     const { collection, currentSection } = this.props
     const editing = collection.images[currentSection][selection]
-    this.setState({ editing: editing })
+    this.setEditingImage(editing)
   }
 
   colorFromLabel = label => {
@@ -132,6 +145,36 @@ export default class App extends Component {
       const bboxes = [..._bboxes]
       bboxes[index] = bbox
       onAnnotationAdded(editing, bboxes)
+
+      //// real-time sandbox.
+      // determine if this is a new box
+      const { color, ...box } = bbox
+      if (bboxes.length > (collection.annotations[editing] || []).length) {
+        // new box
+        this.props.socket.emit('patch', {
+          op: '+',
+          value: {
+            annotations: { image: editing, ...box }
+          }
+        })
+      } else {
+        // old box
+        const { color, ...oldBox } = collection.annotations[editing][index]
+        this.props.socket.emit('patch', {
+          op: '-',
+          value: {
+            annotations: { image: editing, ...oldBox }
+          }
+        })
+        this.props.socket.emit('patch', {
+          op: '+',
+          value: {
+            annotations: { image: editing, ...box }
+          }
+        })
+      }
+      ////
+
       return { tmpBBoxes: null }
     })
   }
@@ -180,9 +223,16 @@ export default class App extends Component {
     const currentItem = images.indexOf(editing)
     onImagesDeleted([editing])
     const newSelect = images[currentItem + 1]
-    this.setState({
-      editing: newSelect
+    this.setEditingImage(newSelect)
+
+    //// real-time sandbox.
+    this.props.socket.emit('patch', {
+      op: '-',
+      value: {
+        images: { image: editing }
+      }
     })
+    ////
   }
 
   handleDelete = box => {
@@ -198,6 +248,14 @@ export default class App extends Component {
         bbox.label !== box.label
     )
     onAnnotationAdded(editing, bboxes)
+
+    const { color, ...oldBox } = box
+    this.props.socket.emit('patch', {
+      op: '-',
+      value: {
+        annotations: { image: editing, ...oldBox }
+      }
+    })
   }
 
   handleImageDimensionChanged = (width, height) => {
@@ -231,6 +289,11 @@ export default class App extends Component {
       }
     )
 
+    const maxBubbles = 3
+    const othersCount = this.state.editorCount - 1
+    const clippedCount = Math.min(othersCount || 0, maxBubbles)
+    const overflowCount = othersCount - maxBubbles
+
     return (
       <div>
         <div
@@ -243,6 +306,27 @@ export default class App extends Component {
             top: '0'
           }}
         >
+          <div className={styles.roomHolder}>
+            {[...new Array(clippedCount)].map(() => (
+              <div className={styles.chatHead}>
+                <div>
+                  <svg
+                    className={styles.chatHeadIcon}
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 32 32"
+                  >
+                    <path d="M16,4a5,5,0,1,1-5,5,5,5,0,0,1,5-5m0-2a7,7,0,1,0,7,7A7,7,0,0,0,16,2Z" />
+                    <path d="M26,30H24V25a5,5,0,0,0-5-5H13a5,5,0,0,0-5,5v5H6V25a7,7,0,0,1,7-7h6a7,7,0,0,1,7,7Z" />
+                  </svg>
+                </div>
+              </div>
+            ))}
+            {overflowCount > 0 && (
+              <div className={styles.chatHeadOverflow}>
+                <div>+{overflowCount}</div>
+              </div>
+            )}
+          </div>
           {!loading && !editing ? (
             <EmptySet show={!loading && !editing} />
           ) : (
@@ -252,8 +336,11 @@ export default class App extends Component {
               children={
                 <div
                   style={{
-                    height: '100%',
-                    width: '100%',
+                    position: 'absolute',
+                    top: '0',
+                    left: '0',
+                    right: '0',
+                    bottom: '0',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center'

@@ -61,6 +61,11 @@ export default class COS {
         .then(handleErrors)
         .then(response => response.text())
 
+    const rawCollection = () =>
+      fetch(`${baseUrl}/${ANNOTATIONS_JSON}`)
+        .then(handleErrors)
+        .then(response => response.json())
+
     const collection = () =>
       fetch(`${baseUrl}/${ANNOTATIONS_JSON}`)
         .then(response => response.json())
@@ -130,6 +135,7 @@ export default class COS {
       labels: () => validateCookies().then(labels),
       annotations: () => validateCookies().then(annotations),
       collection: () => validateCookies().then(collection),
+      rawCollection: () => validateCookies().then(rawCollection),
       putImages: files => validateCookies().then(() => putImages(files)),
       putFile: file => validateCookies().then(() => putFile(file)),
       deleteFiles: files => validateCookies().then(() => deleteFiles(files))

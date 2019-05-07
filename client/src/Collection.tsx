@@ -96,6 +96,8 @@ export default class Collection {
     collection: Collection,
     syncComplete: SyncCallback
   ) => {
+    delete (collection as any).images
+
     const blob = new Blob([JSON.stringify(collection)], {
       type: 'application/json;charset=utf-8;'
     })
@@ -121,7 +123,9 @@ export default class Collection {
       this._annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 
@@ -147,7 +151,9 @@ export default class Collection {
       this._annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 
@@ -175,7 +181,9 @@ export default class Collection {
     }, {})
     const collection = new Collection(this._type, labels, images, annotations)
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 
@@ -425,9 +433,27 @@ export default class Collection {
         return this._bucket.putImages(files)
       })
       .then(() => {
-        this._syncBucket(collection, syncComplete)
+        if (syncComplete) {
+          this._syncBucket(collection, syncComplete)
+        }
       })
 
+    return collection
+  }
+
+  public updateImages(image: [string]): Collection {
+    const images = {
+      ...this._images,
+      all: [...image, ...this._images.all],
+      unlabeled: [...image, ...this._images.unlabeled]
+    }
+    const collection = new Collection(
+      this._type,
+      this._labels,
+      images,
+      this._annotations
+    )
+    collection._bucket = this._bucket
     return collection
   }
 
@@ -452,7 +478,9 @@ export default class Collection {
     collection._bucket = this._bucket
 
     collection._bucket.deleteFiles(imageIds).then(() => {
-      this._syncBucket(collection, syncComplete)
+      if (syncComplete) {
+        this._syncBucket(collection, syncComplete)
+      }
     })
 
     return collection
@@ -462,11 +490,21 @@ export default class Collection {
     return this._annotations
   }
 
-  // TODO: BUG - when all labels are removed, we need to remove from "labeled"
   public setAnnotation(
     image: string,
     annotation: Annotation[],
     syncComplete: SyncCallback
+  ): Collection {
+    const collection = this.localSetAnnotation(image, annotation)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
+    return collection
+  }
+
+  public localSetAnnotation(
+    image: string,
+    annotation: Annotation[]
   ): Collection {
     const UNTITLED = 'Untitled Label'
 
@@ -573,7 +611,6 @@ export default class Collection {
       annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
     return collection
   }
 
@@ -634,7 +671,9 @@ export default class Collection {
       annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 
@@ -670,7 +709,9 @@ export default class Collection {
       annotations
     )
     collection._bucket = this._bucket
-    this._syncBucket(collection, syncComplete)
+    if (syncComplete) {
+      this._syncBucket(collection, syncComplete)
+    }
     return collection
   }
 

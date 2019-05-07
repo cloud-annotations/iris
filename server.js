@@ -5,7 +5,63 @@ const cookieParser = require('cookie-parser')
 const frameguard = require('frameguard')
 
 const app = express()
+const http = require('http').Server(app)
+const io = require('socket.io')(http)
+const redis = require('socket.io-redis')
 const port = process.env.PORT || 9000
+
+app.use(express.static(__dirname + '/public'))
+
+if (process.env.NODE_ENV === 'production') {
+  io.adapter(redis({ host: 'redis.default.svc.cluster.local', port: 6379 }))
+}
+
+const broadcastRoomCount = room => {
+  try {
+    io.in(room).clients((_, clients) => {
+      io.to(room).emit('theHeadCount', clients.length)
+    })
+  } catch {}
+}
+
+//// socket playground
+io.on('connection', socket => {
+  socket.on('patch', res => {
+    if (socket.bucket) {
+      socket.to(socket.bucket).emit('patch', res)
+    }
+  })
+
+  socket.on('join', ({ bucket, image }) => {
+    if (!socket.bucket) {
+      socket.bucket = bucket
+      socket.join(bucket)
+    } else if (socket.bucket !== bucket) {
+      socket.leave(socket.bucket)
+      socket.bucket = bucket
+      socket.join(bucket)
+    }
+
+    const imageRoom = `${bucket}:${image}`
+    if (!socket.image) {
+      socket.image = imageRoom
+      socket.join(socket.image)
+    } else if (socket.image !== imageRoom) {
+      socket.leave(socket.image)
+      // let the room know that it left.
+      broadcastRoomCount(socket.image)
+      socket.image = imageRoom
+      socket.join(socket.image)
+    }
+
+    broadcastRoomCount(socket.image)
+  })
+
+  socket.on('disconnect', () => {
+    broadcastRoomCount(socket.image)
+  })
+})
+////
 
 app.use(cookieParser())
 app.use(frameguard()) // Prevent click jacking.
@@ -119,4 +175,5 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-app.listen(port)
+// app.listen(port)
+http.listen(port, () => console.log('listening on port ' + port))

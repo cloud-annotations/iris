@@ -9,6 +9,7 @@ import { Loading, Modal } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
 import history from './history'
 import { getDataTransferItems } from './Utils'
+import io from 'socket.io-client'
 
 import classification from './classification.png'
 import localization from './localization.png'
@@ -161,8 +162,99 @@ export default class App extends Component {
         }
       })
 
+    const socket = io.connect()
+
+    socket.on('patch', res => {
+      const { op, value } = res
+      const { annotations, images, labels } = value
+      if (annotations) {
+        if (op === '+') {
+          const collection = this.state.collection.setAnnotation(
+            annotations.image,
+            [
+              ...(this.state.collection.annotations[annotations.image] || []),
+              { ...annotations }
+            ],
+            false
+          )
+          this.setState({
+            collection: collection
+          })
+          return
+        }
+        if (op === '-') {
+          const newAnnotations = (
+            this.state.collection.annotations[annotations.image] || []
+          ).filter(
+            annotation =>
+              !(
+                annotation.x === annotations.x &&
+                annotation.y === annotations.y &&
+                annotation.x2 === annotations.x2 &&
+                annotation.y2 === annotations.y2 &&
+                annotation.label === annotations.label
+              )
+          )
+          const collection = this.state.collection.setAnnotation(
+            annotations.image,
+            newAnnotations,
+            false
+          )
+          this.setState({
+            collection: collection
+          })
+          return
+        }
+      }
+
+      if (images) {
+        if (op === '+') {
+          const collection = this.state.collection.updateImages(
+            images.images,
+            false
+          )
+          this.setState({
+            collection: collection
+          })
+          return
+        }
+
+        if (op === '-') {
+          const collection = this.state.collection.deleteImages(
+            [images.image],
+            false
+          )
+          this.setState({
+            collection: collection
+          })
+          return
+        }
+      }
+
+      if (labels) {
+        if (op === '+') {
+          const collection = this.state.collection.addLabel(labels.label, false)
+          this.setState({
+            collection: collection
+          })
+          return
+        }
+        if (op === '-') {
+          const collection = this.state.collection.removeLabel(
+            labels.label,
+            false
+          )
+          this.setState({
+            collection: collection
+          })
+          return
+        }
+      }
+    })
+
     this.state = {
       collection: Collection.EMPTY,
+      socket: socket,
       choice: 'classification',
       saving: 0,
       loadingVideos: 0,
@@ -276,6 +368,15 @@ export default class App extends Component {
         }
       }
     })
+
+    //// real-time sandbox.
+    this.state.socket.emit('patch', {
+      op: '+',
+      value: {
+        labels: { label: label }
+      }
+    })
+    ////
   }
 
   handleLabelDeleted = label => {
@@ -295,6 +396,15 @@ export default class App extends Component {
         currentSection: currentSection
       }
     })
+
+    //// real-time sandbox.
+    this.state.socket.emit('patch', {
+      op: '-',
+      value: {
+        labels: { label: label }
+      }
+    })
+    ////
   }
 
   handleAnnotationAdded = (image, boxes) => {
@@ -391,6 +501,7 @@ export default class App extends Component {
     const { bucket } = this.props.match.params
     const {
       collection,
+      socket,
       dropzoneActive,
       loading,
       saving,
@@ -478,6 +589,7 @@ export default class App extends Component {
                     loading={loading}
                     loadingVideos={loadingVideos}
                     collection={collection}
+                    socket={socket}
                     currentSection={currentSection}
                     onAnnotationAdded={this.handleAnnotationAdded}
                     onLabelAdded={this.handleLabelAdded}
