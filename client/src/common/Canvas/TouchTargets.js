@@ -25,21 +25,25 @@ export default class Rect extends Component {
         <div
           id="00"
           onMouseDown={this.handleMouseDown}
+          onTouchStart={this.handleMouseDown}
           className={styles.topLeft}
         />
         <div
           id="10"
           onMouseDown={this.handleMouseDown}
+          onTouchStart={this.handleMouseDown}
           className={styles.topRight}
         />
         <div
           id="11"
           onMouseDown={this.handleMouseDown}
+          onTouchStart={this.handleMouseDown}
           className={styles.bottomRight}
         />
         <div
           id="01"
           onMouseDown={this.handleMouseDown}
+          onTouchStart={this.handleMouseDown}
           className={styles.bottomLeft}
         />
       </div>

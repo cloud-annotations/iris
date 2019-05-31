@@ -1,73 +1,116 @@
 import React, { Component } from 'react'
-import { Select, SelectItemGroup, SelectItem } from 'carbon-components-react'
+import {
+  Select,
+  SelectItemGroup,
+  SelectItem,
+  TextInput,
+  Loading
+} from 'carbon-components-react'
 import GoogleAnalytics from 'react-ga'
 import { handleErrors, validateCookies } from './Utils'
+
+import 'carbon-components/css/carbon-components.min.css'
+
 import history from './history'
 import './Login.css'
 
-let endpoints = {
+const regions = {
   'cross-region': [
-    's3-api.us-geo.objectstorage.service.networklayer.com',
-    's3-api.dal-us-geo.objectstorage.service.networklayer.com',
-    's3-api.wdc-us-geo.objectstorage.service.networklayer.com',
-    's3-api.sjc-us-geo.objectstorage.service.networklayer.com',
-    's3.eu-geo.objectstorage.service.networklayer.com',
-    's3.ams-eu-geo.objectstorage.service.networklayer.com',
-    's3.fra-eu-geo.objectstorage.service.networklayer.com',
-    's3.mil-eu-geo.objectstorage.service.networklayer.com',
-    's3.ap-geo.objectstorage.service.networklayer.com',
-    's3.tok-ap-geo.objectstorage.service.networklayer.com',
-    's3.seo-ap-geo.objectstorage.service.networklayer.com',
-    's3.hkg-ap-geo.objectstorage.service.networklayer.com'
+    'us',
+    'dal.us',
+    'wdc.us',
+    'sjc.us',
+    'eu',
+    'ams.eu',
+    'fra.eu',
+    'mil.eu',
+    'ap',
+    'tok.ap',
+    'seo.ap',
+    'hkg.ap'
   ],
-  regional: [
-    's3.us-south.objectstorage.service.networklayer.com',
-    's3.us-east.objectstorage.service.networklayer.com',
-    's3.eu-gb.objectstorage.service.networklayer.com',
-    's3.eu-de.objectstorage.service.networklayer.com',
-    's3.jp-tok.objectstorage.service.networklayer.com'
-  ],
+  regional: ['us-south', 'us-east', 'eu-gb', 'eu-de', 'jp-tok', 'au-syd'],
   'single-site': [
-    's3.ams03.objectstorage.service.networklayer.com',
-    's3.che01.objectstorage.service.networklayer.com',
-    's3.mel01.objectstorage.service.networklayer.com',
-    's3.osl01.objectstorage.service.networklayer.com',
-    's3.tor01.objectstorage.service.networklayer.com',
-    's3.sao01.objectstorage.service.networklayer.com'
+    'ams03',
+    'che01',
+    'mel01',
+    'osl01',
+    'tor01',
+    'sao01',
+    'seo01',
+    'mon01',
+    'mex01',
+    'sjc04',
+    'mil01',
+    'hkg02'
   ]
+}
+
+let endpoints = {
+  us: 's3.private.us.cloud-object-storage.appdomain.cloud',
+  'dal.us': 's3.private.dal.us.cloud-object-storage.appdomain.cloud',
+  'wdc.us': 's3.private.wdc.us.cloud-object-storage.appdomain.cloud',
+  'sjc.us': 's3.private.sjc.us.cloud-object-storage.appdomain.cloud',
+  eu: 's3.private.eu.cloud-object-storage.appdomain.cloud',
+  'ams.eu': 's3.private.ams.eu.cloud-object-storage.appdomain.cloud',
+  'fra.eu': 's3.private.fra.eu.cloud-object-storage.appdomain.cloud',
+  'mil.eu': 's3.private.mil.eu.cloud-object-storage.appdomain.cloud',
+  ap: 's3.private.ap.cloud-object-storage.appdomain.cloud',
+  'tok.ap': 's3.private.tok.ap.cloud-object-storage.appdomain.cloud',
+  'seo.ap': 's3.private.seo.ap.cloud-object-storage.appdomain.cloud',
+  'hkg.ap': 's3.private.hkg.ap.cloud-object-storage.appdomain.cloud',
+  'us-south': 's3.private.us-south.cloud-object-storage.appdomain.cloud',
+  'us-east': 's3.private.us-east.cloud-object-storage.appdomain.cloud',
+  'eu-gb': 's3.private.eu-gb.cloud-object-storage.appdomain.cloud',
+  'eu-de': 's3.private.eu-de.cloud-object-storage.appdomain.cloud',
+  'jp-tok': 's3.private.jp-tok.cloud-object-storage.appdomain.cloud',
+  'au-syd': 's3.private.au-syd.cloud-object-storage.appdomain.cloud',
+  ams03: 's3.private.ams03.cloud-object-storage.appdomain.cloud',
+  che01: 's3.private.che01.cloud-object-storage.appdomain.cloud',
+  mel01: 's3.private.mel01.cloud-object-storage.appdomain.cloud',
+  osl01: 's3.private.osl01.cloud-object-storage.appdomain.cloud',
+  tor01: 's3.private.tor01.cloud-object-storage.appdomain.cloud',
+  sao01: 's3.private.sao01.cloud-object-storage.appdomain.cloud',
+  seo01: 's3.private.seo01.cloud-object-storage.appdomain.cloud',
+  mon01: 's3.private.mon01.cloud-object-storage.appdomain.cloud',
+  mex01: 's3.private.mex01.cloud-object-storage.appdomain.cloud',
+  sjc04: 's3.private.sjc04.cloud-object-storage.appdomain.cloud',
+  mil01: 's3.private.mil01.cloud-object-storage.appdomain.cloud',
+  hkg02: 's3.private.hkg02.cloud-object-storage.appdomain.cloud'
 }
 
 if (process.env.NODE_ENV === 'development') {
   endpoints = {
-    'cross-region': [
-      's3-api.us-geo.objectstorage.softlayer.net',
-      's3-api.dal-us-geo.objectstorage.softlayer.net',
-      's3-api.wdc-us-geo.objectstorage.softlayer.net',
-      's3-api.sjc-us-geo.objectstorage.softlayer.net',
-      's3.eu-geo.objectstorage.softlayer.net',
-      's3.ams-eu-geo.objectstorage.softlayer.net',
-      's3.fra-eu-geo.objectstorage.softlayer.net',
-      's3.mil-eu-geo.objectstorage.softlayer.net',
-      's3.ap-geo.objectstorage.softlayer.net',
-      's3.tok-ap-geo.objectstorage.softlayer.net',
-      's3.seo-ap-geo.objectstorage.softlayer.net',
-      's3.hkg-ap-geo.objectstorage.softlayer.net'
-    ],
-    regional: [
-      's3.us-south.objectstorage.softlayer.net',
-      's3.us-east.objectstorage.softlayer.net',
-      's3.eu-gb.objectstorage.softlayer.net',
-      's3.eu-de.objectstorage.softlayer.net',
-      's3.jp-tok.objectstorage.softlayer.net'
-    ],
-    'single-site': [
-      's3.ams03.objectstorage.softlayer.net',
-      's3.che01.objectstorage.softlayer.net',
-      's3.mel01.objectstorage.softlayer.net',
-      's3.osl01.objectstorage.softlayer.net',
-      's3.tor01.objectstorage.softlayer.net',
-      's3.sao01.objectstorage.softlayer.net'
-    ]
+    us: 's3.us.cloud-object-storage.appdomain.cloud',
+    'dal.us': 's3.dal.us.cloud-object-storage.appdomain.cloud',
+    'wdc.us': 's3.wdc.us.cloud-object-storage.appdomain.cloud',
+    'sjc.us': 's3.sjc.us.cloud-object-storage.appdomain.cloud',
+    eu: 's3.eu.cloud-object-storage.appdomain.cloud',
+    'ams.eu': 's3.ams.eu.cloud-object-storage.appdomain.cloud',
+    'fra.eu': 's3.fra.eu.cloud-object-storage.appdomain.cloud',
+    'mil.eu': 's3.mil.eu.cloud-object-storage.appdomain.cloud',
+    ap: 's3.ap.cloud-object-storage.appdomain.cloud',
+    'tok.ap': 's3.tok.ap.cloud-object-storage.appdomain.cloud',
+    'seo.ap': 's3.seo.ap.cloud-object-storage.appdomain.cloud',
+    'hkg.ap': 's3.hkg.ap.cloud-object-storage.appdomain.cloud',
+    'us-south': 's3.us-south.cloud-object-storage.appdomain.cloud',
+    'us-east': 's3.us-east.cloud-object-storage.appdomain.cloud',
+    'eu-gb': 's3.eu-gb.cloud-object-storage.appdomain.cloud',
+    'eu-de': 's3.eu-de.cloud-object-storage.appdomain.cloud',
+    'jp-tok': 's3.jp-tok.cloud-object-storage.appdomain.cloud',
+    'au-syd': 's3.au-syd.cloud-object-storage.appdomain.cloud',
+    ams03: 's3.ams03.cloud-object-storage.appdomain.cloud',
+    che01: 's3.che01.cloud-object-storage.appdomain.cloud',
+    mel01: 's3.mel01.cloud-object-storage.appdomain.cloud',
+    osl01: 's3.osl01.cloud-object-storage.appdomain.cloud',
+    tor01: 's3.tor01.cloud-object-storage.appdomain.cloud',
+    sao01: 's3.sao01.cloud-object-storage.appdomain.cloud',
+    seo01: 's3.seo01.cloud-object-storage.appdomain.cloud',
+    mon01: 's3.mon01.cloud-object-storage.appdomain.cloud',
+    mex01: 's3.mex01.cloud-object-storage.appdomain.cloud',
+    sjc04: 's3.sjc04.cloud-object-storage.appdomain.cloud',
+    mil01: 's3.mil01.cloud-object-storage.appdomain.cloud',
+    hkg02: 's3.hkg02.cloud-object-storage.appdomain.cloud'
   }
 }
 
@@ -78,13 +121,22 @@ class Login extends Component {
     props.cacheBucketList(null)
 
     const resourceId = localStorage.getItem('resourceId') || ''
-    const loginUrl =
-      localStorage.getItem('loginUrl') || endpoints['cross-region'][0]
+
+    // Ensure loginUrl is part of the endpoint map.
+    let loginUrl = endpoints[regions['cross-region'][0]]
+    if (
+      Object.keys(endpoints).find(
+        key => endpoints[key] === localStorage.getItem('loginUrl')
+      )
+    ) {
+      loginUrl = localStorage.getItem('loginUrl')
+    }
 
     this.state = {
       resourceId: resourceId,
       loginUrl: loginUrl,
-      apiKey: ''
+      apiKey: '',
+      loading: false
     }
   }
 
@@ -104,11 +156,24 @@ class Login extends Component {
   handleUserInput = e => {
     const name = e.target.name
     const value = e.target.value
-    this.setState({ [name]: value })
+
+    let resourceError = this.state.resourceError
+    let loginError = this.state.loginError
+    if (name === 'resourceId') {
+      resourceError = null
+    }
+    if (name === 'apiKey') {
+      loginError = null
+    }
+    this.setState({
+      [name]: value,
+      loginError: loginError,
+      resourceError: resourceError
+    })
   }
 
   onEndpointSelect = e => {
-    const loginUrl = e.target.options[e.target.selectedIndex].value
+    const loginUrl = endpoints[e.target.options[e.target.selectedIndex].value]
     this.setState({ loginUrl: loginUrl })
   }
 
@@ -122,6 +187,8 @@ class Login extends Component {
     localStorage.setItem('resourceId', resourceId)
     localStorage.setItem('loginUrl', loginUrl)
 
+    this.setState({ loading: true })
+
     const url = '/api/auth?apikey=' + apiKey
     const options = {
       method: 'GET'
@@ -130,17 +197,43 @@ class Login extends Component {
     fetch(request, options)
       .then(handleErrors)
       .then(() => {
-        history.push('/')
+        const url = `/api/proxy/${localStorage.getItem('loginUrl')}`
+        const options = {
+          method: 'GET',
+          headers: {
+            'ibm-service-instance-id': localStorage.getItem('resourceId')
+          }
+        }
+        fetch(url, options)
+          .then(handleErrors)
+          .then(() => {
+            this.setState({ loading: false })
+            history.push('/')
+          })
+          .catch(error => {
+            this.setState({ loading: false })
+            // resource instance id isn't right so clear cookies
+            console.error(error)
+            document.cookie = 'token=; Max-Age=-99999999; path=/'
+            document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
+            this.setState({ resourceError: error })
+          })
       })
       .catch(error => {
+        this.setState({ loading: false })
         // We are on the Login page so no need to redirect to /Login.
         console.error(error)
+        this.setState({ loginError: error })
       })
   }
 
   render() {
+    const defaultRegion = Object.keys(endpoints).find(
+      key => endpoints[key] === this.state.loginUrl
+    )
     return (
       <div>
+        <Loading active={this.state.loading} />
         <div className="Login-TopBar">
           <div className="Login-TopBar-title">
             Cloud Object Storage — Connection Details
@@ -152,29 +245,31 @@ class Login extends Component {
               <label className="Login-FormItem-Label">
                 Resource Instance ID
               </label>
-              <input
+              <TextInput
+                className="Login-FormItem-Inputx"
                 autoComplete="username"
-                value={this.state.resourceId}
-                className="Login-FormItem-Input"
-                type="text"
                 name="resourceId"
+                value={this.state.resourceId}
+                type="text"
                 onChange={this.handleUserInput}
+                invalidText="Invalid resource instance id."
+                invalid={this.state.resourceError}
               />
             </div>
             <div className="Login-FormItem">
-              <label className="Login-FormItem-Label">Endpoint</label>
+              <label className="Login-FormItem-Label">Region</label>
 
               <Select
                 className="Login-FormItem-Select"
                 hideLabel
                 onChange={this.onEndpointSelect}
                 id="select-1"
-                defaultValue={this.state.loginUrl}
+                defaultValue={defaultRegion}
               >
-                {Object.keys(endpoints).map(group => {
+                {Object.keys(regions).map(group => {
                   return (
                     <SelectItemGroup label={group}>
-                      {endpoints[group].map(url => (
+                      {regions[group].map(url => (
                         <SelectItem value={url} text={url} />
                       ))}
                     </SelectItemGroup>
@@ -184,12 +279,14 @@ class Login extends Component {
             </div>
             <div className="Login-FormItem">
               <label className="Login-FormItem-Label">API Key</label>
-              <input
+              <TextInput
+                className="Login-FormItem-Inputx"
                 autoComplete="current-password"
-                className="Login-FormItem-Input"
-                type="password"
                 name="apiKey"
+                type="password"
                 onChange={this.handleUserInput}
+                invalidText="Invalid api key."
+                invalid={this.state.loginError}
               />
             </div>
           </form>

@@ -5,6 +5,8 @@ staging-*.yaml
 *tiller*
 rbac-config.yaml
 
+secret.yaml
+
 # Logs
 logs
 *.log

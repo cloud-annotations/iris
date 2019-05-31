@@ -100,6 +100,19 @@
   width: 100%;
 }
 
+.Login-FormItem-Inputx {
+  margin: 0px;
+  padding: 7px 25px 7px 0px;
+  height: 2rem;
+  background-color: transparent;
+  box-shadow: 0 2px 0 0 #8c9ba5;
+}
+
+.Login-FormItem-Inputx:focus {
+  outline: none;
+  box-shadow: 0 2px 0 0 #152935;
+}
+
 .Login-FormItem-Select {
   width: 100%;
   margin-top: 8px;
