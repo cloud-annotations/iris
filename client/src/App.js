@@ -19,76 +19,86 @@ import './App.css'
 import COS from './api/COS'
 
 const endpointFinder = bucket => {
-  let endpoints = [
-    // cross-region
-    's3-api.us-geo.objectstorage.service.networklayer.com',
-    's3-api.dal-us-geo.objectstorage.service.networklayer.com',
-    's3-api.wdc-us-geo.objectstorage.service.networklayer.com',
-    's3-api.sjc-us-geo.objectstorage.service.networklayer.com',
-    's3.eu-geo.objectstorage.service.networklayer.com',
-    's3.ams-eu-geo.objectstorage.service.networklayer.com',
-    's3.fra-eu-geo.objectstorage.service.networklayer.com',
-    's3.mil-eu-geo.objectstorage.service.networklayer.com',
-    's3.ap-geo.objectstorage.service.networklayer.com',
-    's3.tok-ap-geo.objectstorage.service.networklayer.com',
-    's3.seo-ap-geo.objectstorage.service.networklayer.com',
-    's3.hkg-ap-geo.objectstorage.service.networklayer.com',
-    // regional
-    's3.us-south.objectstorage.service.networklayer.com',
-    's3.us-east.objectstorage.service.networklayer.com',
-    's3.eu-gb.objectstorage.service.networklayer.com',
-    's3.eu-de.objectstorage.service.networklayer.com',
-    's3.jp-tok.objectstorage.service.networklayer.com',
-    // single-site
-    's3.ams03.objectstorage.service.networklayer.com',
-    's3.che01.objectstorage.service.networklayer.com',
-    's3.mel01.objectstorage.service.networklayer.com',
-    's3.osl01.objectstorage.service.networklayer.com',
-    's3.tor01.objectstorage.service.networklayer.com',
-    's3.sao01.objectstorage.service.networklayer.com'
-  ]
+  let endpoints = {
+    us: 's3.private.us.cloud-object-storage.appdomain.cloud',
+    'dal.us': 's3.private.dal.us.cloud-object-storage.appdomain.cloud',
+    'wdc.us': 's3.private.wdc.us.cloud-object-storage.appdomain.cloud',
+    'sjc.us': 's3.private.sjc.us.cloud-object-storage.appdomain.cloud',
+    eu: 's3.private.eu.cloud-object-storage.appdomain.cloud',
+    'ams.eu': 's3.private.ams.eu.cloud-object-storage.appdomain.cloud',
+    'fra.eu': 's3.private.fra.eu.cloud-object-storage.appdomain.cloud',
+    'mil.eu': 's3.private.mil.eu.cloud-object-storage.appdomain.cloud',
+    ap: 's3.private.ap.cloud-object-storage.appdomain.cloud',
+    'tok.ap': 's3.private.tok.ap.cloud-object-storage.appdomain.cloud',
+    'seo.ap': 's3.private.seo.ap.cloud-object-storage.appdomain.cloud',
+    'hkg.ap': 's3.private.hkg.ap.cloud-object-storage.appdomain.cloud',
+    'us-south': 's3.private.us-south.cloud-object-storage.appdomain.cloud',
+    'us-east': 's3.private.us-east.cloud-object-storage.appdomain.cloud',
+    'eu-gb': 's3.private.eu-gb.cloud-object-storage.appdomain.cloud',
+    'eu-de': 's3.private.eu-de.cloud-object-storage.appdomain.cloud',
+    'jp-tok': 's3.private.jp-tok.cloud-object-storage.appdomain.cloud',
+    'au-syd': 's3.private.au-syd.cloud-object-storage.appdomain.cloud',
+    ams03: 's3.private.ams03.cloud-object-storage.appdomain.cloud',
+    che01: 's3.private.che01.cloud-object-storage.appdomain.cloud',
+    mel01: 's3.private.mel01.cloud-object-storage.appdomain.cloud',
+    osl01: 's3.private.osl01.cloud-object-storage.appdomain.cloud',
+    tor01: 's3.private.tor01.cloud-object-storage.appdomain.cloud',
+    sao01: 's3.private.sao01.cloud-object-storage.appdomain.cloud',
+    seo01: 's3.private.seo01.cloud-object-storage.appdomain.cloud',
+    mon01: 's3.private.mon01.cloud-object-storage.appdomain.cloud',
+    mex01: 's3.private.mex01.cloud-object-storage.appdomain.cloud',
+    sjc04: 's3.private.sjc04.cloud-object-storage.appdomain.cloud',
+    mil01: 's3.private.mil01.cloud-object-storage.appdomain.cloud',
+    hkg02: 's3.private.hkg02.cloud-object-storage.appdomain.cloud'
+  }
 
   if (process.env.NODE_ENV === 'development') {
-    endpoints = [
-      // cross-region
-      's3-api.us-geo.objectstorage.softlayer.net',
-      's3-api.dal-us-geo.objectstorage.softlayer.net',
-      's3-api.wdc-us-geo.objectstorage.softlayer.net',
-      's3-api.sjc-us-geo.objectstorage.softlayer.net',
-      's3.eu-geo.objectstorage.softlayer.net',
-      's3.ams-eu-geo.objectstorage.softlayer.net',
-      's3.fra-eu-geo.objectstorage.softlayer.net',
-      's3.mil-eu-geo.objectstorage.softlayer.net',
-      's3.ap-geo.objectstorage.softlayer.net',
-      's3.tok-ap-geo.objectstorage.softlayer.net',
-      's3.seo-ap-geo.objectstorage.softlayer.net',
-      's3.hkg-ap-geo.objectstorage.softlayer.net',
-      // regional
-      's3.us-south.objectstorage.softlayer.net',
-      's3.us-east.objectstorage.softlayer.net',
-      's3.eu-gb.objectstorage.softlayer.net',
-      's3.eu-de.objectstorage.softlayer.net',
-      's3.jp-tok.objectstorage.softlayer.net',
-      // single-site
-      's3.ams03.objectstorage.softlayer.net',
-      's3.che01.objectstorage.softlayer.net',
-      's3.mel01.objectstorage.softlayer.net',
-      's3.osl01.objectstorage.softlayer.net',
-      's3.tor01.objectstorage.softlayer.net',
-      's3.sao01.objectstorage.softlayer.net'
-    ]
+    endpoints = {
+      us: 's3.us.cloud-object-storage.appdomain.cloud',
+      'dal.us': 's3.dal.us.cloud-object-storage.appdomain.cloud',
+      'wdc.us': 's3.wdc.us.cloud-object-storage.appdomain.cloud',
+      'sjc.us': 's3.sjc.us.cloud-object-storage.appdomain.cloud',
+      eu: 's3.eu.cloud-object-storage.appdomain.cloud',
+      'ams.eu': 's3.ams.eu.cloud-object-storage.appdomain.cloud',
+      'fra.eu': 's3.fra.eu.cloud-object-storage.appdomain.cloud',
+      'mil.eu': 's3.mil.eu.cloud-object-storage.appdomain.cloud',
+      ap: 's3.ap.cloud-object-storage.appdomain.cloud',
+      'tok.ap': 's3.tok.ap.cloud-object-storage.appdomain.cloud',
+      'seo.ap': 's3.seo.ap.cloud-object-storage.appdomain.cloud',
+      'hkg.ap': 's3.hkg.ap.cloud-object-storage.appdomain.cloud',
+      'us-south': 's3.us-south.cloud-object-storage.appdomain.cloud',
+      'us-east': 's3.us-east.cloud-object-storage.appdomain.cloud',
+      'eu-gb': 's3.eu-gb.cloud-object-storage.appdomain.cloud',
+      'eu-de': 's3.eu-de.cloud-object-storage.appdomain.cloud',
+      'jp-tok': 's3.jp-tok.cloud-object-storage.appdomain.cloud',
+      'au-syd': 's3.au-syd.cloud-object-storage.appdomain.cloud',
+      ams03: 's3.ams03.cloud-object-storage.appdomain.cloud',
+      che01: 's3.che01.cloud-object-storage.appdomain.cloud',
+      mel01: 's3.mel01.cloud-object-storage.appdomain.cloud',
+      osl01: 's3.osl01.cloud-object-storage.appdomain.cloud',
+      tor01: 's3.tor01.cloud-object-storage.appdomain.cloud',
+      sao01: 's3.sao01.cloud-object-storage.appdomain.cloud',
+      seo01: 's3.seo01.cloud-object-storage.appdomain.cloud',
+      mon01: 's3.mon01.cloud-object-storage.appdomain.cloud',
+      mex01: 's3.mex01.cloud-object-storage.appdomain.cloud',
+      sjc04: 's3.sjc04.cloud-object-storage.appdomain.cloud',
+      mil01: 's3.mil01.cloud-object-storage.appdomain.cloud',
+      hkg02: 's3.hkg02.cloud-object-storage.appdomain.cloud'
+    }
   }
-  const promises = endpoints.map(endpoint =>
-    new COS(endpoint)
+
+  const promises = Object.keys(endpoints).map(region =>
+    new COS(endpoints[region])
       .bucket(bucket)
       .location()
-      .then(() => true)
+      .then(() => region)
       .catch(() => false)
   )
   return Promise.all(promises).then(res => {
     for (const i in res) {
-      if (res[i]) {
-        return endpoints[i]
+      const region = res[i]
+      if (region) {
+        return endpoints[region]
       }
     }
   })
@@ -263,6 +273,10 @@ export default class App extends Component {
       dropzoneActive: false,
       currentSection: ALL_IMAGES
     }
+  }
+
+  componentWillUnmount() {
+    this.state.socket.close()
   }
 
   uploadFiles = fileList => {
@@ -565,7 +579,10 @@ export default class App extends Component {
         <Dropzone
           disableClick
           className="App-Parent"
-          style={{ position: 'fixed' }}
+          style={{
+            position: 'fixed',
+            webkitTapHighlightColor: 'rgba(0,0,0,0)'
+          }}
           accept={accept}
           onDrop={this.handleDrop}
           onDragEnter={this.handleDragEnter}

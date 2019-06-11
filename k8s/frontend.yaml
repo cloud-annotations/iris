@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: annotations
+    tier: frontend
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: annotations
+    tier: frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: annotations
+      tier: frontend
+  replicas: 6
+  template:
+    metadata:
+      labels:
+        app: annotations
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: us.icr.io/bourdakos1/annotate:c35c945d8a5858675f1072bc0debf2c8f939b926
+        ports:
+        - containerPort: 8080

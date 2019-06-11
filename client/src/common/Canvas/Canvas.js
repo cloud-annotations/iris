@@ -22,12 +22,16 @@ export default class App extends Component {
     window.addEventListener('resize', this.handleWindowResize)
     document.addEventListener('mouseup', this.handleDragEnd)
     document.addEventListener('mousemove', this.handleMouseMove)
+    document.addEventListener('touchend', this.handleDragEnd)
+    document.addEventListener('touchmove', this.handleMouseMove)
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.handleWindowResize)
     document.removeEventListener('mouseup', this.handleDragEnd)
     document.removeEventListener('mousemove', this.handleMouseMove)
+    document.removeEventListener('touchend', this.handleDragEnd)
+    document.removeEventListener('touchmove', this.handleMouseMove)
   }
 
   handleCanvasDragStart = e => {
@@ -35,12 +39,24 @@ export default class App extends Component {
     const { size } = this.state
 
     // Start drag if it was a left click.
-    if (e.button !== 0 || mode !== BOX) {
+    if (e.button && e.button !== 0) {
+      return
+    }
+
+    if (mode !== BOX) {
       return
     }
 
     const { imageWidth, imageHeight } = size
 
+    e = (() => {
+      if (e.clientX && e.clientY) {
+        return e
+      }
+      return e.touches[0]
+    })()
+
+    // bug fix for mobile safari thinking there is a scroll.
     const rect = this.canvasRef.current.getBoundingClientRect()
     const mX = (e.clientX - rect.left) / imageWidth
     const mY = (e.clientY - rect.top) / imageHeight
@@ -53,6 +69,7 @@ export default class App extends Component {
     })
 
     this.setState({
+      canvasRect: rect,
       dragging: true,
       move: [1, 1],
       box: 0
@@ -63,9 +80,16 @@ export default class App extends Component {
     const { mode } = this.props
 
     // Start drag if it was a left click.
-    if (e.button !== 0 || mode !== MOVE) {
+    if (e.button && e.button !== 0) {
       return
     }
+
+    if (mode !== MOVE) {
+      return
+    }
+
+    // bug fix for mobile safari thinking there is a scroll.
+    const rect = this.canvasRef.current.getBoundingClientRect()
 
     const id = e.target.id
     const move = [0, 0]
@@ -79,7 +103,9 @@ export default class App extends Component {
     } else {
       move[1] = 1
     }
+
     this.setState({
+      canvasRect: rect,
       dragging: true,
       move: move,
       box: index
@@ -88,7 +114,7 @@ export default class App extends Component {
 
   handleMouseMove = e => {
     const { onCoordinatesChanged, bboxes } = this.props
-    const { dragging, move, box, size } = this.state
+    const { canvasRect, dragging, move, box, size } = this.state
 
     if (!dragging) {
       return
@@ -97,7 +123,14 @@ export default class App extends Component {
     const { x, y, x2, y2, ...rest } = bboxes[box]
     const { imageWidth, imageHeight } = size
 
-    const rect = this.canvasRef.current.getBoundingClientRect()
+    e = (() => {
+      if (e.clientX && e.clientY) {
+        return e
+      }
+      return e.touches[0]
+    })()
+
+    const rect = canvasRect
     const mX = (e.clientX - rect.left) / imageWidth
     const mY = (e.clientY - rect.top) / imageHeight
 
@@ -188,6 +221,7 @@ export default class App extends Component {
       <div
         draggable={false}
         onMouseDown={this.handleCanvasDragStart}
+        onTouchStart={this.handleCanvasDragStart}
         className={styles.wrapper}
       >
         <img
