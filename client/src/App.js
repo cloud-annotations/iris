@@ -275,6 +275,10 @@ export default class App extends Component {
     }
   }
 
+  componentWillUnmount() {
+    this.state.socket.close()
+  }
+
   uploadFiles = fileList => {
     const FPS = 3
     const images = fileList.filter(file => file.type.startsWith('image/'))
