@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    ingress.bluemix.net/redirect-to-https: "True"
+    ingress.bluemix.net/sticky-cookie-services: "serviceName=frontend name=sticky expires=5h path=/ hash=sha1"
+spec:
+  tls:
+  - hosts:
+    - stagingannotations.us-east.containers.appdomain.cloud
+    secretName: stagingannotations
+  rules:
+  - host: stagingannotations.us-east.containers.appdomain.cloud
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: frontend
+          servicePort: 80

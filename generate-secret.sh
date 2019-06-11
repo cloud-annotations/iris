@@ -11,4 +11,4 @@ metadata:
 type: Opaque
 data:
   tls.crt: ""$stripped_cert""
-  tls.key: ""$stripped_key""" > secret.yaml
+  tls.key: ""$stripped_key""" > k8s/secret.yaml
