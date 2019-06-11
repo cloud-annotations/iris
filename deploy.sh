@@ -46,7 +46,7 @@ function download_config {
 
 function attempt_build {
   echo Building $IMAGE_NAME ...
-  ibmcloud cr build -t $IMAGE_NAME .
+  ibmcloud cr build --no-cache --pull -t $IMAGE_NAME docker
 }
 
 function set_image {
