@@ -1,5 +1,5 @@
 # Cloud Annotations Client
-This is the setup and usage information for a development and production environment for the Cloud Annotations tool.
+This is the setup and usage information for a local development environment for the Cloud Annotations tool.
 
 ## Project setup
 `git clone` the repo and `cd` into it by running the following command:
@@ -23,8 +23,3 @@ npm start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-## Deployment
-```
-kubectl blah blah
-```
