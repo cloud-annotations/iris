@@ -87,17 +87,18 @@ const endpointFinder = bucket => {
     }
   }
 
-  const promises = endpoints.map(endpoint =>
-    new COS(endpoint)
+  const promises = Object.keys(endpoints).map(region =>
+    new COS(endpoints[region])
       .bucket(bucket)
       .location()
-      .then(() => true)
+      .then(() => region)
       .catch(() => false)
   )
   return Promise.all(promises).then(res => {
     for (const i in res) {
-      if (res[i]) {
-        return endpoints[i]
+      const region = res[i]
+      if (region) {
+        return endpoints[region]
       }
     }
   })
