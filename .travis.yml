@@ -3,10 +3,10 @@ os: osx
 node_js: stable
 before_deploy: 
 - curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
-- brew install kubernetes-cli
+- "brew install kubernetes-cli"
 deploy:
   skip_cleanup: true
   - provider: script
     script: yarn stage
     on:
-      branch: niko-dev
+      branch: "niko-dev"
