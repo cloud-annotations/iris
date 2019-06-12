@@ -3,6 +3,7 @@ os: osx
 node_js: stable
 before_deploy: 
 - curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+- brew install kubernetes-cli
 - ibmcloud plugin install container-registry
 - ibmcloud plugin install kubernetes-service
 deploy:
