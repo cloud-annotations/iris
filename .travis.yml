@@ -2,9 +2,7 @@ language: node_js
 os: osx
 node_js: stable
 before_deploy: 
-- curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
-- ibmcloud plugin install container-registry
-- ibmcloud plugin install kubernetes-service
+- curl -sL https://ibm.biz/idt-installer | bash
 deploy:
 - provider: script
   skip_cleanup: true
