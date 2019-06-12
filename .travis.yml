@@ -3,8 +3,10 @@ os: osx
 node_js: stable
 before_deploy: 
 - curl -L https://clis.ng.bluemix.net/download/bluemix-cli/0.16.2/osx/archive | tar -zx
+- curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.14.0/bin/darwin/amd64/kubectl
 - chmod -R u+x ./IBM_Cloud_CLI
-- export PATH="./IBM_Cloud_CLI:$PATH"
+- chmod +x ./kubectl
+- export PATH="./IBM_Cloud_CLI:./kubectl:$PATH"
 deploy:
   - provider: script
     script: yarn stage
