@@ -4,11 +4,16 @@ node_js: stable
 before_deploy: 
 - curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
 - brew install kubernetes-cli
-- ibmcloud plugin install ks
-- ibmcloud plugin install cr
+- ibmcloud plugin install container-registry
+- ibmcloud plugin install kubernetes-service
 deploy:
+- provider: script
   skip_cleanup: true
-  provider: script
+  script: yarn stage
+  on:
+    branch: master
+- provider: script
+  skip_cleanup: true
   script: yarn stage
   on:
     branch: niko-dev
