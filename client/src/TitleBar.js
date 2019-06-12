@@ -57,7 +57,7 @@ class TitleBar extends Component {
     return (
       <div>
         <div className="TitleBar">
-          <div className="TitleBar-title">Cloud Annotations</div>
+          <div className="TitleBar-title">Yet Another Cloud Annotations</div>
           {this.props.location.pathname !== '/login' ? (
             <div
               className={`TitleBar-user ${
