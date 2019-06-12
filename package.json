@@ -9,6 +9,7 @@
     "deploy": "export DEPLOY_TO=production && ./deploy.sh",
     "stage": "export DEPLOY_TO=staging && ./deploy.sh",
     "server": "nodemon server.js",
+    "test": "echo successssssss",
     "start": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\""
   },
   "dependencies": {
