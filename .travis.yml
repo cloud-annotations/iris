@@ -1,0 +1,8 @@
+language: node_js
+os: osx
+node_js: stable
+deploy:
+  - provider: script
+    script: yarn stage
+    on:
+      branch: master

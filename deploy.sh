@@ -30,10 +30,8 @@ function configure {
   [ ! -z "$CLUSTER" ] || fail "Configuration option is not set: CLUSTER"
   [ ! -z "$IMAGE_NAME" ] || fail "Configuration option is not set: IMAGE_NAME"
   
-  ACCOUNT_ID="$(ibmcloud account show)"
-  if [[ $ACCOUNT_ID != *"47b84451ab70b94737518f7640a9ee42"* ]]; then
-    ibmcloud login -sso
-  fi
+  ibmcloud config --check-version=false
+  ibmcloud login
 }
 
 function download_config {
