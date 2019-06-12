@@ -36,7 +36,7 @@ function configure {
 
 function download_config {
   echo Downloading config for $CLUSTER ...
-  CONFIG="$(ibmcloud cs cluster-config $CLUSTER)"
+  CONFIG="$(ibmcloud ks cluster-config $CLUSTER)"
   CONFIG=${CONFIG##*export KUBECONFIG=}
   CONFIG=${CONFIG%%.yml*}
   export KUBECONFIG=$CONFIG.yml
