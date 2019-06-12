@@ -2,8 +2,8 @@ language: node_js
 os: osx
 node_js: stable
 before_deploy: 
-- curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
-- "brew install kubernetes-cli"
+  - curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+  - brew install kubernetes-cli
 deploy:
   skip_cleanup: true
   - provider: script
