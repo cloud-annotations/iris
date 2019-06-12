@@ -31,7 +31,7 @@ function configure {
   [ ! -z "$IMAGE_NAME" ] || fail "Configuration option is not set: IMAGE_NAME"
   
   ibmcloud config --check-version=false
-  ibmcloud login
+  ibmcloud login -r us-east
 }
 
 function download_config {
