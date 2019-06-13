@@ -1,14 +1,22 @@
 language: node_js
 os: osx
 node_js: stable
+addons:
+  homebrew:
+    packages:
+    - kubernetes-cli
 before_deploy: 
-- curl -L https://clis.ng.bluemix.net/download/bluemix-cli/0.16.2/osx/archive | tar -zx
-- curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.14.0/bin/darwin/amd64/kubectl
-- chmod -R u+x ./IBM_Cloud_CLI
-- chmod +x ./kubectl
-- export PATH="./IBM_Cloud_CLI:./kubectl:$PATH"
+- curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
+- ibmcloud plugin install container-registry
+- ibmcloud plugin install kubernetes-service
 deploy:
-  - provider: script
-    script: yarn stage
-    on:
-      branch: master
+- provider: script
+  skip_cleanup: true
+  script: yarn deploy
+  on:
+    branch: master
+- provider: script
+  skip_cleanup: true
+  script: yarn stage
+  on:
+    branch: niko-dev

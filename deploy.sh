@@ -3,6 +3,10 @@
 # export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/annotations/kube-config-wdc04-annotations.yml"
 # export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/staging.annotations/kube-config-wdc04-staging.annotations.yml"
 
+# Remove node modules so docker context is smaller.
+rm -rf node_modules
+rm -rf client/node_modules
+
 if [ "$DEPLOY_TO" = "production" ]
 then
   # PRODUCTION:
@@ -31,12 +35,12 @@ function configure {
   [ ! -z "$IMAGE_NAME" ] || fail "Configuration option is not set: IMAGE_NAME"
   
   ibmcloud config --check-version=false
-  ibmcloud login
+  ibmcloud login -r us-east
 }
 
 function download_config {
   echo Downloading config for $CLUSTER ...
-  CONFIG="$(ibmcloud cs cluster-config $CLUSTER)"
+  CONFIG="$(ibmcloud ks cluster-config $CLUSTER)"
   CONFIG=${CONFIG##*export KUBECONFIG=}
   CONFIG=${CONFIG%%.yml*}
   export KUBECONFIG=$CONFIG.yml
@@ -44,7 +48,7 @@ function download_config {
 
 function attempt_build {
   echo Building $IMAGE_NAME ...
-  ibmcloud cr build --no-cache --pull -t $IMAGE_NAME docker
+  ibmcloud cr build --no-cache --pull -t $IMAGE_NAME .
 }
 
 function set_image {
@@ -58,6 +62,3 @@ download_config
 attempt_build
 set_image
 echo "Deployment complete"
-echo -e "\n$URL\n"
-
-/usr/bin/open -a "/Applications/Google Chrome.app" $URL
