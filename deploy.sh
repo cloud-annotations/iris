@@ -3,6 +3,10 @@
 # export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/annotations/kube-config-wdc04-annotations.yml"
 # export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/staging.annotations/kube-config-wdc04-staging.annotations.yml"
 
+# Remove node modules so docker context is smaller.
+rm -rf node_modules
+rm -rf client/node_modules
+
 if [ "$DEPLOY_TO" = "production" ]
 then
   # PRODUCTION:
@@ -44,7 +48,7 @@ function download_config {
 
 function attempt_build {
   echo Building $IMAGE_NAME ...
-  ibmcloud cr build --no-cache --pull -t $IMAGE_NAME docker
+  ibmcloud cr build --no-cache --pull -t $IMAGE_NAME .
 }
 
 function set_image {
