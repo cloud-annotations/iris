@@ -1,6 +1,5 @@
 FROM node:10.15.0 as nodebuild
-RUN git init
-RUN git pull https://github.com/bourdakos1/cloud-annotations-client.git
+COPY . .
 RUN npm install
 RUN cd client && npm install && npm run build
  
@@ -8,7 +7,7 @@ FROM node:10.15.0-alpine
 COPY --from=nodebuild server.js .
 COPY --from=nodebuild package.json .
 COPY --from=nodebuild client/build client
-RUN npm install &&\
+RUN npm install --only=production &&\
     apk update &&\
     apk upgrade
 ENV PORT 8080
