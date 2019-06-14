@@ -118,8 +118,6 @@ class Login extends Component {
   constructor(props) {
     super(props)
 
-    props.cacheBucketList(null)
-
     const resourceId = localStorage.getItem('resourceId') || ''
 
     // Ensure loginUrl is part of the endpoint map.

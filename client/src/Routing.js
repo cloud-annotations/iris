@@ -31,7 +31,7 @@ const Routing = () => {
         <Switch>
           {/* With `Switch` there will only ever be one child here */}
           <Route exact path="/" component={Buckets} />
-          <Route path="login" component={Login} />
+          <Route path="/login" component={Login} />
           <Route path="/:bucket" component={App} />
         </Switch>
       </Router>
