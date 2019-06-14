@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import GoogleAnalytics from 'react-ga'
-import Collection from './Collection'
 import {
   DataTable,
   DataTableSkeleton,
@@ -10,6 +9,9 @@ import {
   InlineLoading
 } from 'carbon-components-react'
 import { validateCookies, handleErrors } from './Utils'
+
+import { connect } from 'react-redux'
+import { loadBuckets } from './redux/buckets'
 
 import MD5 from 'crypto-js/md5'
 import Base64 from 'crypto-js/enc-base64'
@@ -37,6 +39,87 @@ const NAME_EXISTS =
   'This bucket name already exists in IBM Cloud Object Storage. Create a new globally unique name.'
 const EMPTY_NAME = 'Bucket name is required.'
 
+const CreateBucket = ({ handleClick }) => {
+  return (
+    <div className="Buckets-createBucket-Button" onClick={handleClick}>
+      Create bucket
+      <svg className="Buckets-createBucket-Icon" viewBox="0 0 16 16">
+        <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
+      </svg>
+    </div>
+  )
+}
+
+const BucketTable = ({ buckets, loadingBuckets, promptDeleteBucket }) => {
+  const headers = [
+    { key: 'name', header: 'NAME' },
+    { key: 'created', header: 'CREATED' }
+  ]
+  const handleDeleteBucket = id => e => {
+    promptDeleteBucket(e, id)
+  }
+  return (
+    <>
+      {buckets ? (
+        <DataTable
+          rows={buckets}
+          headers={headers}
+          render={({ rows, headers, getHeaderProps }) => (
+            <TableContainer>
+              <Table zebra={false}>
+                <TableHead>
+                  <TableRow>
+                    {headers.map(header => (
+                      <TableHeader {...getHeaderProps({ header })}>
+                        {header.header}
+                      </TableHeader>
+                    ))}
+                    <TableHeader isSortable={false} />
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map(row => (
+                    <TableRow
+                      key={row.id}
+                      onClick={() => {
+                        history.push(`/${row.id}`)
+                      }}
+                    >
+                      {row.cells.map(cell => (
+                        <TableCell key={cell.id}>{cell.value}</TableCell>
+                      ))}
+                      <TableCell
+                        className="Buckets-row-overflow"
+                        onClick={handleDeleteBucket(row.id)}
+                      >
+                        {loadingBuckets.includes(row.id) ? (
+                          <InlineLoading success={false} />
+                        ) : (
+                          <svg
+                            className="Buckets-row-overflow-delete-Icon"
+                            width="12"
+                            height="16"
+                            viewBox="0 0 12 16"
+                          >
+                            <path d="M11 4v11c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V4H0V3h12v1h-1zM2 4v11h8V4H2z" />
+                            <path d="M4 6h1v7H4zm3 0h1v7H7zM3 1V0h6v1z" />
+                          </svg>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        />
+      ) : (
+        <DataTableSkeleton />
+      )}
+    </>
+  )
+}
+
 class Buckets extends Component {
   constructor(props) {
     super(props)
@@ -55,43 +138,16 @@ class Buckets extends Component {
     GoogleAnalytics.pageview('buckets')
   }
 
-  initializeData = () => {
-    return validateCookies()
-      .then(() => this.populateBuckets())
-      .catch(error => {
-        console.log(error)
-        if (error.message === 'Forbidden') {
-          history.push('/login')
-        }
-      })
-  }
-
-  populateBuckets = () => {
-    const url = `/api/proxy/${localStorage.getItem('loginUrl')}`
-    const options = {
-      method: 'GET',
-      headers: {
-        'ibm-service-instance-id': localStorage.getItem('resourceId')
+  initializeData = async () => {
+    try {
+      await validateCookies()
+      this.props.dispatch(await loadBuckets())
+    } catch (error) {
+      console.log(error)
+      if (error.message === 'Forbidden') {
+        history.push('/login')
       }
     }
-    return fetch(url, options)
-      .then(handleErrors)
-      .then(response => response.text())
-      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
-      .then(data => {
-        const elements = data.getElementsByTagName('Bucket')
-        const bucketList = Array.prototype.map.call(elements, element => {
-          const name = element.getElementsByTagName('Name')[0].innerHTML
-          const date = element.getElementsByTagName('CreationDate')[0].innerHTML
-          return {
-            id: name,
-            name: name,
-            created: new Date(date).toLocaleDateString()
-          }
-        })
-
-        this.props.cacheBucketList(bucketList)
-      })
   }
 
   openModal = () => {
@@ -342,12 +398,10 @@ class Buckets extends Component {
 
   render() {
     const { buckets } = this.props
-    const headers = [
-      { key: 'name', header: 'NAME' },
-      { key: 'created', header: 'CREATED' }
-    ]
+
     return (
       <div className="Buckets-Parent">
+        {/* Delete Bucket Modal */}
         <Modal
           className="Buckets-Modal-TextInput-Wrapper"
           open={this.state.modalDeleteBucket}
@@ -381,6 +435,7 @@ class Buckets extends Component {
           />
         </Modal>
 
+        {/* Create Bucket Modal */}
         <Modal
           className="Buckets-Modal-TextInput-Wrapper"
           open={this.state.modalOpen}
@@ -407,78 +462,18 @@ class Buckets extends Component {
         <div className="Buckets-Table">
           <div className="Buckets-TableHeader">
             <div className="Buckets-TableHeader-title">Buckets</div>
-            <div
-              className="Buckets-createBucket-Button"
-              onClick={this.openModal}
-            >
-              Create bucket
-              <svg className="Buckets-createBucket-Icon" viewBox="0 0 16 16">
-                <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
-              </svg>
-            </div>
+            <CreateBucket handleClick={this.openModal} />
           </div>
-          {buckets ? (
-            <DataTable
-              rows={buckets}
-              headers={headers}
-              render={({ rows, headers, getHeaderProps }) => (
-                <TableContainer>
-                  <Table zebra={false}>
-                    <TableHead>
-                      <TableRow>
-                        {headers.map(header => (
-                          <TableHeader {...getHeaderProps({ header })}>
-                            {header.header}
-                          </TableHeader>
-                        ))}
-                        <TableHeader isSortable={false} />
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {rows.map(row => (
-                        <TableRow
-                          key={row.id}
-                          onClick={() => {
-                            history.push(`/${row.id}`)
-                          }}
-                        >
-                          {row.cells.map(cell => (
-                            <TableCell key={cell.id}>{cell.value}</TableCell>
-                          ))}
-                          <TableCell
-                            className="Buckets-row-overflow"
-                            onClick={e => {
-                              this.promptDeleteBucket(e, row.id)
-                            }}
-                          >
-                            {this.state.loadingBuckets.includes(row.id) ? (
-                              <InlineLoading success={false} />
-                            ) : (
-                              <svg
-                                className="Buckets-row-overflow-delete-Icon"
-                                width="12"
-                                height="16"
-                                viewBox="0 0 12 16"
-                              >
-                                <path d="M11 4v11c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V4H0V3h12v1h-1zM2 4v11h8V4H2z" />
-                                <path d="M4 6h1v7H4zm3 0h1v7H7zM3 1V0h6v1z" />
-                              </svg>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              )}
-            />
-          ) : (
-            <DataTableSkeleton />
-          )}
+          <BucketTable
+            buckets={buckets}
+            loadingBuckets={this.state.loadingBuckets}
+            promptDeleteBucket={this.promptDeleteBucket}
+          />
         </div>
       </div>
     )
   }
 }
 
-export default Buckets
+const mapStateToProps = state => ({ buckets: state.buckets })
+export default connect(mapStateToProps)(Buckets)

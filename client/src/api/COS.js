@@ -5,6 +5,34 @@ export default class COS {
     this.endpoint = endpoint
   }
 
+  buckets = async instanceId => {
+    const url = `/api/proxy/${this.endpoint}`
+    const options = {
+      method: 'GET',
+      headers: {
+        'ibm-service-instance-id': instanceId
+      }
+    }
+
+    const bucketXML = await fetch(url, options)
+      .then(handleErrors)
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
+
+    const elements = bucketXML.getElementsByTagName('Bucket')
+    const bucketList = Array.prototype.map.call(elements, element => {
+      const name = element.getElementsByTagName('Name')[0].innerHTML
+      const date = element.getElementsByTagName('CreationDate')[0].innerHTML
+      return {
+        id: name,
+        name: name,
+        created: new Date(date).toLocaleDateString()
+      }
+    })
+
+    return bucketList
+  }
+
   bucket = bucket => {
     const TYPE = '_type'
     const LABELS_CSV = '_labels.csv'
