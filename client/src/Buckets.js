@@ -19,7 +19,7 @@ import Base64 from 'crypto-js/enc-base64'
 import history from './history'
 
 import 'carbon-components/css/carbon-components.min.css'
-import './Buckets.css'
+import './bx-overrides.css'
 import styles from './Buckets.module.css'
 
 const {
@@ -41,20 +41,30 @@ const EMPTY_NAME = 'Bucket name is required.'
 
 const CreateBucket = ({ handleClick }) => {
   return (
-    <div className="Buckets-createBucket-Button" onClick={handleClick}>
+    <div className={styles.createBucket} onClick={handleClick}>
       Create bucket
-      <svg className="Buckets-createBucket-Icon" viewBox="0 0 16 16">
+      <svg className={styles.createBucketIcon} viewBox="0 0 16 16">
         <path d="M7 7H4v2h3v3h2V9h3V7H9V4H7v3zm1 9A8 8 0 1 1 8 0a8 8 0 0 1 0 16z" />
       </svg>
     </div>
   )
 }
 
+const DeleteIcon = () => (
+  <svg className={styles.deleteIcon} width="12" height="16" viewBox="0 0 12 16">
+    <path d="M11 4v11c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V4H0V3h12v1h-1zM2 4v11h8V4H2z" />
+    <path d="M4 6h1v7H4zm3 0h1v7H7zM3 1V0h6v1z" />
+  </svg>
+)
+
 const BucketTable = ({ buckets, loadingBuckets, promptDeleteBucket }) => {
   const headers = [
     { key: 'name', header: 'NAME' },
     { key: 'created', header: 'CREATED' }
   ]
+  const handleRowClick = id => () => {
+    history.push(`/${id}`)
+  }
   const handleDeleteBucket = id => e => {
     promptDeleteBucket(e, id)
   }
@@ -78,32 +88,22 @@ const BucketTable = ({ buckets, loadingBuckets, promptDeleteBucket }) => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
+                  {/* Draw each row */}
                   {rows.map(row => (
-                    <TableRow
-                      key={row.id}
-                      onClick={() => {
-                        history.push(`/${row.id}`)
-                      }}
-                    >
+                    <TableRow key={row.id} onClick={handleRowClick(row.id)}>
+                      {/* Draw each column in each row */}
                       {row.cells.map(cell => (
                         <TableCell key={cell.id}>{cell.value}</TableCell>
                       ))}
+                      {/* Draw delete button column */}
                       <TableCell
-                        className="Buckets-row-overflow"
+                        className={styles.rowOverflow}
                         onClick={handleDeleteBucket(row.id)}
                       >
                         {loadingBuckets.includes(row.id) ? (
                           <InlineLoading success={false} />
                         ) : (
-                          <svg
-                            className="Buckets-row-overflow-delete-Icon"
-                            width="12"
-                            height="16"
-                            viewBox="0 0 12 16"
-                          >
-                            <path d="M11 4v11c0 .6-.4 1-1 1H2c-.6 0-1-.4-1-1V4H0V3h12v1h-1zM2 4v11h8V4H2z" />
-                            <path d="M4 6h1v7H4zm3 0h1v7H7zM3 1V0h6v1z" />
-                          </svg>
+                          <DeleteIcon />
                         )}
                       </TableCell>
                     </TableRow>
@@ -400,7 +400,7 @@ class Buckets extends Component {
     const { buckets } = this.props
 
     return (
-      <div className="Buckets-Parent">
+      <div className={styles.wrapper}>
         {/* Delete Bucket Modal */}
         <Modal
           className="Buckets-Modal-TextInput-Wrapper"
@@ -425,7 +425,7 @@ class Buckets extends Component {
           </p>
           <br />
           <TextInput
-            className="Buckets-Modal-TextInput"
+            className={styles.textInput}
             placeholder=""
             onChange={this.onTextChangeBucketToDelete}
             value={this.state.textInputBucketToDelete}
@@ -459,9 +459,9 @@ class Buckets extends Component {
           />
         </Modal>
 
-        <div className="Buckets-Table">
-          <div className="Buckets-TableHeader">
-            <div className="Buckets-TableHeader-title">Buckets</div>
+        <div className={styles.table}>
+          <div className={styles.section}>
+            <div className={styles.sectionTitle}>Buckets</div>
             <CreateBucket handleClick={this.openModal} />
           </div>
           <BucketTable

@@ -1,0 +1,11 @@
+.bx--modal-container {
+  width: 100%;
+}
+
+.bx--data-table-v2 th:hover .bx--table-sort-v2__icon {
+  opacity: 0.5;
+}
+
+.bx--table-sort-v2--active .bx--table-sort-v2__icon {
+  opacity: 1 !important;
+}
