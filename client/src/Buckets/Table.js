@@ -42,11 +42,19 @@ const TableList = ({ buckets, listOfLoadingBuckets, onDeleteBucket }) => {
     e.stopPropagation()
     onDeleteBucket(id)
   }
+
+  // Sort modifies the original array.
+  let sortedBuckets
+  if (buckets) {
+    sortedBuckets = [...buckets]
+    sortedBuckets.sort((a, b) => new Date(b.created) - new Date(a.created))
+  }
+
   return (
     <>
-      {buckets ? (
+      {sortedBuckets ? (
         <DataTable
-          rows={buckets}
+          rows={sortedBuckets}
           headers={headers}
           render={({ rows, headers, getHeaderProps }) => (
             <DataTable.TableContainer>
