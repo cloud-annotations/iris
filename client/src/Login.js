@@ -141,14 +141,13 @@ class Login extends Component {
   componentDidMount() {
     GoogleAnalytics.pageview('login')
     // Check if we are already logged in.
-    validateCookies()
-      .then(() => {
-        history.push('/')
-      })
-      .catch(error => {
-        // We are on the Login page so no need to redirect to /Login.
-        console.log(error)
-      })
+    try {
+      validateCookies()
+      history.push('/')
+    } catch (error) {
+      // We are on the Login page so no need to redirect to /Login.
+      console.log(error)
+    }
   }
 
   handleUserInput = e => {

@@ -10,20 +10,22 @@ import { createStore } from 'redux'
 import { Provider } from 'react-redux'
 import reducers from './redux/reducers'
 
-const cookieCheck = () => {
-  const id = setInterval(() => {
-    console.log('tic toc')
-    validateCookies().catch(error => {
-      if (error.message === 'Forbidden') {
+const useCookieCheck = interval => {
+  useEffect(() => {
+    const id = setInterval(() => {
+      try {
+        console.log('tic toc')
+        validateCookies()
+      } catch {
         history.push('/login')
       }
-    })
-  }, 10 * 1000)
-  return () => clearInterval(id)
+    }, interval)
+    return () => clearInterval(id)
+  }, [])
 }
 
 const Routing = () => {
-  useEffect(cookieCheck)
+  useCookieCheck(10 * 1000)
   const store = createStore(reducers)
   return (
     <Provider store={store}>

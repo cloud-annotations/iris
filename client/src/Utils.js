@@ -55,8 +55,8 @@ export function arrayBufferToBase64(buffer) {
   return window.btoa(binary)
 }
 
-export function readFile(file) {
-  return new Promise((resolve, reject) => {
+export async function readFile(file) {
+  return new Promise((resolve, _) => {
     var reader = new FileReader()
     reader.onload = () => {
       resolve(reader.result)
@@ -65,7 +65,7 @@ export function readFile(file) {
   })
 }
 
-export function imageToCanvas(imageSrc, width, height, mode) {
+export async function imageToCanvas(imageSrc, width, height, mode) {
   return new Promise((resolve, _) => {
     var img = new Image()
     img.onload = () => {
@@ -97,7 +97,7 @@ export function imageToCanvas(imageSrc, width, height, mode) {
   })
 }
 
-export function canvasToBlob(canvas) {
+export async function canvasToBlob(canvas) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(result => {
       resolve(result)
@@ -105,7 +105,7 @@ export function canvasToBlob(canvas) {
   })
 }
 
-export function namedCanvasToFile(namedCanvas) {
+export async function namedCanvasToFile(namedCanvas) {
   return new Promise((resolve, _) => {
     namedCanvas.canvas.toBlob(blob => {
       resolve({ blob: blob, name: namedCanvas.name })
@@ -113,27 +113,28 @@ export function namedCanvasToFile(namedCanvas) {
   })
 }
 
+export function clearCookies(cookies) {
+  cookies.forEach(cookie => {
+    document.cookie = `${cookie}=; Max-Age=-99999999; path=/`
+  })
+}
+
 export function handleErrors(response) {
   if (!response.ok) {
     if (response.statusText === 'Forbidden') {
-      document.cookie = 'token=; Max-Age=-99999999; path=/'
-      document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
+      clearCookies(['token', 'refresh_token'])
     }
-    return Promise.reject(new Error(response.statusText))
+    throw new Error(response.statusText)
   }
   return response
 }
 
 export function validateCookies() {
-  return new Promise((resolve, reject) => {
-    const token = getCookie('token')
-    const refreshToken = getCookie('refresh_token')
-    if (token === '' || refreshToken === '') {
-      document.cookie = 'token=; Max-Age=-99999999; path=/'
-      document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
-      reject(new Error('Forbidden'))
-    } else {
-      resolve()
-    }
-  })
+  const token = getCookie('token')
+  const refreshToken = getCookie('refresh_token')
+  if (token === '' || refreshToken === '') {
+    // If either of the tokens are expired, clear them both.
+    clearCookies(['token', 'refresh_token'])
+    throw new Error('Forbidden')
+  }
 }

@@ -120,7 +120,7 @@ export default class COS {
           }
         })
 
-    const putImages = files => {
+    const putImages = () => files => {
       const requests = files.map(file => {
         const url = `${baseUrl}/${file.name}`
         const options = {
@@ -134,7 +134,7 @@ export default class COS {
       return Promise.all(requests).then(() => files.map(file => file.name))
     }
 
-    const putFile = file => {
+    const putFile = () => file => {
       const url = `${baseUrl}/${file.name}`
       const options = {
         method: 'PUT',
@@ -143,7 +143,7 @@ export default class COS {
       return fetch(url, options).then(handleErrors)
     }
 
-    const deleteFiles = files => {
+    const deleteFiles = () => files => {
       const requests = files.map(file => deleteFile(file))
       return Promise.all(requests)
     }
@@ -156,17 +156,22 @@ export default class COS {
       return fetch(url, options).then(handleErrors)
     }
 
+    const preFlightCheck = func => {
+      validateCookies()
+      return func()
+    }
+
     return {
-      type: () => validateCookies().then(type),
-      location: () => validateCookies().then(location),
-      fileList: () => validateCookies().then(fileList),
-      labels: () => validateCookies().then(labels),
-      annotations: () => validateCookies().then(annotations),
-      collection: () => validateCookies().then(collection),
-      rawCollection: () => validateCookies().then(rawCollection),
-      putImages: files => validateCookies().then(() => putImages(files)),
-      putFile: file => validateCookies().then(() => putFile(file)),
-      deleteFiles: files => validateCookies().then(() => deleteFiles(files))
+      type: () => preFlightCheck(type),
+      location: () => preFlightCheck(location),
+      fileList: () => preFlightCheck(fileList),
+      labels: () => preFlightCheck(labels),
+      annotations: () => preFlightCheck(annotations),
+      collection: () => preFlightCheck(collection),
+      rawCollection: () => preFlightCheck(rawCollection),
+      putImages: files => preFlightCheck(putImages(files)),
+      putFile: file => preFlightCheck(putFile(file)),
+      deleteFiles: files => preFlightCheck(deleteFiles(files))
     }
   }
 }

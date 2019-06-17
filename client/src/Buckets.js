@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useState, useEffect } from 'react'
 import GoogleAnalytics from 'react-ga'
 import {
   DataTable,
@@ -32,6 +32,15 @@ const {
   TableHeader
 } = DataTable
 
+// REGEX.
+const combineRegex = (reg1, reg2) => RegExp(`${reg1.source}|${reg2.source}`)
+const ALPHANUMERIC_DOT_DASH = /[^a-z0-9-.]|[.-][.-]+/
+const STARTS_ALPHANUMERIC = /^[^a-z0-9]+/
+const ENDS_ALPHANUMERIC = /[^a-z0-9]+$/
+const BASE_NAME = combineRegex(STARTS_ALPHANUMERIC, ALPHANUMERIC_DOT_DASH)
+const FULL_NAME = combineRegex(ENDS_ALPHANUMERIC, BASE_NAME)
+
+// Error Messages.
 const INVALID_CHARS =
   'Must start and end in alphanumeric characters (from 3 to 255) limited to: lowercase, numbers and non-consecutive dots, and hyphens.'
 const TOO_SHORT = 'Must be at least 3 characters.'
@@ -120,7 +129,218 @@ const BucketTable = ({ buckets, loadingBuckets, promptDeleteBucket }) => {
   )
 }
 
-class Buckets extends Component {
+// const DeleteModal = () => {
+//   return (
+//     <Modal
+//       open={isDeleteBucketModalOpen}
+//       modalHeading="Are you absolutely sure?"
+//       primaryButtonText="Delete this bucket"
+//       secondaryButtonText="Cancel"
+//       onRequestSubmit={this.checkDeleteBucket}
+//       onRequestClose={closeDeleteBucketModal}
+//       onSecondarySubmit={closeDeleteBucketModal}
+//       shouldSubmitOnEnter
+//       danger
+//     >
+//       <p className="bx--modal-content__text">
+//         This action <strong>cannot</strong> be undone. This will permanently
+//         delete the bucket <strong>{bucketToDelete}</strong> and all of its
+//         contents.
+//       </p>
+//       <br />
+//       <p className="bx--modal-content__text">
+//         Please type in the name of the bucket to confirm.
+//       </p>
+//       <br />
+//       <TextInput
+//         className={styles.textInput}
+//         placeholder=""
+//         onChange={this.onTextChangeBucketToDelete}
+//         value={this.state.textInputBucketToDelete}
+//         invalidText={this.state.invalidTextBucketToDelete}
+//         invalid={this.state.invalidTextBucketToDelete}
+//         data-modal-primary-focus
+//       />
+//     </Modal>
+//   )
+// }
+
+const CreateModal = ({ isOpen, onClose, onSubmit }) => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [textInputValue, setTextInputValue] = useState('')
+  const [errorMessage, setErrorMessage] = useState(false)
+
+  useEffect(() => {
+    // Only allow alphanumeric characters and 1 (`.` or `-`) in a row.
+    if (BASE_NAME.test(textInputValue)) {
+      setErrorMessage(INVALID_CHARS)
+    } else {
+      setErrorMessage('')
+    }
+  }, [textInputValue])
+
+  useEffect(() => {
+    // TODO: API.
+    const createBucket = async () => {
+      const endpoint = localStorage.getItem('loginUrl')
+      const url = `/api/proxy/${endpoint}/${textInputValue}`
+      const options = {
+        method: 'PUT',
+        headers: {
+          'ibm-service-instance-id': localStorage.getItem('resourceId')
+        }
+      }
+      try {
+        await fetch(url, options).then(handleErrors)
+        setIsLoading(false)
+        setErrorMessage('')
+        setTextInputValue('')
+        onSubmit(textInputValue)
+      } catch (error) {
+        setIsLoading(false)
+        if (error.message === 'Conflict') {
+          setErrorMessage(NAME_EXISTS)
+          return
+        }
+        setErrorMessage(error.message)
+        return
+      }
+    }
+    if (!isLoading) {
+      return
+    }
+    createBucket()
+  }, [isLoading])
+
+  const handleTextInputChange = ({ target: { value } }) => {
+    // Replace any spaces.
+    const cleanedText =
+      value
+        .toLowerCase()
+        .trim()
+        .replace(/\s/g, '') || ''
+    setTextInputValue(cleanedText)
+  }
+
+  const handleSubmit = () => {
+    if (textInputValue === '') {
+      setErrorMessage(EMPTY_NAME)
+      return
+    }
+
+    if (textInputValue.length < 3) {
+      setErrorMessage(TOO_SHORT)
+      return
+    }
+
+    // Make sure the name doesn't end with a non alphanumeric character
+    if (FULL_NAME.test(textInputValue)) {
+      setErrorMessage(INVALID_CHARS)
+      return
+    }
+
+    setIsLoading(true)
+  }
+
+  return (
+    <Modal
+      open={isOpen}
+      shouldSubmitOnEnter
+      modalHeading="Bucket name"
+      primaryButtonText="Confirm"
+      secondaryButtonText="Cancel"
+      onRequestClose={onClose}
+      onRequestSubmit={handleSubmit}
+      onSecondarySubmit={onClose}
+    >
+      <Loading active={isLoading} />
+      <TextInput
+        placeholder="Name"
+        onChange={handleTextInputChange}
+        value={textInputValue}
+        invalidText={errorMessage}
+        invalid={errorMessage !== ''}
+        data-modal-primary-focus
+      />
+    </Modal>
+  )
+}
+
+const Buckets = ({ buckets, dispatch }) => {
+  // Create Modal State.
+  const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
+  const [bucketToCreate, setBucketToCreate] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [invalidText, setInvalidText] = useState('')
+  const [invalid, setInvalid] = useState(false)
+
+  // Delete Modal State.
+  const [isDeleteBucketModalOpen, setIsDeleteBucketModalOpen] = useState(false)
+  const [bucketToDelete, setBucketToDelete] = useState('')
+
+  const [loadingBuckets, setLoadingBuckets] = useState([])
+
+  useEffect(() => {
+    GoogleAnalytics.pageview('buckets')
+    const dispatchLoadBuckets = async () => {
+      dispatch(await loadBuckets())
+    }
+    try {
+      validateCookies()
+      dispatchLoadBuckets()
+    } catch (error) {
+      console.log(error)
+      if (error.message === 'Forbidden') {
+        history.push('/login')
+      }
+    }
+  }, [])
+
+  const openCreateBucketModal = () => {
+    setIsCreateBucketModalOpen(true)
+  }
+
+  const openDeleteBucketModal = () => {
+    setIsDeleteBucketModalOpen(true)
+  }
+
+  const handleCloseCreateModal = () => {
+    setIsCreateBucketModalOpen(false)
+  }
+
+  const closeDeleteBucketModal = () => {
+    setIsDeleteBucketModalOpen(false)
+  }
+
+  const handleSubmitCreateModal = bucketName => {
+    handleCloseCreateModal()
+    console.log(bucketName)
+  }
+
+  return (
+    <div className={styles.wrapper}>
+      {/* <DeleteModal /> */}
+      <CreateModal
+        isOpen={isCreateBucketModalOpen}
+        onClose={handleCloseCreateModal}
+        onSubmit={handleSubmitCreateModal}
+      />
+      <div className={styles.table}>
+        <div className={styles.section}>
+          <div className={styles.sectionTitle}>Buckets</div>
+          <CreateBucket handleClick={openCreateBucketModal} />
+        </div>
+        <BucketTable
+          buckets={buckets}
+          loadingBuckets={loadingBuckets}
+          promptDeleteBucket={openDeleteBucketModal}
+        />
+      </div>
+    </div>
+  )
+}
+
+class OldBuckets extends Component {
   constructor(props) {
     super(props)
     this.initializeData()
