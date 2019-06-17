@@ -1,8 +1,49 @@
+import MD5 from 'crypto-js/md5'
+import Base64 from 'crypto-js/enc-base64'
+
 import { validateCookies, handleErrors } from 'Utils'
 
 export default class COS {
   constructor(endpoint) {
     this.endpoint = endpoint
+  }
+
+  deleteBucket = async bucketName => {
+    const baseUrl = `/api/proxy/${this.endpoint}/${bucketName}`
+    // Build delete files xml.
+    const deleteXml = await fetch(baseUrl, { method: 'GET' })
+      .then(handleErrors)
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
+      .then(data => {
+        const elements = data.getElementsByTagName('Contents')
+        const fileList = Array.prototype.map.call(elements, element => {
+          return element.getElementsByTagName('Key')[0].innerHTML
+        })
+        if (fileList.length === 0) {
+          return ''
+        }
+        const deleteXml = `<?xml version="1.0" encoding="UTF-8"?><Delete>${fileList
+          .map(key => `<Object><Key>${key}</Key></Object>`)
+          .join('')}</Delete>`
+        return deleteXml
+      })
+
+    if (deleteXml.length !== 0) {
+      // Delete all the files.
+      const md5Hash = MD5(deleteXml).toString(Base64)
+      const deleteFilesOptions = {
+        method: 'POST',
+        body: deleteXml,
+        headers: {
+          'Content-MD5': md5Hash
+        }
+      }
+      await fetch(`${baseUrl}?delete=`, deleteFilesOptions).then(handleErrors)
+    }
+
+    // Delete the bucket.
+    await fetch(baseUrl, { method: 'DELETE' }).then(handleErrors)
   }
 
   createBucket = async (instanceId, bucketName) => {

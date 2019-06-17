@@ -13,18 +13,16 @@ const FULL_NAME = combineRegex(ENDS_ALPHANUMERIC, BASE_NAME)
 
 // Error Messages.
 const INVALID_CHARS =
-  'Must start and end in alphanumeric characters (from 3 to 255) limited to: ' /
-  'lowercase, numbers and non-consecutive dots, and hyphens.'
+  'Must start and end in alphanumeric characters (from 3 to 255) limited to: lowercase, numbers and non-consecutive dots, and hyphens.'
 const NAME_EXISTS =
-  'This bucket name already exists in IBM Cloud Object Storage. Create a new ' /
-  'globally unique name.'
+  'This bucket name already exists in IBM Cloud Object Storage. Create a new globally unique name.'
 const TOO_SHORT = 'Must be at least 3 characters.'
 const EMPTY_NAME = 'Bucket name is required.'
 
 const CreateModal = ({ isOpen, onClose, onSubmit }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [textInputValue, setTextInputValue] = useState('')
-  const [errorMessage, setErrorMessage] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     // Only allow alphanumeric characters and 1 (`.` or `-`) in a row.
@@ -85,6 +83,12 @@ const CreateModal = ({ isOpen, onClose, onSubmit }) => {
     setIsLoading(false)
   }, [onSubmit, textInputValue])
 
+  const handleClose = useCallback(() => {
+    setErrorMessage('')
+    setTextInputValue('')
+    onClose()
+  }, [onClose])
+
   return (
     <Modal
       open={isOpen}
@@ -92,9 +96,9 @@ const CreateModal = ({ isOpen, onClose, onSubmit }) => {
       modalHeading="Bucket name"
       primaryButtonText="Confirm"
       secondaryButtonText="Cancel"
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
       onRequestSubmit={handleSubmit}
-      onSecondarySubmit={onClose}
+      onSecondarySubmit={handleClose}
     >
       <Loading active={isLoading} />
       <TextInput

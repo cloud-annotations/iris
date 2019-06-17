@@ -7,19 +7,23 @@ import Table from './Table'
 import CreateModal from './CreateModal'
 import DeleteModal from './DeleteModal'
 import { validateCookies } from 'Utils'
+import COS from 'api/COS'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
 
 const Buckets = ({ buckets, dispatch }) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
-  const [isDeleteBucketModalOpen, setIsDeleteBucketModalOpen] = useState(false)
-  const [bucketToDelete, setBucketToDelete] = useState('')
+  const [bucketToDelete, setBucketToDelete] = useState(false)
 
   const [listOfLoadingBuckets, setListOfLoadingBuckets] = useState([])
 
   const dispatchLoadBuckets = useCallback(async () => {
-    dispatch(await loadBuckets())
+    try {
+      dispatch(await loadBuckets())
+    } catch (error) {
+      console.error(error)
+    }
   }, [dispatch])
 
   useEffect(() => {
@@ -49,28 +53,44 @@ const Buckets = ({ buckets, dispatch }) => {
   const handleSubmitCreateModal = useCallback(
     bucketName => {
       dispatchLoadBuckets()
-      handleCloseCreateModal()
+      setIsCreateBucketModalOpen(false)
       history.push(`/${bucketName}`)
     },
-    [dispatchLoadBuckets, handleCloseCreateModal]
+    [dispatchLoadBuckets]
   )
 
   const handleDeleteBucket = useCallback(bucketName => {
-    setIsDeleteBucketModalOpen(true)
+    setBucketToDelete(bucketName)
   }, [])
 
-  const closeDeleteBucketModal = useCallback(() => {
-    setIsDeleteBucketModalOpen(false)
+  const handleCloseDeleteModal = useCallback(() => {
+    setBucketToDelete(false)
   }, [])
+
+  const handleSubmitDeleteModal = useCallback(
+    async bucketName => {
+      setBucketToDelete(false)
+      setListOfLoadingBuckets(list => [...list, bucketName])
+      const endpoint = localStorage.getItem('loginUrl')
+      try {
+        await new COS(endpoint).deleteBucket(bucketName)
+      } catch (error) {
+        console.error(error)
+      }
+      await dispatchLoadBuckets()
+      setListOfLoadingBuckets(list => list.filter(b => b !== bucketName))
+    },
+    [dispatchLoadBuckets]
+  )
 
   return (
     <div className={styles.wrapper}>
-      {/* <DeleteModal
-        isOpen={isCreateBucketModalOpen}
-        onClose={handleCloseCreateModal}
-        onSubmit={handleSubmitCreateModal}
+      <DeleteModal
+        isOpen={bucketToDelete}
+        onClose={handleCloseDeleteModal}
+        onSubmit={handleSubmitDeleteModal}
         itemToDelete={bucketToDelete}
-      /> */}
+      />
       <CreateModal
         isOpen={isCreateBucketModalOpen}
         onClose={handleCloseCreateModal}
