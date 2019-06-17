@@ -7,7 +7,7 @@ import Collection from './Collection'
 import Sidebar, { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
 import { Loading, Modal } from 'carbon-components-react'
 import Dropzone from 'react-dropzone'
-import history from './history'
+import history from 'globalHistory'
 import { getDataTransferItems } from './Utils'
 import io from 'socket.io-client'
 

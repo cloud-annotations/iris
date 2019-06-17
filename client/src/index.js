@@ -1,9 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import './index.css'
+import GoogleAnalytics from 'react-ga'
+
 import Routing from './Routing'
 import { unregister } from './registerServiceWorker'
-import GoogleAnalytics from 'react-ga'
+
+import './index.css'
+import 'carbon-components/css/carbon-components.min.css'
+import './bx-overrides.css'
 
 GoogleAnalytics.initialize('UA-130502274-1')
 

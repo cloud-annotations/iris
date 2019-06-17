@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 import fetchImage from 'api/fetchImage'
-import history from './history'
+import history from 'globalHistory'
 import styles from './ImageTileV2.module.css'
 
 import 'intersection-observer'

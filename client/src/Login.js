@@ -11,7 +11,7 @@ import { handleErrors, validateCookies } from './Utils'
 
 import 'carbon-components/css/carbon-components.min.css'
 
-import history from './history'
+import history from 'globalHistory'
 import './Login.css'
 
 const regions = {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { validateCookies } from './Utils'
-import history from './history'
+import history from 'globalHistory'
 import './TitleBar.css'
 
 class TitleBar extends Component {

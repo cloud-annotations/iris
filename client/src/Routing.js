@@ -2,8 +2,8 @@ import React, { useEffect } from 'react'
 import { Router, Route, Switch } from 'react-router-dom'
 import App from './App'
 import Login from './Login'
-import Buckets from './Buckets'
-import history from './history'
+import Buckets from './Buckets/Buckets'
+import history from 'globalHistory'
 import { validateCookies } from './Utils'
 
 import { createStore } from 'redux'
@@ -21,7 +21,7 @@ const useCookieCheck = interval => {
       }
     }, interval)
     return () => clearInterval(id)
-  }, [])
+  }, [interval])
 }
 
 const Routing = () => {

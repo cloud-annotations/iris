@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import fetchImage from 'api/fetchImage'
-import history from './history'
+import history from 'globalHistory'
 import styles from './ImageTile.module.css'
 
 export default class ImageTile extends Component {

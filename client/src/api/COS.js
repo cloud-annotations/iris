@@ -5,6 +5,18 @@ export default class COS {
     this.endpoint = endpoint
   }
 
+  createBucket = async (instanceId, bucketName) => {
+    const url = `/api/proxy/${this.endpoint}/${bucketName}`
+    const options = {
+      method: 'PUT',
+      headers: {
+        'ibm-service-instance-id': instanceId
+      }
+    }
+
+    return fetch(url, options).then(handleErrors)
+  }
+
   buckets = async instanceId => {
     const url = `/api/proxy/${this.endpoint}`
     const options = {
@@ -120,7 +132,7 @@ export default class COS {
           }
         })
 
-    const putImages = () => files => {
+    const putImages = files => () => {
       const requests = files.map(file => {
         const url = `${baseUrl}/${file.name}`
         const options = {
@@ -134,7 +146,7 @@ export default class COS {
       return Promise.all(requests).then(() => files.map(file => file.name))
     }
 
-    const putFile = () => file => {
+    const putFile = file => () => {
       const url = `${baseUrl}/${file.name}`
       const options = {
         method: 'PUT',
@@ -143,7 +155,7 @@ export default class COS {
       return fetch(url, options).then(handleErrors)
     }
 
-    const deleteFiles = () => files => {
+    const deleteFiles = files => () => {
       const requests = files.map(file => deleteFile(file))
       return Promise.all(requests)
     }
