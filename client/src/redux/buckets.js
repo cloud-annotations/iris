@@ -1,7 +1,7 @@
-import COS from './../api/COS'
+import COS from 'api/COS'
 
 // Actions
-const SET = 'cloud-annotations/bucket/SET'
+const SET = 'cloud-annotations/buckets/SET'
 
 // Reducer
 export default function reducer(buckets = null, action = {}) {
@@ -14,7 +14,7 @@ export default function reducer(buckets = null, action = {}) {
 }
 
 // Action Creators
-export const setBuckets = buckets => ({ type: SET, buckets: buckets })
+export const setBuckets = b => ({ type: SET, buckets: b })
 
 // Side Effects
 export const loadBuckets = async () => {
