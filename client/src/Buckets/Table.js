@@ -50,10 +50,38 @@ const TableList = ({ buckets, listOfLoadingBuckets, onDeleteBucket }) => {
     sortedBuckets.sort((a, b) => new Date(b.created) - new Date(a.created))
   }
 
+  const compare = (a, b, locale = 'en') => {
+    if (Date.parse(a) && Date.parse(b)) {
+      return new Date(b) - new Date(a)
+    }
+
+    if (typeof a === 'number' && typeof b === 'number') {
+      return a - b
+    }
+
+    if (typeof a === 'string' && typeof b === 'string') {
+      return a.localeCompare(b, locale, { numeric: true })
+    }
+
+    return ('' + a).localeCompare('' + b, locale, { numeric: true })
+  }
+
+  const customSortRow = (
+    cellA,
+    cellB,
+    { sortDirection, sortStates, locale }
+  ) => {
+    if (sortDirection === sortStates.ASC) {
+      return compare(cellB, cellA, locale)
+    }
+    return compare(cellA, cellB, locale)
+  }
+
   return (
     <>
       {sortedBuckets ? (
         <DataTable
+          sortRow={customSortRow}
           rows={sortedBuckets}
           headers={headers}
           render={({ rows, headers, getHeaderProps }) => (
