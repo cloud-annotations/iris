@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { Router, Route, Switch } from 'react-router-dom'
-import App from './App'
+import OldApp from './App'
+import App from './App/App'
 import Login from './Login'
 import Buckets from './Buckets/Buckets'
 import history from 'globalHistory'

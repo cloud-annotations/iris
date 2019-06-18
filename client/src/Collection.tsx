@@ -81,12 +81,26 @@ export default class Collection {
           collection.images.labeled = labeled
           collection.images.unlabeled = unlabeled
           collection.images.all = [...unlabeled, ...labeled]
-          return collection
+          return new Collection(
+            collection.type,
+            collection.labels,
+            collection.images,
+            collection.annotations,
+            endpoint,
+            bucket
+          )
         } else {
           const newCollection = Collection.EMPTY
           newCollection._images.all = images
           newCollection._images.unlabeled = images
-          return newCollection
+          return new Collection(
+            newCollection.type,
+            newCollection.labels,
+            newCollection.images,
+            newCollection.annotations,
+            endpoint,
+            bucket
+          )
         }
       }
     )
