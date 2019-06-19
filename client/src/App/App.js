@@ -13,12 +13,12 @@ import Classification from './Classification/Classification'
 import endpointFinder from './endpointFinder'
 import ChooseBucketModal from './ChooseBucketModal'
 
-const AnnotationPanel = ({ type }) => {
+const AnnotationPanel = ({ bucket, type }) => {
   switch (type) {
     case 'classification':
       return <Classification />
     case 'localization':
-      return <Localization />
+      return <Localization bucket={bucket} />
     default:
       return null
   }
@@ -70,14 +70,14 @@ const App = ({
 
   return (
     <>
-      {saving > 0 ? 'saving...' : null}
+      {saving > 0 ? 'saving...' : 'saved'}
       <ChooseBucketModal
         isOpen={!loading && !type}
         onClose={handleClose}
         onSubmit={handleSubmit}
       />
       <Loading active={loading} />
-      <AnnotationPanel type={type} />
+      <AnnotationPanel bucket={bucket} type={type} />
     </>
   )
 }
