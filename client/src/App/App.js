@@ -3,7 +3,11 @@ import { connect } from 'react-redux'
 import { Loading } from 'carbon-components-react'
 
 import history from 'globalHistory'
-import { loadCollection, clearCollection } from 'redux/collection'
+import {
+  loadCollection,
+  clearCollection,
+  setCollectionType
+} from 'redux/collection'
 import Localization from './Localization/Localization'
 import Classification from './Classification/Classification'
 import endpointFinder from './endpointFinder'
@@ -28,6 +32,7 @@ const App = ({
   type
 }) => {
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(0)
 
   useEffect(() => {
     const asyncEffect = async () => {
@@ -51,10 +56,21 @@ const App = ({
     history.push('/')
   }, [])
 
-  const handleSubmit = useCallback(() => {}, [])
+  const handleSubmit = useCallback(
+    async choice => {
+      setSaving(s => s + 1)
+      dispatch(
+        setCollectionType(choice, () => {
+          setSaving(s => s - 1)
+        })
+      )
+    },
+    [dispatch]
+  )
 
   return (
     <>
+      {saving > 0 ? 'saving...' : null}
       <ChooseBucketModal
         isOpen={!loading && !type}
         onClose={handleClose}

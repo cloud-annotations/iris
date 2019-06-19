@@ -14,11 +14,12 @@ const DeleteModal = ({ isOpen, onClose, onSubmit, itemToDelete }) => {
     setTextInputValue(value)
   }, [])
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(() => {
     if (textInputValue !== itemToDelete) {
       setErrorMessage(DOES_NOT_MATCH)
     } else {
       setErrorMessage('')
+      setTextInputValue('')
       onSubmit(itemToDelete)
     }
   }, [itemToDelete, onSubmit, textInputValue])
