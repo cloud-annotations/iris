@@ -11,5 +11,10 @@ import './bx-overrides.css'
 
 GoogleAnalytics.initialize('UA-130502274-1')
 
+if (process.env.NODE_ENV !== 'production') {
+  const whyDidYouRender = require('@welldone-software/why-did-you-render')
+  whyDidYouRender(React)
+}
+
 ReactDOM.render(<Routing />, document.getElementById('root'))
 unregister()

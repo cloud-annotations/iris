@@ -1,43 +1,49 @@
-import React from 'react'
+import React, { useState, useCallback, useEffect, useMemo } from 'react'
 import { connect } from 'react-redux'
 
 import HorizontalListController from 'common/HorizontalList/HorizontalListController'
-import ImageTileV2 from 'ImageTileV2'
-import history from 'globalHistory'
-
-const HorizontalListControllerDelegate = (
-  handleImageSelected,
-  images,
-  bucket
-) => {
-  return {
-    numberOfItems: images.length,
-    keyForDataSet: images,
-    keyForItemAt: index => images[index],
-    cellForItemAt: (index, selected) => (
-      <ImageTileV2
-        index={index}
-        onImageSelected={handleImageSelected}
-        bucket={bucket}
-        selected={selected}
-        item={images[index]}
-      />
-    )
-  }
-}
+import ImageTileV3 from 'common/ImageTile/ImageTileV3'
 
 const Localization = ({ bucket, collection }) => {
+  const [selection, setSelection] = useState(0)
+  const handleSelectionChanged = useCallback(selection => {
+    setSelection(selection)
+  }, [])
+
+  const images = collection.images.all
+
+  // const keyForItemAt = useCallback(
+  //   index => {
+  //     return images[index]
+  //   },
+  //   [images]
+  // )
+
+  const cellForItem = useCallback(
+    image => {
+      return (
+        <ImageTileV3
+          // index={index}
+          bucket={bucket}
+          item={image}
+          // item={images[index]}
+          // selected={selected}
+        />
+      )
+    },
+    [bucket]
+  )
+
   return (
     <>
       Localization
       <HorizontalListController
-        delegate={HorizontalListControllerDelegate(
-          () => {},
-          collection.images.all,
-          bucket
-        )}
-        selection={0}
-        onSelectionChanged={() => {}}
+        // numberOfItems={images.length}
+        images={images}
+        // keyForItemAt={keyForItemAt}
+        cellForItem={cellForItem}
+        selection={selection}
+        onSelectionChanged={handleSelectionChanged}
       />
     </>
   )
