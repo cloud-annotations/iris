@@ -6,42 +6,28 @@ import ImageTileV3 from 'common/ImageTile/ImageTileV3'
 
 const Localization = ({ bucket, collection }) => {
   const [selection, setSelection] = useState(0)
+
   const handleSelectionChanged = useCallback(selection => {
     setSelection(selection)
   }, [])
 
   const images = collection.images.all
 
-  // const keyForItemAt = useCallback(
-  //   index => {
-  //     return images[index]
-  //   },
-  //   [images]
-  // )
+  const cells = useMemo(() => {
+    return images.map(image => <ImageTileV3 bucket={bucket} item={image} />)
+  }, [bucket, images])
 
-  const cellForItem = useCallback(
-    image => {
-      return (
-        <ImageTileV3
-          // index={index}
-          bucket={bucket}
-          item={image}
-          // item={images[index]}
-          // selected={selected}
-        />
-      )
-    },
-    [bucket]
-  )
+  // const cellForItem = useCallback(
+  //   image => <ImageTileV3 bucket={bucket} item={image} />,
+  //   [bucket]
+  // )
 
   return (
     <>
       Localization
       <HorizontalListController
-        // numberOfItems={images.length}
-        images={images}
-        // keyForItemAt={keyForItemAt}
-        cellForItem={cellForItem}
+        items={images}
+        cells={cells}
         selection={selection}
         onSelectionChanged={handleSelectionChanged}
       />
