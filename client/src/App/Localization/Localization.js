@@ -17,11 +17,6 @@ const Localization = ({ bucket, collection }) => {
     return images.map(image => <ImageTileV3 bucket={bucket} item={image} />)
   }, [bucket, images])
 
-  // const cellForItem = useCallback(
-  //   image => <ImageTileV3 bucket={bucket} item={image} />,
-  //   [bucket]
-  // )
-
   return (
     <>
       Localization

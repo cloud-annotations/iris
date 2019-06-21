@@ -1,14 +1,6 @@
-import React, {
-  useRef,
-  useCallback,
-  useEffect,
-  useContext,
-  useReducer
-} from 'react'
+import React, { useRef, useCallback, useEffect } from 'react'
 
 import HorizontalListItem from './HorizontalListItem'
-import Context from './context'
-import reducer from './reducer'
 
 const style = {
   position: 'absolute',
@@ -106,25 +98,21 @@ const HorizontalListController = ({
     [onSelectionChanged]
   )
 
-  const context = useContext(Context)
-  const [state, dispatch] = useReducer(reducer, context)
-
   return (
-    <Context.Provider value={{ state, dispatch }}>
-      <div ref={horizontalScrollRef} style={style}>
-        {cells.map((cell, i) => {
-          return (
-            <HorizontalListItem
-              index={i}
-              id={items[i]}
-              key={items[i]}
-              onItemSelected={handleItemSelected}
-              listItem={cell}
-            />
-          )
-        })}
-      </div>
-    </Context.Provider>
+    <div ref={horizontalScrollRef} style={style}>
+      {cells.map((cell, i) => {
+        return (
+          <HorizontalListItem
+            index={i}
+            id={items[i]}
+            key={items[i]}
+            selected={selection === i}
+            onItemSelected={handleItemSelected}
+            listItem={cell}
+          />
+        )
+      })}
+    </div>
   )
 }
 
