@@ -7,11 +7,12 @@ const style = {
   bottom: '0',
   left: '0',
   right: '0',
-  height: '117px',
+  top: '0',
   display: 'flex',
   overflow: 'auto',
   alignItems: 'center',
-  borderTop: '1px solid #dfe3e6'
+  backgroundColor: 'var(--secondaryBg)'
+  // borderTop: '1px solid #dfe3e6'
 }
 
 const HorizontalListController = ({

@@ -12,6 +12,8 @@ import Localization from './Localization/Localization'
 import Classification from './Classification/Classification'
 import endpointFinder from './endpointFinder'
 import ChooseBucketModal from './ChooseBucketModal'
+import AppBar from './AppBar'
+import AppBarLayout from './AppBarLayout'
 
 const AnnotationPanel = ({ bucket, type }) => {
   switch (type) {
@@ -70,14 +72,16 @@ const App = ({
 
   return (
     <>
-      {saving > 0 ? 'saving...' : 'saved'}
       <ChooseBucketModal
         isOpen={!loading && !type}
         onClose={handleClose}
         onSubmit={handleSubmit}
       />
       <Loading active={loading} />
-      <AnnotationPanel bucket={bucket} type={type} />
+      <AppBarLayout
+        appBar={<AppBar />}
+        content={<AnnotationPanel bucket={bucket} type={type} />}
+      />
     </>
   )
 }

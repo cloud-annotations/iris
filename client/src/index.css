@@ -1,10 +1,38 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #f5f7fa;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
   /* text-rendering: optimizelegibility; */
+  background-color: var(--bg);
+  color: var(--brightText);
+  --blue: #0062ff;
+  --blue-hover: #0353e9;
+  --font-size-14: 14px;
+}
+
+body.dark {
+  --bg: #111417;
+  --border: transparent;
+  --secondaryBg: #181c1e;
+  --appBar: #1b1f21;
+  --brightText: rgba(255, 255, 255, 1);
+  --secondaryText: rgba(255, 255, 255, 0.87);
+  --detailText: rgba(255, 255, 255, 0.53);
+  --highlight: #26292a;
+}
+
+body.light {
+  /* #f5f7fa; */
+  --border: rgb(217, 217, 217);
+  --bg: hsl(210, 17%, 98%);
+  --secondaryBg: white;
+  --appBar: #ffffff;
+  --brightText: #152935;
+  --secondaryText: rgb(90, 104, 114);
+  --detailText: rgba(90, 104, 114, 0.5);
+  --highlight: #f2f2f2;
 }
 
 * {

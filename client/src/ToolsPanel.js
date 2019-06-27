@@ -67,7 +67,7 @@ export default class ToolsPanel extends Component {
         {bboxes.length === 0 || (
           <div className={styles.sectionText}>Annotations</div>
         )}
-        {/* sort mutates the original array, but issues on show in Safari */}
+        {/* sort mutates the original array, but issues only show in Safari */}
         {[...bboxes]
           .sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase())
           .map(box => {
