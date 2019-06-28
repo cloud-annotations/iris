@@ -190,13 +190,7 @@ export default class App extends Component {
     this.setState({ dragging: false })
   }
 
-  handleWindowResize = e => {
-    const { onImageDimensionChanged } = this.props
-
-    onImageDimensionChanged(
-      this.canvasRef.current.clientWidth,
-      this.canvasRef.current.clientHeight
-    )
+  handleWindowResize = () => {
     this.setState({
       size: {
         imageWidth: this.canvasRef.current.clientWidth,
@@ -206,8 +200,6 @@ export default class App extends Component {
   }
 
   handleOnImageLoad = e => {
-    const { onImageDimensionChanged } = this.props
-    onImageDimensionChanged(e.target.clientWidth, e.target.clientHeight)
     this.setState({
       size: {
         imageWidth: e.target.clientWidth,

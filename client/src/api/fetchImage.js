@@ -20,18 +20,23 @@ const shrinkBlob = async (blob, height) => {
 
 export default async (endpoint, bucket, imageUrl, forcedHeight) => {
   const baseUrl = `/api/proxy/${endpoint}/${bucket}/${imageUrl}`
-  let blob = await localforage.getItem(imageUrl)
+  let blob
 
-  if (blob === null || blob === '') {
+  // Only check cache if we force the height.
+  if (forcedHeight) {
+    blob = await localforage.getItem(imageUrl)
+  }
+
+  if (blob === undefined || blob === null || blob === '') {
     blob = await fetch(baseUrl)
       .then(handleErrors)
       .then(response => response.blob())
 
     if (forcedHeight) {
       blob = await shrinkBlob(blob, forcedHeight)
+      // Let's only cache if the image is small.
+      localforage.setItem(imageUrl, blob)
     }
-
-    localforage.setItem(imageUrl, blob)
   }
 
   return { image: URL.createObjectURL(blob) }

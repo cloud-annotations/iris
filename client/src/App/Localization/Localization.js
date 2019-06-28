@@ -8,12 +8,14 @@ import DefaultLayout from './DefaultLayout'
 import ToolsPanel from './ToolsPanel'
 import ToolOptionsPanel from './ToolOptionsPanel'
 import fetchImage from 'api/fetchImage'
-import Canvas from 'common/Canvas/Canvas'
-import CrossHair from 'common/CrossHair/CrossHair'
+import DrawingPanel from './DrawingPanel'
+
+const EMPTY_IMAGE =
+  'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
 const Localization = ({ bucket, collection }) => {
   const [selection, setSelection] = useState(0)
-  const [imageData, setImageData] = useState(null)
+  const [imageData, setImageData] = useState(EMPTY_IMAGE)
 
   const handleSelectionChanged = useCallback(selection => {
     setSelection(selection)
@@ -26,17 +28,36 @@ const Localization = ({ bucket, collection }) => {
   }, [bucket, images])
 
   useEffect(() => {
-    const image = images[selection]
+    let canceled = false
+    let loaded = false
+
     const loadImage = async image => {
       const imageData = await fetchImage(
         localStorage.getItem('loginUrl'),
         bucket,
         image,
-        160
+        false
       )
-      setImageData(imageData.image)
+      if (!canceled) {
+        loaded = true
+        setImageData(imageData.image)
+      }
     }
-    loadImage(image)
+
+    // If the image hasn't loaded after 20ms it probably isn't cached, so set it
+    // to and empty image. This prevents flickering if the image is cached, but
+    // wipes the image fast enough if it's not cached.
+    setTimeout(() => {
+      if (!loaded) {
+        setImageData(EMPTY_IMAGE)
+      }
+    }, 20)
+
+    loadImage(images[selection])
+
+    return () => {
+      canceled = true
+    }
   }, [bucket, images, selection])
 
   const bboxes = collection.annotations[images[selection]] || []
@@ -45,47 +66,7 @@ const Localization = ({ bucket, collection }) => {
     <DefaultLayout
       top={<ToolOptionsPanel />}
       left={<ToolsPanel />}
-      content={
-        <div
-          style={{
-            position: 'absolute',
-            top: '0',
-            left: '0',
-            right: '0',
-            bottom: '0',
-            border: '1px solid var(--border)'
-          }}
-        >
-          <CrossHair
-            color={'#ff0000'}
-            active={true}
-            children={
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '0',
-                  left: '0',
-                  right: '0',
-                  bottom: '0',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}
-              >
-                <Canvas
-                  mode={'box'}
-                  bboxes={bboxes}
-                  image={imageData}
-                  // onDrawStarted={this.handleDrawStarted}
-                  // onCoordinatesChanged={this.handleCoordinatesChanged}
-                  // onBoxFinished={this.handleBoxFinished}
-                  // onImageDimensionChanged={this.handleImageDimensionChanged}
-                />
-              </div>
-            }
-          />
-        </div>
-      }
+      content={<DrawingPanel bboxes={bboxes} image={imageData} />}
       right={<LayersPanel bboxes={bboxes} image={imageData} />}
       bottom={
         <HorizontalListController

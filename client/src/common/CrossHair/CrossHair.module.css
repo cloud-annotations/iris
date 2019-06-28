@@ -23,6 +23,8 @@
   composes: hair;
   border-top: 1px solid #ff12fc;
   border-left: 1px solid #ff12fc;
+  /* border-top: 1px solid var(--blue);
+  border-left: 1px solid var(--blue); */
   left: 0;
   right: 0;
 }
@@ -40,6 +42,8 @@
   composes: hair;
   border-top: 1px solid #ff12fc;
   border-left: 1px solid #ff12fc;
+  /* border-top: 1px solid var(--blue);
+  border-left: 1px solid var(--blue); */
   top: 0;
   bottom: 0;
 }
