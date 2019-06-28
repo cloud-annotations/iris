@@ -1,10 +1,4 @@
-import React, {
-  useReducer,
-  useEffect,
-  useState,
-  useCallback,
-  useRef
-} from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 
 import styles from './LayersPanel.module.css'
 
@@ -45,12 +39,12 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
   const yOffset = -scale * pixelYOffset
 
   return {
-    width: actualWidth,
-    height: actualHeight,
+    cropWidth: actualWidth,
+    cropHeight: actualHeight,
     xOffset: xOffset,
     yOffset: yOffset,
-    bWidth: scale * imageSize[0],
-    bHeight: scale * imageSize[1]
+    fullWidth: scale * imageSize[0],
+    fullHeight: scale * imageSize[1]
   }
 }
 
@@ -88,13 +82,14 @@ const ListItem = ({ box, image, imageDims }) => {
     }
   }, [])
 
-  const { width, height, xOffset, yOffset, bWidth, bHeight } = calculateCrop(
-    box.x,
-    box.x2,
-    box.y,
-    box.y2,
-    imageDims
-  )
+  const {
+    cropWidth,
+    cropHeight,
+    xOffset,
+    yOffset,
+    fullWidth,
+    fullHeight
+  } = calculateCrop(box.x, box.x2, box.y, box.y2, imageDims)
 
   return (
     <div className={editing ? styles.editing : styles.listItemWrapper}>
@@ -102,10 +97,10 @@ const ListItem = ({ box, image, imageDims }) => {
         <div
           style={{
             backgroundImage: `url(${image})`,
-            height: `${height}px`,
-            width: `${width}px`,
+            width: `${cropWidth}px`,
+            height: `${cropHeight}px`,
             backgroundPosition: `${xOffset}px ${yOffset}px`,
-            backgroundSize: `${bWidth}px ${bHeight}px`
+            backgroundSize: `${fullWidth}px ${fullHeight}px`
           }}
         />
       </div>
@@ -138,6 +133,10 @@ const ListItem = ({ box, image, imageDims }) => {
   )
 }
 
+const keyForItem = (image, box) => {
+  return `${image}+${JSON.stringify(box)}`
+}
+
 const LayersPanel = ({ bboxes, image }) => {
   const [imageDims, setImageDims] = useState([0, 0])
   // Sort mutates the original array, but issues only show in Safari.
@@ -155,7 +154,12 @@ const LayersPanel = ({ bboxes, image }) => {
   return (
     <div className={styles.wrapper}>
       {sortedBboxes.map(box => (
-        <ListItem box={box} image={image} imageDims={imageDims} />
+        <ListItem
+          key={keyForItem(image, box)}
+          box={box}
+          image={image}
+          imageDims={imageDims}
+        />
       ))}
     </div>
   )

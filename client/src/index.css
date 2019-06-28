@@ -13,10 +13,10 @@ body {
 }
 
 body.dark {
-  /* --activeHighlight: #343c3f;
-  --textInputBack: #21282a; */
-  --activeHighlight: var(--blue);
-  --textInputBack: #203d79;
+  --activeHighlight: #343c3f;
+  --textInputBack: #21282a;
+  /* --activeHighlight: var(--blue);
+  --textInputBack: #203d79; */
   --default-font-weight: normal;
   --bg: #111417;
   --border: transparent;
