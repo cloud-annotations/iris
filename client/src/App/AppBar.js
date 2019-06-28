@@ -12,7 +12,8 @@ const AppBar = () => {
     localStorage.getItem('darkMode') === 'true'
   )
 
-  const handleToggleDarkMode = useCallback(() => {
+  const handleToggleDarkMode = useCallback(e => {
+    e.target.blur() // give up focus so other inputs work properly.
     const darkMode = !(localStorage.getItem('darkMode') === 'true')
     setDarkModeToggle(darkMode)
     localStorage.setItem('darkMode', darkMode)

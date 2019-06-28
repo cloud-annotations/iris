@@ -27,10 +27,12 @@
 
 .editing {
   composes: listItemBase;
-  background-color: #343c3f;
+  background-color: var(--activeHighlight);
 }
 
 .editTextBase {
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-weight: var(--default-font-weight);
   font-size: var(--font-size-14);
   color: var(--brightText);
   height: 19px;
@@ -46,7 +48,7 @@
 }
 
 .editing .editTextWrapper {
-  background-color: #21282a;
+  background-color: var(--textInputBack);
 }
 
 .thumbnailWrapper {
@@ -60,17 +62,21 @@
   border-radius: 4px;
 }
 
+.editing .thumbnailWrapper {
+  background-color: transparent;
+}
+
 .listItemWrapper:hover .icon {
   visibility: visible;
 }
 
 .icon {
   visibility: hidden;
-  fill: rgba(255, 255, 255, 0.53);
+  fill: var(--detailText);
 }
 
 .icon:hover {
-  fill: rgba(255, 255, 255, 1);
+  fill: var(--brightText);
 }
 
 .editIcon {

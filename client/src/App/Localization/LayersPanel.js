@@ -1,4 +1,10 @@
-import React, { useReducer, useEffect, useState, useCallback } from 'react'
+import React, {
+  useReducer,
+  useEffect,
+  useState,
+  useCallback,
+  useRef
+} from 'react'
 
 import styles from './LayersPanel.module.css'
 
@@ -50,10 +56,36 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
 
 const ListItem = ({ box, image, imageDims }) => {
   const [editing, setEditing] = useState(false)
-  const [tmpLabelName, setTmpLabelName] = useState(undefined)
+  const [labelName, setLabelName] = useState(box.label)
+
+  const inputRef = useRef(null)
 
   const handleEdit = useCallback(() => {
     setEditing(e => !e)
+  }, [])
+
+  useEffect(() => {
+    // calling this directly after setEditing doesn't work, which is why we need
+    // to use and effect.
+    if (editing) {
+      inputRef.current.focus()
+      inputRef.current.select()
+    }
+  }, [editing])
+
+  const handleLabelChange = useCallback(e => {
+    setLabelName(e.target.value)
+  }, [])
+
+  const handleBlur = useCallback(() => {
+    setLabelName(box.label)
+    setEditing(false)
+  }, [box.label])
+
+  const handleKeyPress = useCallback(e => {
+    if (e.key === 'Enter') {
+      setEditing(false)
+    }
   }, [])
 
   const { width, height, xOffset, yOffset, bWidth, bHeight } = calculateCrop(
@@ -77,18 +109,17 @@ const ListItem = ({ box, image, imageDims }) => {
           }}
         />
       </div>
-      {/* <div className={styles.labelWrapper}> */}
-      {/* <div contentEditable={editing} className={styles.editTextWrapper}> */}
       <input
+        ref={inputRef}
         className={styles.editTextWrapper}
         readOnly={!editing}
         disabled={!editing}
-        value={tmpLabelName || box.label}
+        onChange={handleLabelChange}
+        onKeyPress={handleKeyPress}
+        onBlur={handleBlur}
+        value={labelName}
         type="text"
       />
-      {/* {box.label} */}
-      {/* </div> */}
-      {/* </div> */}
       <div onClick={handleEdit} className={styles.editIcon}>
         <svg height="12px" width="12px" viewBox="2 2 36 36">
           <g>

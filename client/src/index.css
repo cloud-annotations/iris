@@ -13,6 +13,11 @@ body {
 }
 
 body.dark {
+  /* --activeHighlight: #343c3f;
+  --textInputBack: #21282a; */
+  --activeHighlight: var(--blue);
+  --textInputBack: #203d79;
+  --default-font-weight: normal;
   --bg: #111417;
   --border: transparent;
   --secondaryBg: #181c1e;
@@ -25,6 +30,9 @@ body.dark {
 
 body.light {
   /* #f5f7fa; */
+  --activeHighlight: var(--blue);
+  --textInputBack: #eef4fc;
+  --default-font-weight: 500;
   --border: rgb(217, 217, 217);
   --bg: hsl(210, 17%, 98%);
   --secondaryBg: white;
@@ -32,7 +40,7 @@ body.light {
   --brightText: #152935;
   --secondaryText: rgb(90, 104, 114);
   --detailText: rgba(90, 104, 114, 0.5);
-  --highlight: #f2f2f2;
+  --highlight: #eef4fc;
 }
 
 * {
