@@ -5,4 +5,45 @@
   right: 0;
   left: 0;
   background-color: var(--secondaryBg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tool {
+  margin: 4px;
+  height: 26px;
+  width: 34px;
+  border-radius: 4px;
+  background-color: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tool:hover {
+  background-color: #000000;
+  background-color: var(--blue);
+}
+
+.box {
+  fill: var(--toolColor);
+  fill-opacity: 0.2;
+  stroke: var(--toolColor);
+  stroke-width: 2px;
+}
+
+.tool:hover .box {
+  fill: white;
+  fill-opacity: 0.2;
+  stroke: white;
+  stroke-width: 2px;
+}
+
+.move {
+  fill: var(--toolColor);
+}
+
+.tool:hover .move {
+  fill: white;
 }
