@@ -164,10 +164,38 @@ export default class CrossHair extends Component {
           className={styles.hairVShaddow}
         />
 
-        <div ref={this.crosshairLeftRef} className={styles.hairH} />
-        <div ref={this.crosshairRightRef} className={styles.hairH} />
-        <div ref={this.crosshairTopRef} className={styles.hairV} />
-        <div ref={this.crosshairBottomRef} className={styles.hairV} />
+        <div
+          style={{
+            borderTop: `1px solid ${color}`,
+            borderLeft: `1px solid ${color}`
+          }}
+          ref={this.crosshairLeftRef}
+          className={styles.hairH}
+        />
+        <div
+          style={{
+            borderTop: `1px solid ${color}`,
+            borderLeft: `1px solid ${color}`
+          }}
+          ref={this.crosshairRightRef}
+          className={styles.hairH}
+        />
+        <div
+          style={{
+            borderTop: `1px solid ${color}`,
+            borderLeft: `1px solid ${color}`
+          }}
+          ref={this.crosshairTopRef}
+          className={styles.hairV}
+        />
+        <div
+          style={{
+            borderTop: `1px solid ${color}`,
+            borderLeft: `1px solid ${color}`
+          }}
+          ref={this.crosshairBottomRef}
+          className={styles.hairV}
+        />
       </div>
     )
   }

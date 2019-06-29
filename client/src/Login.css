@@ -7,8 +7,8 @@
   z-index: -1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  background-color: #ffffff;
-  border-bottom: 1px solid rgb(223, 227, 230);
+  background-color: var(--secondaryBg);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -20,13 +20,13 @@
   left: 0px;
   right: 0px;
   height: 66px;
-  border-bottom: 1px solid rgb(223, 227, 230);
+  border-bottom: 1px solid var(--border);
   display: flex;
 }
 
 .Login-TopBar-title {
   margin: 0 30px;
-  color: #152935;
+  color: var(--brightText);
   font-size: 22px;
   font-weight: 400;
   align-self: center;

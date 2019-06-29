@@ -10,7 +10,7 @@
   align-items: center;
 }
 
-.tool {
+.toolBase {
   margin: 4px;
   height: 26px;
   width: 34px;
@@ -21,9 +21,17 @@
   justify-content: center;
 }
 
-.tool:hover {
-  background-color: #000000;
+.tool {
+  composes: toolBase;
+}
+
+.toolActive {
+  composes: toolBase;
   background-color: var(--blue);
+}
+
+.tool:hover {
+  background-color: var(--highlight);
 }
 
 .box {
@@ -33,7 +41,7 @@
   stroke-width: 2px;
 }
 
-.tool:hover .box {
+.toolActive .box {
   fill: white;
   fill-opacity: 0.2;
   stroke: white;
@@ -44,6 +52,6 @@
   fill: var(--toolColor);
 }
 
-.tool:hover .move {
+.toolActive .move {
   fill: white;
 }

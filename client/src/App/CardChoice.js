@@ -6,7 +6,6 @@ export default class CardChoice extends Component {
   render() {
     return (
       <div
-        value={this.props.value}
         onClick={this.props.onClick}
         className={this.props.selected ? styles.wrapperActive : styles.wrapper}
       >

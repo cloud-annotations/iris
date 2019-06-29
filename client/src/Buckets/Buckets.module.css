@@ -23,7 +23,7 @@
 }
 
 .createBucket {
-  background-color: #3d70b2;
+  background-color: var(--blue);
   border: 2px solid transparent;
   color: #fff;
   font-size: 14px;
@@ -31,10 +31,11 @@
   margin: 0 16px 0 auto;
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 
 .createBucket:hover {
-  background-color: #30588c;
+  background-color: var(--blue-hover);
 }
 
 .createBucketIcon {

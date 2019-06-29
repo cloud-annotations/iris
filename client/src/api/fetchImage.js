@@ -24,6 +24,7 @@ export default async (endpoint, bucket, imageUrl, forcedHeight) => {
 
   // Only check cache if we force the height.
   if (forcedHeight) {
+    // TODO: Make sure the item is actually a blob.
     blob = await localforage.getItem(imageUrl)
   }
 

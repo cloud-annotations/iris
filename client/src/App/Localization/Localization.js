@@ -16,9 +16,14 @@ const EMPTY_IMAGE =
 const Localization = ({ bucket, collection }) => {
   const [selection, setSelection] = useState(0)
   const [imageData, setImageData] = useState(EMPTY_IMAGE)
+  const [tool, setTool] = useState('box')
 
   const handleSelectionChanged = useCallback(selection => {
     setSelection(selection)
+  }, [])
+
+  const handleToolChosen = useCallback(tool => {
+    setTool(tool)
   }, [])
 
   const images = collection.images.all
@@ -65,7 +70,7 @@ const Localization = ({ bucket, collection }) => {
   return (
     <DefaultLayout
       top={<ToolOptionsPanel />}
-      left={<ToolsPanel />}
+      left={<ToolsPanel tool={tool} onToolChosen={handleToolChosen} />}
       content={<DrawingPanel bboxes={bboxes} image={imageData} />}
       right={<LayersPanel bboxes={bboxes} image={imageData} />}
       bottom={

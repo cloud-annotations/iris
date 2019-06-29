@@ -3,6 +3,13 @@ import React from 'react'
 import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
 
+const uniqueColor = (index, numberOfColors) => {
+  const baseHue = 196
+  const spread = 360 / numberOfColors
+  const hue = Math.round((index * spread + baseHue) % 360)
+  return `hsl(${hue}, 100%, 50%)`
+}
+
 const DrawingPanel = ({ bboxes, image }) => {
   return (
     <div
@@ -16,7 +23,7 @@ const DrawingPanel = ({ bboxes, image }) => {
       }}
     >
       <CrossHair
-        color={'#ff0000'}
+        color={uniqueColor(7, 10)}
         active={true}
         children={
           <div
