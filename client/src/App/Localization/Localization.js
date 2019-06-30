@@ -13,36 +13,15 @@ import DrawingPanel from './DrawingPanel'
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
-const Localization = ({ bucket, collection }) => {
-  const [selection, setSelection] = useState(0)
+const useImage = (bucket, image) => {
   const [imageData, setImageData] = useState(EMPTY_IMAGE)
-  const [tool, setTool] = useState('box')
-
-  const handleSelectionChanged = useCallback(selection => {
-    setSelection(selection)
-  }, [])
-
-  const handleToolChosen = useCallback(tool => {
-    setTool(tool)
-  }, [])
-
-  const images = collection.images.all
-
-  const cells = useMemo(() => {
-    return images.map(image => <ImageTileV3 bucket={bucket} item={image} />)
-  }, [bucket, images])
-
   useEffect(() => {
     let canceled = false
     let loaded = false
 
     const loadImage = async image => {
-      const imageData = await fetchImage(
-        localStorage.getItem('loginUrl'),
-        bucket,
-        image,
-        false
-      )
+      const endpoint = localStorage.getItem('loginUrl')
+      const imageData = await fetchImage(endpoint, bucket, image, false)
       if (!canceled) {
         loaded = true
         setImageData(imageData.image)
@@ -58,14 +37,37 @@ const Localization = ({ bucket, collection }) => {
       }
     }, 20)
 
-    loadImage(images[selection])
+    loadImage(image)
 
     return () => {
       canceled = true
     }
-  }, [bucket, images, selection])
+  }, [bucket, image])
 
-  const bboxes = collection.annotations[images[selection]] || []
+  return imageData
+}
+
+const Localization = ({ bucket, collection }) => {
+  const [selection, setSelection] = useState(0)
+  const [tool, setTool] = useState('box')
+
+  const handleSelectionChanged = useCallback(selection => {
+    setSelection(selection)
+  }, [])
+
+  const handleToolChosen = useCallback(tool => {
+    setTool(tool)
+  }, [])
+
+  const images = collection.images.all
+  const selectedImage = images[selection]
+  const bboxes = collection.annotations[selectedImage] || []
+
+  const imageData = useImage(bucket, selectedImage)
+
+  const cells = useMemo(() => {
+    return images.map(image => <ImageTileV3 bucket={bucket} item={image} />)
+  }, [bucket, images])
 
   return (
     <DefaultLayout

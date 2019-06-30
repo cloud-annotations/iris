@@ -14,8 +14,9 @@ body {
 
 body.dark {
   --toolColor: #ffffff;
-  --activeHighlight: #343c3f;
+  /* --activeHighlight: #343c3f; */
   --textInputBack: #21282a;
+  --activeHighlight: var(--blue);
   /* --activeHighlight: var(--blue);
   --textInputBack: #203d79; */
   --default-font-weight: normal;
