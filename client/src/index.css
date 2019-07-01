@@ -13,6 +13,8 @@ body {
 }
 
 body.dark {
+  --tableBackground: #282828;
+  --tableBorder: #353535;
   --toolColor: #ffffff;
   /* --activeHighlight: #343c3f; */
   --textInputBack: #21282a;
@@ -24,6 +26,7 @@ body.dark {
   --border: transparent;
   --secondaryBg: #181c1e;
   --appBar: #1b1f21;
+  --appBarShadow: var(--bg);
   --brightText: rgba(255, 255, 255, 1);
   --secondaryText: rgba(255, 255, 255, 0.87);
   --detailText: rgba(255, 255, 255, 0.53);
@@ -32,6 +35,9 @@ body.dark {
 
 body.light {
   /* #f5f7fa; */
+  --tableBackground: #ffffff;
+  --tableBorder: #dcdcdc;
+
   --toolColor: var(--blue);
   --activeHighlight: var(--blue);
   --textInputBack: #eef4fc;
@@ -40,6 +46,7 @@ body.light {
   --bg: hsl(210, 17%, 98%);
   --secondaryBg: white;
   --appBar: #ffffff;
+  --appBarShadow: var(--border);
   --brightText: #152935;
   --secondaryText: rgb(90, 104, 114);
   --detailText: rgba(90, 104, 114, 0.5);
