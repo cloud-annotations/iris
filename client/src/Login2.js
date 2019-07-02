@@ -176,7 +176,7 @@ const Login = () => {
             autoComplete="username"
             onInputChanged={handleUserInput}
             errorText="Invalid resource instance id."
-            error={apiKeyError}
+            error={resourceError}
           />
           <div className={styles.formItem}>
             <label className={styles.label}>Region</label>
@@ -207,6 +207,7 @@ const Login = () => {
             errorText="Invalid api key."
             error={apiKeyError}
           />
+          <a href="login?hmac">Log in with HMAC credentials</a>
         </form>
       </div>
       <div className={styles.bottomBar}>

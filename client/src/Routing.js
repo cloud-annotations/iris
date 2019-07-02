@@ -19,7 +19,9 @@ const useCookieCheck = interval => {
         console.log('tic toc')
         validateCookies()
       } catch {
-        history.push('/login')
+        if (history.location.pathname !== '/login') {
+          history.push('/login')
+        }
       }
     }, interval)
     return () => clearInterval(id)

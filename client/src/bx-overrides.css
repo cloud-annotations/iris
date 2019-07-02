@@ -101,3 +101,24 @@
     box-shadow: 0 0 0 2px var(--error);
   }
 }
+
+/* Link */
+
+a,
+a:visited {
+  color: var(--blue);
+  text-decoration: none;
+}
+
+a:hover {
+  box-shadow: 0 1px var(--blue);
+}
+
+a:active {
+  color: var(--brightText);
+}
+
+a:focus {
+  color: var(--brightText);
+  box-shadow: 0 3px var(--brightText);
+}
