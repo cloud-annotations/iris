@@ -21,7 +21,6 @@ const shrinkBlob = async (blob, height) => {
 }
 
 export default async (endpoint, bucket, imageUrl, forcedHeight) => {
-  // const baseUrl = `/api/proxy/${endpoint}/${bucket}/${imageUrl}`
   let blob
 
   const { protocol, host } = window.location
@@ -42,9 +41,6 @@ export default async (endpoint, bucket, imageUrl, forcedHeight) => {
     const s3 = new AWS.S3(config)
     const res = await s3.getObject({ Bucket: bucket, Key: imageUrl }).promise()
     blob = new Blob([res.Body])
-    // blob = await fetch(baseUrl)
-    //   .then(handleErrors)
-    //   .then(response => response.blob())
 
     if (forcedHeight) {
       blob = await shrinkBlob(blob, forcedHeight)

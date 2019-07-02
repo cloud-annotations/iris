@@ -13,6 +13,52 @@ import { endpoints, regions } from './endpoints'
 import history from 'globalHistory'
 import styles from './Login.module.css'
 
+const TextInputWithLabel = ({
+  placeholder,
+  name,
+  value,
+  type,
+  autoComplete,
+  onInputChanged,
+  errorText,
+  error
+}) => {
+  return (
+    <div className={styles.formItem}>
+      <label className={styles.label}>{placeholder}</label>
+      <div className={styles.inputWrapper}>
+        <TextInput
+          className={error ? styles.errorInput : styles.input}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          name={name}
+          value={value}
+          type={type}
+          onChange={onInputChanged}
+          invalidText={errorText}
+          invalid={error}
+        />
+        {error && (
+          <svg
+            className={styles.errorIcon}
+            focusable="false"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+          >
+            <path d="M8 1C4.2 1 1 4.2 1 8s3.2 7 7 7 7-3.1 7-7-3.1-7-7-7zm-.5 3h1v5h-1V4zm.5 8.2c-.4 0-.8-.4-.8-.8s.3-.8.8-.8c.4 0 .8.4.8.8s-.4.8-.8.8z" />
+            <path
+              d="M7.5 4h1v5h-1V4zm.5 8.2c-.4 0-.8-.4-.8-.8s.3-.8.8-.8c.4 0 .8.4.8.8s-.4.8-.8.8z"
+              data-icon-path="inner-path"
+              opacity="0"
+            />
+          </svg>
+        )}
+      </div>
+    </div>
+  )
+}
+
 const Login = () => {
   const storedResourceId = localStorage.getItem('resourceId') || ''
   const storedEndpoint = localStorage.getItem('loginUrl') || ''
@@ -122,38 +168,16 @@ const Login = () => {
       </div>
       <div className={styles.content}>
         <form className={styles.form}>
-          <div className={styles.formItem}>
-            <label className={styles.label}>Resource Instance ID</label>
-            <div className={styles.inputWrapper}>
-              <TextInput
-                className={resourceError ? styles.errorInput : styles.input}
-                placeholder="Resource Instance ID"
-                autoComplete="username"
-                name="resourceId"
-                value={resourceId}
-                type="text"
-                onChange={handleUserInput}
-                invalidText="Invalid resource instance id."
-                invalid={resourceError}
-              />
-              {resourceError && (
-                <svg
-                  className={styles.errorIcon}
-                  focusable="false"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M8 1C4.2 1 1 4.2 1 8s3.2 7 7 7 7-3.1 7-7-3.1-7-7-7zm-.5 3h1v5h-1V4zm.5 8.2c-.4 0-.8-.4-.8-.8s.3-.8.8-.8c.4 0 .8.4.8.8s-.4.8-.8.8z" />
-                  <path
-                    d="M7.5 4h1v5h-1V4zm.5 8.2c-.4 0-.8-.4-.8-.8s.3-.8.8-.8c.4 0 .8.4.8.8s-.4.8-.8.8z"
-                    data-icon-path="inner-path"
-                    opacity="0"
-                  />
-                </svg>
-              )}
-            </div>
-          </div>
+          <TextInputWithLabel
+            placeholder="Resource Instance ID"
+            name="resourceId"
+            value={resourceId}
+            type="text"
+            autoComplete="username"
+            onInputChanged={handleUserInput}
+            errorText="Invalid resource instance id."
+            error={apiKeyError}
+          />
           <div className={styles.formItem}>
             <label className={styles.label}>Region</label>
             <Select
@@ -174,37 +198,15 @@ const Login = () => {
               })}
             </Select>
           </div>
-          <div className={styles.formItem}>
-            <label className={styles.label}>API Key</label>
-            <div className={styles.inputWrapper}>
-              <TextInput
-                className={apiKeyError ? styles.errorInput : styles.input}
-                placeholder="API Key"
-                autoComplete="current-password"
-                name="apiKey"
-                type="password"
-                onChange={handleUserInput}
-                invalidText="Invalid api key."
-                invalid={apiKeyError}
-              />
-              {apiKeyError && (
-                <svg
-                  className={styles.errorIcon}
-                  focusable="false"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M8 1C4.2 1 1 4.2 1 8s3.2 7 7 7 7-3.1 7-7-3.1-7-7-7zm-.5 3h1v5h-1V4zm.5 8.2c-.4 0-.8-.4-.8-.8s.3-.8.8-.8c.4 0 .8.4.8.8s-.4.8-.8.8z" />
-                  <path
-                    d="M7.5 4h1v5h-1V4zm.5 8.2c-.4 0-.8-.4-.8-.8s.3-.8.8-.8c.4 0 .8.4.8.8s-.4.8-.8.8z"
-                    data-icon-path="inner-path"
-                    opacity="0"
-                  />
-                </svg>
-              )}
-            </div>
-          </div>
+          <TextInputWithLabel
+            placeholder="API Key"
+            name="apiKey"
+            type="password"
+            autoComplete="current-password"
+            onInputChanged={handleUserInput}
+            errorText="Invalid api key."
+            error={apiKeyError}
+          />
         </form>
       </div>
       <div className={styles.bottomBar}>
