@@ -72,3 +72,32 @@
 .bx--table-sort-v2 {
   color: var(--brightText);
 }
+
+/* Select input */
+.bx--select-input {
+  background-color: var(--textInput);
+  color: var(--brightText);
+  box-shadow: 0 1px 0 0 var(--textInputUnderline);
+}
+
+.bx--select-input:focus {
+  box-shadow: 0 0 0 2px var(--blue);
+}
+
+.bx--select__arrow {
+  fill: var(--brightText);
+}
+
+.bx--text-input[data-invalid='true'] {
+  animation-name: autofillFocus;
+  animation-fill-mode: both;
+}
+
+@keyframes autofillFocus {
+  to {
+    outline: none;
+    background-color: var(--textInput);
+    color: var(--brightText);
+    box-shadow: 0 0 0 2px var(--error);
+  }
+}

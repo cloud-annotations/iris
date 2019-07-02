@@ -1,4 +1,6 @@
 import localforage from 'localforage'
+import AWS from 'ibm-cos-sdk'
+
 import { handleErrors } from 'Utils'
 
 const shrinkBlob = async (blob, height) => {
@@ -19,8 +21,16 @@ const shrinkBlob = async (blob, height) => {
 }
 
 export default async (endpoint, bucket, imageUrl, forcedHeight) => {
-  const baseUrl = `/api/proxy/${endpoint}/${bucket}/${imageUrl}`
+  // const baseUrl = `/api/proxy/${endpoint}/${bucket}/${imageUrl}`
   let blob
+
+  const { protocol, host } = window.location
+  var config = {
+    endpoint: `${protocol}//${host}/api/proxy/${endpoint}`,
+    accessKeyId: '',
+    secretAccessKey: '',
+    s3ForcePathStyle: true
+  }
 
   // Only check cache if we force the height.
   if (forcedHeight) {
@@ -29,9 +39,12 @@ export default async (endpoint, bucket, imageUrl, forcedHeight) => {
   }
 
   if (blob === undefined || blob === null || blob === '') {
-    blob = await fetch(baseUrl)
-      .then(handleErrors)
-      .then(response => response.blob())
+    const s3 = new AWS.S3(config)
+    const res = await s3.getObject({ Bucket: bucket, Key: imageUrl }).promise()
+    blob = new Blob([res.Body])
+    // blob = await fetch(baseUrl)
+    //   .then(handleErrors)
+    //   .then(response => response.blob())
 
     if (forcedHeight) {
       blob = await shrinkBlob(blob, forcedHeight)

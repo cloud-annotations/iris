@@ -7,20 +7,19 @@ body {
   /* text-rendering: optimizelegibility; */
   background-color: var(--bg);
   color: var(--brightText);
+  --error: #da1e28;
   --blue: #0062ff;
   --blue-hover: #0353e9;
   --font-size-14: 14px;
 }
 
 body.dark {
-  --tableBackground: #282828;
-  --tableBorder: #353535;
+  --textInput: #282828;
+  --textInputUnderline: #606060;
+
   --toolColor: #ffffff;
-  /* --activeHighlight: #343c3f; */
   --textInputBack: #21282a;
   --activeHighlight: var(--blue);
-  /* --activeHighlight: var(--blue);
-  --textInputBack: #203d79; */
   --default-font-weight: normal;
   --bg: #111417;
   --border: transparent;
@@ -34,13 +33,12 @@ body.dark {
 }
 
 body.light {
-  /* #f5f7fa; */
-  --tableBackground: #ffffff;
-  --tableBorder: #dcdcdc;
+  --textInput: #f3f3f3;
+  --textInputUnderline: #a7a7a7;
 
   --toolColor: var(--blue);
-  --activeHighlight: var(--blue);
   --textInputBack: #eef4fc;
+  --activeHighlight: var(--blue);
   --default-font-weight: 500;
   --border: rgb(217, 217, 217);
   --bg: hsl(210, 17%, 98%);

@@ -13,6 +13,7 @@
     "carbon-icons": "^7.0.7",
     "crypto-js": "^3.1.9-1",
     "gh-pages": "^1.2.0",
+    "ibm-cos-sdk": "^1.5.1",
     "intersection-observer": "^0.5.1",
     "localforage": "^1.7.2",
     "react": "^16.8.6",
