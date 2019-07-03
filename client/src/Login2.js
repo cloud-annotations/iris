@@ -6,11 +6,11 @@ import {
   TextInput,
   Loading
 } from 'carbon-components-react'
-import GoogleAnalytics from 'react-ga'
 import queryString from 'query-string'
 
 import { handleErrors, validateCookies } from './Utils'
 import { endpoints, regions } from './endpoints'
+import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 import history from 'globalHistory'
 import styles from './Login.module.css'
@@ -78,21 +78,8 @@ const HMAC = () => {
   const [endpoint, setEndpoint] = useState(defaultEndpoint)
   const [isCustomEndpoint, setIsCustomEndpoint] = useState(false)
   const [apiKey, setApiKey] = useState('')
-  const [loading, setLoading] = useState(false)
   const [resourceError, setResourceError] = useState(false)
   const [apiKeyError, setApiKeyError] = useState(false)
-
-  useEffect(() => {
-    GoogleAnalytics.pageview('login')
-    // Check if we are already logged in.
-    try {
-      validateCookies()
-      history.push('/')
-    } catch (error) {
-      // We are on the Login page so no need to redirect to /Login.
-      console.log(error)
-    }
-  }, [])
 
   const handleUserInput = useCallback(e => {
     const { name, value } = e.target
@@ -119,54 +106,9 @@ const HMAC = () => {
     setEndpoint(endpoints[e.target.options[e.target.selectedIndex].value])
   }, [])
 
-  const handleLogin = useCallback(async () => {
-    localStorage.setItem('resourceId', resourceId)
-    localStorage.setItem('loginUrl', endpoint)
-
-    setLoading(true)
-
-    // Try to log in.
-    const authUrl = '/api/auth?apikey=' + apiKey
-    try {
-      await fetch(authUrl, { method: 'GET' }).then(handleErrors)
-    } catch (e) {
-      console.error(e)
-      setApiKeyError(e)
-      setLoading(false)
-      return
-    }
-
-    // If we could log in try to load buckets. This will tell us if our
-    // resourceId is correct.
-    const cosUrl = `/api/proxy/${endpoint}`
-    const options = {
-      method: 'GET',
-      headers: { 'ibm-service-instance-id': resourceId }
-    }
-
-    try {
-      await fetch(cosUrl, options).then(handleErrors)
-    } catch (e) {
-      console.error(e)
-      // resource instance id isn't right so clear cookies
-      document.cookie = 'token=; Max-Age=-99999999; path=/'
-      document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
-      setResourceError(e)
-      setLoading(false)
-      return
-    }
-
-    // Stop loading and go to the main app.
-    setLoading(false)
-    history.push('/')
-  }, [apiKey, endpoint, resourceId])
-
   const defaultRegion = Object.keys(endpoints).find(
     key => endpoints[key] === endpoint
   )
-
-  const isValid =
-    resourceId.length > 0 && endpoint.length > 0 && apiKey.length > 0
 
   return (
     <>
@@ -274,9 +216,6 @@ const IAM = () => {
     key => endpoints[key] === endpoint
   )
 
-  const isValid =
-    resourceId.length > 0 && endpoint.length > 0 && apiKey.length > 0
-
   return (
     <>
       <TextInputWithLabel
@@ -323,57 +262,79 @@ const IAM = () => {
   )
 }
 
-const Login = () => {
-  const hmacMode = 'hmac' in queryString.parse(history.location.search)
-  console.log(hmacMode)
-
-  const storedResourceId = localStorage.getItem('resourceId') || ''
-  const storedEndpoint = localStorage.getItem('loginUrl') || ''
-
-  // Determine default endpoint.
-  let defaultEndpoint = endpoints[regions['cross-region'][0]]
-  if (Object.keys(endpoints).find(key => endpoints[key] === storedEndpoint)) {
-    defaultEndpoint = storedEndpoint
+const getResourceId = () => localStorage.getItem('resourceId') || ''
+const getApiKey = () => '' // apiKey doesn't get stored, we store a token in cookies.
+const getAccessKeyId = () => localStorage.getItem('accessKeyId') || ''
+const getSecretAccessKey = () => localStorage.getItem('secretAccessKey') || ''
+const getEndpoint = ({ custom }) => {
+  const stored = localStorage.getItem('endpoint') || ''
+  // If it's not custom, ensure that the endpoint is one in our list.
+  if (custom || Object.keys(endpoints).find(k => endpoints[k] === stored)) {
+    return stored
   }
+  return endpoints[regions['cross-region'][0]]
+}
 
-  const [resourceId, setResourceId] = useState(storedResourceId)
-  const [endpoint, setEndpoint] = useState(defaultEndpoint)
-  const [apiKey, setApiKey] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [resourceError, setResourceError] = useState(false)
-  const [apiKeyError, setApiKeyError] = useState(false)
-
+const useCheckIfLoggedIn = () => {
   useEffect(() => {
-    GoogleAnalytics.pageview('login')
-    // Check if we are already logged in.
     try {
       validateCookies()
       history.push('/')
     } catch (error) {
-      // We are on the Login page so no need to redirect to /Login.
       console.log(error)
     }
   }, [])
+}
+
+const Login = () => {
+  const hmacMode = 'hmac' in queryString.parse(history.location.search)
+
+  const [loading, setLoading] = useState(false)
+
+  // // Form values.
+  // const [resourceId, setResourceId] = useState(getResourceId())
+  // const [apiKey, setApiKey] = useState(getApiKey())
+  // const [accessKeyId, setAccessKeyId] = useState(getAccessKeyId())
+  // const [secretAccessKey, setSecretAccessKey] = useState(getSecretAccessKey())
+  // const [endpoint, setEndpoint] = useState(getEndpoint({ custom: false }))
+  // // Errors.
+  // const [resourceError, setResourceError] = useState(false)
+  // const [apiKeyError, setApiKeyError] = useState(false)
+
+  const [formData, setFormData] = useState({
+    resourceId: {
+      value: getResourceId(),
+      error: null
+    },
+    apiKey: {
+      value: getApiKey(),
+      error: null
+    },
+    accessKeyId: {
+      value: getAccessKeyId(),
+      error: null
+    },
+    secretAccessKey: {
+      value: getSecretAccessKey(),
+      error: null
+    },
+    endpoint: {
+      value: getEndpoint({ custom: false }),
+      error: null
+    }
+  })
+
+  useGoogleAnalytics('login')
+  useCheckIfLoggedIn()
 
   const handleUserInput = useCallback(e => {
     const { name, value } = e.target
-
-    switch (name) {
-      case 'apiKey':
-        setApiKey(value)
-        setApiKeyError(null)
-        return
-      case 'resourceId':
-        setResourceId(value)
-        setResourceError(null)
-        return
-      default:
-        return
-    }
-  }, [])
-
-  const handleEndpointSelect = useCallback(e => {
-    setEndpoint(endpoints[e.target.options[e.target.selectedIndex].value])
+    setFormData(oldData => {
+      const newData = { ...oldData }
+      newData[name].value = value
+      newData[name].error = null
+      return newData
+    })
   }, [])
 
   const handleLogin = useCallback(async () => {
@@ -417,10 +378,6 @@ const Login = () => {
     setLoading(false)
     history.push('/')
   }, [apiKey, endpoint, resourceId])
-
-  const defaultRegion = Object.keys(endpoints).find(
-    key => endpoints[key] === endpoint
-  )
 
   const isValid =
     resourceId.length > 0 && endpoint.length > 0 && apiKey.length > 0
