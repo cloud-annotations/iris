@@ -51,6 +51,8 @@
 }
 
 .label {
+  display: flex !important;
+  width: 100%;
   color: var(--secondaryText);
   display: inline-block;
   margin-bottom: 8px;
@@ -156,4 +158,26 @@
 
 .button:hover {
   background-color: var(--blue-hover);
+}
+
+.fakeLink {
+  cursor: pointer;
+  user-select: none;
+  margin-left: auto;
+  color: var(--blue);
+  text-decoration: none;
+}
+
+.fakeLink:hover {
+  box-shadow: 0 1px var(--blue);
+}
+
+.fakeLink:active {
+  color: var(--brightText);
+  box-shadow: 0 3px var(--brightText);
+}
+
+.fakeLink:focus {
+  color: var(--brightText);
+  box-shadow: 0 3px var(--brightText);
 }
