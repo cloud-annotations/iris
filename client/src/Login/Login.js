@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { Loading } from 'carbon-components-react'
 import queryString from 'query-string'
 
-import { validateCookies } from 'Utils'
+import { checkLoginStatus } from 'Utils'
 import { endpoints, regions } from 'endpoints'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 import { iamLogin, hmacLogin } from './loginUtils'
@@ -39,7 +39,7 @@ const useChooseEndpointFromListIfNotCustom = (custom, setFormData) => {
 const useCheckIfLoggedIn = () => {
   useEffect(() => {
     try {
-      validateCookies()
+      checkLoginStatus()
       history.push('/')
     } catch (error) {
       console.log(error)

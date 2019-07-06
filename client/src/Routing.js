@@ -9,7 +9,7 @@ import App from './App/App'
 import Login from './Login/Login'
 import Buckets from './Buckets/Buckets'
 import history from 'globalHistory'
-import { validateCookies } from './Utils'
+import { checkLoginStatus } from './Utils'
 
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
@@ -20,7 +20,7 @@ const useCookieCheck = interval => {
     const id = setInterval(() => {
       try {
         console.log('tic toc')
-        validateCookies()
+        checkLoginStatus()
       } catch {
         if (history.location.pathname !== '/login') {
           history.push('/login')

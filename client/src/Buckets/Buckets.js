@@ -6,7 +6,7 @@ import { loadBuckets } from 'redux/buckets'
 import Table from './Table'
 import CreateModal from './CreateModal'
 import DeleteModal from './DeleteModal'
-import { validateCookies } from 'Utils'
+import { checkLoginStatus } from 'Utils'
 import COS from 'api/COS'
 
 import history from 'globalHistory'
@@ -32,7 +32,7 @@ const Buckets = ({ buckets, dispatch }) => {
 
   useEffect(() => {
     try {
-      validateCookies()
+      checkLoginStatus()
       dispatchLoadBuckets()
     } catch (error) {
       console.log(error)

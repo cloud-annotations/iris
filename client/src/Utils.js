@@ -144,12 +144,33 @@ export function handleErrors(response) {
   return response
 }
 
-export function validateCookies() {
+export const checkLoginStatus = () => {
+  // Check IAM login.
+  const resourceId = localStorage.getItem('resourceId')
   const token = getCookie('token')
   const refreshToken = getCookie('refresh_token')
-  if (token === '' || refreshToken === '') {
-    // If either of the tokens are expired, clear them both.
-    clearCookies(['token', 'refresh_token'])
-    throw new Error('Forbidden')
+  if (resourceId && token && refreshToken) {
+    return true
   }
+
+  // Used for HMAC login.
+  const accessKeyId = localStorage.getItem('accessKeyId')
+  const secretAccessKey = localStorage.getItem('secretAccessKey')
+  if (accessKeyId && secretAccessKey) {
+    return true
+  }
+
+  // If we make it here, we are not logged in, clear any tokens.
+  clearCookies(['token', 'refresh_token'])
+  throw new Error('Forbidden')
 }
+
+// export function validateCookies() {
+//   const token = getCookie('token')
+//   const refreshToken = getCookie('refresh_token')
+//   if (token === '' || refreshToken === '') {
+//     // If either of the tokens are expired, clear them both.
+//     clearCookies(['token', 'refresh_token'])
+//     throw new Error('Forbidden')
+//   }
+// }

@@ -1,7 +1,7 @@
 import MD5 from 'crypto-js/md5'
 import Base64 from 'crypto-js/enc-base64'
 
-import { validateCookies, handleErrors } from 'Utils'
+import { checkLoginStatus, handleErrors } from 'Utils'
 
 export default class COS {
   constructor(endpoint) {
@@ -210,7 +210,7 @@ export default class COS {
     }
 
     const preFlightCheck = func => {
-      validateCookies()
+      checkLoginStatus()
       return func()
     }
 

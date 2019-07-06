@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { validateCookies } from './Utils'
+import { checkLoginStatus } from './Utils'
 import history from 'globalHistory'
 import './TitleBar.css'
 
@@ -40,7 +40,7 @@ class TitleBar extends Component {
     })
     document.cookie = 'token=; Max-Age=-99999999; path=/'
     document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
-    validateCookies().catch(error => {
+    checkLoginStatus().catch(error => {
       if (error.message === 'Forbidden') {
         history.push('/login')
       }

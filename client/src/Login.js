@@ -7,7 +7,7 @@ import {
   Loading
 } from 'carbon-components-react'
 import GoogleAnalytics from 'react-ga'
-import { handleErrors, validateCookies } from './Utils'
+import { handleErrors, checkLoginStatus } from './Utils'
 import { endpoints, regions } from './endpoints'
 
 import 'carbon-components/css/carbon-components.min.css'
@@ -43,7 +43,7 @@ class Login extends Component {
     GoogleAnalytics.pageview('login')
     // Check if we are already logged in.
     try {
-      validateCookies()
+      checkLoginStatus()
       history.push('/')
     } catch (error) {
       // We are on the Login page so no need to redirect to /Login.
