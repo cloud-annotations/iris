@@ -119,6 +119,21 @@ export function clearCookies(cookies) {
   })
 }
 
+export const parseXML = xmlString => {
+  const xml = new window.DOMParser().parseFromString(xmlString, 'text/xml')
+  const recursivelyGenerateJson = (json, children) => {
+    Array.prototype.forEach.call(children, element => {
+      if (element.children.length === 0) {
+        json[element.tagName] = element.innerHTML
+      } else {
+        json[element.tagName] = recursivelyGenerateJson({}, element.children)
+      }
+    })
+    return json
+  }
+  return recursivelyGenerateJson({}, xml.children)
+}
+
 export function handleErrors(response) {
   if (!response.ok) {
     if (response.statusText === 'Forbidden') {

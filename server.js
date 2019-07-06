@@ -3,6 +3,7 @@ const path = require('path')
 const request = require('request')
 const cookieParser = require('cookie-parser')
 const frameguard = require('frameguard')
+const AWS = require('ibm-cos-sdk')
 
 const app = express()
 const http = require('http').Server(app)
@@ -120,9 +121,12 @@ app.use((req, res, next) => {
     }
   }
   request(options, (error, response, body) => {
+    console.log('try to set token')
     if (isSuccess(error, response)) {
       setToken(res, body)
+      console.log('we set token!')
     }
+    console.log('thank you, next')
     next()
   })
 })
@@ -150,21 +154,45 @@ app.get('/api/auth', (req, res) => {
   })
 })
 
+app.get('/api/getdabucks', async () => {
+  var config = {
+    endpoint: '',
+    accessKeyId: '',
+    secretAccessKey: ''
+  }
+  const s3 = new AWS.S3(config)
+  const list = await s3.listBucketsExtended().promise()
+  console.log(list)
+})
+
 // Proxy any other request.
 app.all('/api/proxy/*', (req, res) => {
+  console.log('proxy request')
   const token = req.cookies.token
   const url = `https://${req.params[0]}`
+  // console.log(req.headers)
   req
     .pipe(
       request({
         url: url,
         qs: req.query,
         headers: {
-          Authorization: 'bearer ' + token
+          'x-amz-date': req.headers['x-amz-date'],
+          Authorization: req.headers['authorization']
         }
       })
     )
+    .on('error', e => {
+      console.log('part 1')
+      console.error(e)
+      res.sendStatus(500)
+    })
     .pipe(res)
+    .on('error', e => {
+      console.log('part 2')
+      console.error(e)
+      res.sendStatus(500)
+    })
 })
 
 if (process.env.NODE_ENV === 'production') {

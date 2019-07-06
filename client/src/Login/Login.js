@@ -2,9 +2,10 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { Loading } from 'carbon-components-react'
 import queryString from 'query-string'
 
-import { handleErrors, validateCookies } from 'Utils'
+import { validateCookies } from 'Utils'
 import { endpoints, regions } from 'endpoints'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
+import { iamLogin, hmacLogin } from './loginUtils'
 import IAM from './IAM'
 import HMAC from './HMAC'
 
@@ -91,42 +92,57 @@ const Login = () => {
     setLoading(true)
 
     if (!hmacMode) {
-      localStorage.setItem('resourceId', formData.resourceId)
-      localStorage.setItem('endpoint', formData.endpoint)
-      // Generate a cookie token, we only need to do this for IAM.
-      const authUrl = '/api/auth?apikey=' + formData.apiKey
       try {
-        await fetch(authUrl, { method: 'GET' }).then(handleErrors)
+        await iamLogin(formData.resourceId, formData.endpoint, formData.apiKey)
       } catch (e) {
-        console.error(e)
-        setFormError(data => ({ ...data, apiKey: e }))
-        setLoading(false)
-        return
+        switch (e.name) {
+          case 'ResourceIdError':
+            setFormError(data => ({ ...data, resourceId: e }))
+            setLoading(false)
+            return
+          case 'ApiKeyError':
+            setFormError(data => ({ ...data, apiKey: e }))
+            setLoading(false)
+            return
+          default:
+            setLoading(false)
+            return
+        }
       }
-
-      // If we could log in try to load buckets. This will tell us if our
-      // resourceId is correct.
-      const cosUrl = `/api/proxy/${formData.endpoint}`
-      const options = {
-        method: 'GET',
-        headers: { 'ibm-service-instance-id': formData.resourceId }
-      }
+    } else {
       try {
-        await fetch(cosUrl, options).then(handleErrors)
+        await hmacLogin(
+          formData.accessKeyId,
+          formData.endpoint,
+          formData.secretAccessKey
+        )
       } catch (e) {
-        console.error(e)
-        // resource instance id isn't right so clear cookies
-        document.cookie = 'token=; Max-Age=-99999999; path=/'
-        document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
-        setFormError(data => ({ ...data, resourceId: e }))
-        setLoading(false)
-        return
+        switch (e.name) {
+          case 'InvalidAccessKeyId':
+            setFormError(data => ({ ...data, accessKeyId: e }))
+            setLoading(false)
+            return
+          case 'SignatureDoesNotMatch':
+            setFormError(data => ({ ...data, secretAccessKey: e }))
+            setLoading(false)
+            return
+          default:
+            setLoading(false)
+            return
+        }
       }
     }
     // Stop loading and go to the main app.
     setLoading(false)
     history.push('/')
-  }, [formData.apiKey, formData.endpoint, formData.resourceId, hmacMode])
+  }, [
+    formData.accessKeyId,
+    formData.apiKey,
+    formData.endpoint,
+    formData.resourceId,
+    formData.secretAccessKey,
+    hmacMode
+  ])
 
   const hmacValid =
     formData.accessKeyId.length > 0 &&
