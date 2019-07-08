@@ -12,5 +12,12 @@ RUN npm install --only=production &&\
     apk upgrade
 ENV PORT 8080
 ENV NODE_ENV production
+
+ARG CLIENT_ID
+ENV CLIENT_ID $CLIENT_ID
+
+ARG CLIENT_SECRET
+ENV CLIENT_SECRET $CLIENT_SECRET
+
 EXPOSE  8080
 CMD node server.js

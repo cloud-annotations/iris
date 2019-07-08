@@ -10,6 +10,8 @@ const io = require('socket.io')(http)
 const redis = require('socket.io-redis')
 const port = process.env.PORT || 9000
 
+require('dotenv').config()
+
 app.use(express.static(__dirname + '/public'))
 
 if (process.env.NODE_ENV === 'production') {
@@ -127,8 +129,63 @@ app.use((req, res, next) => {
   })
 })
 
+console.log(process.env.CLIENT_ID)
+console.log(process.env.CLIENT_SECRET)
+const redirectUri =
+  'https://stagingannotations.us-east.containers.appdomain.cloud/auth/callback'
+const iamUrl = 'https://iam.test.cloud.ibm.com'
+const redirectUrl =
+  iamUrl +
+  '/oidc/authorize?client_id=' +
+  process.env.CLIENT_ID +
+  '&redirect_uri=' +
+  redirectUri
+
+app.get('/auth/login', (req, res) => {
+  res.redirect(redirectUrl)
+})
+
 app.get('/auth/callback', (req, res) => {
-  console.log(req)
+  let code = req.query.code
+  console.log('authorizeCallback with code ' + code)
+  // Set the headers
+  let headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    Accept: 'application/json',
+    Authorization:
+      'Basic ' +
+      new Buffer(clientId + ':' + clientSecret, 'utf8').toString('base64')
+  }
+
+  // Request parameters
+  let options = {
+    url: iamUrl + '/oidc/token',
+    method: 'POST',
+    headers: headers,
+    form: {
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: 'authorization_code',
+      response_type: 'cloud_iam',
+      code: code,
+      redirect_uri: redirectUri
+    }
+  }
+
+  // Start the request
+  request(options, function(error, response, body) {
+    console.log('Response from IAM: ' + body)
+
+    if (!error && response.statusCode == 200) {
+      // Parse the IAM token and redirect to the done page
+      let jsonBody = JSON.parse(body)
+      const accessToken = 'bearer ' + jsonBody.access_token
+      console.log('Access token: ' + accessToken)
+      res.end()
+    } else {
+      res.end()
+    }
+  })
 })
 
 // Authenticate user.

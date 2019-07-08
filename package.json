@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "cookie-parser": "^1.4.3",
+    "dotenv": "^8.0.0",
     "express": "^4.16.3",
     "frameguard": "^3.0.0",
     "request": "^2.88.0",
