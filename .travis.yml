@@ -1,11 +1,14 @@
 language: node_js
 os: osx
 node_js: stable
-addons:
-  homebrew:
-    packages:
-    - kubernetes-cli
+# addons:
+#   homebrew:
+#     packages:
+#     - kubernetes-cli
 before_deploy: 
+- curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
+- chmod +x ./kubectl
+- sudo mv ./kubectl /usr/local/bin/kubectl
 - curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
 - ibmcloud plugin install container-registry
 - ibmcloud plugin install kubernetes-service
