@@ -129,8 +129,6 @@ app.use((req, res, next) => {
   })
 })
 
-console.log(process.env.CLIENT_ID)
-console.log(process.env.CLIENT_SECRET)
 const redirectUri =
   'https://stagingannotations.us-east.containers.appdomain.cloud/auth/callback'
 const iamUrl = 'https://iam.test.cloud.ibm.com'
@@ -154,7 +152,10 @@ app.get('/auth/callback', (req, res) => {
     Accept: 'application/json',
     Authorization:
       'Basic ' +
-      new Buffer(clientId + ':' + clientSecret, 'utf8').toString('base64')
+      new Buffer(
+        process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET,
+        'utf8'
+      ).toString('base64')
   }
 
   // Request parameters
@@ -163,8 +164,8 @@ app.get('/auth/callback', (req, res) => {
     method: 'POST',
     headers: headers,
     form: {
-      client_id: clientId,
-      client_secret: clientSecret,
+      client_id: process.env.CLIENT_ID,
+      client_secret: process.env.CLIENT_SECRET,
       grant_type: 'authorization_code',
       response_type: 'cloud_iam',
       code: code,
