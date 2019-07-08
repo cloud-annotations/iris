@@ -1,4 +1,5 @@
-import COS from 'api/COS'
+import OldCOS from 'api/COS'
+import COS from 'api/COSv2'
 
 // Actions
 const SET = 'cloud-annotations/buckets/SET'
@@ -18,8 +19,12 @@ export const setBuckets = b => ({ type: SET, buckets: b })
 
 // Side Effects
 export const loadBuckets = async () => {
-  const endpoint = localStorage.getItem('loginUrl')
+  const endpoint = localStorage.getItem('endpoint')
   const instanceId = localStorage.getItem('resourceId')
-  const buckets = await new COS(endpoint).buckets(instanceId)
+  const cos = new COS({ endpoint: endpoint })
+  const buckets = await cos.listBuckets({
+    IBMServiceInstanceId: instanceId
+  })
+  console.log(buckets)
   return setBuckets(buckets)
 }

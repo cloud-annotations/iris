@@ -154,32 +154,23 @@ app.get('/api/auth', (req, res) => {
   })
 })
 
-app.get('/api/getdabucks', async () => {
-  var config = {
-    endpoint: '',
-    accessKeyId: '',
-    secretAccessKey: ''
-  }
-  const s3 = new AWS.S3(config)
-  const list = await s3.listBucketsExtended().promise()
-  console.log(list)
-})
-
 // Proxy any other request.
 app.all('/api/proxy/*', (req, res) => {
   console.log('proxy request')
   const token = req.cookies.token
   const url = `https://${req.params[0]}`
-  // console.log(req.headers)
+
+  const headers = {}
+  if (token) {
+    headers['Authorization'] = `bearer ${token}`
+  }
+
   req
     .pipe(
       request({
         url: url,
         qs: req.query,
-        headers: {
-          'x-amz-date': req.headers['x-amz-date'],
-          Authorization: req.headers['authorization']
-        }
+        headers: headers
       })
     )
     .on('error', e => {

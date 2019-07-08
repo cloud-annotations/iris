@@ -121,12 +121,25 @@ export function clearCookies(cookies) {
 
 export const parseXML = xmlString => {
   const xml = new window.DOMParser().parseFromString(xmlString, 'text/xml')
-  const recursivelyGenerateJson = (json, children) => {
-    Array.prototype.forEach.call(children, element => {
+  const recursivelyGenerateJson = (json, rootNode) => {
+    Array.prototype.forEach.call(rootNode, element => {
+      const mutate = item => {
+        if (Array.isArray(json)) {
+          json.push(item)
+        } else {
+          json[element.tagName] = item
+        }
+      }
+
       if (element.children.length === 0) {
-        json[element.tagName] = element.innerHTML
+        mutate(element.innerHTML)
+      } else if (
+        element.children.length > 1 &&
+        element.children[0].tagName === element.children[1].tagName // assume array
+      ) {
+        mutate(recursivelyGenerateJson([], element.children))
       } else {
-        json[element.tagName] = recursivelyGenerateJson({}, element.children)
+        mutate(recursivelyGenerateJson({}, element.children))
       }
     })
     return json
