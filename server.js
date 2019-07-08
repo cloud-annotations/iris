@@ -127,6 +127,10 @@ app.use((req, res, next) => {
   })
 })
 
+app.get('/auth/callback', (req, res) => {
+  console.log(req)
+})
+
 // Authenticate user.
 app.get('/api/auth', (req, res) => {
   const options = {
