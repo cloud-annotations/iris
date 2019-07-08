@@ -131,7 +131,7 @@ app.use((req, res, next) => {
 
 const redirectUri =
   'https://stagingannotations.us-east.containers.appdomain.cloud/auth/callback'
-const iamUrl = 'https://iam.test.cloud.ibm.com'
+const iamUrl = 'https://iam.cloud.ibm.com'
 const redirectUrl =
   iamUrl +
   '/oidc/authorize?client_id=' +
