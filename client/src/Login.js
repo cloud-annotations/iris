@@ -290,6 +290,7 @@ class Login extends Component {
               />
             </div>
           </form>
+          <a href={'/auth/login'}>Login with IBM Cloud</a>
         </div>
         <div className="Login-BottomBar">
           <div
