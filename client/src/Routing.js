@@ -3,6 +3,7 @@ import { Router, Route, Switch } from 'react-router-dom'
 
 import App from './App/App'
 import Login from './Login/Login'
+import Home from './Home/Home'
 import Buckets from './Buckets/Buckets'
 import history from 'globalHistory'
 import { checkLoginStatus } from './Utils'
@@ -36,7 +37,8 @@ const Routing = () => {
         <Switch>
           {/* With `Switch` there will only ever be one child here */}
           <Route exact path="/" component={Buckets} />
-          <Route path="/login" component={Login} />
+          <Route path="/otherlogin" component={Login} />
+          <Route path="/login" component={Home} />
           <Route path="/:bucket" component={App} />
         </Switch>
       </Router>

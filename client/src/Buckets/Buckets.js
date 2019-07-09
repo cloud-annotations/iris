@@ -7,7 +7,7 @@ import Table from './Table'
 import CreateModal from './CreateModal'
 import DeleteModal from './DeleteModal'
 import { checkLoginStatus } from 'Utils'
-import COS from 'api/COS'
+import COS from 'api/COSv2'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
@@ -20,7 +20,7 @@ const Buckets = ({ buckets, dispatch }) => {
 
   const dispatchLoadBuckets = useCallback(async () => {
     try {
-      dispatch(await loadBuckets())
+      // dispatch(await loadBuckets())
     } catch (error) {
       console.error(error)
     }
@@ -34,6 +34,30 @@ const Buckets = ({ buckets, dispatch }) => {
     try {
       checkLoginStatus()
       dispatchLoadBuckets()
+      fetch('/api/accounts')
+        .then(res => res.json())
+        .then(json => {
+          console.log(json)
+          const account = json[0].accountId
+          return fetch(`/api/upgrade-token?account=${account}`)
+        })
+        .then(() => {
+          console.log('done')
+          return fetch('/api/cos-instances')
+        })
+        .then(res => res.json())
+        .then(json => {
+          console.log(json)
+          const cos = new COS({
+            endpoint: 's3.us-west.cloud-object-storage.test.appdomain.cloud'
+          })
+          return cos.listBuckets({
+            IBMServiceInstanceId: json.resources[0].id
+          })
+        })
+        .then(json => {
+          console.log(json)
+        })
     } catch (error) {
       console.log(error)
       if (error.message === 'Forbidden') {

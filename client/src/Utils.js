@@ -159,19 +159,19 @@ export function handleErrors(response) {
 
 export const checkLoginStatus = () => {
   // Check IAM login.
-  const resourceId = localStorage.getItem('resourceId')
-  const token = getCookie('token')
+  // const resourceId = localStorage.getItem('resourceId')
+  const accessToken = getCookie('access_token')
   const refreshToken = getCookie('refresh_token')
-  if (resourceId && token && refreshToken) {
+  if (accessToken && refreshToken) {
     return true
   }
 
   // Used for HMAC login.
-  const accessKeyId = localStorage.getItem('accessKeyId')
-  const secretAccessKey = localStorage.getItem('secretAccessKey')
-  if (accessKeyId && secretAccessKey) {
-    return true
-  }
+  // const accessKeyId = localStorage.getItem('accessKeyId')
+  // const secretAccessKey = localStorage.getItem('secretAccessKey')
+  // if (accessKeyId && secretAccessKey) {
+  //   return true
+  // }
 
   // If we make it here, we are not logged in, clear any tokens.
   clearCookies(['token', 'refresh_token'])
