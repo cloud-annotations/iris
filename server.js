@@ -191,6 +191,7 @@ app.get('/auth/callback', (req, res) => {
           // client_id: process.env.CLIENT_ID,
           // client_secret: process.env.CLIENT_SECRET,
           grant_type: 'authorization_code',
+          bss_account: '19552f679a1f1feba412927e04b32553',
           // response_type: 'cloud_iam',
           redirect_uri: redirectUri,
           code: code
