@@ -1,10 +1,6 @@
 import React, { useEffect } from 'react'
 import { Router, Route, Switch } from 'react-router-dom'
 
-// deprecated.
-import OldApp from './App'
-import OldLogin from './Login'
-
 import App from './App/App'
 import Login from './Login/Login'
 import Buckets from './Buckets/Buckets'

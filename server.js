@@ -131,6 +131,95 @@ app.use((req, res, next) => {
   })
 })
 
+const redirectUri =
+  'https://stagingannotations.us-east.containers.appdomain.cloud/auth/callback'
+
+app.get('/auth/login', (req, res) => {
+  let options = {
+    url: 'https://iam.cloud.ibm.com/identity/.well-known/openid-configuration',
+    method: 'GET'
+  }
+
+  // get the proper auth endpoint.
+  request(options, (error, response, body) => {
+    if (!error && response.statusCode == 200) {
+      let jsonBody = JSON.parse(body)
+      console.log(jsonBody)
+      const redirectUrl =
+        jsonBody.authorization_endpoint +
+        '?client_id=' +
+        process.env.CLIENT_ID +
+        '&redirect_uri=' +
+        redirectUri
+      res.redirect(redirectUrl)
+    } else {
+      res.end()
+    }
+  })
+})
+
+app.get('/auth/callback', (req, res) => {
+  let code = req.query.code
+  console.log('authorizeCallback with code ' + code)
+
+  let options = {
+    url: 'https://iam.cloud.ibm.com/identity/.well-known/openid-configuration',
+    method: 'GET'
+  }
+
+  // get the proper auth endpoint.
+  request(options, (error, response, body) => {
+    if (!error && response.statusCode == 200) {
+      let jsonBody = JSON.parse(body)
+
+      // Set the headers
+      let headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Accept: 'application/json',
+        Authorization:
+          'Basic ' +
+          Buffer.from(
+            process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET,
+            'utf8'
+          ).toString('base64')
+      }
+
+      // Request parameters
+      let options = {
+        url: jsonBody.token_endpoint,
+        method: 'POST',
+        headers: headers,
+        form: {
+          // client_id: process.env.CLIENT_ID,
+          // client_secret: process.env.CLIENT_SECRET,
+          grant_type: 'authorization_code',
+          bss_account: '19552f679a1f1feba412927e04b32553',
+          // response_type: 'cloud_iam',
+          redirect_uri: redirectUri,
+          code: code
+        }
+      }
+
+      // Start the request
+      request(options, function(error, response, body) {
+        console.log('Response from IAM: ' + body)
+
+        if (!error && response.statusCode == 200) {
+          // Parse the IAM token and redirect to the done page
+          let jsonBody = JSON.parse(body)
+          const accessToken = 'bearer ' + jsonBody.access_token
+          console.log('Access token: ' + accessToken)
+          res.end()
+        } else {
+          res.end()
+        }
+      })
+    } else {
+      res.end()
+    }
+  })
+})
+
 // Authenticate user.
 app.get('/api/auth', (req, res) => {
   const options = {

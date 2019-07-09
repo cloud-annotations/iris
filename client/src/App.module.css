@@ -1,7 +1,0 @@
-.choiceWrapper {
-  display: flex;
-}
-
-.choiceWrapper > *:first-of-type {
-  margin-right: 16px;
-}
