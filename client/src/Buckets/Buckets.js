@@ -18,13 +18,20 @@ const Buckets = ({ buckets, dispatch }) => {
 
   const [listOfLoadingBuckets, setListOfLoadingBuckets] = useState([])
 
-  const dispatchLoadBuckets = useCallback(async () => {
-    try {
-      // dispatch(await loadBuckets())
-    } catch (error) {
-      console.error(error)
-    }
-  }, [dispatch])
+  // TODO: testing
+  const [instanceList, setInstanceList] = useState([])
+  const [chosenInstance, setChosenInstance] = useState('')
+
+  const dispatchLoadBuckets = useCallback(
+    async chosenInstance => {
+      try {
+        dispatch(await loadBuckets(chosenInstance))
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    [dispatch]
+  )
 
   useEffect(() => {
     GoogleAnalytics.pageview('buckets')
@@ -37,26 +44,16 @@ const Buckets = ({ buckets, dispatch }) => {
       fetch('/api/accounts')
         .then(res => res.json())
         .then(json => {
-          console.log(json)
           const account = json[0].accountId
           return fetch(`/api/upgrade-token?account=${account}`)
         })
         .then(() => {
-          console.log('done')
           return fetch('/api/cos-instances')
         })
         .then(res => res.json())
         .then(json => {
-          console.log(json)
-          const cos = new COS({
-            endpoint: 's3.us-west.cloud-object-storage.test.appdomain.cloud'
-          })
-          return cos.listBuckets({
-            IBMServiceInstanceId: json.resources[0].id
-          })
-        })
-        .then(json => {
-          console.log(json)
+          setInstanceList(json.resources)
+          setChosenInstance(json.resources[0].id)
         })
     } catch (error) {
       console.log(error)
@@ -65,6 +62,12 @@ const Buckets = ({ buckets, dispatch }) => {
       }
     }
   }, [dispatchLoadBuckets])
+
+  useEffect(() => {
+    if (chosenInstance) {
+      dispatchLoadBuckets(chosenInstance)
+    }
+  }, [chosenInstance, dispatchLoadBuckets])
 
   const handleCreateBucket = useCallback(() => {
     setIsCreateBucketModalOpen(true)
@@ -120,6 +123,12 @@ const Buckets = ({ buckets, dispatch }) => {
         onClose={handleCloseCreateModal}
         onSubmit={handleSubmitCreateModal}
       />
+      <>
+        {instanceList.map(instance => {
+          return <div>{instance.name}</div>
+        })}
+      </>
+
       <Table
         buckets={buckets}
         listOfLoadingBuckets={listOfLoadingBuckets}

@@ -18,13 +18,24 @@ export default function reducer(buckets = null, action = {}) {
 export const setBuckets = b => ({ type: SET, buckets: b })
 
 // Side Effects
-export const loadBuckets = async () => {
-  const endpoint = localStorage.getItem('endpoint')
-  const instanceId = localStorage.getItem('resourceId')
+export const loadBuckets = async instanceId => {
+  const endpoint = 's3.us-west.cloud-object-storage.test.appdomain.cloud'
   const cos = new COS({ endpoint: endpoint })
-  const buckets = await cos.listBuckets({
+  const res = await cos.listBuckets({
     IBMServiceInstanceId: instanceId
   })
+
+  let buckets = res.ListAllMyBucketsResult.Buckets
+  if (!Array.isArray(buckets)) {
+    buckets = [buckets.Bucket]
+  }
+
+  buckets = buckets.map(bucket => ({
+    id: bucket.Name,
+    name: bucket.Name,
+    created: new Date(bucket.CreationDate).toLocaleDateString()
+  }))
+
   console.log(buckets)
   return setBuckets(buckets)
 }
