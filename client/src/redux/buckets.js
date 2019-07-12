@@ -1,5 +1,5 @@
-import OldCOS from 'api/COS'
 import COS from 'api/COSv2'
+import { defaultEndpoint } from 'endpoints'
 
 // Actions
 const SET = 'cloud-annotations/buckets/SET'
@@ -19,9 +19,9 @@ export const setBuckets = b => ({ type: SET, buckets: b })
 
 // Side Effects
 export const loadBuckets = async instanceId => {
-  const endpoint = 's3.us-west.cloud-object-storage.test.appdomain.cloud'
+  const endpoint = defaultEndpoint
   const cos = new COS({ endpoint: endpoint })
-  const res = await cos.listBuckets({
+  const res = await cos.listBucketsExtended({
     IBMServiceInstanceId: instanceId
   })
 
@@ -33,9 +33,9 @@ export const loadBuckets = async instanceId => {
   buckets = buckets.map(bucket => ({
     id: bucket.Name,
     name: bucket.Name,
+    location: bucket.LocationConstraint,
     created: new Date(bucket.CreationDate).toLocaleDateString()
   }))
 
-  console.log(buckets)
   return setBuckets(buckets)
 }

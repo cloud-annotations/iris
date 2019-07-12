@@ -5,7 +5,6 @@ import {
   InlineLoading
 } from 'carbon-components-react'
 
-import history from 'globalHistory'
 import styles from './Buckets.module.css'
 
 const DeleteIcon = () => (
@@ -30,13 +29,19 @@ const CreateBucket = ({ handleClick }) => {
   )
 }
 
-const TableList = ({ buckets, listOfLoadingBuckets, onDeleteBucket }) => {
+const TableList = ({
+  buckets,
+  listOfLoadingBuckets,
+  onDeleteBucket,
+  onRowSelected
+}) => {
   const headers = [
     { key: 'name', header: 'NAME' },
     { key: 'created', header: 'CREATED' }
   ]
-  const handleRowClick = id => () => {
-    history.push(`/${id}`)
+  const handleRowClick = id => e => {
+    e.stopPropagation()
+    onRowSelected(id)
   }
   const handleDeleteBucket = id => e => {
     e.stopPropagation()
@@ -139,7 +144,8 @@ const Table = ({
   buckets,
   listOfLoadingBuckets,
   onDeleteBucket,
-  onCreateBucket
+  onCreateBucket,
+  onRowSelected
 }) => {
   return (
     <div className={styles.table}>
@@ -151,6 +157,7 @@ const Table = ({
         buckets={buckets}
         listOfLoadingBuckets={listOfLoadingBuckets}
         onDeleteBucket={onDeleteBucket}
+        onRowSelected={onRowSelected}
       />
     </div>
   )

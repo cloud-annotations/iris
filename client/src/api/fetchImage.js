@@ -1,7 +1,6 @@
 import localforage from 'localforage'
-import AWS from 'ibm-cos-sdk'
 
-import { handleErrors } from 'Utils'
+import COS from './COSv2'
 
 const shrinkBlob = async (blob, height) => {
   return new Promise((resolve, _) => {
@@ -23,14 +22,6 @@ const shrinkBlob = async (blob, height) => {
 export default async (endpoint, bucket, imageUrl, forcedHeight) => {
   let blob
 
-  const { protocol, host } = window.location
-  var config = {
-    endpoint: `${protocol}//${host}/api/proxy/${endpoint}`,
-    accessKeyId: '',
-    secretAccessKey: '',
-    s3ForcePathStyle: true
-  }
-
   // Only check cache if we force the height.
   if (forcedHeight) {
     // TODO: Make sure the item is actually a blob.
@@ -38,8 +29,11 @@ export default async (endpoint, bucket, imageUrl, forcedHeight) => {
   }
 
   if (blob === undefined || blob === null || blob === '') {
-    const s3 = new AWS.S3(config)
-    const res = await s3.getObject({ Bucket: bucket, Key: imageUrl }).promise()
+    const res = await new COS(endpoint).getObject({
+      Bucket: bucket,
+      Key: imageUrl
+    })
+
     blob = new Blob([res.Body])
 
     if (forcedHeight) {
@@ -51,3 +45,35 @@ export default async (endpoint, bucket, imageUrl, forcedHeight) => {
 
   return { image: URL.createObjectURL(blob) }
 }
+
+// export default async (endpoint, bucket, imageUrl, forcedHeight) => {
+//   let blob
+
+//   const { protocol, host } = window.location
+//   var config = {
+//     endpoint: `${protocol}//${host}/api/proxy/${endpoint}`,
+//     accessKeyId: '',
+//     secretAccessKey: '',
+//     s3ForcePathStyle: true
+//   }
+
+//   // Only check cache if we force the height.
+//   if (forcedHeight) {
+//     // TODO: Make sure the item is actually a blob.
+//     blob = await localforage.getItem(imageUrl)
+//   }
+
+//   if (blob === undefined || blob === null || blob === '') {
+//     const s3 = new AWS.S3(config)
+//     const res = await s3.getObject({ Bucket: bucket, Key: imageUrl }).promise()
+//     blob = new Blob([res.Body])
+
+//     if (forcedHeight) {
+//       blob = await shrinkBlob(blob, forcedHeight)
+//       // Let's only cache if the image is small.
+//       localforage.setItem(imageUrl, blob)
+//     }
+//   }
+
+//   return { image: URL.createObjectURL(blob) }
+// }

@@ -1,4 +1,5 @@
 import Collection from 'Collection'
+import { endpointForLocationConstraint } from 'endpoints'
 
 // Actions
 const SET = 'cloud-annotations/collection/SET'
@@ -32,8 +33,10 @@ export const clearCollection = () => ({
 })
 
 // Side Effects
-export const loadCollection = async bucket => {
-  const endpoint = localStorage.getItem('loginUrl')
+export const loadCollection = async (bucket, location) => {
+  console.log(location)
+  const endpoint = endpointForLocationConstraint(location)
+  console.log(endpoint)
   const collection = await Collection.load(endpoint, bucket)
   return setCollection(collection)
 }

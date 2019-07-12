@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { connect } from 'react-redux'
 import { Loading } from 'carbon-components-react'
+import queryString from 'query-string'
 
 import history from 'globalHistory'
 import {
@@ -10,17 +11,17 @@ import {
 } from 'redux/collection'
 import Localization from './Localization/Localization'
 import Classification from './Classification/Classification'
-import endpointFinder from './endpointFinder'
+import { locationFinder } from './endpointFinder'
 import ChooseBucketModal from './ChooseBucketModal'
 import AppBar from './AppBar'
 import AppBarLayout from './AppBarLayout'
 
-const AnnotationPanel = ({ bucket, type }) => {
+const AnnotationPanel = ({ bucket, location, type }) => {
   switch (type) {
     case 'classification':
       return <Classification />
     case 'localization':
-      return <Localization bucket={bucket} />
+      return <Localization location={location} bucket={bucket} />
     default:
       return null
   }
@@ -30,29 +31,32 @@ const App = ({
   match: {
     params: { bucket }
   },
+  location: { search },
   dispatch,
   type
 }) => {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(0)
 
+  const location = queryString.parse(search).location
+
   useEffect(() => {
     const asyncEffect = async () => {
       try {
-        dispatch(await loadCollection(bucket))
+        dispatch(await loadCollection(bucket, location))
       } catch (error) {
         console.error(error)
         if (error.message === 'Forbidden') {
           history.push('/login')
           return
         }
-        await endpointFinder(bucket)
+        await locationFinder(bucket)
       }
       setLoading(false)
     }
     asyncEffect()
     return () => dispatch(clearCollection())
-  }, [bucket, dispatch])
+  }, [bucket, dispatch, location])
 
   const handleClose = useCallback(() => {
     history.push('/')
@@ -80,7 +84,9 @@ const App = ({
       <Loading active={loading} />
       <AppBarLayout
         appBar={<AppBar />}
-        content={<AnnotationPanel bucket={bucket} type={type} />}
+        content={
+          <AnnotationPanel location={location} bucket={bucket} type={type} />
+        }
       />
     </>
   )

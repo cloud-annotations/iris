@@ -69,6 +69,14 @@ const Buckets = ({ buckets, dispatch }) => {
     }
   }, [chosenInstance, dispatchLoadBuckets])
 
+  const handleRowSelected = useCallback(
+    id => {
+      const bucket = buckets.filter(bucket => bucket.id === id)[0]
+      history.push(`/${bucket.name}?location=${bucket.location}`)
+    },
+    [buckets]
+  )
+
   const handleCreateBucket = useCallback(() => {
     setIsCreateBucketModalOpen(true)
   }, [])
@@ -123,6 +131,7 @@ const Buckets = ({ buckets, dispatch }) => {
         onClose={handleCloseCreateModal}
         onSubmit={handleSubmitCreateModal}
       />
+
       <>
         {instanceList.map(instance => {
           return <div>{instance.name}</div>
@@ -134,6 +143,7 @@ const Buckets = ({ buckets, dispatch }) => {
         listOfLoadingBuckets={listOfLoadingBuckets}
         onDeleteBucket={handleDeleteBucket}
         onCreateBucket={handleCreateBucket}
+        onRowSelected={handleRowSelected}
       />
     </div>
   )
