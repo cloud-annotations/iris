@@ -10,19 +10,17 @@ import ToolOptionsPanel from './ToolOptionsPanel'
 import fetchImage from 'api/fetchImage'
 import DrawingPanel from './DrawingPanel'
 import { endpointForLocationConstraint } from 'endpoints'
-import COS from 'api/COSv2'
 
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
-const useImage = (bucket, location, image) => {
+const useImage = (endpoint, bucket, image) => {
   const [imageData, setImageData] = useState(EMPTY_IMAGE)
   useEffect(() => {
     let canceled = false
     let loaded = false
 
     const loadImage = async image => {
-      const endpoint = endpointForLocationConstraint(location)
       const imageData = await fetchImage(endpoint, bucket, image, false)
       if (!canceled) {
         loaded = true
@@ -44,7 +42,7 @@ const useImage = (bucket, location, image) => {
     return () => {
       canceled = true
     }
-  }, [bucket, image, location])
+  }, [endpoint, bucket, image])
 
   return imageData
 }
@@ -65,11 +63,14 @@ const Localization = ({ bucket, location, collection }) => {
   const selectedImage = images[selection]
   const bboxes = collection.annotations[selectedImage] || []
 
-  const imageData = useImage(bucket, location, selectedImage)
+  const endpoint = endpointForLocationConstraint(location)
+  const imageData = useImage(endpoint, bucket, selectedImage)
 
   const cells = useMemo(() => {
-    return images.map(image => <ImageTileV3 bucket={bucket} item={image} />)
-  }, [bucket, images])
+    return images.map(image => (
+      <ImageTileV3 endpoint={endpoint} bucket={bucket} item={image} />
+    ))
+  }, [endpoint, bucket, images])
 
   return (
     <DefaultLayout

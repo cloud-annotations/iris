@@ -7,7 +7,7 @@ import fetchImage from 'api/fetchImage'
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
-const ImageTile = ({ selected, bucket, item }) => {
+const ImageTile = ({ selected, endpoint, bucket, item }) => {
   const imageRef = useRef(null)
   const [image, setImage] = useState(EMPTY_IMAGE)
 
@@ -16,17 +16,12 @@ const ImageTile = ({ selected, bucket, item }) => {
       entries.forEach(async entry => {
         if (entry.isIntersecting) {
           observer.unobserve(entry.target)
-          const res = await fetchImage(
-            localStorage.getItem('loginUrl'),
-            bucket,
-            item,
-            160
-          )
+          const res = await fetchImage(endpoint, bucket, item, 160)
           setImage(res.image)
         }
       })
     },
-    [bucket, item]
+    [bucket, endpoint, item]
   )
 
   useEffect(() => {

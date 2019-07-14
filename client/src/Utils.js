@@ -97,6 +97,40 @@ export async function imageToCanvas(imageSrc, width, height, mode) {
   })
 }
 
+export async function convertToJpeg(blob) {
+  return new Promise((resolve, reject) => {
+    const c = document.createElement('canvas')
+    const ctx = c.getContext('2d')
+    if (!ctx) {
+      return reject()
+    }
+    const image = new Image()
+    image.src = URL.createObjectURL(blob)
+    image.onload = function() {
+      c.width = image.width
+      c.height = image.height
+      ctx.drawImage(image, 0, 0)
+      const result = dataURItoBlob(c.toDataURL('image/jpeg'))
+      resolve(result)
+    }
+  })
+}
+
+function dataURItoBlob(dataURI) {
+  const byteString = atob(dataURI.split(',')[1])
+  const mimeString = dataURI
+    .split(',')[0]
+    .split(':')[1]
+    .split(';')[0]
+  const ab = new ArrayBuffer(byteString.length)
+  const ia = new Uint8Array(ab)
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i)
+  }
+  const blob = new Blob([ab], { type: mimeString })
+  return blob
+}
+
 export async function canvasToBlob(canvas) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(result => {

@@ -15,6 +15,11 @@ const xmlAsJsonFetch = async (url, options) => {
   return json
 }
 
+const blobFetch = async (url, options) => {
+  const res = await fetch(url, options)
+  return await res.blob()
+}
+
 export default class COS {
   constructor({ endpoint, accessKeyId, secretAccessKey }) {
     this.endpoint = endpoint
@@ -108,7 +113,7 @@ export default class COS {
     const options = {
       method: 'GET'
     }
-    return await xmlAsJsonFetch(url, options)
+    return await blobFetch(url, options)
   }
 
   /**
