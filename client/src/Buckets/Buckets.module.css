@@ -33,8 +33,9 @@
 
 .account {
   cursor: pointer;
-  min-width: 132px;
-  max-width: 242px;
+  font-size: 14px;
+  min-width: 148px;
+  max-width: 258px;
   display: flex;
   align-items: center;
   padding-right: 16px;
