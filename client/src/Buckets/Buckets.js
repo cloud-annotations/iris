@@ -13,16 +13,11 @@ import COS from 'api/COSv2'
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
 
-const Buckets = ({ profile, buckets, dispatch }) => {
+const Buckets = ({ profile, buckets, activeResource, resources, dispatch }) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
   const [bucketToDelete, setBucketToDelete] = useState(false)
 
   const [listOfLoadingBuckets, setListOfLoadingBuckets] = useState([])
-
-  // TODO: testing
-  const [accountList, setAccountList] = useState([])
-  const [instanceList, setInstanceList] = useState([])
-  const [chosenInstance, setChosenInstance] = useState('')
 
   const dispatchLoadBuckets = useCallback(
     async chosenInstance => {
@@ -39,48 +34,11 @@ const Buckets = ({ profile, buckets, dispatch }) => {
     GoogleAnalytics.pageview('buckets')
   }, [])
 
-  // useEffect(() => {
-  //   try {
-  //     checkLoginStatus()
-  //     dispatchLoadBuckets()
-  //     fetch('/api/accounts')
-  //       .then(res => res.json())
-  //       .then(json => {
-  //         setAccountList(json)
-  //         const account = json[0].accountId
-  //         return fetch(`/api/upgrade-token?account=${account}`)
-  //       })
-  //       .then(() => {
-  //         return fetch('/api/cos-instances')
-  //       })
-  //       .then(res => res.json())
-  //       .then(json => {
-  //         setInstanceList(json.resources)
-  //         setChosenInstance(json.resources[0].id)
-  //       })
-  //   } catch (error) {
-  //     console.log(error)
-  //     if (error.message === 'Forbidden') {
-  //       history.push('/login')
-  //     }
-  //   }
-  // }, [dispatchLoadBuckets])
-
   useEffect(() => {
-    if (chosenInstance) {
-      dispatchLoadBuckets(chosenInstance)
+    if (activeResource) {
+      dispatchLoadBuckets(activeResource)
     }
-  }, [chosenInstance, dispatchLoadBuckets])
-
-  // useEffect(() => {
-  //   if (accountList.length > 0) {
-  //     fetch(`/api/accounts/${accountList[0].accountId}/users`)
-  //       .then(res => res.json())
-  //       .then(users => {
-  //         dispatch(setProfile(users[0]))
-  //       })
-  //   }
-  // }, [accountList, dispatch])
+  }, [activeResource, dispatchLoadBuckets])
 
   const handleRowSelected = useCallback(
     id => {
@@ -147,8 +105,8 @@ const Buckets = ({ profile, buckets, dispatch }) => {
       />
 
       <>
-        {instanceList.map(instance => {
-          return <div>{instance.name}</div>
+        {resources.map(resource => {
+          return <div>{resource.name}</div>
         })}
       </>
 
@@ -164,6 +122,8 @@ const Buckets = ({ profile, buckets, dispatch }) => {
 }
 
 const mapStateToProps = state => ({
+  activeResource: state.resources.activeResource,
+  resources: state.resources.resources,
   buckets: state.buckets,
   profile: state.profile
 })
