@@ -31,33 +31,6 @@
   font-weight: 600;
 }
 
-.account {
-  cursor: pointer;
-  font-size: 14px;
-  min-width: 148px;
-  max-width: 258px;
-  display: flex;
-  align-items: center;
-  padding-right: 16px;
-  margin: 0 4px;
-}
-
-.account:hover {
-  background-color: var(--highlight);
-}
-
-.accountName {
-  padding: 16px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.chevronIcon {
-  height: 6px;
-  fill: var(--detailText);
-}
-
 .profile {
   width: 32px;
   height: 32px;

@@ -6,19 +6,19 @@ import { loadBuckets } from 'redux/buckets'
 import Table from './TableV2'
 import CreateModal from './CreateModal'
 import DeleteModal from './DeleteModal'
+import DropDown, { ProfileDropDown } from './DropDown'
 import COS from 'api/COSv2'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
 
-const Chevron = () => (
-  <svg className={styles.chevronIcon} viewBox="0 0 12 7">
-    <path
-      fill-rule="nonzero"
-      d="M6.002 5.55L11.27 0l.726.685L6.003 7 0 .685.726 0z"
-    />
-  </svg>
-)
+const accountNameForAccount = account => {
+  if (account && account.softlayer) {
+    return `${account.softlayer} - ${account.name}`
+  } else if (account) {
+    return account.name
+  }
+}
 
 const Buckets = ({
   profile,
@@ -114,24 +114,17 @@ const Buckets = ({
           <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
           Annotations
         </div>
-        <div className={styles.account}>
-          <div className={styles.accountName}>
-            {resources && resources[0] && resources[0].name}
-          </div>
-          <Chevron />
-        </div>
-        <div className={styles.account}>
-          <div className={styles.accountName}>
-            {activeAccount &&
-              activeAccount.softlayer &&
-              `${activeAccount.softlayer} - `}
-            {activeAccount && activeAccount.name}
-          </div>
-          <Chevron />
-        </div>
-        <div className={styles.profileWrapper}>
-          <img alt="" className={styles.profile} src={profile.photo} />
-        </div>
+        <DropDown
+          active={resources && resources[0] && resources[0].name}
+          list={resources.map(resource => resource.name)}
+        />
+        <DropDown
+          active={accountNameForAccount(activeAccount)}
+          list={accounts.accounts.map(account =>
+            accountNameForAccount(account)
+          )}
+        />
+        <ProfileDropDown profile={profile} />
       </div>
       <DeleteModal
         isOpen={bucketToDelete}
