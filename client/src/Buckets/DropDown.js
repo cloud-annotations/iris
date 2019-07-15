@@ -71,8 +71,6 @@ export const ProfileDropDown = ({ profile }) => {
     setOpen(true)
   }, [])
 
-  console.log(profile)
-
   return (
     <div
       tabindex="0"

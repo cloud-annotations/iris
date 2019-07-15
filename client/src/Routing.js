@@ -31,17 +31,19 @@ const useCookieCheck = interval => {
 const useAccount = dispatch => {
   useEffect(() => {
     try {
-      fetch('/api/accounts')
-        .then(res => res.json())
-        .then(accounts => {
-          const account = accounts[0].accountId
-          dispatch(
-            setAccounts({
-              accounts: accounts,
-              activeAccount: account
-            })
-          )
-        })
+      if (history.location.pathname !== '/login') {
+        fetch('/api/accounts')
+          .then(res => res.json())
+          .then(accounts => {
+            const account = accounts[0].accountId
+            dispatch(
+              setAccounts({
+                accounts: accounts,
+                activeAccount: account
+              })
+            )
+          })
+      }
     } catch (error) {
       console.log(error)
     }
@@ -53,7 +55,7 @@ const useUpgradeToken = account => {
   useEffect(() => {
     setTokenUpgraded(false)
     try {
-      if (account) {
+      if (account && history.location.pathname !== '/login') {
         fetch(`/api/upgrade-token?account=${account}`).then(() => {
           setTokenUpgraded(true)
         })
@@ -69,7 +71,7 @@ const useUpgradeToken = account => {
 const useResourceList = (dispatch, tokenUpgraded) => {
   useEffect(() => {
     try {
-      if (tokenUpgraded) {
+      if (tokenUpgraded && history.location.pathname !== '/login') {
         fetch('/api/cos-instances')
           .then(res => res.json())
           .then(json => {
@@ -89,7 +91,7 @@ const useResourceList = (dispatch, tokenUpgraded) => {
 
 const useProfile = (dispatch, account) => {
   useEffect(() => {
-    if (account) {
+    if (account && history.location.pathname !== '/login') {
       fetch(`/api/accounts/${account}/users`)
         .then(res => res.json())
         .then(users => {
