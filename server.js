@@ -263,6 +263,29 @@ app.get('/api/accounts', (req, res) => {
   })
 })
 
+app.get('/api/accounts/:id/users', (req, res) => {
+  const { access_token } = req.cookies
+  const { id } = req.params
+
+  const options = {
+    url: `https://user-management.test.cloud.ibm.com/v2/accounts/${id}/users`,
+    method: 'GET',
+    headers: {
+      Authorization: 'bearer ' + access_token
+    },
+    json: true
+  }
+
+  request(options, function(error, response, body) {
+    if (isSuccess(error, response)) {
+      const { resources } = body
+      res.send(resources)
+    } else {
+      res.end()
+    }
+  })
+})
+
 app.get('/api/cos-instances', (req, res) => {
   const { access_token } = req.cookies
 

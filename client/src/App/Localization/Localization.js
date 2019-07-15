@@ -64,6 +64,7 @@ const Localization = ({ bucket, location, collection }) => {
   const bboxes = collection.annotations[selectedImage] || []
 
   const endpoint = endpointForLocationConstraint(location)
+
   const imageData = useImage(endpoint, bucket, selectedImage)
 
   const cells = useMemo(() => {

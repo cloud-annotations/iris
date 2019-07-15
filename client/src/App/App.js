@@ -48,6 +48,7 @@ const App = ({
   },
   location: { search },
   dispatch,
+  profile,
   collection
 }) => {
   const [loading, setLoading] = useState(true)
@@ -127,7 +128,7 @@ const App = ({
       <Loading active={loading} />
 
       <AppBarLayout
-        appBar={<AppBar />}
+        appBar={<AppBar profile={profile} />}
         content={
           <Dropzone
             disableClick
@@ -153,5 +154,8 @@ const App = ({
   )
 }
 
-const mapStateToProps = state => ({ collection: state.collection })
+const mapStateToProps = state => ({
+  collection: state.collection,
+  profile: state.profile
+})
 export default connect(mapStateToProps)(App)

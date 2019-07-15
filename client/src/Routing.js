@@ -30,6 +30,17 @@ const useCookieCheck = interval => {
 
 const Routing = () => {
   useCookieCheck(10 * 1000)
+
+  useEffect(() => {
+    if (accountList.length > 0) {
+      fetch(`/api/accounts/${accountList[0].accountId}/users`)
+        .then(res => res.json())
+        .then(users => {
+          dispatch(setProfile(users[0]))
+        })
+    }
+  }, [accountList, dispatch])
+
   const store = createStore(reducers)
   return (
     <Provider store={store}>

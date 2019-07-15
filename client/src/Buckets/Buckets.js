@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import GoogleAnalytics from 'react-ga'
 import { connect } from 'react-redux'
 import { loadBuckets } from 'redux/buckets'
+import { setProfile } from 'redux/profile'
 
 import Table from './Table'
 import CreateModal from './CreateModal'
@@ -12,13 +13,14 @@ import COS from 'api/COSv2'
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
 
-const Buckets = ({ buckets, dispatch }) => {
+const Buckets = ({ profile, buckets, dispatch }) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
   const [bucketToDelete, setBucketToDelete] = useState(false)
 
   const [listOfLoadingBuckets, setListOfLoadingBuckets] = useState([])
 
   // TODO: testing
+  const [accountList, setAccountList] = useState([])
   const [instanceList, setInstanceList] = useState([])
   const [chosenInstance, setChosenInstance] = useState('')
 
@@ -37,37 +39,48 @@ const Buckets = ({ buckets, dispatch }) => {
     GoogleAnalytics.pageview('buckets')
   }, [])
 
-  useEffect(() => {
-    try {
-      checkLoginStatus()
-      dispatchLoadBuckets()
-      fetch('/api/accounts')
-        .then(res => res.json())
-        .then(json => {
-          const account = json[0].accountId
-          return fetch(`/api/upgrade-token?account=${account}`)
-        })
-        .then(() => {
-          return fetch('/api/cos-instances')
-        })
-        .then(res => res.json())
-        .then(json => {
-          setInstanceList(json.resources)
-          setChosenInstance(json.resources[0].id)
-        })
-    } catch (error) {
-      console.log(error)
-      if (error.message === 'Forbidden') {
-        history.push('/login')
-      }
-    }
-  }, [dispatchLoadBuckets])
+  // useEffect(() => {
+  //   try {
+  //     checkLoginStatus()
+  //     dispatchLoadBuckets()
+  //     fetch('/api/accounts')
+  //       .then(res => res.json())
+  //       .then(json => {
+  //         setAccountList(json)
+  //         const account = json[0].accountId
+  //         return fetch(`/api/upgrade-token?account=${account}`)
+  //       })
+  //       .then(() => {
+  //         return fetch('/api/cos-instances')
+  //       })
+  //       .then(res => res.json())
+  //       .then(json => {
+  //         setInstanceList(json.resources)
+  //         setChosenInstance(json.resources[0].id)
+  //       })
+  //   } catch (error) {
+  //     console.log(error)
+  //     if (error.message === 'Forbidden') {
+  //       history.push('/login')
+  //     }
+  //   }
+  // }, [dispatchLoadBuckets])
 
   useEffect(() => {
     if (chosenInstance) {
       dispatchLoadBuckets(chosenInstance)
     }
   }, [chosenInstance, dispatchLoadBuckets])
+
+  // useEffect(() => {
+  //   if (accountList.length > 0) {
+  //     fetch(`/api/accounts/${accountList[0].accountId}/users`)
+  //       .then(res => res.json())
+  //       .then(users => {
+  //         dispatch(setProfile(users[0]))
+  //       })
+  //   }
+  // }, [accountList, dispatch])
 
   const handleRowSelected = useCallback(
     id => {
@@ -120,6 +133,7 @@ const Buckets = ({ buckets, dispatch }) => {
 
   return (
     <div className={styles.wrapper}>
+      <img src={profile.photo} />
       <DeleteModal
         isOpen={bucketToDelete}
         onClose={handleCloseDeleteModal}
@@ -149,5 +163,8 @@ const Buckets = ({ buckets, dispatch }) => {
   )
 }
 
-const mapStateToProps = state => ({ buckets: state.buckets })
+const mapStateToProps = state => ({
+  buckets: state.buckets,
+  profile: state.profile
+})
 export default connect(mapStateToProps)(Buckets)

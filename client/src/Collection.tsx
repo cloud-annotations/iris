@@ -1,4 +1,5 @@
 import localforage from 'localforage'
+import produce, { immerable } from 'immer'
 import COS from './api/COS'
 import {
   generateUUID,
@@ -37,13 +38,14 @@ type UpdatedCollectionCallback = (collection: Collection) => void
 
 const VERSION = '1.0'
 export default class Collection {
-  private _bucket: any = undefined
+  [immerable] = true
+  public _bucket: any = undefined
 
   constructor(
-    private _type: Type,
-    private _labels: string[],
-    private _images: Images,
-    private _annotations: Annotations,
+    public _type: Type,
+    public _labels: string[],
+    public _images: Images,
+    public _annotations: Annotations,
     endpoint?: string,
     bucket?: string
   ) {
@@ -314,20 +316,10 @@ export default class Collection {
     const tmpNames = images.map(() => `${generateUUID()}.tmp`)
 
     // Add the new images to "all images" and "unlabeled"
-    const newImages = {
-      ...this._images,
-      all: [...tmpNames, ...this._images.all],
-      unlabeled: [...tmpNames, ...this._images.unlabeled]
-    }
-
-    // Create the new collection.
-    let collection = new Collection(
-      this._type,
-      this._labels,
-      newImages,
-      this._annotations
-    )
-    collection._bucket = this._bucket
+    let collection = produce(this as Collection, draft => {
+      draft._images.all.unshift(...tmpNames)
+      draft._images.unlabeled.unshift(...tmpNames)
+    })
 
     // give all the images a real name.
     const namedImages = images.map(async image => ({
@@ -343,29 +335,21 @@ export default class Collection {
       await localforage.setItem(loadedNamedImage.name, loadedNamedImage.blob)
 
       // Replace a random temp image with a the loaded image.
-      const tmpName = collection._images.all.find(i => i.endsWith('.tmp'))
-      if (tmpName) {
-        const allIndex = collection._images.all.indexOf(tmpName)
-        const unlabeledIndex = collection._images.unlabeled.indexOf(tmpName)
-        const newAll = [...collection._images.all]
-        const newUnlabeled = [...collection._images.unlabeled]
-        newAll[allIndex] = loadedNamedImage.name
-        newUnlabeled[unlabeledIndex] = loadedNamedImage.name
-        const newImages = {
-          ...this._images,
-          all: newAll,
-          unlabeled: newUnlabeled
+      collection = produce(collection, draft => {
+        const tmpName = draft._images.all.find(i => i.endsWith('.tmp'))
+        if (tmpName) {
+          const allIndex = draft._images.all.indexOf(tmpName)
+          const unlabeledIndex = draft._images.unlabeled.indexOf(tmpName)
+          draft._images.all[allIndex] = loadedNamedImage.name
+          draft._images.unlabeled[unlabeledIndex] = loadedNamedImage.name
         }
-        collection = new Collection(
-          this._type,
-          this._labels,
-          newImages,
-          this._annotations
-        )
-        collection._bucket = this._bucket
-        onFileLoaded(collection)
-        return loadedNamedImage
-      }
+      })
+
+      // TODO: The main selected image won't actually load until the file is in object
+      // storage because it doesn't pull from cache, we need to somehow re-notify
+      // the image.
+      onFileLoaded(collection)
+      return loadedNamedImage
     })
 
     Promise.all(cacheImagesInLocalStorage).then(async files => {
