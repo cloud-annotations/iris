@@ -80,6 +80,7 @@
 }
 
 .section {
+  height: 48px;
   display: flex;
   align-items: center;
 }
@@ -91,7 +92,7 @@
 }
 
 .search {
-  height: 42px;
+  height: 100%;
   flex: 1;
   display: flex;
   align-items: center;
@@ -141,11 +142,11 @@
 .createBucket {
   background-color: var(--blue);
   /* border: 2px solid transparent; */
+  height: 100%;
   color: #fff;
   font-weight: 400;
   font-size: 14px;
   padding: 0 18px;
-  height: 42px;
   min-width: 220px;
   margin-left: auto;
   display: flex;
