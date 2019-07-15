@@ -6,7 +6,7 @@ import { loadBuckets } from 'redux/buckets'
 import Table from './TableV2'
 import CreateModal from './CreateModal'
 import DeleteModal from './DeleteModal'
-import DropDown, { ProfileDropDown } from './DropDown'
+import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
 import COS from 'api/COSv2'
 
 import history from 'globalHistory'

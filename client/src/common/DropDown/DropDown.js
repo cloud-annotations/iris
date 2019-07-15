@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 
 import styles from './DropDown.module.css'
-import { setAccounts } from 'redux/accounts'
 
 const Chevron = () => (
   <svg className={styles.chevronIcon} viewBox="0 0 12 7">

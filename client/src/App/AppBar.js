@@ -1,11 +1,13 @@
 import React, { useState, useCallback } from 'react'
-
 import Toggle from 'react-toggle'
+
 import 'react-toggle/style.css'
 import './react-toggle-overrides.css'
-import moon from './moon.png'
+
+import { ProfileDropDown } from 'common/DropDown/DropDown'
 import history from 'globalHistory'
 
+import moon from './moon.png'
 import styles from './AppBar.module.css'
 
 const AppBar = ({ profile }) => {
@@ -54,9 +56,7 @@ const AppBar = ({ profile }) => {
         }}
         onChange={handleToggleDarkMode}
       />
-      <div className={styles.profileWrapper}>
-        <img alt="" className={styles.profile} src={profile.photo} />
-      </div>
+      <ProfileDropDown profile={profile} />
     </div>
   )
 }
