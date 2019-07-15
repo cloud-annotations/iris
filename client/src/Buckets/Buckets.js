@@ -116,6 +116,12 @@ const Buckets = ({
         </div>
         <div className={styles.account}>
           <div className={styles.accountName}>
+            {resources && resources[0] && resources[0].name}
+          </div>
+          <Chevron />
+        </div>
+        <div className={styles.account}>
+          <div className={styles.accountName}>
             {activeAccount &&
               activeAccount.softlayer &&
               `${activeAccount.softlayer} - `}

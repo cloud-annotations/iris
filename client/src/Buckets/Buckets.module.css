@@ -38,6 +38,7 @@
   display: flex;
   align-items: center;
   padding-right: 16px;
+  margin: 0 4px;
 }
 
 .account:hover {
@@ -64,7 +65,17 @@
 }
 
 .profileWrapper {
-  margin: 0 16px 0 16px;
+  cursor: pointer;
+  height: 48px;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 8px 0 4px;
+}
+
+.profileWrapper:hover {
+  background-color: var(--highlight);
 }
 
 .section {
