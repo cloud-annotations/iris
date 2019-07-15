@@ -12,6 +12,10 @@
 
 /* Table */
 
+.bx--data-table-v2-container {
+  padding-top: 0px;
+}
+
 .bx--data-table-v2 tbody {
   background-color: var(--secondaryBg);
 }

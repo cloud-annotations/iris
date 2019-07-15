@@ -2,18 +2,23 @@ import React, { useState, useEffect, useCallback } from 'react'
 import GoogleAnalytics from 'react-ga'
 import { connect } from 'react-redux'
 import { loadBuckets } from 'redux/buckets'
-import { setProfile } from 'redux/profile'
 
-import Table from './Table'
+import Table from './TableV2'
 import CreateModal from './CreateModal'
 import DeleteModal from './DeleteModal'
-import { checkLoginStatus } from 'Utils'
 import COS from 'api/COSv2'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
 
-const Buckets = ({ profile, buckets, activeResource, resources, dispatch }) => {
+const Buckets = ({
+  profile,
+  buckets,
+  activeResource,
+  resources,
+  accounts,
+  dispatch
+}) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
   const [bucketToDelete, setBucketToDelete] = useState(false)
 
@@ -89,9 +94,26 @@ const Buckets = ({ profile, buckets, activeResource, resources, dispatch }) => {
     [dispatchLoadBuckets]
   )
 
+  const activeAccount = accounts.accounts.find(
+    account => accounts.activeAccount === account.accountId
+  )
+
+  console.log(accounts)
+
   return (
     <div className={styles.wrapper}>
-      <img src={profile.photo} />
+      <div className={styles.titleBar}>
+        <div className={styles.title}>IBM Cloud Annotations</div>
+        <div className={styles.profileWrapper}>
+          {activeAccount &&
+            activeAccount.softlayer &&
+            `${activeAccount.softlayer} - `}
+          {activeAccount && activeAccount.name}
+        </div>
+        <div className={styles.profileWrapper}>
+          <img alt="" className={styles.profile} src={profile.photo} />
+        </div>
+      </div>
       <DeleteModal
         isOpen={bucketToDelete}
         onClose={handleCloseDeleteModal}
@@ -103,13 +125,6 @@ const Buckets = ({ profile, buckets, activeResource, resources, dispatch }) => {
         onClose={handleCloseCreateModal}
         onSubmit={handleSubmitCreateModal}
       />
-
-      <>
-        {resources.map(resource => {
-          return <div>{resource.name}</div>
-        })}
-      </>
-
       <Table
         buckets={buckets}
         listOfLoadingBuckets={listOfLoadingBuckets}
@@ -123,6 +138,7 @@ const Buckets = ({ profile, buckets, activeResource, resources, dispatch }) => {
 
 const mapStateToProps = state => ({
   activeResource: state.resources.activeResource,
+  accounts: state.accounts,
   resources: state.resources.resources,
   buckets: state.buckets,
   profile: state.profile

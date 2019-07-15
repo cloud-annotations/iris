@@ -1,6 +1,6 @@
 .wrapper {
   position: fixed;
-  top: 50px;
+  top: 0px;
   left: 0px;
   right: 0px;
   bottom: 0px;
@@ -9,26 +9,102 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.section {
+.titleBar {
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 64px;
   display: flex;
-  align-items: flex-end;
-  margin-bottom: 16px;
+  align-items: center;
+}
+
+.title {
+  margin-left: 32px;
+  margin-right: auto;
+  font-size: 16px;
   font-weight: 600;
 }
 
+.profile {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  box-shadow: 0 -1px 0 0 #fff, 1px 0 0 0 #fff, -1px 0 0 0 #fff, 0 1px 0 0 #fff;
+}
+
+.profileWrapper {
+  margin: 0 16px 0 8px;
+}
+
+.section {
+  display: flex;
+  align-items: center;
+}
+
 .sectionTitle {
-  font-size: 20px;
-  padding: 0 16px;
-  margin-bottom: 8px;
+  font-size: 28px;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+.search {
+  height: 42px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: static;
+}
+
+.searchFull {
+  composes: search;
+  background-color: var(--highlight);
+}
+
+.searchActive {
+  composes: search;
+  background-color: var(--highlight);
+  box-shadow: inset 0 0 0 2px var(--blue);
+  transition: all 0.2s cubic-bezier(0.2, 0.2, 0.38, 0.9);
+}
+
+.search:hover {
+  background-color: var(--highlight);
+}
+
+.searchIcon {
+  fill: var(--detailText);
+  height: 16px;
+  width: 16px;
+  margin: 0 16px;
+}
+
+.inputWrapper {
+  height: 100%;
+  flex: 1;
+}
+
+.searchInput {
+  color: var(--brightText);
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  height: 100%;
+  width: 100%;
+  background-color: transparent;
+  outline: none;
+  border: none;
 }
 
 .createBucket {
   background-color: var(--blue);
-  border: 2px solid transparent;
+  /* border: 2px solid transparent; */
   color: #fff;
+  font-weight: 400;
   font-size: 14px;
-  padding: 12px 16px;
-  margin: 0 16px 0 auto;
+  padding: 0 18px;
+  height: 42px;
+  min-width: 220px;
+  margin-left: auto;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -38,11 +114,20 @@
   background-color: var(--blue-hover);
 }
 
+.createBucket:active {
+  box-shadow: inset 0 0 0 2px #fff;
+  transition: all 0.2s cubic-bezier(0.2, 0.2, 0.38, 0.9);
+}
+
+.createBucketText {
+  padding-right: 12px;
+}
+
 .createBucketIcon {
-  height: 16px;
-  width: 16px;
+  height: 12px;
+  width: 12px;
   fill: #ffffff;
-  margin-left: 12px;
+  margin-left: auto;
 }
 
 .table {
