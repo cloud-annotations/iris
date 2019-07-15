@@ -98,8 +98,6 @@ const Buckets = ({
     account => accounts.activeAccount === account.accountId
   )
 
-  console.log(accounts)
-
   return (
     <div className={styles.wrapper}>
       <div className={styles.titleBar}>

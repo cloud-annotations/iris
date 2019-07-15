@@ -14,7 +14,9 @@ require('dotenv').config()
 
 app.use(express.static(__dirname + '/public'))
 
+let baseEndpoint = 'test.cloud.ibm.com'
 if (process.env.NODE_ENV === 'production') {
+  baseEndpoint = 'cloud.ibm.com'
   io.adapter(redis({ host: 'redis.default.svc.cluster.local', port: 6379 }))
 }
 
@@ -117,8 +119,7 @@ const tokenPoking = (
   done
 ) => {
   const options = {
-    url:
-      'https://iam.test.cloud.ibm.com/identity/.well-known/openid-configuration',
+    url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
     method: 'GET'
   }
 
@@ -197,8 +198,7 @@ app.get('/auth/login', (req, res) => {
   const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`
 
   const options = {
-    url:
-      'https://iam.test.cloud.ibm.com/identity/.well-known/openid-configuration',
+    url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
     method: 'GET'
   }
 
@@ -240,7 +240,7 @@ app.get('/api/accounts', (req, res) => {
   const { access_token } = req.cookies
 
   const options = {
-    url: 'https://accounts.test.cloud.ibm.com/coe/v2/accounts',
+    url: `https://accounts.${baseEndpoint}/coe/v2/accounts`,
     method: 'GET',
     headers: {
       Authorization: 'bearer ' + access_token
@@ -268,7 +268,7 @@ app.get('/api/accounts/:id/users', (req, res) => {
   const { id } = req.params
 
   const options = {
-    url: `https://user-management.test.cloud.ibm.com/v2/accounts/${id}/users`,
+    url: `https://user-management.${baseEndpoint}/v2/accounts/${id}/users`,
     method: 'GET',
     headers: {
       Authorization: 'bearer ' + access_token
@@ -290,8 +290,7 @@ app.get('/api/cos-instances', (req, res) => {
   const { access_token } = req.cookies
 
   const options = {
-    url:
-      'https://resource-controller.test.cloud.ibm.com/v2/resource_instances?resource_id=dff97f5c-bc5e-4455-b470-411c3edbe49c',
+    url: `https://resource-controller.${baseEndpoint}/v2/resource_instances?resource_id=dff97f5c-bc5e-4455-b470-411c3edbe49c`,
     method: 'GET',
     headers: {
       Authorization: 'bearer ' + access_token
