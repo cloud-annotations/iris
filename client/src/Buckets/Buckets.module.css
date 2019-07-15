@@ -1,6 +1,6 @@
 .wrapper {
   position: fixed;
-  top: 0px;
+  top: 64px;
   left: 0px;
   right: 0px;
   bottom: 0px;
@@ -10,12 +10,18 @@
 }
 
 .titleBar {
+  position: fixed;
   top: 0px;
   left: 0px;
   right: 0px;
   height: 64px;
   display: flex;
   align-items: center;
+  box-shadow: 0 20px 20px 0 var(--bg);
+}
+
+.titlePrefix {
+  font-weight: 400;
 }
 
 .title {
@@ -23,6 +29,31 @@
   margin-right: auto;
   font-size: 16px;
   font-weight: 600;
+}
+
+.account {
+  cursor: pointer;
+  min-width: 132px;
+  max-width: 242px;
+  display: flex;
+  align-items: center;
+  padding-right: 16px;
+}
+
+.account:hover {
+  background-color: var(--highlight);
+}
+
+.accountName {
+  padding: 16px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.chevronIcon {
+  height: 6px;
+  fill: var(--detailText);
 }
 
 .profile {
@@ -33,7 +64,7 @@
 }
 
 .profileWrapper {
-  margin: 0 16px 0 8px;
+  margin: 0 16px 0 16px;
 }
 
 .section {
@@ -131,7 +162,7 @@
 }
 
 .table {
-  margin: 40px 5%;
+  margin: 60px 5%;
 }
 
 .textInput {

@@ -11,6 +11,15 @@ import COS from 'api/COSv2'
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
 
+const Chevron = () => (
+  <svg className={styles.chevronIcon} viewBox="0 0 12 7">
+    <path
+      fill-rule="nonzero"
+      d="M6.002 5.55L11.27 0l.726.685L6.003 7 0 .685.726 0z"
+    />
+  </svg>
+)
+
 const Buckets = ({
   profile,
   buckets,
@@ -101,12 +110,18 @@ const Buckets = ({
   return (
     <div className={styles.wrapper}>
       <div className={styles.titleBar}>
-        <div className={styles.title}>IBM Cloud Annotations</div>
-        <div className={styles.profileWrapper}>
-          {activeAccount &&
-            activeAccount.softlayer &&
-            `${activeAccount.softlayer} - `}
-          {activeAccount && activeAccount.name}
+        <div className={styles.title}>
+          <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
+          Annotations
+        </div>
+        <div className={styles.account}>
+          <div className={styles.accountName}>
+            {activeAccount &&
+              activeAccount.softlayer &&
+              `${activeAccount.softlayer} - `}
+            {activeAccount && activeAccount.name}
+          </div>
+          <Chevron />
         </div>
         <div className={styles.profileWrapper}>
           <img alt="" className={styles.profile} src={profile.photo} />
