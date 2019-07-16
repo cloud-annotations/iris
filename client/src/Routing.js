@@ -90,10 +90,12 @@ const useResourceList = (dispatch, tokenUpgraded) => {
 const useProfile = (dispatch, account) => {
   useEffect(() => {
     if (account) {
-      fetch(`/api/accounts/${account}/users`)
+      fetch('/auth/userinfo')
+        .then(res => res.text())
+        .then(userId => fetch(`/api/accounts/${account}/users/${userId}`))
         .then(res => res.json())
-        .then(users => {
-          dispatch(setProfile(users[0]))
+        .then(user => {
+          dispatch(setProfile(user))
         })
         .catch(error => {
           console.log(error)

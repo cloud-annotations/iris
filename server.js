@@ -224,6 +224,38 @@ app.get('/auth/callback', (req, res) => {
   })
 })
 
+app.get('/auth/userinfo', (req, res) => {
+  const { access_token } = req.cookies
+
+  const options = {
+    url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
+    method: 'GET'
+  }
+
+  // get the proper auth endpoint.
+  request(options, (error, response, body) => {
+    if (!error && response.statusCode == 200) {
+      const { userinfo_endpoint } = JSON.parse(body)
+      const options = {
+        url: userinfo_endpoint,
+        headers: {
+          Authorization: 'bearer ' + access_token
+        },
+        method: 'GET'
+      }
+      request(options, (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          res.send(JSON.parse(body).iam_id)
+        } else {
+          res.end()
+        }
+      })
+    } else {
+      res.end()
+    }
+  })
+})
+
 app.get('/api/upgrade-token', (req, res) => {
   const { refresh_token } = req.cookies
   const { account } = req.query
@@ -263,12 +295,12 @@ app.get('/api/accounts', (req, res) => {
   })
 })
 
-app.get('/api/accounts/:id/users', (req, res) => {
+app.get('/api/accounts/:id/users/:user', (req, res) => {
   const { access_token } = req.cookies
-  const { id } = req.params
+  const { id, user } = req.params
 
   const options = {
-    url: `https://user-management.${baseEndpoint}/v2/accounts/${id}/users`,
+    url: `https://user-management.${baseEndpoint}/v2/accounts/${id}/users/${user}`,
     method: 'GET',
     headers: {
       Authorization: 'bearer ' + access_token
@@ -278,8 +310,7 @@ app.get('/api/accounts/:id/users', (req, res) => {
 
   request(options, function(error, response, body) {
     if (isSuccess(error, response)) {
-      const { resources } = body
-      res.send(resources)
+      res.send(body)
     } else {
       res.end()
     }
