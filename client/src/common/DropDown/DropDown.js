@@ -68,6 +68,11 @@ const DropDown = ({ active, list, onChosen }) => {
   )
 }
 
+let baseEndpoint = 'test.cloud.ibm.com'
+if (process.env.NODE_ENV === 'production') {
+  baseEndpoint = 'cloud.ibm.com'
+}
+
 export const ProfileDropDown = ({ profile }) => {
   const [open, setOpen] = useState(false)
 
@@ -88,7 +93,7 @@ export const ProfileDropDown = ({ profile }) => {
 
     // This won't log us out of IBM, we need to redirect to actually logout:
     const wind = window.open(
-      'https://iam.test.cloud.ibm.com/identity/logout',
+      `https://iam.${baseEndpoint}/identity/logout`,
       '_blank'
     )
     setTimeout(() => {
