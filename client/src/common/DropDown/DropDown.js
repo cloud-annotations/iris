@@ -74,6 +74,15 @@ export const ProfileDropDown = ({ profile }) => {
   const handleLogout = useCallback(() => {
     clearCookies(['access_token', 'refresh_token'])
     history.push('/login')
+
+    // This won't log us out of IBM, we need to redirect to actually logout:
+    const wind = window.open(
+      'https://iam.test.cloud.ibm.com/identity/logout',
+      '_blank'
+    )
+    setTimeout(() => {
+      wind.close()
+    }, 0)
   }, [])
 
   return (

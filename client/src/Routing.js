@@ -14,7 +14,7 @@ import { setProfile } from 'redux/profile'
 
 const useCookieCheck = interval => {
   useEffect(() => {
-    const id = setInterval(() => {
+    const cookieCheck = () => {
       try {
         console.log('tic toc')
         checkLoginStatus()
@@ -23,7 +23,9 @@ const useCookieCheck = interval => {
           history.push('/login')
         }
       }
-    }, interval)
+    }
+    cookieCheck()
+    const id = setInterval(cookieCheck, interval)
     return () => clearInterval(id)
   }, [interval])
 }
