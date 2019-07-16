@@ -23,7 +23,7 @@ const useOnBlur = (ref, onBlur) => {
   }, [ref, onBlur])
 }
 
-const DropDown = ({ active, list }) => {
+const DropDown = ({ active, list, onChosen }) => {
   const [open, setOpen] = useState(false)
 
   const blurListener = useCallback(() => {
@@ -37,6 +37,15 @@ const DropDown = ({ active, list }) => {
     setOpen(true)
   }, [])
 
+  const handleChosen = useCallback(
+    item => e => {
+      e.stopPropagation()
+      onChosen(item)
+      setOpen(false)
+    },
+    [onChosen]
+  )
+
   return (
     <div
       tabindex="0"
@@ -49,7 +58,9 @@ const DropDown = ({ active, list }) => {
       {open && (
         <div className={styles.droplist}>
           {list.map(item => (
-            <div className={styles.dropItem}>{item}</div>
+            <div onClick={handleChosen(item)} className={styles.dropItem}>
+              {item}
+            </div>
           ))}
         </div>
       )}

@@ -11,6 +11,8 @@ import COS from 'api/COSv2'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
+import { setResources } from 'redux/resources'
+import { setAccounts } from 'redux/accounts'
 
 const accountNameForAccount = account => {
   if (account && account.softlayer) {
@@ -26,6 +28,7 @@ const Buckets = ({
   activeResource,
   resources,
   accounts,
+  activeAccount,
   dispatch
 }) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
@@ -103,8 +106,39 @@ const Buckets = ({
     [dispatchLoadBuckets]
   )
 
-  const activeAccount = accounts.accounts.find(
-    account => accounts.activeAccount === account.accountId
+  const handleAccountChosen = useCallback(
+    item => {
+      const activeAccount = accounts.find(
+        account => accountNameForAccount(account) === item
+      ).accountId
+      console.log(activeAccount)
+      dispatch(
+        setAccounts({
+          accounts: accounts,
+          activeAccount: activeAccount
+        })
+      )
+    },
+    [accounts, dispatch]
+  )
+
+  const handleResourceChosen = useCallback(
+    item => {
+      const activeResource = resources.find(resource => resource.name === item)
+        .id
+      console.log(activeResource)
+      dispatch(
+        setResources({
+          resources: resources,
+          activeResource: activeResource
+        })
+      )
+    },
+    [dispatch, resources]
+  )
+
+  const activeAccountObject = accounts.find(
+    account => activeAccount === account.accountId
   )
 
   return (
@@ -117,12 +151,12 @@ const Buckets = ({
         <DropDown
           active={resources && resources[0] && resources[0].name}
           list={resources.map(resource => resource.name)}
+          onChosen={handleResourceChosen}
         />
         <DropDown
-          active={accountNameForAccount(activeAccount)}
-          list={accounts.accounts.map(account =>
-            accountNameForAccount(account)
-          )}
+          active={accountNameForAccount(activeAccountObject)}
+          list={accounts.map(account => accountNameForAccount(account))}
+          onChosen={handleAccountChosen}
         />
         <ProfileDropDown profile={profile} />
       </div>
@@ -149,9 +183,10 @@ const Buckets = ({
 }
 
 const mapStateToProps = state => ({
-  activeResource: state.resources.activeResource,
-  accounts: state.accounts,
   resources: state.resources.resources,
+  activeResource: state.resources.activeResource,
+  accounts: state.accounts.accounts,
+  activeAccount: state.accounts.activeAccount,
   buckets: state.buckets,
   profile: state.profile
 })
