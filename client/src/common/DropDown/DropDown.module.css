@@ -2,7 +2,7 @@
   position: relative;
   cursor: pointer;
   font-size: 14px;
-  min-width: 148px;
+  min-width: 202px;
   max-width: 258px;
   display: flex;
   align-items: center;
@@ -32,6 +32,7 @@
 
 .chevronIcon {
   height: 6px;
+  margin-left: auto;
   fill: var(--detailText);
 }
 
@@ -42,7 +43,8 @@
   top: 0px;
   left: 0;
   max-height: 80vh;
-  width: 100%;
+  min-width: 100%;
+  max-width: 258px;
   border-radius: 4px;
   overflow: scroll;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
