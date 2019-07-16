@@ -1,10 +1,6 @@
 language: node_js
 os: osx
 node_js: stable
-# addons:
-#   homebrew:
-#     packages:
-#     - kubernetes-cli
 before_deploy: 
 - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
 - chmod +x ./kubectl

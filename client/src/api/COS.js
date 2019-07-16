@@ -1,8 +1,89 @@
-import { validateCookies, handleErrors } from 'Utils'
+import MD5 from 'crypto-js/md5'
+import Base64 from 'crypto-js/enc-base64'
+
+import { checkLoginStatus, handleErrors } from 'Utils'
 
 export default class COS {
   constructor(endpoint) {
     this.endpoint = endpoint
+  }
+
+  deleteBucket = async bucketName => {
+    const baseUrl = `/api/proxy/${this.endpoint}/${bucketName}`
+    // Build delete files xml.
+    const deleteXml = await fetch(baseUrl, { method: 'GET' })
+      .then(handleErrors)
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
+      .then(data => {
+        const elements = data.getElementsByTagName('Contents')
+        const fileList = Array.prototype.map.call(elements, element => {
+          return element.getElementsByTagName('Key')[0].innerHTML
+        })
+        if (fileList.length === 0) {
+          return ''
+        }
+        const deleteXml = `<?xml version="1.0" encoding="UTF-8"?><Delete>${fileList
+          .map(key => `<Object><Key>${key}</Key></Object>`)
+          .join('')}</Delete>`
+        return deleteXml
+      })
+
+    if (deleteXml.length !== 0) {
+      // Delete all the files.
+      const md5Hash = MD5(deleteXml).toString(Base64)
+      const deleteFilesOptions = {
+        method: 'POST',
+        body: deleteXml,
+        headers: {
+          'Content-MD5': md5Hash
+        }
+      }
+      await fetch(`${baseUrl}?delete=`, deleteFilesOptions).then(handleErrors)
+    }
+
+    // Delete the bucket.
+    await fetch(baseUrl, { method: 'DELETE' }).then(handleErrors)
+  }
+
+  createBucket = async (instanceId, bucketName) => {
+    const url = `/api/proxy/${this.endpoint}/${bucketName}`
+    const options = {
+      method: 'PUT',
+      headers: {
+        'ibm-service-instance-id': instanceId
+      }
+    }
+
+    return fetch(url, options).then(handleErrors)
+  }
+
+  buckets = async instanceId => {
+    const url = `/api/proxy/${this.endpoint}`
+    const options = {
+      method: 'GET',
+      headers: {
+        'ibm-service-instance-id': instanceId
+      }
+    }
+
+    const bucketXML = await fetch(url, options)
+      .then(handleErrors)
+      .then(response => response.text())
+      .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
+
+    const elements = bucketXML.getElementsByTagName('Bucket')
+    const bucketList = Array.prototype.map.call(elements, element => {
+      const name = element.getElementsByTagName('Name')[0].innerHTML
+      const date = element.getElementsByTagName('CreationDate')[0].innerHTML
+      return {
+        id: name,
+        name: name,
+        created: new Date(date).toLocaleDateString()
+      }
+    })
+
+    return bucketList
   }
 
   bucket = bucket => {
@@ -92,7 +173,7 @@ export default class COS {
           }
         })
 
-    const putImages = files => {
+    const putImages = files => () => {
       const requests = files.map(file => {
         const url = `${baseUrl}/${file.name}`
         const options = {
@@ -106,7 +187,7 @@ export default class COS {
       return Promise.all(requests).then(() => files.map(file => file.name))
     }
 
-    const putFile = file => {
+    const putFile = file => () => {
       const url = `${baseUrl}/${file.name}`
       const options = {
         method: 'PUT',
@@ -115,7 +196,7 @@ export default class COS {
       return fetch(url, options).then(handleErrors)
     }
 
-    const deleteFiles = files => {
+    const deleteFiles = files => () => {
       const requests = files.map(file => deleteFile(file))
       return Promise.all(requests)
     }
@@ -128,17 +209,22 @@ export default class COS {
       return fetch(url, options).then(handleErrors)
     }
 
+    const preFlightCheck = func => {
+      checkLoginStatus()
+      return func()
+    }
+
     return {
-      type: () => validateCookies().then(type),
-      location: () => validateCookies().then(location),
-      fileList: () => validateCookies().then(fileList),
-      labels: () => validateCookies().then(labels),
-      annotations: () => validateCookies().then(annotations),
-      collection: () => validateCookies().then(collection),
-      rawCollection: () => validateCookies().then(rawCollection),
-      putImages: files => validateCookies().then(() => putImages(files)),
-      putFile: file => validateCookies().then(() => putFile(file)),
-      deleteFiles: files => validateCookies().then(() => deleteFiles(files))
+      type: () => preFlightCheck(type),
+      location: () => preFlightCheck(location),
+      fileList: () => preFlightCheck(fileList),
+      labels: () => preFlightCheck(labels),
+      annotations: () => preFlightCheck(annotations),
+      collection: () => preFlightCheck(collection),
+      rawCollection: () => preFlightCheck(rawCollection),
+      putImages: files => preFlightCheck(putImages(files)),
+      putFile: file => preFlightCheck(putFile(file)),
+      deleteFiles: files => preFlightCheck(deleteFiles(files))
     }
   }
 }

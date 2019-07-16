@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": "src/",
     "target": "esnext",
     "allowJs": true,
     "skipLibCheck": false,

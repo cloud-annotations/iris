@@ -55,8 +55,8 @@ export function arrayBufferToBase64(buffer) {
   return window.btoa(binary)
 }
 
-export function readFile(file) {
-  return new Promise((resolve, reject) => {
+export async function readFile(file) {
+  return new Promise((resolve, _) => {
     var reader = new FileReader()
     reader.onload = () => {
       resolve(reader.result)
@@ -65,7 +65,7 @@ export function readFile(file) {
   })
 }
 
-export function imageToCanvas(imageSrc, width, height, mode) {
+export async function imageToCanvas(imageSrc, width, height, mode) {
   return new Promise((resolve, _) => {
     var img = new Image()
     img.onload = () => {
@@ -97,7 +97,41 @@ export function imageToCanvas(imageSrc, width, height, mode) {
   })
 }
 
-export function canvasToBlob(canvas) {
+export async function convertToJpeg(blob) {
+  return new Promise((resolve, reject) => {
+    const c = document.createElement('canvas')
+    const ctx = c.getContext('2d')
+    if (!ctx) {
+      return reject()
+    }
+    const image = new Image()
+    image.src = URL.createObjectURL(blob)
+    image.onload = function() {
+      c.width = image.width
+      c.height = image.height
+      ctx.drawImage(image, 0, 0)
+      const result = dataURItoBlob(c.toDataURL('image/jpeg'))
+      resolve(result)
+    }
+  })
+}
+
+function dataURItoBlob(dataURI) {
+  const byteString = atob(dataURI.split(',')[1])
+  const mimeString = dataURI
+    .split(',')[0]
+    .split(':')[1]
+    .split(';')[0]
+  const ab = new ArrayBuffer(byteString.length)
+  const ia = new Uint8Array(ab)
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i)
+  }
+  const blob = new Blob([ab], { type: mimeString })
+  return blob
+}
+
+export async function canvasToBlob(canvas) {
   return new Promise((resolve, reject) => {
     canvas.toBlob(result => {
       resolve(result)
@@ -105,7 +139,7 @@ export function canvasToBlob(canvas) {
   })
 }
 
-export function namedCanvasToFile(namedCanvas) {
+export async function namedCanvasToFile(namedCanvas) {
   return new Promise((resolve, _) => {
     namedCanvas.canvas.toBlob(blob => {
       resolve({ blob: blob, name: namedCanvas.name })
@@ -113,27 +147,77 @@ export function namedCanvasToFile(namedCanvas) {
   })
 }
 
+export function clearCookies(cookies) {
+  cookies.forEach(cookie => {
+    document.cookie = `${cookie}=; Max-Age=-99999999; path=/`
+  })
+}
+
+export const parseXML = xmlString => {
+  const xml = new window.DOMParser().parseFromString(xmlString, 'text/xml')
+  const recursivelyGenerateJson = (json, rootNode) => {
+    Array.prototype.forEach.call(rootNode, element => {
+      const mutate = item => {
+        if (Array.isArray(json)) {
+          json.push(item)
+        } else {
+          json[element.tagName] = item
+        }
+      }
+
+      if (element.children.length === 0) {
+        mutate(element.innerHTML)
+      } else if (
+        element.children.length > 1 &&
+        element.children[0].tagName === element.children[1].tagName // assume array
+      ) {
+        mutate(recursivelyGenerateJson([], element.children))
+      } else {
+        mutate(recursivelyGenerateJson({}, element.children))
+      }
+    })
+    return json
+  }
+  return recursivelyGenerateJson({}, xml.children)
+}
+
 export function handleErrors(response) {
   if (!response.ok) {
     if (response.statusText === 'Forbidden') {
-      document.cookie = 'token=; Max-Age=-99999999; path=/'
-      document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
+      clearCookies(['token', 'refresh_token'])
     }
-    return Promise.reject(new Error(response.statusText))
+    throw new Error(response.statusText)
   }
   return response
 }
 
-export function validateCookies() {
-  return new Promise((resolve, reject) => {
-    const token = getCookie('token')
-    const refreshToken = getCookie('refresh_token')
-    if (token === '' || refreshToken === '') {
-      document.cookie = 'token=; Max-Age=-99999999; path=/'
-      document.cookie = 'refresh_token=; Max-Age=-99999999; path=/'
-      reject(new Error('Forbidden'))
-    } else {
-      resolve()
-    }
-  })
+export const checkLoginStatus = () => {
+  // Check IAM login.
+  // const resourceId = localStorage.getItem('resourceId')
+  const accessToken = getCookie('access_token')
+  const refreshToken = getCookie('refresh_token')
+  if (accessToken && refreshToken) {
+    return true
+  }
+
+  // Used for HMAC login.
+  // const accessKeyId = localStorage.getItem('accessKeyId')
+  // const secretAccessKey = localStorage.getItem('secretAccessKey')
+  // if (accessKeyId && secretAccessKey) {
+  //   return true
+  // }
+
+  // If we make it here, we are not logged in, clear any tokens.
+  clearCookies(['token', 'refresh_token'])
+  throw new Error('Forbidden')
 }
+
+// export function validateCookies() {
+//   const token = getCookie('token')
+//   const refreshToken = getCookie('refresh_token')
+//   if (token === '' || refreshToken === '') {
+//     // If either of the tokens are expired, clear them both.
+//     clearCookies(['token', 'refresh_token'])
+//     throw new Error('Forbidden')
+//   }
+// }

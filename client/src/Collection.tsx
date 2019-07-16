@@ -1,10 +1,12 @@
 import localforage from 'localforage'
+import produce, { immerable } from 'immer'
 import COS from './api/COS'
 import {
   generateUUID,
   readFile,
   namedCanvasToFile,
-  imageToCanvas
+  imageToCanvas,
+  convertToJpeg
 } from './Utils'
 
 const IMAGE_REGEX = /.(jpg|jpeg|png)$/i
@@ -36,13 +38,14 @@ type UpdatedCollectionCallback = (collection: Collection) => void
 
 const VERSION = '1.0'
 export default class Collection {
-  private _bucket: any = undefined
+  [immerable] = true
+  public _bucket: any = undefined
 
   constructor(
-    private _type: Type,
-    private _labels: string[],
-    private _images: Images,
-    private _annotations: Annotations,
+    public _type: Type,
+    public _labels: string[],
+    public _images: Images,
+    public _annotations: Annotations,
     endpoint?: string,
     bucket?: string
   ) {
@@ -81,12 +84,26 @@ export default class Collection {
           collection.images.labeled = labeled
           collection.images.unlabeled = unlabeled
           collection.images.all = [...unlabeled, ...labeled]
-          return collection
+          return new Collection(
+            collection.type,
+            collection.labels,
+            collection.images,
+            collection.annotations,
+            endpoint,
+            bucket
+          )
         } else {
           const newCollection = Collection.EMPTY
           newCollection._images.all = images
           newCollection._images.unlabeled = images
-          return newCollection
+          return new Collection(
+            newCollection.type,
+            newCollection.labels,
+            newCollection.images,
+            newCollection.annotations,
+            endpoint,
+            bucket
+          )
         }
       }
     )
@@ -298,148 +315,203 @@ export default class Collection {
     // These pseudo names can be used as keys when rendering lists in React.
     const tmpNames = images.map(() => `${generateUUID()}.tmp`)
 
-    let collection = (() => {
-      if (label && this._type === 'classification') {
-        const images = {
-          ...this._images,
-          all: [...tmpNames, ...this._images.all],
-          labeled: [...tmpNames, ...this._images.labeled],
-          [label]: [...tmpNames, ...this._images[label]]
-        }
-        const annotations = tmpNames.reduce((acc, tmpName) => {
-          acc[tmpName] = [{ label: label }]
-          return acc
-        }, this._annotations)
-        const newCollection = new Collection(
-          this._type,
-          this._labels,
-          images,
-          annotations
-        )
-        newCollection._bucket = this._bucket
-        return newCollection
-      }
-      const images = {
-        ...this._images,
-        all: [...tmpNames, ...this._images.all],
-        unlabeled: [...tmpNames, ...this._images.unlabeled]
-      }
-      const newCollection = new Collection(
-        this._type,
-        this._labels,
-        images,
-        this._annotations
-      )
-      newCollection._bucket = this._bucket
-      return newCollection
-    })()
+    // Add the new images to "all images" and "unlabeled"
+    let collection = produce(this as Collection, draft => {
+      draft._images.all.unshift(...tmpNames)
+      draft._images.unlabeled.unshift(...tmpNames)
+    })
 
-    const readFiles = images.map(file =>
-      readFile(file)
-        .then(image => {
-          if (this._type === 'classification') {
-            return imageToCanvas(image, 224, 224, 'scaleToFill')
-          }
-          return imageToCanvas(image, 1500, 1500, 'scaleAspectFit')
-        })
-        .then(canvas => {
-          const name = `${generateUUID()}.jpg`
-          const dataURL = canvas.toDataURL('image/jpeg')
-          return new Promise<{ canvas: HTMLCanvasElement; name: string }>(
-            (resolve, _) => {
-              localforage.setItem(name, dataURL).then(() => {
-                resolve({ canvas: canvas, name: name })
-              })
-            }
-          )
-        })
-        .then(namedCanvas => {
-          const { name } = namedCanvas
-          collection = (() => {
-            // Find a random tmp name.
-            const iInAll = collection._images.all.findIndex(item =>
-              item.endsWith('.tmp')
-            )
-            const tmpName = collection._images.all[iInAll]
+    // give all the images a real name.
+    const namedImages = images.map(async image => ({
+      blob: await convertToJpeg(image),
+      name: `${generateUUID()}.jpg`
+    }))
 
-            if (label && collection._type === 'classification') {
-              // Find the same tmp name in other sections.
-              const iInLabeled = collection._images.labeled.findIndex(
-                item => item === tmpName
-              )
-              const iInLabel = collection._images[label].findIndex(
-                item => item === tmpName
-              )
-              // replace tmp names with the actual file name.
-              const newAll = [...collection._images.all]
-              newAll[iInAll] = name
-              const newLabeled = [...collection._images.labeled]
-              newLabeled[iInLabeled] = name
-              const newLabel = [...collection._images[label]]
-              newLabel[iInLabel] = name
-              const images = {
-                ...collection._images,
-                all: newAll,
-                labeled: newLabeled,
-                [label]: newLabel
-              }
+    // Cache the images in indexedDB.
+    const cacheImagesInLocalStorage = namedImages.map(async namedImage => {
+      const loadedNamedImage = await namedImage
 
-              const annotations = { ...collection._annotations }
-              delete annotations[tmpName]
-              annotations[name] = [{ label: label }]
+      // Add the jpeg to indexedDB.
+      await localforage.setItem(loadedNamedImage.name, loadedNamedImage.blob)
 
-              const newCollection = new Collection(
-                this._type,
-                this._labels,
-                images,
-                annotations
-              )
-              newCollection._bucket = this._bucket
-              return newCollection
-            }
-
-            // Find the same tmp name in other sections.
-            const iInUnlabeled = collection._images.unlabeled.findIndex(
-              item => item === tmpName
-            )
-            // replace tmp names with the actual file name.
-            const newAll = [...collection._images.all]
-            newAll[iInAll] = name
-            const newUnlabeled = [...collection._images.unlabeled]
-            newUnlabeled[iInUnlabeled] = name
-
-            const images = {
-              ...collection._images,
-              all: newAll,
-              unlabeled: newUnlabeled
-            }
-
-            const newCollection = new Collection(
-              collection._type,
-              collection._labels,
-              images,
-              collection._annotations
-            )
-            newCollection._bucket = this._bucket
-            return newCollection
-          })()
-          onFileLoaded(collection)
-          return namedCanvasToFile(namedCanvas)
-        })
-    )
-
-    Promise.all(readFiles)
-      .then(files => {
-        return this._bucket.putImages(files)
-      })
-      .then(() => {
-        if (syncComplete) {
-          this._syncBucket(collection, syncComplete)
+      // Replace a random temp image with a the loaded image.
+      collection = produce(collection, draft => {
+        const tmpName = draft._images.all.find(i => i.endsWith('.tmp'))
+        if (tmpName) {
+          const allIndex = draft._images.all.indexOf(tmpName)
+          const unlabeledIndex = draft._images.unlabeled.indexOf(tmpName)
+          draft._images.all[allIndex] = loadedNamedImage.name
+          draft._images.unlabeled[unlabeledIndex] = loadedNamedImage.name
         }
       })
+
+      // TODO: The main selected image won't actually load until the file is in object
+      // storage because it doesn't pull from cache, we need to somehow re-notify
+      // the image.
+      onFileLoaded(collection)
+      return loadedNamedImage
+    })
+
+    Promise.all(cacheImagesInLocalStorage).then(async files => {
+      await this._bucket.putImages(files)
+      syncComplete()
+    })
 
     return collection
   }
+
+  // public addImages(
+  //   images: string[],
+  //   label: string,
+  //   onFileLoaded: UpdatedCollectionCallback,
+  //   syncComplete: SyncCallback
+  // ): Collection {
+  //   // Create a new collection padded with unique throw-away file names.
+  //   // These pseudo names can be used as keys when rendering lists in React.
+  //   const tmpNames = images.map(() => `${generateUUID()}.tmp`)
+
+  //   let collection = (() => {
+  //     if (label && this._type === 'classification') {
+  //       const images = {
+  //         ...this._images,
+  //         all: [...tmpNames, ...this._images.all],
+  //         labeled: [...tmpNames, ...this._images.labeled],
+  //         [label]: [...tmpNames, ...this._images[label]]
+  //       }
+  //       const annotations = tmpNames.reduce((acc, tmpName) => {
+  //         acc[tmpName] = [{ label: label }]
+  //         return acc
+  //       }, this._annotations)
+  //       const newCollection = new Collection(
+  //         this._type,
+  //         this._labels,
+  //         images,
+  //         annotations
+  //       )
+  //       newCollection._bucket = this._bucket
+  //       return newCollection
+  //     }
+  //     const images = {
+  //       ...this._images,
+  //       all: [...tmpNames, ...this._images.all],
+  //       unlabeled: [...tmpNames, ...this._images.unlabeled]
+  //     }
+  //     const newCollection = new Collection(
+  //       this._type,
+  //       this._labels,
+  //       images,
+  //       this._annotations
+  //     )
+  //     newCollection._bucket = this._bucket
+  //     return newCollection
+  //   })()
+
+  //   const readFiles = images.map(file =>
+  //     readFile(file)
+  //       .then(image => {
+  //         if (this._type === 'classification') {
+  //           return imageToCanvas(image, 224, 224, 'scaleToFill')
+  //         }
+  //         return imageToCanvas(image, 1500, 1500, 'scaleAspectFit')
+  //       })
+  //       .then(canvas => {
+  //         const name = `${generateUUID()}.jpg`
+  //         const dataURL = canvas.toDataURL('image/jpeg')
+  //         return new Promise<{ canvas: HTMLCanvasElement; name: string }>(
+  //           (resolve, _) => {
+  //             localforage.setItem(name, dataURL).then(() => {
+  //               resolve({ canvas: canvas, name: name })
+  //             })
+  //           }
+  //         )
+  //       })
+  //       .then(namedCanvas => {
+  //         const { name } = namedCanvas
+  //         collection = (() => {
+  //           // Find a random tmp name.
+  //           const iInAll = collection._images.all.findIndex(item =>
+  //             item.endsWith('.tmp')
+  //           )
+  //           const tmpName = collection._images.all[iInAll]
+
+  //           if (label && collection._type === 'classification') {
+  //             // Find the same tmp name in other sections.
+  //             const iInLabeled = collection._images.labeled.findIndex(
+  //               item => item === tmpName
+  //             )
+  //             const iInLabel = collection._images[label].findIndex(
+  //               item => item === tmpName
+  //             )
+  //             // replace tmp names with the actual file name.
+  //             const newAll = [...collection._images.all]
+  //             newAll[iInAll] = name
+  //             const newLabeled = [...collection._images.labeled]
+  //             newLabeled[iInLabeled] = name
+  //             const newLabel = [...collection._images[label]]
+  //             newLabel[iInLabel] = name
+  //             const images = {
+  //               ...collection._images,
+  //               all: newAll,
+  //               labeled: newLabeled,
+  //               [label]: newLabel
+  //             }
+
+  //             const annotations = { ...collection._annotations }
+  //             delete annotations[tmpName]
+  //             annotations[name] = [{ label: label }]
+
+  //             const newCollection = new Collection(
+  //               this._type,
+  //               this._labels,
+  //               images,
+  //               annotations
+  //             )
+  //             newCollection._bucket = this._bucket
+  //             return newCollection
+  //           }
+
+  //           // Find the same tmp name in other sections.
+  //           const iInUnlabeled = collection._images.unlabeled.findIndex(
+  //             item => item === tmpName
+  //           )
+  //           // replace tmp names with the actual file name.
+  //           const newAll = [...collection._images.all]
+  //           newAll[iInAll] = name
+  //           const newUnlabeled = [...collection._images.unlabeled]
+  //           newUnlabeled[iInUnlabeled] = name
+
+  //           const images = {
+  //             ...collection._images,
+  //             all: newAll,
+  //             unlabeled: newUnlabeled
+  //           }
+
+  //           const newCollection = new Collection(
+  //             collection._type,
+  //             collection._labels,
+  //             images,
+  //             collection._annotations
+  //           )
+  //           newCollection._bucket = this._bucket
+  //           return newCollection
+  //         })()
+  //         onFileLoaded(collection)
+  //         return namedCanvasToFile(namedCanvas)
+  //       })
+  //   )
+
+  //   Promise.all(readFiles)
+  //     .then(files => {
+  //       return this._bucket.putImages(files)
+  //     })
+  //     .then(() => {
+  //       if (syncComplete) {
+  //         this._syncBucket(collection, syncComplete)
+  //       }
+  //     })
+
+  //   return collection
+  // }
 
   public updateImages(image: [string]): Collection {
     const images = {

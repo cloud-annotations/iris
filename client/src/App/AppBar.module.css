@@ -1,0 +1,46 @@
+.wrapper {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: var(--appBar);
+}
+
+.home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--blue);
+  height: 100%;
+  width: 64px;
+  cursor: pointer;
+}
+
+.home:hover {
+  background-color: var(--blue-hover);
+}
+
+.homeIcon {
+  fill: white;
+  width: 32px;
+  height: 32px;
+}
+
+.toggle {
+  margin-left: auto;
+  margin-right: 20px;
+}
+
+.profile {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  box-shadow: 0 -1px 0 0 #fff, 1px 0 0 0 #fff, -1px 0 0 0 #fff, 0 1px 0 0 #fff;
+}
+
+.profileWrapper {
+  margin: 0 16px 0 8px;
+}
