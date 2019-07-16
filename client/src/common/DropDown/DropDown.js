@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 
 import styles from './DropDown.module.css'
+import history from 'globalHistory'
+import { clearCookies } from 'Utils'
 
 const Chevron = () => (
   <svg className={styles.chevronIcon} viewBox="0 0 12 7">
@@ -29,7 +31,6 @@ const DropDown = ({ active, list }) => {
   }, [])
 
   const dropDownRef = useRef()
-
   useOnBlur(dropDownRef, blurListener)
 
   const handleClick = useCallback(() => {
@@ -64,10 +65,15 @@ export const ProfileDropDown = ({ profile }) => {
   }, [])
 
   const dropDownRef = useRef()
-
   useOnBlur(dropDownRef, blurListener)
+
   const handleClick = useCallback(() => {
     setOpen(true)
+  }, [])
+
+  const handleLogout = useCallback(() => {
+    clearCookies(['access_token', 'refresh_token'])
+    history.push('/login')
   }, [])
 
   return (
@@ -87,7 +93,9 @@ export const ProfileDropDown = ({ profile }) => {
             <img alt="" className={styles.profile2} src={profile.photo} />
           </div>
           <div className={styles.userId}>{profile.user_id}</div>
-          <div className={styles.logout}>Logout</div>
+          <div className={styles.logout} onClick={handleLogout}>
+            Logout
+          </div>
         </div>
       )}
     </div>
