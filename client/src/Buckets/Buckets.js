@@ -25,8 +25,8 @@ const accountNameForAccount = account => {
 const Buckets = ({
   profile,
   buckets,
-  activeResource,
   resources,
+  activeResource,
   accounts,
   activeAccount,
   dispatch
@@ -141,6 +141,10 @@ const Buckets = ({
     account => activeAccount === account.accountId
   )
 
+  const activeResourceObject = resources.find(
+    resource => activeResource === resource.id
+  )
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.titleBar}>
@@ -149,7 +153,7 @@ const Buckets = ({
           Annotations
         </div>
         <DropDown
-          active={resources && resources[0] && resources[0].name}
+          active={activeResourceObject && activeResourceObject.name}
           list={resources.map(resource => resource.name)}
           onChosen={handleResourceChosen}
         />
