@@ -41,10 +41,10 @@
   background-color: var(--secondaryBg);
   top: 0px;
   left: 0;
-  min-width: 100%;
-  max-width: 258px;
+  max-height: 80vh;
+  width: 100%;
   border-radius: 4px;
-  overflow: hidden;
+  overflow: scroll;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
 }
 
