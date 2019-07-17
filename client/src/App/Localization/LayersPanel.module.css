@@ -27,7 +27,7 @@
 
 .editing {
   composes: listItemBase;
-  background-color: var(--activeHighlight);
+  /* background-color: var(--activeHighlight); */
 }
 
 .editTextBase {
@@ -48,7 +48,8 @@
 }
 
 .editing .editTextWrapper {
-  background-color: var(--textInputBack);
+  background-color: var(--textInput);
+  box-shadow: 0 0 0 2px var(--blue);
 }
 
 .thumbnailWrapper {
