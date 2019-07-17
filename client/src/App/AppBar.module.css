@@ -29,6 +29,47 @@
   height: 32px;
 }
 
+.headerWrapper {
+  margin-left: 6px;
+  height: 100%;
+}
+
+.bucketName {
+  font-size: 18px;
+  color: var(--brightText);
+  margin-top: 9px;
+  padding: 2px 8px;
+}
+
+.options {
+  display: flex;
+  font-size: 14px;
+  color: var(--secondaryText);
+  align-items: center;
+}
+
+.baseOption {
+  margin-top: 2px;
+  border: 1px solid transparent;
+  padding: 4px 6px;
+}
+
+.option {
+  composes: baseOption;
+  cursor: pointer;
+}
+
+.option:hover {
+  background-color: var(--highlight);
+  border-radius: 4px;
+}
+
+.saved {
+  composes: baseOption;
+  margin-left: 14px;
+  color: var(--detailText);
+}
+
 .toggle {
   margin-left: auto;
   margin-right: 20px;
