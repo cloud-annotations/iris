@@ -61,10 +61,10 @@ const Localization = ({ bucket, location, collection }) => {
 
   const images = collection.images.all
   const selectedImage = images[selection]
+
   const bboxes = collection.annotations[selectedImage] || []
 
   const endpoint = endpointForLocationConstraint(location)
-
   const imageData = useImage(endpoint, bucket, selectedImage)
 
   const cells = useMemo(() => {
@@ -77,7 +77,7 @@ const Localization = ({ bucket, location, collection }) => {
     <DefaultLayout
       top={<ToolOptionsPanel />}
       left={<ToolsPanel tool={tool} onToolChosen={handleToolChosen} />}
-      content={<DrawingPanel bboxes={bboxes} image={imageData} />}
+      content={<DrawingPanel selectedImage={selectedImage} image={imageData} />}
       right={<LayersPanel bboxes={bboxes} image={imageData} />}
       bottom={
         <HorizontalListController

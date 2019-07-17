@@ -227,7 +227,14 @@ export default class App extends Component {
             e.preventDefault()
           }}
         />
-        <div className={styles.blendMode}>
+
+        <div
+          className={styles.blendMode}
+          style={{
+            width: this.state.size.imageWidth,
+            height: this.state.size.imageHeight
+          }}
+        >
           {this.props.bboxes.map((bbox, i) => (
             <div>
               <Box key={i} index={i} bbox={bbox} imageSize={this.state.size} />
@@ -242,26 +249,38 @@ export default class App extends Component {
             </div>
           ))}
         </div>
-        {this.props.mode === BOX &&
-          this.props.bboxes.map((bbox, i) => (
-            <Box
-              key={i}
-              index={i}
-              bbox={bbox}
-              mode={BOX}
-              imageSize={this.state.size}
-            />
-          ))}
-        {this.props.mode === MOVE &&
-          this.props.bboxes.map((bbox, i) => (
-            <TouchTargets
-              key={i}
-              index={i}
-              bbox={bbox}
-              onCornerGrabbed={this.handleMouseDown}
-              imageSize={this.state.size}
-            />
-          ))}
+
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: this.state.size.imageWidth,
+            height: this.state.size.imageHeight
+          }}
+        >
+          {this.props.mode === BOX &&
+            this.props.bboxes.map((bbox, i) => (
+              <Box
+                key={i}
+                index={i}
+                bbox={bbox}
+                mode={BOX}
+                imageSize={this.state.size}
+              />
+            ))}
+          {this.props.mode === MOVE &&
+            this.props.bboxes.map((bbox, i) => (
+              <TouchTargets
+                key={i}
+                index={i}
+                bbox={bbox}
+                onCornerGrabbed={this.handleMouseDown}
+                imageSize={this.state.size}
+              />
+            ))}
+        </div>
       </div>
     )
   }

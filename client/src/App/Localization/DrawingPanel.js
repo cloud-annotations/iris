@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
+import { connect } from 'react-redux'
 
 import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
+import { setBBoxesForImageLocal } from 'redux/collection'
 
 const uniqueColor = (index, numberOfColors) => {
   const baseHue = 196
@@ -10,7 +12,33 @@ const uniqueColor = (index, numberOfColors) => {
   return `hsl(${hue}, 100%, 50%)`
 }
 
-const DrawingPanel = ({ bboxes, image }) => {
+const DrawingPanel = ({ dispatch, annotations, selectedImage, image }) => {
+  const bboxes = annotations[selectedImage] || []
+
+  const handleDrawStarted = useCallback(
+    bbox => {
+      dispatch(setBBoxesForImageLocal([bbox, ...bboxes], selectedImage))
+    },
+    [bboxes, dispatch, selectedImage]
+  )
+
+  const handleCoordinatesChanged = useCallback(
+    (bbox, index) => {
+      dispatch(
+        setBBoxesForImageLocal(
+          // Non mutating index replace.
+          bboxes.map((b, i) => (i === index ? bbox : b)),
+          selectedImage
+        )
+      )
+    },
+    [bboxes, dispatch, selectedImage]
+  )
+
+  const handleBoxFinished = useCallback(() => {
+    console.log('done')
+  }, [])
+
   return (
     <div
       style={{
@@ -42,9 +70,9 @@ const DrawingPanel = ({ bboxes, image }) => {
               mode={'box'}
               bboxes={bboxes}
               image={image}
-              // onDrawStarted={this.handleDrawStarted}
-              // onCoordinatesChanged={this.handleCoordinatesChanged}
-              // onBoxFinished={this.handleBoxFinished}
+              onDrawStarted={handleDrawStarted}
+              onCoordinatesChanged={handleCoordinatesChanged}
+              onBoxFinished={handleBoxFinished}
             />
           </div>
         }
@@ -53,4 +81,5 @@ const DrawingPanel = ({ bboxes, image }) => {
   )
 }
 
-export default DrawingPanel
+const mapStateToProps = state => ({ annotations: state.collection.annotations })
+export default connect(mapStateToProps)(DrawingPanel)
