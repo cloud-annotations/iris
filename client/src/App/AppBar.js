@@ -10,7 +10,7 @@ import history from 'globalHistory'
 import moon from './moon.png'
 import styles from './AppBar.module.css'
 
-const AppBar = ({ profile }) => {
+const AppBar = ({ bucket, profile }) => {
   const [darkModeToggle, setDarkModeToggle] = useState(
     localStorage.getItem('darkMode') === 'true'
   )
@@ -39,7 +39,7 @@ const AppBar = ({ profile }) => {
         </svg>
       </div>
       <div className={styles.headerWrapper}>
-        <div className={styles.bucketName}>chumbucket</div>
+        <div className={styles.bucketName}>{bucket}</div>
         <div className={styles.options}>
           <div className={styles.option}>File</div>
           <div className={styles.option}>Edit</div>

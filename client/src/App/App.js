@@ -128,7 +128,7 @@ const App = ({
       <Loading active={loading} />
 
       <AppBarLayout
-        appBar={<AppBar profile={profile} />}
+        appBar={<AppBar bucket={bucket} profile={profile} />}
         content={
           <Dropzone
             disableClick
