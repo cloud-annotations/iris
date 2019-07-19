@@ -159,7 +159,7 @@
 .rowOverflow {
   width: 48px;
   padding-left: 1.5rem !important;
-  fill: #8c9ba5;
+  fill: var(--detailText);
 }
 
 .deleteIcon {
@@ -170,5 +170,5 @@
 }
 
 .rowOverflow:hover {
-  fill: #3d70b2;
+  fill: var(--error);
 }
