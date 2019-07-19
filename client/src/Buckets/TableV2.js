@@ -44,7 +44,7 @@ const CreateIconV2 = () => (
 const CreateBucket = ({ handleClick }) => {
   return (
     <div className={styles.createBucket} onClick={handleClick}>
-      <div className={styles.createBucketText}>Create bucket</div>
+      <div className={styles.createBucketText}>Start a new project</div>
       <CreateIconV2 />
     </div>
   )

@@ -8,6 +8,7 @@ import CreateModal from './CreateModal'
 import DeleteModal from './DeleteModal'
 import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
 import COS from 'api/COSv2'
+import { defaultEndpoint } from 'endpoints'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
@@ -75,11 +76,11 @@ const Buckets = ({
 
   const handleSubmitCreateModal = useCallback(
     bucketName => {
-      dispatchLoadBuckets()
+      dispatchLoadBuckets(activeResource)
       setIsCreateBucketModalOpen(false)
       history.push(`/${bucketName}`)
     },
-    [dispatchLoadBuckets]
+    [activeResource, dispatchLoadBuckets]
   )
 
   const handleDeleteBucket = useCallback(bucketName => {
@@ -94,16 +95,17 @@ const Buckets = ({
     async bucketName => {
       setBucketToDelete(false)
       setListOfLoadingBuckets(list => [...list, bucketName])
-      const endpoint = localStorage.getItem('loginUrl')
       try {
-        await new COS(endpoint).deleteBucket(bucketName)
+        await new COS({ endpoint: defaultEndpoint }).deleteBucket({
+          Bucket: bucketName
+        })
       } catch (error) {
         console.error(error)
       }
-      await dispatchLoadBuckets()
+      await dispatchLoadBuckets(activeResource)
       setListOfLoadingBuckets(list => list.filter(b => b !== bucketName))
     },
-    [dispatchLoadBuckets]
+    [activeResource, dispatchLoadBuckets]
   )
 
   const handleAccountChosen = useCallback(
@@ -174,6 +176,7 @@ const Buckets = ({
         isOpen={isCreateBucketModalOpen}
         onClose={handleCloseCreateModal}
         onSubmit={handleSubmitCreateModal}
+        instanceId={activeResource}
       />
       <Table
         buckets={buckets}
