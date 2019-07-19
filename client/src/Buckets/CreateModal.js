@@ -4,6 +4,22 @@ import { Modal, TextInput, Loading } from 'carbon-components-react'
 import COS from 'api/COSv2'
 import { defaultEndpoint } from 'endpoints'
 
+const transitionEndEventName = (() => {
+  const el = document.createElement('div')
+  const transitions = {
+    transition: 'transitionend',
+    OTransition: 'otransitionend', // oTransitionEnd in very old Opera
+    MozTransition: 'transitionend',
+    WebkitTransition: 'webkitTransitionEnd'
+  }
+
+  for (let i in transitions) {
+    if (transitions.hasOwnProperty(i) && el.style[i] !== undefined) {
+      return transitions[i]
+    }
+  }
+})()
+
 // REGEX.
 const combineRegex = (reg1, reg2) => RegExp(`${reg1.source}|${reg2.source}`)
 const ALPHANUMERIC_DOT_DASH = /[^a-z0-9-.]|[.-][.-]+/
@@ -24,6 +40,16 @@ const CreateModal = ({ isOpen, onClose, onSubmit, instanceId }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [textInputValue, setTextInputValue] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+
+  if (isOpen) {
+    const modal = document.getElementById('create-bucket-modal')
+    const input = document.getElementById('create-bucket-modal-text-input')
+    if (modal && input) {
+      modal.addEventListener(transitionEndEventName, () => {
+        input.focus()
+      })
+    }
+  }
 
   useEffect(() => {
     // Only allow alphanumeric characters and 1 (`.` or `-`) in a row.
@@ -92,6 +118,7 @@ const CreateModal = ({ isOpen, onClose, onSubmit, instanceId }) => {
 
   return (
     <Modal
+      id="create-bucket-modal"
       open={isOpen}
       shouldSubmitOnEnter
       modalHeading="Bucket name"
@@ -108,7 +135,7 @@ const CreateModal = ({ isOpen, onClose, onSubmit, instanceId }) => {
         value={textInputValue}
         invalidText={errorMessage}
         invalid={errorMessage !== ''}
-        data-modal-primary-focus
+        id="create-bucket-modal-text-input"
       />
     </Modal>
   )
