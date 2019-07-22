@@ -48,7 +48,7 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
   }
 }
 
-const ListItem = ({ box, image, imageDims }) => {
+const ListItem = ({ box, image, imageDims, onBoxEnter, onBoxLeave }) => {
   const [editing, setEditing] = useState(false)
   const [labelName, setLabelName] = useState(box.label)
 
@@ -82,6 +82,14 @@ const ListItem = ({ box, image, imageDims }) => {
     }
   }, [])
 
+  const handleBoxEnter = useCallback(
+    box => () => {
+      console.log(box)
+      onBoxEnter(box)
+    },
+    [onBoxEnter]
+  )
+
   const {
     cropWidth,
     cropHeight,
@@ -92,7 +100,11 @@ const ListItem = ({ box, image, imageDims }) => {
   } = calculateCrop(box.x, box.x2, box.y, box.y2, imageDims)
 
   return (
-    <div className={editing ? styles.editing : styles.listItemWrapper}>
+    <div
+      className={editing ? styles.editing : styles.listItemWrapper}
+      onMouseEnter={handleBoxEnter(box)}
+      onMouseLeave={onBoxLeave}
+    >
       <div className={styles.thumbnailWrapper}>
         <div
           style={{
@@ -137,7 +149,7 @@ const keyForItem = (image, box) => {
   return `${image}+${JSON.stringify(box)}`
 }
 
-const LayersPanel = ({ bboxes, image }) => {
+const LayersPanel = ({ bboxes, image, onBoxEnter, onBoxLeave }) => {
   const [imageDims, setImageDims] = useState([0, 0])
   // Sort mutates the original array, but issues only show in Safari.
   const sortedBboxes = [...bboxes]
@@ -159,6 +171,8 @@ const LayersPanel = ({ bboxes, image }) => {
           box={box}
           image={image}
           imageDims={imageDims}
+          onBoxEnter={onBoxEnter}
+          onBoxLeave={onBoxLeave}
         />
       ))}
     </div>

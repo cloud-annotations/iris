@@ -12,7 +12,13 @@ const uniqueColor = (index, numberOfColors) => {
   return `hsl(${hue}, 100%, 50%)`
 }
 
-const DrawingPanel = ({ dispatch, annotations, selectedImage, image }) => {
+const DrawingPanel = ({
+  dispatch,
+  annotations,
+  selectedImage,
+  image,
+  hoveredBox
+}) => {
   const bboxes = annotations[selectedImage] || []
 
   const handleDrawStarted = useCallback(
@@ -70,6 +76,7 @@ const DrawingPanel = ({ dispatch, annotations, selectedImage, image }) => {
               mode={'box'}
               bboxes={bboxes}
               image={image}
+              hovered={hoveredBox}
               onDrawStarted={handleDrawStarted}
               onCoordinatesChanged={handleCoordinatesChanged}
               onBoxFinished={handleBoxFinished}

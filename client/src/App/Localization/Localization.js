@@ -50,6 +50,7 @@ const useImage = (endpoint, bucket, image) => {
 const Localization = ({ bucket, location, collection }) => {
   const [selection, setSelection] = useState(0)
   const [tool, setTool] = useState('box')
+  const [hoveredBox, setHoveredBox] = useState(undefined)
 
   const handleSelectionChanged = useCallback(selection => {
     setSelection(selection)
@@ -57,6 +58,14 @@ const Localization = ({ bucket, location, collection }) => {
 
   const handleToolChosen = useCallback(tool => {
     setTool(tool)
+  }, [])
+
+  const handleBoxEnter = useCallback(box => {
+    setHoveredBox(box)
+  }, [])
+
+  const handleBoxLeave = useCallback(() => {
+    setHoveredBox(undefined)
   }, [])
 
   const images = collection.images.all
@@ -77,8 +86,21 @@ const Localization = ({ bucket, location, collection }) => {
     <DefaultLayout
       top={<ToolOptionsPanel />}
       left={<ToolsPanel tool={tool} onToolChosen={handleToolChosen} />}
-      content={<DrawingPanel selectedImage={selectedImage} image={imageData} />}
-      right={<LayersPanel bboxes={bboxes} image={imageData} />}
+      content={
+        <DrawingPanel
+          selectedImage={selectedImage}
+          image={imageData}
+          hoveredBox={hoveredBox}
+        />
+      }
+      right={
+        <LayersPanel
+          bboxes={bboxes}
+          image={imageData}
+          onBoxEnter={handleBoxEnter}
+          onBoxLeave={handleBoxLeave}
+        />
+      }
       bottom={
         <HorizontalListController
           items={images}

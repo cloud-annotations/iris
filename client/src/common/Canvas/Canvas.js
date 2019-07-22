@@ -209,6 +209,7 @@ export default class App extends Component {
   }
 
   render() {
+    const { hovered } = this.props
     return (
       <div
         draggable={false}
@@ -266,6 +267,7 @@ export default class App extends Component {
                 key={i}
                 index={i}
                 bbox={bbox}
+                hovered={JSON.stringify(hovered) === JSON.stringify(bbox)}
                 mode={BOX}
                 imageSize={this.state.size}
               />
