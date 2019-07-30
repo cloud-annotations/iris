@@ -95,6 +95,7 @@ const Localization = ({ bucket, location, collection }) => {
       }
       right={
         <LayersPanel
+          imageName={selectedImage}
           bboxes={bboxes}
           image={imageData}
           onBoxEnter={handleBoxEnter}

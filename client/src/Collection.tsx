@@ -787,6 +787,43 @@ export default class Collection {
     return collection
   }
 
+  public renameBBox(
+    image: string,
+    bbox: Annotation,
+    newLabel: string
+  ): Collection {
+    let collection = produce(this as Collection, draft => {
+      draft._annotations[image][
+        draft._annotations[image].findIndex(
+          oldBBox =>
+            oldBBox.x === bbox.x &&
+            oldBBox.x2 === bbox.x2 &&
+            oldBBox.y === bbox.y &&
+            oldBBox.y2 === bbox.y2 &&
+            oldBBox.label === bbox.label
+        )
+      ].label = newLabel
+    })
+    return collection
+  }
+
+  public deleteBBox(image: string, bbox: Annotation): Collection {
+    let collection = produce(this as Collection, draft => {
+      draft._annotations[image].splice(
+        draft._annotations[image].findIndex(
+          oldBBox =>
+            oldBBox.x === bbox.x &&
+            oldBBox.x2 === bbox.x2 &&
+            oldBBox.y === bbox.y &&
+            oldBBox.y2 === bbox.y2 &&
+            oldBBox.label === bbox.label
+        ),
+        1
+      )
+    })
+    return collection
+  }
+
   toJSON() {
     return {
       version: VERSION,

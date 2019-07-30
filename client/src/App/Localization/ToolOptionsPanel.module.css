@@ -5,4 +5,64 @@
   right: 0;
   left: 0;
   background-color: var(--secondaryBg);
+  display: flex;
+  align-items: center;
+  padding-left: 47px; /* account for divider margin */
+}
+
+.divider {
+  margin: 0px 4px;
+  border-left: 1px solid var(--toolBarSpacer);
+  height: 20px;
+}
+
+.labelDropDownBase {
+  display: flex;
+  align-items: center;
+  color: var(--secondaryText);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3.5px 6px 3.5px 8px;
+  width: 160px;
+  cursor: pointer;
+}
+
+.labelDropDown {
+  composes: labelDropDownBase;
+}
+
+.labelDropDown:hover {
+  background-color: var(--highlight);
+  border-radius: 4px;
+}
+
+.labelDropDownOpen {
+  composes: labelDropDownBase;
+}
+
+.editTextBase {
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--brightText);
+  height: 19px;
+  width: 122px;
+  padding-left: 4px;
+  border: none;
+  outline: none;
+  margin-right: auto;
+}
+
+.editTextWrapper {
+  composes: editTextBase;
+  background-color: transparent;
+}
+
+.labelDropDownOpen .editTextWrapper {
+  background-color: var(--textInput);
+  box-shadow: 0 0 0 2px var(--blue);
+}
+
+.dropDownIcon {
+  fill: var(--secondaryText);
 }

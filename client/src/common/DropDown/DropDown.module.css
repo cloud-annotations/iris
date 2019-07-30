@@ -9,6 +9,7 @@
   padding-right: 16px;
   margin: 0 4px;
   outline: none;
+  border: 1px solid transparent;
 }
 
 .open {
@@ -40,14 +41,15 @@
   z-index: 10;
   position: absolute;
   background-color: var(--secondaryBg);
-  top: 0px;
-  left: 0;
+  top: -1px;
+  left: -1px;
   max-height: 80vh;
-  min-width: 100%;
+  min-width: calc(100% + 2px);
   max-width: 258px;
   border-radius: 4px;
   overflow: scroll;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
+  border: 1px solid var(--dropDownBorder);
 }
 
 .dropItem {
@@ -72,6 +74,7 @@
   justify-content: center;
   margin: 0 8px 0 4px;
   outline: none;
+  border: 1px solid transparent;
 }
 
 .profileOpen {
@@ -95,6 +98,7 @@
 
 .profileCard {
   composes: droplist;
+  top: -2px;
   left: -1000px; /* This is a hack to keep the text breaking properly. */
   transform: translateX(calc(1000px - 100% + 46px));
   font-size: 20px;

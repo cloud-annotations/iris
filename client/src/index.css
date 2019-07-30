@@ -17,6 +17,10 @@ body.dark {
   --textInput: #282828;
   --textInputUnderline: #606060;
 
+  --dropDownBorder: #414141;
+
+  --toolBarSpacer: #000000;
+
   --toolColor: #ffffff;
   --textInputBack: #21282a;
   --activeHighlight: var(--blue);
@@ -36,6 +40,10 @@ body.light {
   --textInput: #f3f3f3;
   --textInputUnderline: #a7a7a7;
 
+  --toolBarSpacer: #dadce0;
+
+  --dropDownBorder: transparent;
+
   --toolColor: var(--blue);
   --textInputBack: #eef4fc;
   --activeHighlight: var(--blue);
@@ -45,9 +53,12 @@ body.light {
   --secondaryBg: white;
   --appBar: #ffffff;
   --appBarShadow: var(--border);
-  --brightText: #152935;
-  --secondaryText: rgb(90, 104, 114);
-  --detailText: rgba(90, 104, 114, 0.5);
+  /* --brightText: #152935; */
+  /* --secondaryText: rgb(90, 104, 114); */
+  /* --detailText: rgba(90, 104, 114, 0.5); */
+  --brightText: rgba(0, 0, 0, 1);
+  --secondaryText: rgba(0, 0, 0, 0.87);
+  --detailText: rgba(0, 0, 0, 0.53);
   --highlight: #eef4fc;
 }
 
