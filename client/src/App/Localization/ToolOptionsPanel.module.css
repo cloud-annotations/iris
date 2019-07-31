@@ -17,6 +17,7 @@
 }
 
 .labelDropDownBase {
+  position: relative;
   display: flex;
   align-items: center;
   color: var(--secondaryText);
@@ -65,4 +66,39 @@
 
 .dropDownIcon {
   fill: var(--secondaryText);
+}
+
+.cardBase {
+  position: absolute;
+  top: 100%;
+  left: 6px;
+  z-index: 10;
+  position: absolute;
+  background-color: var(--secondaryBg);
+  max-height: 80vh;
+  width: 185px;
+  border-radius: 0 4px 4px 4px;
+  overflow: auto;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
+  border: 1px solid var(--dropDownBorder);
+}
+
+.card {
+  composes: cardBase;
+  visibility: hidden;
+}
+
+.cardOpen {
+  composes: cardBase;
+}
+
+.listItem {
+  padding: 10px 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.listItem:hover {
+  background-color: var(--highlight);
 }

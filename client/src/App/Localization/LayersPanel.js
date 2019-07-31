@@ -104,6 +104,48 @@ const ListItem = connect()(
       fullHeight
     } = calculateCrop(box.x, box.x2, box.y, box.y2, imageDims)
 
+    const labels = [
+      'label1',
+      'really really really really really really long label name',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label3',
+      'label4'
+    ]
+
     return (
       <div
         className={editing ? styles.editing : styles.listItemWrapper}
@@ -121,16 +163,25 @@ const ListItem = connect()(
             }}
           />
         </div>
-        <input
-          ref={inputRef}
-          className={styles.editTextWrapper}
-          readOnly={!editing}
-          disabled={!editing}
-          onKeyPress={handleKeyPress}
-          onBlur={handleBlur}
-          defaultValue={box.label}
-          type="text"
-        />
+        <div className={styles.dropDownWrapper}>
+          <div className={editing ? styles.cardOpen : styles.card}>
+            {labels.map(label => (
+              <div className={styles.listItem} key={label}>
+                {label}
+              </div>
+            ))}
+          </div>
+          <input
+            ref={inputRef}
+            className={styles.editTextWrapper}
+            readOnly={!editing}
+            disabled={!editing}
+            onKeyPress={handleKeyPress}
+            onBlur={handleBlur}
+            defaultValue={box.label}
+            type="text"
+          />
+        </div>
         <div onClick={handleEdit} className={styles.editIcon}>
           <svg height="12px" width="12px" viewBox="2 2 36 36">
             <g>

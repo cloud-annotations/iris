@@ -30,6 +30,49 @@ const ToolOptionsPanel = () => {
     setLabelOpen(true)
   }, [])
 
+  const activeLabel = 'Untitled Label'
+  const labels = [
+    'label1',
+    'really really really really really really long label name',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label3',
+    'label4'
+  ]
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.divider} />
@@ -37,6 +80,13 @@ const ToolOptionsPanel = () => {
         onClick={handleClick}
         className={labelOpen ? styles.labelDropDownOpen : styles.labelDropDown}
       >
+        <div className={labelOpen ? styles.cardOpen : styles.card}>
+          {labels.map(label => (
+            <div className={styles.listItem} key={label}>
+              {label}
+            </div>
+          ))}
+        </div>
         <input
           ref={inputRef}
           className={styles.editTextWrapper}
@@ -44,7 +94,7 @@ const ToolOptionsPanel = () => {
           disabled={!labelOpen}
           onKeyPress={handleKeyPress}
           onBlur={handleBlur}
-          defaultValue={'Untitled Label'}
+          defaultValue={activeLabel}
           type="text"
         />
         <svg

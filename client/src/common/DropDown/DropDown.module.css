@@ -47,7 +47,7 @@
   min-width: calc(100% + 2px);
   max-width: 258px;
   border-radius: 4px;
-  overflow: scroll;
+  overflow: auto;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
   border: 1px solid var(--dropDownBorder);
 }
