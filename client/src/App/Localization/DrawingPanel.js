@@ -21,11 +21,14 @@ const DrawingPanel = ({
 }) => {
   const bboxes = annotations[selectedImage] || []
 
+  const activeLabel = undefined // TODO: get from props
+
   const handleDrawStarted = useCallback(
     bbox => {
+      bbox.label = activeLabel || 'Untitled Label'
       dispatch(setBBoxesForImageLocal([bbox, ...bboxes], selectedImage))
     },
-    [bboxes, dispatch, selectedImage]
+    [activeLabel, bboxes, dispatch, selectedImage]
   )
 
   const handleCoordinatesChanged = useCallback(
