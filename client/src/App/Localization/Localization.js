@@ -29,7 +29,7 @@ const useImage = (endpoint, bucket, image) => {
     }
 
     // If the image hasn't loaded after 20ms it probably isn't cached, so set it
-    // to and empty image. This prevents flickering if the image is cached, but
+    // to an empty image. This prevents flickering if the image is cached, but
     // wipes the image fast enough if it's not cached.
     setTimeout(() => {
       if (!loaded) {

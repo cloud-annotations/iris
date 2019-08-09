@@ -9,7 +9,7 @@ import {
   convertToJpeg
 } from './Utils'
 
-const IMAGE_REGEX = /.(jpg|jpeg|png)$/i
+const IMAGE_REGEX = /\.(jpg|jpeg|png)$/i
 const optional = (p: Promise<any>) => p.catch(() => undefined)
 
 type Type = 'classification' | 'localization' | undefined
