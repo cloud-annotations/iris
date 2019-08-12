@@ -68,7 +68,7 @@ const Localization = ({ bucket, location, collection }) => {
     setHoveredBox(undefined)
   }, [])
 
-  const images = collection.images.all
+  const images = collection.images
   const selectedImage = images[selection]
 
   const bboxes = collection.annotations[selectedImage] || []

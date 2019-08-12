@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 
 import styles from './ToolOptionsPanel.module.css'
 
-const ToolOptionsPanel = () => {
+const DropDown = ({ labels, activeLabel }) => {
   const [labelOpen, setLabelOpen] = useState(false)
 
   const inputRef = useRef(null)
@@ -30,6 +30,44 @@ const ToolOptionsPanel = () => {
     setLabelOpen(true)
   }, [])
 
+  return (
+    <div
+      onClick={handleClick}
+      className={labelOpen ? styles.labelDropDownOpen : styles.labelDropDown}
+    >
+      <div className={labelOpen ? styles.cardOpen : styles.card}>
+        {labels.map(label => (
+          <div className={styles.listItem} key={label}>
+            {label}
+          </div>
+        ))}
+      </div>
+      <input
+        ref={inputRef}
+        className={styles.editTextWrapper}
+        readOnly={!labelOpen}
+        disabled={!labelOpen}
+        onKeyPress={handleKeyPress}
+        onBlur={handleBlur}
+        defaultValue={activeLabel}
+        type="text"
+      />
+      <svg
+        className={styles.dropDownIcon}
+        focusable="false"
+        preserveAspectRatio="xMidYMid meet"
+        width="12"
+        height="12"
+        viewBox="0 0 16 16"
+        aria-hidden="true"
+      >
+        <path d="M8 11L3 6l.7-.7L8 9.6l4.3-4.3.7.7z" />
+      </svg>
+    </div>
+  )
+}
+
+const ToolOptionsPanel = () => {
   const activeLabel = 'Untitled Label'
   const labels = [
     'label1',
@@ -76,40 +114,7 @@ const ToolOptionsPanel = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.divider} />
-      <div
-        onClick={handleClick}
-        className={labelOpen ? styles.labelDropDownOpen : styles.labelDropDown}
-      >
-        <div className={labelOpen ? styles.cardOpen : styles.card}>
-          {labels.map(label => (
-            <div className={styles.listItem} key={label}>
-              {label}
-            </div>
-          ))}
-        </div>
-        <input
-          ref={inputRef}
-          className={styles.editTextWrapper}
-          readOnly={!labelOpen}
-          disabled={!labelOpen}
-          onKeyPress={handleKeyPress}
-          onBlur={handleBlur}
-          defaultValue={activeLabel}
-          type="text"
-        />
-        <svg
-          className={styles.dropDownIcon}
-          focusable="false"
-          preserveAspectRatio="xMidYMid meet"
-          xmlns="http://www.w3.org/2000/svg"
-          width="12"
-          height="12"
-          viewBox="0 0 16 16"
-          aria-hidden="true"
-        >
-          <path d="M8 11L3 6l.7-.7L8 9.6l4.3-4.3.7.7z" />
-        </svg>
-      </div>
+      <DropDown labels={labels} activeLabel={activeLabel} />
       <div className={styles.divider} />
     </div>
   )
