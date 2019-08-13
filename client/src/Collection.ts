@@ -111,9 +111,20 @@ export default class Collection {
     return collection
   }
 
+  // TODO: Memoize this function.
   public getLabeledImages(withLabel: string | boolean): string[] {
-    // TODO: filter the images.
-    return this.images
+    const labeled = Object.keys(this.annotations)
+    if (withLabel === true) {
+      return labeled
+    }
+
+    if (withLabel === false) {
+      return this.images.filter(image => !labeled.includes(image))
+    }
+
+    return labeled.filter(image =>
+      this.annotations[image].find(a => a.label === withLabel)
+    )
   }
 
   public setType(type: Type, syncComplete: SyncCallback): Collection {
