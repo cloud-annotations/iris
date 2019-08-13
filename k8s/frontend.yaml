@@ -32,6 +32,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: IMAGE_NAME
+        image: us.icr.io/bourdakos1/annotate:8d20909a883616582fb659cba7e481fba5426931
         ports:
         - containerPort: 8080

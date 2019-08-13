@@ -126,14 +126,26 @@ export default class Collection {
   }
 
   public createLabel(newLabel: string, syncComplete: SyncCallback): Collection {
-    const collection = produce(this as Collection, draft => {})
+    const collection = produce(this as Collection, draft => {
+      draft.labels.push(newLabel)
+    })
 
     syncBucket(this.cos, collection, syncComplete)
     return collection
   }
 
   public deleteLabel(label: string, syncComplete: SyncCallback): Collection {
-    const collection = produce(this as Collection, draft => {})
+    const collection = produce(this as Collection, draft => {
+      draft.labels.splice(draft.labels.findIndex(l => l === label), 1)
+      // TODO: This isn't going to work, we need to emit delete box patches.
+      // Maybe we just leave it up to the client to emit the delete boxes
+      // events.
+      // Object.keys(draft.annotations).forEach(image => {
+      //   draft.annotations[image] = draft.annotations[image].filter(
+      //     a => a.label !== label
+      //   )
+      // })
+    })
 
     syncBucket(this.cos, collection, syncComplete)
     return collection
@@ -143,7 +155,10 @@ export default class Collection {
     images: string[],
     syncComplete: SyncCallback
   ): Collection {
-    const collection = produce(this as Collection, draft => {})
+    // TODO: We need to actually upload the images first.
+    const collection = produce(this as Collection, draft => {
+      draft.images.push(...images)
+    })
 
     syncBucket(this.cos, collection, syncComplete)
     return collection
@@ -153,7 +168,14 @@ export default class Collection {
     images: string[],
     syncComplete: SyncCallback
   ): Collection {
-    const collection = produce(this as Collection, draft => {})
+    // TODO: We need to actually delete the images first.
+    const collection = produce(this as Collection, draft => {
+      images.forEach(image => {
+        draft.images.splice(draft.images.findIndex(i => i === image), 1)
+        // NOTE: Same kinda as deleteLabel, except we can emit a special event.
+        delete draft.annotations[image]
+      })
+    })
 
     syncBucket(this.cos, collection, syncComplete)
     return collection
@@ -164,7 +186,9 @@ export default class Collection {
     newBox: Annotation,
     syncComplete: SyncCallback
   ): Collection {
-    const collection = produce(this as Collection, draft => {})
+    const collection = produce(this as Collection, draft => {
+      draft.annotations[image].push(newBox)
+    })
 
     syncBucket(this.cos, collection, syncComplete)
     return collection
@@ -187,6 +211,10 @@ export default class Collection {
         ),
         1
       )
+      if (draft.annotations[image].length === 0) {
+        // NOTE: Same kinda as deleteLabel, except we can emit a special event.
+        delete draft.annotations[image]
+      }
     })
 
     syncBucket(this.cos, collection, syncComplete)
