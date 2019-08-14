@@ -78,6 +78,5 @@ export const deleteBox = (image, box) => ({
 // Side Effects
 export const loadCollection = async (bucket, location) => {
   const endpoint = endpointForLocationConstraint(location)
-  const collection = await Collection.load(endpoint, bucket)
-  return setCollection(collection)
+  return await Collection.load(endpoint, bucket)
 }

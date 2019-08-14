@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { connect } from 'react-redux'
 
 import styles from './LayersPanel.module.css'
-import { renameBBox, deleteBBox } from 'redux/collection'
+import { createBox, deleteBox } from 'redux/collection'
 
 const MAX_HEIGHT = 24
 const MAX_WIDTH = 24
@@ -50,8 +50,25 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
   }
 }
 
-const ListItem = connect()(
-  ({ dispatch, box, imageName, image, imageDims, onBoxEnter, onBoxLeave }) => {
+const mapStateToProps = {}
+const mapDispatchToProps = {
+  createBox,
+  deleteBox
+}
+const ListItem = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(
+  ({
+    createBox,
+    deleteBox,
+    box,
+    imageName,
+    image,
+    imageDims,
+    onBoxEnter,
+    onBoxLeave
+  }) => {
     const [editing, setEditing] = useState(false)
 
     const inputRef = useRef(null)
@@ -61,8 +78,8 @@ const ListItem = connect()(
     }, [])
 
     const handleDelete = useCallback(() => {
-      dispatch(deleteBBox(imageName, box))
-    }, [box, dispatch, imageName])
+      deleteBox(imageName, box)
+    }, [box, deleteBox, imageName])
 
     useEffect(() => {
       // calling this directly after setEditing doesn't work, which is why we need
@@ -81,11 +98,12 @@ const ListItem = connect()(
     const handleKeyPress = useCallback(
       e => {
         if (e.key === 'Enter') {
-          dispatch(renameBBox(imageName, box, inputRef.current.value))
+          deleteBox(imageName, box)
+          createBox(imageName, { ...box, label: inputRef.current.value })
           setEditing(false)
         }
       },
-      [box, dispatch, imageName]
+      [box, createBox, deleteBox, imageName]
     )
 
     const handleBoxEnter = useCallback(

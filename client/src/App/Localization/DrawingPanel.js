@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
-import { setBBoxesForImageLocal } from 'redux/collection'
+// import { setBBoxesForImageLocal } from 'redux/collection'
 
 const uniqueColor = (index, numberOfColors) => {
   const baseHue = 196
@@ -26,20 +26,20 @@ const DrawingPanel = ({
   const handleDrawStarted = useCallback(
     bbox => {
       bbox.label = activeLabel || 'Untitled Label'
-      dispatch(setBBoxesForImageLocal([bbox, ...bboxes], selectedImage))
+      // dispatch(setBBoxesForImageLocal([bbox, ...bboxes], selectedImage))
     },
     [activeLabel, bboxes, dispatch, selectedImage]
   )
 
   const handleCoordinatesChanged = useCallback(
     (bbox, index) => {
-      dispatch(
-        setBBoxesForImageLocal(
-          // Non mutating index replace.
-          bboxes.map((b, i) => (i === index ? bbox : b)),
-          selectedImage
-        )
-      )
+      // dispatch(
+      //   setBBoxesForImageLocal(
+      //     // Non mutating index replace.
+      //     bboxes.map((b, i) => (i === index ? bbox : b)),
+      //     selectedImage
+      //   )
+      // )
     },
     [bboxes, dispatch, selectedImage]
   )

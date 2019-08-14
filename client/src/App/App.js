@@ -47,7 +47,9 @@ const App = ({
     params: { bucket }
   },
   location: { search },
-  dispatch,
+  setCollection,
+  clearCollection,
+  setCollectionType,
   profile,
   collection
 }) => {
@@ -60,7 +62,7 @@ const App = ({
   useEffect(() => {
     const asyncEffect = async () => {
       try {
-        dispatch(await loadCollection(bucket, location))
+        setCollection(await loadCollection(bucket, location))
       } catch (error) {
         console.error(error)
         if (error.message === 'Forbidden') {
@@ -72,8 +74,8 @@ const App = ({
       setLoading(false)
     }
     asyncEffect()
-    return () => dispatch(clearCollection())
-  }, [bucket, dispatch, location])
+    return () => clearCollection()
+  }, [bucket, clearCollection, location, setCollection])
 
   const handleClose = useCallback(() => {
     history.push('/')
@@ -82,13 +84,11 @@ const App = ({
   const handleSubmit = useCallback(
     async choice => {
       setSaving(s => s + 1)
-      dispatch(
-        setCollectionType(choice, () => {
-          setSaving(s => s - 1)
-        })
-      )
+      setCollectionType(choice, () => {
+        setSaving(s => s - 1)
+      })
     },
-    [dispatch]
+    [setCollectionType]
   )
 
   const handleDragEnter = useCallback(() => {
@@ -107,13 +107,13 @@ const App = ({
         files,
         null,
         newCollection => {
-          dispatch(setCollection(newCollection))
+          setCollection(newCollection)
         },
         () => {}
       )
-      dispatch(setCollection(newCollection))
+      setCollection(newCollection)
     },
-    [collection, dispatch]
+    [collection, setCollection]
   )
 
   const type = collection.type
@@ -158,4 +158,12 @@ const mapStateToProps = state => ({
   collection: state.collection,
   profile: state.profile
 })
-export default connect(mapStateToProps)(App)
+const mapDispatchToProps = {
+  setCollection,
+  clearCollection,
+  setCollectionType
+}
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App)
