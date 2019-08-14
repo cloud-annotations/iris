@@ -196,7 +196,7 @@ export default class Collection {
       if (!draft.annotations[image]) {
         draft.annotations[image] = []
       }
-      draft.annotations[image].push(newBox)
+      draft.annotations[image].unshift(newBox)
     })
 
     syncBucket(this.cos, collection, syncComplete)
@@ -239,11 +239,9 @@ export default class Collection {
 }
 
 const syncBucket = async (bucket, collection, syncComplete) => {
-  if (syncComplete) {
-    const string = JSON.stringify(collection.toJSON())
-    const b = new Blob([string], { type: 'application/json;charset=utf-8;' })
-    console.log('syning with', string)
-    // await bucket.putFile({ name: '_annotations.json', blob: b })
-    syncComplete()
-  }
+  const string = JSON.stringify(collection.toJSON())
+  const b = new Blob([string], { type: 'application/json;charset=utf-8;' })
+  console.log('syning with', string)
+  // await bucket.putFile({ name: '_annotations.json', blob: b })
+  syncComplete && syncComplete()
 }

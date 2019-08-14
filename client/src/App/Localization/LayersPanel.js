@@ -222,11 +222,21 @@ const keyForItem = (image, box) => {
   return `${image}+${JSON.stringify(box)}`
 }
 
-const LayersPanel = ({ bboxes, imageName, image, onBoxEnter, onBoxLeave }) => {
+const LayersPanel = ({
+  bboxes,
+  imageName,
+  image,
+  onBoxEnter,
+  onBoxLeave,
+  intermediateBoxes
+}) => {
   const [imageDims, setImageDims] = useState([0, 0])
-  // Sort mutates the original array, but issues only show in Safari.
   const sortedBboxes = [...bboxes]
-  sortedBboxes.sort((a, b) => a.label.toLowerCase() < b.label.toLowerCase())
+
+  const box = intermediateBoxes[imageName]
+  if (box) {
+    sortedBboxes.unshift(box)
+  }
 
   useEffect(() => {
     const img = new Image()
@@ -253,4 +263,7 @@ const LayersPanel = ({ bboxes, imageName, image, onBoxEnter, onBoxLeave }) => {
   )
 }
 
-export default LayersPanel
+const mapStateToProps = state => ({
+  intermediateBoxes: state.intermediate
+})
+export default connect(mapStateToProps)(LayersPanel)

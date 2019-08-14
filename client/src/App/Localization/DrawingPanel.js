@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox } from 'redux/collection'
+import { setIntermediateBox } from 'redux/intermediate'
 
 const uniqueColor = (index, numberOfColors) => {
   const baseHue = 196
@@ -14,6 +15,7 @@ const uniqueColor = (index, numberOfColors) => {
 
 const DrawingPanel = ({
   createBox,
+  setIntermediateBox,
   annotations,
   selectedImage,
   image,
@@ -23,36 +25,35 @@ const DrawingPanel = ({
 
   const activeLabel = undefined // TODO: get from props
 
-  // const handleDrawStarted = useCallback(
-  //   bbox => {
-  //     bbox.label = activeLabel || 'Untitled Label'
-  //     // dispatch(setBBoxesForImageLocal([bbox, ...bboxes], selectedImage))
-  //   },
-  //   [activeLabel, bboxes, dispatch, selectedImage]
-  // )
+  const handleBoxStarted = useCallback(
+    bbox => {
+      setIntermediateBox(selectedImage, {
+        ...bbox,
+        label: activeLabel || 'Untitled Label'
+      })
+    },
+    [activeLabel, selectedImage, setIntermediateBox]
+  )
 
-  // const handleCoordinatesChanged = useCallback(
-  //   bbox => {
-  //     createBox(selectedImage, bbox)
-  //     // dispatch(
-  //     //   setBBoxesForImageLocal(
-  //     //     // Non mutating index replace.
-  //     //     bboxes.map((b, i) => (i === index ? bbox : b)),
-  //     //     selectedImage
-  //     //   )
-  //     // )
-  //   },
-  //   [createBox, selectedImage]
-  // )
+  const handleBoxChanged = useCallback(
+    bbox => {
+      setIntermediateBox(selectedImage, {
+        ...bbox,
+        label: activeLabel || 'Untitled Label'
+      })
+    },
+    [activeLabel, selectedImage, setIntermediateBox]
+  )
 
   const handleBoxFinished = useCallback(
     box => {
+      setIntermediateBox(selectedImage, undefined)
       createBox(selectedImage, {
         ...box,
         label: activeLabel || 'Untitled Label'
       })
     },
-    [activeLabel, createBox, selectedImage]
+    [activeLabel, createBox, selectedImage, setIntermediateBox]
   )
 
   return (
@@ -87,6 +88,8 @@ const DrawingPanel = ({
               bboxes={bboxes}
               image={image}
               hovered={hoveredBox}
+              onBoxStarted={handleBoxStarted}
+              onBoxChanged={handleBoxChanged}
               onBoxFinished={handleBoxFinished}
             />
           </div>
@@ -97,7 +100,7 @@ const DrawingPanel = ({
 }
 
 const mapStateToProps = state => ({ annotations: state.collection.annotations })
-const mapDispatchToProps = { createBox }
+const mapDispatchToProps = { createBox, setIntermediateBox }
 export default connect(
   mapStateToProps,
   mapDispatchToProps

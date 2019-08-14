@@ -114,5 +114,7 @@ const Localization = ({ bucket, location, collection }) => {
   )
 }
 
-const mapStateToProps = state => ({ collection: state.collection })
+const mapStateToProps = state => ({
+  collection: state.collection
+})
 export default connect(mapStateToProps)(Localization)

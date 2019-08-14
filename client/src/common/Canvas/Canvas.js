@@ -36,7 +36,7 @@ export default class App extends Component {
   }
 
   handleCanvasDragStart = e => {
-    const { mode } = this.props
+    const { mode, onBoxStarted } = this.props
     const { size } = this.state
 
     // Start drag if it was a left click.
@@ -62,16 +62,20 @@ export default class App extends Component {
     const mX = (e.clientX - rect.left) / imageWidth
     const mY = (e.clientY - rect.top) / imageHeight
 
+    const box = {
+      x: Math.min(1, Math.max(0, mX)),
+      y: Math.min(1, Math.max(0, mY)),
+      x2: Math.min(1, Math.max(0, mX)),
+      y2: Math.min(1, Math.max(0, mY))
+    }
+
+    onBoxStarted(box)
+
     this.setState({
       canvasRect: rect,
       dragging: true,
       move: [1, 1],
-      box: {
-        x: Math.min(1, Math.max(0, mX)),
-        y: Math.min(1, Math.max(0, mY)),
-        x2: Math.min(1, Math.max(0, mX)),
-        y2: Math.min(1, Math.max(0, mY))
-      }
+      box: box
     })
   }
 
@@ -113,6 +117,7 @@ export default class App extends Component {
   }
 
   handleMouseMove = e => {
+    const { onBoxChanged } = this.props
     const { canvasRect, dragging, move, box, size } = this.state
 
     if (!dragging) {
@@ -154,14 +159,18 @@ export default class App extends Component {
       newY2 = mY
     }
 
+    const computedBox = {
+      x: Math.min(1, Math.max(0, newX)),
+      y: Math.min(1, Math.max(0, newY)),
+      x2: Math.min(1, Math.max(0, newX2)),
+      y2: Math.min(1, Math.max(0, newY2)),
+      ...rest
+    }
+
+    onBoxChanged(computedBox)
+
     this.setState({
-      box: {
-        x: Math.min(1, Math.max(0, newX)),
-        y: Math.min(1, Math.max(0, newY)),
-        x2: Math.min(1, Math.max(0, newX2)),
-        y2: Math.min(1, Math.max(0, newY2)),
-        ...rest
-      }
+      box: computedBox
     })
   }
 
@@ -207,6 +216,7 @@ export default class App extends Component {
     const { hovered, bboxes, mode, image } = this.props
     const { box, size } = this.state
     const boxesWithTemp = box ? [box, ...bboxes] : bboxes
+
     return (
       <div
         draggable={false}
