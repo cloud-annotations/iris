@@ -50,13 +50,12 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
   }
 }
 
-const mapStateToProps = {}
 const mapDispatchToProps = {
   createBox,
   deleteBox
 }
 const ListItem = connect(
-  mapStateToProps,
+  undefined,
   mapDispatchToProps
 )(
   ({

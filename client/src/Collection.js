@@ -44,75 +44,79 @@
 //     - getLabeledImages('cat') -> 'cat'
 
 import produce, { immerable } from 'immer'
-import COS from './api/COS'
+import COS from './api/COSv2'
+
+const listAllObjects = async (cos, params) => {
+  const recursivelyQuery = async (continuationToken, list = []) => {
+    const res = await cos.listObjectsV2({
+      ...params,
+      ContinuationToken: continuationToken
+    })
+    const { NextContinuationToken, Contents } = res.ListBucketResult
+    const currentList = [...list, ...Contents]
+    if (NextContinuationToken) {
+      return await recursivelyQuery(NextContinuationToken, currentList)
+    }
+    return currentList
+  }
+  return await recursivelyQuery()
+}
 
 const IMAGE_REGEX = /\.(jpg|jpeg|png)$/i
-const optional = <T>(p: Promise<T>, alt: T) => p.catch(() => alt)
-
-type Type = 'classification' | 'localization' | undefined
-
-interface Annotation {
-  x?: number
-  y?: number
-  x2?: number
-  y2?: number
-  label: string
-}
-
-interface Annotations {
-  [key: string]: Annotation[]
-}
-
-type SyncCallback = () => void
-type UpdatedCollectionCallback = (collection: Collection) => void
+const optional = (p, alt) => p.catch(() => alt)
 
 const VERSION = '1.0'
 export default class Collection {
   [immerable] = true
-  public cos: any = undefined
+  type = undefined
+  labels = undefined
+  images = undefined
+  annotations = undefined
+  cos = undefined
+  bucket = undefined
 
-  constructor(
-    public type: Type,
-    public labels: string[],
-    public images: string[],
-    public annotations: Annotations,
-    endpoint?: string,
-    bucket?: string
-  ) {
-    if (endpoint && bucket) {
-      this.cos = new COS(endpoint).bucket(bucket)
-    }
+  constructor(type, labels, images, annotations) {
+    this.type = type
+    this.labels = labels
+    this.images = images
+    this.annotations = annotations
   }
 
-  public static get EMPTY() {
+  static get EMPTY() {
     return new Collection(undefined, [], [], {})
   }
 
-  public static async load(
-    endpoint: string,
-    bucket: string
-  ): Promise<Collection> {
-    const Bucket = new COS(endpoint).bucket(bucket)
-    const collectionPromise = optional(Bucket.collection(), Collection.EMPTY)
-    const fileListPromise = Bucket.fileList()
+  static async load(endpoint, bucket) {
+    const cos = new COS({ endpoint: endpoint })
 
-    const [collection, fileList] = await Promise.all([
+    const collectionPromise = await cos.getObject({
+      Bucket: bucket,
+      Key: '_annotations.json'
+    })
+    const objectListPromise = await listAllObjects(cos, { Bucket: bucket })
+
+    const [collectionJson, objectList] = await Promise.all([
       collectionPromise,
-      fileListPromise
+      objectListPromise
     ])
 
-    const images = fileList.filter((fileName: string) =>
-      fileName.match(IMAGE_REGEX)
-    )
+    const fileList = objectList.map(object => object.Key)
+    const images = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
 
-    collection.images = images
-    collection.cos = Bucket
+    const collection = new Collection(
+      collectionJson.type,
+      collectionJson.labels,
+      images,
+      collectionJson.annotations
+    )
+    collection.cos = cos
+    collection.bucket = bucket
 
     return collection
   }
 
   // TODO: Memoize this function.
-  public getLabeledImages(withLabel: string | boolean): string[] {
+  getLabeledImages(withLabel) {
     const labeled = Object.keys(this.annotations)
     if (withLabel === true) {
       return labeled
@@ -127,8 +131,8 @@ export default class Collection {
     )
   }
 
-  public setType(type: Type, syncComplete: SyncCallback): Collection {
-    const collection = produce(this as Collection, draft => {
+  setType(type, syncComplete) {
+    const collection = produce(this, draft => {
       draft.type = type
     })
 
@@ -136,8 +140,8 @@ export default class Collection {
     return collection
   }
 
-  public createLabel(newLabel: string, syncComplete: SyncCallback): Collection {
-    const collection = produce(this as Collection, draft => {
+  createLabel(newLabel, syncComplete) {
+    const collection = produce(this, draft => {
       draft.labels.push(newLabel)
     })
 
@@ -145,8 +149,8 @@ export default class Collection {
     return collection
   }
 
-  public deleteLabel(label: string, syncComplete: SyncCallback): Collection {
-    const collection = produce(this as Collection, draft => {
+  deleteLabel(label, syncComplete) {
+    const collection = produce(this, draft => {
       draft.labels.splice(draft.labels.findIndex(l => l === label), 1)
       // TODO: We might have some interesting corner cases:
       // if someone deletes a label right as we label something with the label.
@@ -161,12 +165,9 @@ export default class Collection {
     return collection
   }
 
-  public uploadImages(
-    images: string[],
-    syncComplete: SyncCallback
-  ): Collection {
+  uploadImages(images, syncComplete) {
     // TODO: We need to actually upload the images first.
-    const collection = produce(this as Collection, draft => {
+    const collection = produce(this, draft => {
       draft.images.push(...images)
     })
 
@@ -174,12 +175,9 @@ export default class Collection {
     return collection
   }
 
-  public deleteImages(
-    images: string[],
-    syncComplete: SyncCallback
-  ): Collection {
+  deleteImages(images, syncComplete) {
     // TODO: We need to actually delete the images first.
-    const collection = produce(this as Collection, draft => {
+    const collection = produce(this, draft => {
       images.forEach(image => {
         draft.images.splice(draft.images.findIndex(i => i === image), 1)
         // TODO: This could possibly cause an undefined error if someone deletes
@@ -193,12 +191,11 @@ export default class Collection {
     return collection
   }
 
-  public createBox(
-    image: string,
-    newBox: Annotation,
-    syncComplete: SyncCallback
-  ): Collection {
-    const collection = produce(this as Collection, draft => {
+  createBox(image, newBox, syncComplete) {
+    const collection = produce(this, draft => {
+      if (!draft.annotations[image]) {
+        draft.annotations[image] = []
+      }
       draft.annotations[image].push(newBox)
     })
 
@@ -206,12 +203,8 @@ export default class Collection {
     return collection
   }
 
-  public deleteBox(
-    image: string,
-    box: Annotation,
-    syncComplete: SyncCallback
-  ): Collection {
-    const collection = produce(this as Collection, draft => {
+  deleteBox(image, box, syncComplete) {
+    const collection = produce(this, draft => {
       draft.annotations[image].splice(
         draft.annotations[image].findIndex(
           oldBBox =>
@@ -245,15 +238,12 @@ export default class Collection {
   }
 }
 
-const syncBucket = async (
-  bucket: any,
-  collection: Collection,
-  syncComplete: SyncCallback
-) => {
+const syncBucket = async (bucket, collection, syncComplete) => {
   if (syncComplete) {
     const string = JSON.stringify(collection.toJSON())
     const b = new Blob([string], { type: 'application/json;charset=utf-8;' })
-    await bucket.putFile({ name: '_annotations.json', blob: b })
+    console.log('syning with', string)
+    // await bucket.putFile({ name: '_annotations.json', blob: b })
     syncComplete()
   }
 }

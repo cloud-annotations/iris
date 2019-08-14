@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
-// import { setBBoxesForImageLocal } from 'redux/collection'
+import { createBox } from 'redux/collection'
 
 const uniqueColor = (index, numberOfColors) => {
   const baseHue = 196
@@ -13,7 +13,7 @@ const uniqueColor = (index, numberOfColors) => {
 }
 
 const DrawingPanel = ({
-  dispatch,
+  createBox,
   annotations,
   selectedImage,
   image,
@@ -23,30 +23,37 @@ const DrawingPanel = ({
 
   const activeLabel = undefined // TODO: get from props
 
-  const handleDrawStarted = useCallback(
-    bbox => {
-      bbox.label = activeLabel || 'Untitled Label'
-      // dispatch(setBBoxesForImageLocal([bbox, ...bboxes], selectedImage))
-    },
-    [activeLabel, bboxes, dispatch, selectedImage]
-  )
+  // const handleDrawStarted = useCallback(
+  //   bbox => {
+  //     bbox.label = activeLabel || 'Untitled Label'
+  //     // dispatch(setBBoxesForImageLocal([bbox, ...bboxes], selectedImage))
+  //   },
+  //   [activeLabel, bboxes, dispatch, selectedImage]
+  // )
 
-  const handleCoordinatesChanged = useCallback(
-    (bbox, index) => {
-      // dispatch(
-      //   setBBoxesForImageLocal(
-      //     // Non mutating index replace.
-      //     bboxes.map((b, i) => (i === index ? bbox : b)),
-      //     selectedImage
-      //   )
-      // )
-    },
-    [bboxes, dispatch, selectedImage]
-  )
+  // const handleCoordinatesChanged = useCallback(
+  //   bbox => {
+  //     createBox(selectedImage, bbox)
+  //     // dispatch(
+  //     //   setBBoxesForImageLocal(
+  //     //     // Non mutating index replace.
+  //     //     bboxes.map((b, i) => (i === index ? bbox : b)),
+  //     //     selectedImage
+  //     //   )
+  //     // )
+  //   },
+  //   [createBox, selectedImage]
+  // )
 
-  const handleBoxFinished = useCallback(() => {
-    console.log('done')
-  }, [])
+  const handleBoxFinished = useCallback(
+    box => {
+      createBox(selectedImage, {
+        ...box,
+        label: activeLabel || 'Untitled Label'
+      })
+    },
+    [activeLabel, createBox, selectedImage]
+  )
 
   return (
     <div
@@ -80,8 +87,6 @@ const DrawingPanel = ({
               bboxes={bboxes}
               image={image}
               hovered={hoveredBox}
-              onDrawStarted={handleDrawStarted}
-              onCoordinatesChanged={handleCoordinatesChanged}
               onBoxFinished={handleBoxFinished}
             />
           </div>
@@ -92,4 +97,8 @@ const DrawingPanel = ({
 }
 
 const mapStateToProps = state => ({ annotations: state.collection.annotations })
-export default connect(mapStateToProps)(DrawingPanel)
+const mapDispatchToProps = { createBox }
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(DrawingPanel)

@@ -17,7 +17,10 @@ const xmlAsJsonFetch = async (url, options) => {
 
 const blobFetch = async (url, options) => {
   const res = await fetch(url, options)
-  return await res.blob()
+  if (url.endsWith('.json')) {
+    return res.json()
+  }
+  return res.blob()
 }
 
 export default class COS {
@@ -160,12 +163,14 @@ export default class COS {
    * ContinuationToken is obfuscated and is not a real key
    */
   listObjectsV2 = async ({ Bucket, ContinuationToken }) => {
-    const url = new URL(`/api/proxy/${this.endpoint}/${Bucket}`)
     const params = { 'list-type': 2 }
     if (ContinuationToken) {
       params['continuation-token'] = ContinuationToken
     }
-    url.search = new URLSearchParams(params)
+
+    const search = new URLSearchParams(params)
+    const url = `/api/proxy/${this.endpoint}/${Bucket}?${search.toString()}`
+
     const options = {
       method: 'GET'
     }

@@ -153,6 +153,16 @@ export function clearCookies(cookies) {
   })
 }
 
+// There are 2 types of arrays:
+// <List>
+//    <ListItem></ListItem>
+//    <ListItem></ListItem>
+//    <ListItem></ListItem>
+// </List>
+//
+// <List><ListItem></ListItem></List>
+// <List><ListItem></ListItem></List>
+// <List><ListItem></ListItem></List>
 export const parseXML = xmlString => {
   const xml = new window.DOMParser().parseFromString(xmlString, 'text/xml')
   const recursivelyGenerateJson = (json, rootNode) => {
@@ -160,6 +170,16 @@ export const parseXML = xmlString => {
       const mutate = item => {
         if (Array.isArray(json)) {
           json.push(item)
+        } else if (Object.keys(json).includes(element.tagName)) {
+          // If the Key is already in the json, assume type 2 list.
+          if (Array.isArray(json[element.tagName])) {
+            // If the key is already a list just append the next item.
+            json[element.tagName].push(item)
+          } else {
+            // if it's not turn the item into an array and push items.
+            const oldItem = json[element.tagName]
+            json[element.tagName] = [oldItem, item]
+          }
         } else {
           json[element.tagName] = item
         }
@@ -169,7 +189,11 @@ export const parseXML = xmlString => {
         mutate(element.innerHTML)
       } else if (
         element.children.length > 1 &&
-        element.children[0].tagName === element.children[1].tagName // assume array
+        // If all child tags are the same assume array type 1
+        Array.prototype.every.call(
+          element.children,
+          child => child.tagName === element.children[0].tagName
+        )
       ) {
         mutate(recursivelyGenerateJson([], element.children))
       } else {
