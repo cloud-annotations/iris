@@ -21,6 +21,7 @@ const DrawingPanel = ({
   annotations,
   selectedImage,
   image,
+  editing,
   hoveredBox
 }) => {
   const bboxes = annotations[selectedImage] || []
@@ -64,6 +65,14 @@ const DrawingPanel = ({
     [activeLabel, bboxes, createBox, deleteBox, selectedImage, setEditingBox]
   )
 
+  let mergedBoxes = [...bboxes]
+  if (editing.id) {
+    mergedBoxes = mergedBoxes.filter(box => idForBox(box) !== editing.id)
+  }
+  if (editing.box) {
+    mergedBoxes.unshift(editing.box)
+  }
+
   return (
     <div
       style={{
@@ -93,7 +102,7 @@ const DrawingPanel = ({
           >
             <Canvas
               mode={tool}
-              bboxes={bboxes}
+              bboxes={mergedBoxes}
               image={image}
               hovered={hoveredBox}
               onBoxStarted={handleBoxStarted}
@@ -107,7 +116,10 @@ const DrawingPanel = ({
   )
 }
 
-const mapStateToProps = state => ({ annotations: state.collection.annotations })
+const mapStateToProps = state => ({
+  annotations: state.collection.annotations,
+  editing: state.editing
+})
 const mapDispatchToProps = { createBox, deleteBox, setEditingBox }
 export default connect(
   mapStateToProps,

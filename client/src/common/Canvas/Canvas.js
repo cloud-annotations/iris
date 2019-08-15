@@ -16,13 +16,12 @@ export const idForBox = box => {
 }
 
 export default class App extends Component {
-  // TODO: We can replace everything here with globels except for `box` and `size`.
   state = {
-    size: { imageWidth: 0, imageHeight: 0 },
-    editingBoxId: undefined,
-    box: undefined
+    size: { imageWidth: 0, imageHeight: 0 }
   }
 
+  editingBoxId = undefined
+  box = undefined
   canvasRect = undefined
   dragging = false
   move = [0, 0]
@@ -83,8 +82,8 @@ export default class App extends Component {
 
     this.dragging = true
     this.move = [1, 1]
-
-    this.setState({ editingBoxId: undefined, box: box })
+    this.editingBoxId = undefined
+    this.box = box
   }
 
   handleMouseDown = (e, boxId, move) => {
@@ -106,18 +105,20 @@ export default class App extends Component {
     this.dragging = true
 
     const box = bboxes.find(box => idForBox(box) === boxId)
-    this.setState({ editingBoxId: boxId, box: box })
+
+    this.editingBoxId = boxId
+    this.box = box
   }
 
   handleMouseMove = e => {
     const { onBoxChanged } = this.props
-    const { editingBoxId, box, size } = this.state
+    const { size } = this.state
 
     if (!this.dragging) {
       return
     }
 
-    const { x, y, x2, y2, ...rest } = box
+    const { x, y, x2, y2, ...rest } = this.box
     const { imageWidth, imageHeight } = size
 
     e = (() => {
@@ -159,23 +160,23 @@ export default class App extends Component {
       ...rest
     }
 
-    onBoxChanged(editingBoxId, computedBox)
+    onBoxChanged(this.editingBoxId, computedBox)
 
-    this.setState({ box: computedBox })
+    this.box = computedBox
   }
 
   handleDragEnd = () => {
     const { onBoxFinished } = this.props
-    const { editingBoxId, box } = this.state
 
     if (!this.dragging) {
       return
     }
 
-    onBoxFinished(editingBoxId, box)
+    onBoxFinished(this.editingBoxId, this.box)
 
     this.dragging = false
-    this.setState({ editingBoxId: undefined, box: undefined })
+    this.editingBoxId = undefined
+    this.box = undefined
   }
 
   handleWindowResize = () => {
@@ -198,10 +199,9 @@ export default class App extends Component {
 
   render() {
     const { hovered, bboxes, mode, image } = this.props
-    const { editingBoxId, box, size } = this.state
+    const { size } = this.state
 
-    const filteredBoxes = bboxes.filter(box => idForBox(box) !== editingBoxId)
-    const boxesWithTemp = box ? [box, ...filteredBoxes] : filteredBoxes
+    const boxesWithTemp = bboxes
 
     return (
       <div

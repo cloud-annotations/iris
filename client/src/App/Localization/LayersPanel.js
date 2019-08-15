@@ -232,13 +232,13 @@ const LayersPanel = ({
   editing
 }) => {
   const [imageDims, setImageDims] = useState([0, 0])
-  let sortedBboxes = [...bboxes]
+  let mergedBoxes = [...bboxes]
 
   if (editing.id) {
-    sortedBboxes = sortedBboxes.filter(box => idForBox(box) !== editing.id)
+    mergedBoxes = mergedBoxes.filter(box => idForBox(box) !== editing.id)
   }
   if (editing.box) {
-    sortedBboxes.unshift(editing.box)
+    mergedBoxes.unshift(editing.box)
   }
 
   useEffect(() => {
@@ -251,7 +251,7 @@ const LayersPanel = ({
 
   return (
     <div className={styles.wrapper}>
-      {sortedBboxes.map(box => (
+      {mergedBoxes.map(box => (
         <ListItem
           key={keyForItem(image, box)}
           box={box}
