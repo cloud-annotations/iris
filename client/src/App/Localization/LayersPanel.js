@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { connect } from 'react-redux'
 
 import styles from './LayersPanel.module.css'
+import { idForBox } from 'common/Canvas/Canvas'
 import { createBox, deleteBox } from 'redux/collection'
 
 const MAX_HEIGHT = 24
@@ -228,14 +229,16 @@ const LayersPanel = ({
   image,
   onBoxEnter,
   onBoxLeave,
-  intermediateBoxes
+  editing
 }) => {
   const [imageDims, setImageDims] = useState([0, 0])
-  const sortedBboxes = [...bboxes]
+  let sortedBboxes = [...bboxes]
 
-  const box = intermediateBoxes[imageName]
-  if (box) {
-    sortedBboxes.unshift(box)
+  if (editing.id) {
+    sortedBboxes = sortedBboxes.filter(box => idForBox(box) !== editing.id)
+  }
+  if (editing.box) {
+    sortedBboxes.unshift(editing.box)
   }
 
   useEffect(() => {
@@ -264,6 +267,6 @@ const LayersPanel = ({
 }
 
 const mapStateToProps = state => ({
-  intermediateBoxes: state.intermediate
+  editing: state.editing
 })
 export default connect(mapStateToProps)(LayersPanel)

@@ -88,6 +88,7 @@ const Localization = ({ bucket, location, collection }) => {
       left={<ToolsPanel tool={tool} onToolChosen={handleToolChosen} />}
       content={
         <DrawingPanel
+          tool={tool}
           selectedImage={selectedImage}
           image={imageData}
           hoveredBox={hoveredBox}

@@ -1,10 +1,10 @@
 import React, { useCallback, useState, useEffect } from 'react'
 import { connect } from 'react-redux'
 
-import Canvas from 'common/Canvas/Canvas'
+import Canvas, { idForBox } from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
-import { createBox } from 'redux/collection'
-import { setIntermediateBox } from 'redux/intermediate'
+import { createBox, deleteBox } from 'redux/collection'
+import { setEditingBox } from 'redux/editing'
 
 const uniqueColor = (index, numberOfColors) => {
   const baseHue = 196
@@ -15,7 +15,9 @@ const uniqueColor = (index, numberOfColors) => {
 
 const DrawingPanel = ({
   createBox,
-  setIntermediateBox,
+  deleteBox,
+  setEditingBox,
+  tool,
   annotations,
   selectedImage,
   image,
@@ -26,34 +28,40 @@ const DrawingPanel = ({
   const activeLabel = undefined // TODO: get from props
 
   const handleBoxStarted = useCallback(
-    bbox => {
-      setIntermediateBox(selectedImage, {
-        ...bbox,
-        label: activeLabel || 'Untitled Label'
-      })
+    box => {
+      const editingBox = {
+        ...box,
+        label: box.label || activeLabel || 'Untitled Label'
+      }
+      setEditingBox(selectedImage, idForBox(editingBox), editingBox)
     },
-    [activeLabel, selectedImage, setIntermediateBox]
+    [activeLabel, selectedImage, setEditingBox]
   )
 
   const handleBoxChanged = useCallback(
-    bbox => {
-      setIntermediateBox(selectedImage, {
-        ...bbox,
-        label: activeLabel || 'Untitled Label'
-      })
+    (id, box) => {
+      const editingBox = {
+        ...box,
+        label: box.label || activeLabel || 'Untitled Label'
+      }
+      setEditingBox(selectedImage, id, editingBox)
     },
-    [activeLabel, selectedImage, setIntermediateBox]
+    [activeLabel, selectedImage, setEditingBox]
   )
 
   const handleBoxFinished = useCallback(
-    box => {
-      setIntermediateBox(selectedImage, undefined)
+    (id, box) => {
+      setEditingBox(undefined, undefined, undefined)
       createBox(selectedImage, {
         ...box,
-        label: activeLabel || 'Untitled Label'
+        label: box.label || activeLabel || 'Untitled Label'
       })
+      if (id) {
+        const box = bboxes.find(box => idForBox(box) === id)
+        deleteBox(selectedImage, box)
+      }
     },
-    [activeLabel, createBox, selectedImage, setIntermediateBox]
+    [activeLabel, bboxes, createBox, deleteBox, selectedImage, setEditingBox]
   )
 
   return (
@@ -69,7 +77,7 @@ const DrawingPanel = ({
     >
       <CrossHair
         color={uniqueColor(7, 10)}
-        active={true}
+        active={tool === 'box'}
         children={
           <div
             style={{
@@ -84,7 +92,7 @@ const DrawingPanel = ({
             }}
           >
             <Canvas
-              mode={'box'}
+              mode={tool}
               bboxes={bboxes}
               image={image}
               hovered={hoveredBox}
@@ -100,7 +108,7 @@ const DrawingPanel = ({
 }
 
 const mapStateToProps = state => ({ annotations: state.collection.annotations })
-const mapDispatchToProps = { createBox, setIntermediateBox }
+const mapDispatchToProps = { createBox, deleteBox, setEditingBox }
 export default connect(
   mapStateToProps,
   mapDispatchToProps

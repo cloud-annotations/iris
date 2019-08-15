@@ -8,14 +8,24 @@ import styles from './Canvas.module.css'
 export const MOVE = 'move'
 export const BOX = 'box'
 
+export const idForBox = box => {
+  if (!box) {
+    return undefined
+  }
+  return `${box.x}${box.y}${box.x2}${box.y2}${box.label}`
+}
+
 export default class App extends Component {
   // TODO: We can replace everything here with globels except for `box` and `size`.
   state = {
     size: { imageWidth: 0, imageHeight: 0 },
-    dragging: false,
-    move: [0, 0],
+    editingBoxId: undefined,
     box: undefined
   }
+
+  canvasRect = undefined
+  dragging = false
+  move = [0, 0]
 
   canvasRef = React.createRef()
 
@@ -58,9 +68,9 @@ export default class App extends Component {
     })()
 
     // bug fix for mobile safari thinking there is a scroll.
-    const rect = this.canvasRef.current.getBoundingClientRect()
-    const mX = (e.clientX - rect.left) / imageWidth
-    const mY = (e.clientY - rect.top) / imageHeight
+    this.canvasRect = this.canvasRef.current.getBoundingClientRect()
+    const mX = (e.clientX - this.canvasRect.left) / imageWidth
+    const mY = (e.clientY - this.canvasRect.top) / imageHeight
 
     const box = {
       x: Math.min(1, Math.max(0, mX)),
@@ -71,17 +81,14 @@ export default class App extends Component {
 
     onBoxStarted(box)
 
-    this.setState({
-      canvasRect: rect,
-      dragging: true,
-      move: [1, 1],
-      box: box
-    })
+    this.dragging = true
+    this.move = [1, 1]
+
+    this.setState({ editingBoxId: undefined, box: box })
   }
 
-  // TODO: This method is used for the move tool.
-  handleMouseDown = (e, index) => {
-    const { mode } = this.props
+  handleMouseDown = (e, boxId, move) => {
+    const { bboxes, mode } = this.props
 
     // Start drag if it was a left click.
     if (e.button && e.button !== 0) {
@@ -93,34 +100,20 @@ export default class App extends Component {
     }
 
     // bug fix for mobile safari thinking there is a scroll.
-    const rect = this.canvasRef.current.getBoundingClientRect()
+    this.canvasRect = this.canvasRef.current.getBoundingClientRect()
 
-    const id = e.target.id
-    const move = [0, 0]
-    if (id.startsWith('0')) {
-      move[0] = 0
-    } else {
-      move[0] = 1
-    }
-    if (id.endsWith('0')) {
-      move[1] = 0
-    } else {
-      move[1] = 1
-    }
+    this.move = move
+    this.dragging = true
 
-    this.setState({
-      canvasRect: rect,
-      dragging: true,
-      move: move,
-      box: index
-    })
+    const box = bboxes.find(box => idForBox(box) === boxId)
+    this.setState({ editingBoxId: boxId, box: box })
   }
 
   handleMouseMove = e => {
     const { onBoxChanged } = this.props
-    const { canvasRect, dragging, move, box, size } = this.state
+    const { editingBoxId, box, size } = this.state
 
-    if (!dragging) {
+    if (!this.dragging) {
       return
     }
 
@@ -134,16 +127,15 @@ export default class App extends Component {
       return e.touches[0]
     })()
 
-    const rect = canvasRect
-    const mX = (e.clientX - rect.left) / imageWidth
-    const mY = (e.clientY - rect.top) / imageHeight
+    const mX = (e.clientX - this.canvasRect.left) / imageWidth
+    const mY = (e.clientY - this.canvasRect.top) / imageHeight
 
     let newX
     let newY
     let newX2
     let newY2
 
-    if (move[0] === 0) {
+    if (this.move[0] === 0) {
       newX = mX
       newX2 = x2
     } else {
@@ -151,7 +143,7 @@ export default class App extends Component {
       newX2 = mX
     }
 
-    if (move[1] === 0) {
+    if (this.move[1] === 0) {
       newY = mY
       newY2 = y2
     } else {
@@ -167,31 +159,23 @@ export default class App extends Component {
       ...rest
     }
 
-    onBoxChanged(computedBox)
+    onBoxChanged(editingBoxId, computedBox)
 
-    this.setState({
-      box: computedBox
-    })
+    this.setState({ box: computedBox })
   }
 
   handleDragEnd = () => {
     const { onBoxFinished } = this.props
-    const { dragging, box } = this.state
+    const { editingBoxId, box } = this.state
 
-    if (!dragging) {
+    if (!this.dragging) {
       return
     }
 
-    const { x, y, x2, y2, ...rest } = box
+    onBoxFinished(editingBoxId, box)
 
-    onBoxFinished({
-      x: Math.min(x, x2),
-      y: Math.min(y, y2),
-      x2: Math.max(x, x2),
-      y2: Math.max(y, y2),
-      ...rest
-    })
-    this.setState({ dragging: false, box: undefined })
+    this.dragging = false
+    this.setState({ editingBoxId: undefined, box: undefined })
   }
 
   handleWindowResize = () => {
@@ -214,8 +198,10 @@ export default class App extends Component {
 
   render() {
     const { hovered, bboxes, mode, image } = this.props
-    const { box, size } = this.state
-    const boxesWithTemp = box ? [box, ...bboxes] : bboxes
+    const { editingBoxId, box, size } = this.state
+
+    const filteredBoxes = bboxes.filter(box => idForBox(box) !== editingBoxId)
+    const boxesWithTemp = box ? [box, ...filteredBoxes] : filteredBoxes
 
     return (
       <div
@@ -243,12 +229,10 @@ export default class App extends Component {
             height: size.imageHeight
           }}
         >
-          {boxesWithTemp.map((bbox, i) => (
-            <div>
-              <Box key={i} index={i} bbox={bbox} imageSize={size} />
-              {mode === MOVE && (
-                <Nobs key={i} index={i} bbox={bbox} imageSize={size} />
-              )}
+          {boxesWithTemp.map(bbox => (
+            <div key={idForBox(bbox)}>
+              <Box bbox={bbox} imageSize={size} />
+              {mode === MOVE && <Nobs bbox={bbox} imageSize={size} />}
             </div>
           ))}
         </div>
@@ -264,21 +248,20 @@ export default class App extends Component {
           }}
         >
           {mode === BOX &&
-            boxesWithTemp.map((bbox, i) => (
+            boxesWithTemp.map(bbox => (
               <Box
-                key={i}
-                index={i}
+                key={idForBox(bbox)}
                 bbox={bbox}
-                hovered={JSON.stringify(hovered) === JSON.stringify(bbox)}
+                hovered={idForBox(hovered) === idForBox(bbox)}
                 mode={BOX}
                 imageSize={size}
               />
             ))}
           {mode === MOVE &&
-            boxesWithTemp.map((bbox, i) => (
+            boxesWithTemp.map(bbox => (
               <TouchTargets
-                key={i}
-                index={i}
+                key={idForBox(bbox)}
+                boxId={idForBox(bbox)}
                 bbox={bbox}
                 onCornerGrabbed={this.handleMouseDown}
                 imageSize={size}
