@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
+import { connect } from 'react-redux'
 
 import styles from './ToolOptionsPanel.module.css'
 
@@ -67,57 +68,22 @@ const DropDown = ({ labels, activeLabel }) => {
   )
 }
 
-const ToolOptionsPanel = () => {
-  const activeLabel = 'Untitled Label'
-  const labels = [
-    'label1',
-    'really really really really really really long label name',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label3',
-    'label4'
-  ]
-
+const ToolOptionsPanel = ({ activeLabel, labels }) => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.divider} />
-      <DropDown labels={labels} activeLabel={activeLabel} />
+      {labels.length > 0 ? (
+        <DropDown labels={labels} activeLabel={activeLabel} />
+      ) : (
+        'No Labels'
+      )}
       <div className={styles.divider} />
     </div>
   )
 }
 
-export default ToolOptionsPanel
+const mapStateToProps = state => ({
+  activeLabel: state.editor.activeLabel,
+  labels: state.collection.labels
+})
+export default connect(mapStateToProps)(ToolOptionsPanel)

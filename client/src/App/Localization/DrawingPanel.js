@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
-import { createBox, updateBox } from 'redux/collection'
+import { createBox, deleteBox } from 'redux/collection'
 import { setActiveBox } from 'redux/editor'
 
 const uniqueColor = (index, numberOfColors) => {
@@ -15,7 +15,7 @@ const uniqueColor = (index, numberOfColors) => {
 
 const DrawingPanel = ({
   createBox,
-  updateBox,
+  deleteBox,
   setActiveBox,
   annotations,
   selectedImage,
@@ -46,13 +46,14 @@ const DrawingPanel = ({
     box => {
       const boxToUpdate = bboxes.find(b => b.id === box.id)
       if (boxToUpdate) {
-        updateBox(selectedImage, boxToUpdate, box)
+        deleteBox(selectedImage, boxToUpdate)
+        createBox(selectedImage, box)
       } else {
         createBox(selectedImage, box)
       }
       setActiveBox(undefined)
     },
-    [bboxes, createBox, updateBox, selectedImage, setActiveBox]
+    [bboxes, setActiveBox, createBox, selectedImage, deleteBox]
   )
 
   let mergedBoxes = [...bboxes]
@@ -111,7 +112,7 @@ const mapStateToProps = state => ({
   hoveredBox: state.editor.hoveredBox,
   tool: state.editor.tool
 })
-const mapDispatchToProps = { createBox, updateBox, setActiveBox }
+const mapDispatchToProps = { createBox, deleteBox, setActiveBox }
 export default connect(
   mapStateToProps,
   mapDispatchToProps
