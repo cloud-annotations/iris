@@ -58,13 +58,16 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
   }
 }
 
+const mapStateToListItemProps = state => ({
+  labels: state.collection.labels
+})
 const mapDispatchToProps = {
   createBox,
   deleteBox,
   setHoveredBox
 }
 const ListItem = connect(
-  undefined,
+  mapStateToListItemProps,
   mapDispatchToProps
 )(
   ({
@@ -72,6 +75,7 @@ const ListItem = connect(
     deleteBox,
     setHoveredBox,
     box,
+    labels,
     imageName,
     image,
     imageDims
@@ -105,6 +109,7 @@ const ListItem = connect(
     const handleKeyPress = useCallback(
       e => {
         if (e.key === 'Enter') {
+          // TODO: Check if label exists, if not, create one.
           deleteBox(imageName, box)
           createBox(imageName, { ...box, label: inputRef.current.value })
           setEditing(false)
@@ -133,48 +138,6 @@ const ListItem = connect(
       fullHeight
     } = calculateCrop(box.x, box.x2, box.y, box.y2, imageDims)
 
-    const labels = [
-      'label1',
-      'really really really really really really long label name',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label3',
-      'label4'
-    ]
-
     return (
       <div
         className={editing ? styles.editing : styles.listItemWrapper}
@@ -193,13 +156,15 @@ const ListItem = connect(
           />
         </div>
         <div className={styles.dropDownWrapper}>
-          <div className={editing ? styles.cardOpen : styles.card}>
-            {labels.map(label => (
-              <div className={styles.listItem} key={label}>
-                {label}
-              </div>
-            ))}
-          </div>
+          {labels.length > 0 && (
+            <div className={editing ? styles.cardOpen : styles.card}>
+              {labels.map(label => (
+                <div className={styles.listItem} key={label}>
+                  {label}
+                </div>
+              ))}
+            </div>
+          )}
           <input
             ref={inputRef}
             className={styles.editTextWrapper}

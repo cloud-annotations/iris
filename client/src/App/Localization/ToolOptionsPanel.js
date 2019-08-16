@@ -1,12 +1,31 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 
+import { setActiveLabel } from 'redux/editor'
+import { createLabel } from 'redux/collection'
 import styles from './ToolOptionsPanel.module.css'
 
-const DropDown = ({ labels, activeLabel }) => {
+const mapStateToProps = state => ({
+  activeLabel: state.editor.label,
+  labels: state.collection.labels
+})
+const mapDispatchToProps = {
+  setActiveLabel,
+  createLabel
+}
+const LabelDropDown = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(({ labels, activeLabel, setActiveLabel, createLabel }) => {
   const [labelOpen, setLabelOpen] = useState(false)
+  const [labelEditingValue, setEditingLabelValue] = useState(undefined)
 
   const inputRef = useRef(null)
+
+  // If there's no active label, use the first label in the list. If the
+  // list is empty, use a default label of `Untitled Label`.
+  const labelValue =
+    activeLabel || (labels.length > 0 ? labels[0] : 'Untitled Label')
 
   useEffect(() => {
     // calling this directly after setEditing doesn't work, which is why we need
@@ -18,14 +37,30 @@ const DropDown = ({ labels, activeLabel }) => {
   }, [labelOpen])
 
   const handleBlur = useCallback(() => {
+    setEditingLabelValue(undefined)
     setLabelOpen(false)
   }, [])
 
-  const handleKeyPress = useCallback(e => {
-    if (e.key === 'Enter') {
-      setLabelOpen(false)
-    }
+  const handleChange = useCallback(e => {
+    setEditingLabelValue(e.target.value)
   }, [])
+
+  const handleKeyPress = useCallback(
+    e => {
+      if (e.key === 'Enter') {
+        const newActiveLabel = inputRef.current.value.trim()
+        if (newActiveLabel) {
+          if (!labels.includes(newActiveLabel)) {
+            createLabel(newActiveLabel)
+          }
+          setActiveLabel(newActiveLabel)
+        }
+        setEditingLabelValue(undefined)
+        setLabelOpen(false)
+      }
+    },
+    [createLabel, labels, setActiveLabel]
+  )
 
   const handleClick = useCallback(() => {
     setLabelOpen(true)
@@ -36,21 +71,25 @@ const DropDown = ({ labels, activeLabel }) => {
       onClick={handleClick}
       className={labelOpen ? styles.labelDropDownOpen : styles.labelDropDown}
     >
-      <div className={labelOpen ? styles.cardOpen : styles.card}>
-        {labels.map(label => (
-          <div className={styles.listItem} key={label}>
-            {label}
-          </div>
-        ))}
-      </div>
+      {labels.length > 0 && (
+        <div className={labelOpen ? styles.cardOpen : styles.card}>
+          {labels.map(label => (
+            <div className={styles.listItem} key={label}>
+              {label}
+            </div>
+          ))}
+        </div>
+      )}
       <input
         ref={inputRef}
         className={styles.editTextWrapper}
         readOnly={!labelOpen}
         disabled={!labelOpen}
+        onChange={handleChange}
         onKeyPress={handleKeyPress}
         onBlur={handleBlur}
-        defaultValue={activeLabel}
+        // We need to use undefined because and empty string is falsy
+        value={labelEditingValue !== undefined ? labelEditingValue : labelValue}
         type="text"
       />
       <svg
@@ -66,24 +105,16 @@ const DropDown = ({ labels, activeLabel }) => {
       </svg>
     </div>
   )
-}
+})
 
-const ToolOptionsPanel = ({ activeLabel, labels }) => {
+const ToolOptionsPanel = () => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.divider} />
-      {labels.length > 0 ? (
-        <DropDown labels={labels} activeLabel={activeLabel} />
-      ) : (
-        'No Labels'
-      )}
+      <LabelDropDown />
       <div className={styles.divider} />
     </div>
   )
 }
 
-const mapStateToProps = state => ({
-  activeLabel: state.editor.activeLabel,
-  labels: state.collection.labels
-})
-export default connect(mapStateToProps)(ToolOptionsPanel)
+export default ToolOptionsPanel

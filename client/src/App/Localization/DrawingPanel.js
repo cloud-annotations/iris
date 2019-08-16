@@ -21,12 +21,11 @@ const DrawingPanel = ({
   selectedImage,
   image,
   tool,
+  activeLabel,
   activeBox,
   hoveredBox
 }) => {
   const bboxes = annotations[selectedImage] || []
-
-  const activeLabel = undefined || 'Untitled Label' // TODO: get from props
 
   const handleBoxStarted = useCallback(
     box => {
@@ -91,7 +90,7 @@ const DrawingPanel = ({
           >
             <Canvas
               mode={tool}
-              activeLabel={activeLabel}
+              activeLabel={activeLabel || 'Untitled Label'} // TODO: We need to create the untitled label...
               bboxes={mergedBoxes}
               image={image}
               hovered={hoveredBox}
@@ -109,6 +108,7 @@ const DrawingPanel = ({
 const mapStateToProps = state => ({
   annotations: state.collection.annotations,
   activeBox: state.editor.box,
+  activeLabel: state.editor.label,
   hoveredBox: state.editor.hoveredBox,
   tool: state.editor.tool
 })
