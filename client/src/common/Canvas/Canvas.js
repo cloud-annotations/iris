@@ -160,18 +160,24 @@ export default class App extends Component {
     }
 
     onBoxChanged(computedBox)
-
-    this.box = computedBox
   }
 
   handleDragEnd = () => {
-    const { onBoxFinished } = this.props
+    const { bboxes, onBoxFinished } = this.props
 
     if (!this.dragging) {
       return
     }
 
-    onBoxFinished(this.box)
+    const { x, y, x2, y2, ...rest } = bboxes.find(b => b.id === this.box.id)
+
+    onBoxFinished({
+      x: Math.min(x, x2),
+      y: Math.min(y, y2),
+      x2: Math.max(x, x2),
+      y2: Math.max(y, y2),
+      ...rest
+    })
 
     this.dragging = false
     this.box = undefined
