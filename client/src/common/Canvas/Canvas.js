@@ -9,13 +9,6 @@ import { generateUUID } from 'Utils'
 export const MOVE = 'move'
 export const BOX = 'box'
 
-// export const idForBox = box => {
-//   if (!box) {
-//     return undefined
-//   }
-//   return `${box.x}${box.y}${box.x2}${box.y2}${box.label}`
-// }
-
 export default class App extends Component {
   state = {
     size: { imageWidth: 0, imageHeight: 0 }

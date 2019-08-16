@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, updateBox } from 'redux/collection'
-import { setEditingBox } from 'redux/editing'
+import { setActiveBox } from 'redux/editor'
 
 const uniqueColor = (index, numberOfColors) => {
   const baseHue = 196
@@ -16,12 +16,12 @@ const uniqueColor = (index, numberOfColors) => {
 const DrawingPanel = ({
   createBox,
   updateBox,
-  setEditingBox,
-  tool,
+  setActiveBox,
   annotations,
   selectedImage,
   image,
-  editing,
+  tool,
+  activeBox,
   hoveredBox
 }) => {
   const bboxes = annotations[selectedImage] || []
@@ -30,16 +30,16 @@ const DrawingPanel = ({
 
   const handleBoxStarted = useCallback(
     box => {
-      setEditingBox(box)
+      setActiveBox(box)
     },
-    [setEditingBox]
+    [setActiveBox]
   )
 
   const handleBoxChanged = useCallback(
     box => {
-      setEditingBox(box)
+      setActiveBox(box)
     },
-    [setEditingBox]
+    [setActiveBox]
   )
 
   const handleBoxFinished = useCallback(
@@ -50,15 +50,15 @@ const DrawingPanel = ({
       } else {
         createBox(selectedImage, box)
       }
-      setEditingBox(undefined)
+      setActiveBox(undefined)
     },
-    [bboxes, createBox, updateBox, selectedImage, setEditingBox]
+    [bboxes, createBox, updateBox, selectedImage, setActiveBox]
   )
 
   let mergedBoxes = [...bboxes]
-  if (editing.box) {
-    mergedBoxes = mergedBoxes.filter(box => box.id !== editing.box.id)
-    mergedBoxes.unshift(editing.box)
+  if (activeBox) {
+    mergedBoxes = mergedBoxes.filter(box => box.id !== activeBox.id)
+    mergedBoxes.unshift(activeBox)
   }
 
   return (
@@ -107,9 +107,11 @@ const DrawingPanel = ({
 
 const mapStateToProps = state => ({
   annotations: state.collection.annotations,
-  editing: state.editing
+  activeBox: state.editor.box,
+  hoveredBox: state.editor.hoveredBox,
+  tool: state.editor.tool
 })
-const mapDispatchToProps = { createBox, updateBox, setEditingBox }
+const mapDispatchToProps = { createBox, updateBox, setActiveBox }
 export default connect(
   mapStateToProps,
   mapDispatchToProps

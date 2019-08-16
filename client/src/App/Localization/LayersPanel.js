@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 
 import styles from './LayersPanel.module.css'
 import { createBox, deleteBox } from 'redux/collection'
+import { setHoveredBox } from 'redux/editor'
 
 const MAX_HEIGHT = 24
 const MAX_WIDTH = 24
@@ -59,7 +60,8 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
 
 const mapDispatchToProps = {
   createBox,
-  deleteBox
+  deleteBox,
+  setHoveredBox
 }
 const ListItem = connect(
   undefined,
@@ -68,12 +70,11 @@ const ListItem = connect(
   ({
     createBox,
     deleteBox,
+    setHoveredBox,
     box,
     imageName,
     image,
-    imageDims,
-    onBoxEnter,
-    onBoxLeave
+    imageDims
   }) => {
     const [editing, setEditing] = useState(false)
 
@@ -114,10 +115,14 @@ const ListItem = connect(
 
     const handleBoxEnter = useCallback(
       box => () => {
-        onBoxEnter(box)
+        setHoveredBox(box)
       },
-      [onBoxEnter]
+      [setHoveredBox]
     )
+
+    const handleBoxLeave = useCallback(() => {
+      setHoveredBox(undefined)
+    }, [setHoveredBox])
 
     const {
       cropWidth,
@@ -174,7 +179,7 @@ const ListItem = connect(
       <div
         className={editing ? styles.editing : styles.listItemWrapper}
         onMouseEnter={handleBoxEnter(box)}
-        onMouseLeave={onBoxLeave}
+        onMouseLeave={handleBoxLeave}
       >
         <div className={styles.thumbnailWrapper}>
           <div
@@ -225,20 +230,13 @@ const ListItem = connect(
   }
 )
 
-const LayersPanel = ({
-  bboxes,
-  imageName,
-  image,
-  onBoxEnter,
-  onBoxLeave,
-  editing
-}) => {
+const LayersPanel = ({ bboxes, imageName, image, activeBox }) => {
   const [imageDims, setImageDims] = useState([0, 0])
   let mergedBoxes = [...bboxes]
 
-  if (editing.box) {
-    mergedBoxes = mergedBoxes.filter(box => box.id !== editing.box.id)
-    mergedBoxes.unshift(editing.box)
+  if (activeBox) {
+    mergedBoxes = mergedBoxes.filter(box => box.id !== activeBox.id)
+    mergedBoxes.unshift(activeBox)
   }
 
   useEffect(() => {
@@ -263,8 +261,6 @@ const LayersPanel = ({
             image={image}
             imageName={imageName}
             imageDims={imageDims}
-            onBoxEnter={onBoxEnter}
-            onBoxLeave={onBoxLeave}
           />
         </motion.div>
       ))}
@@ -273,6 +269,6 @@ const LayersPanel = ({
 }
 
 const mapStateToProps = state => ({
-  editing: state.editing
+  activeBox: state.editor.box
 })
 export default connect(mapStateToProps)(LayersPanel)
