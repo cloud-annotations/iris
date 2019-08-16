@@ -1,9 +1,9 @@
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import { connect } from 'react-redux'
 
-import Canvas, { idForBox } from 'common/Canvas/Canvas'
+import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
-import { createBox, deleteBox } from 'redux/collection'
+import { createBox, updateBox } from 'redux/collection'
 import { setEditingBox } from 'redux/editing'
 
 const uniqueColor = (index, numberOfColors) => {
@@ -15,7 +15,7 @@ const uniqueColor = (index, numberOfColors) => {
 
 const DrawingPanel = ({
   createBox,
-  deleteBox,
+  updateBox,
   setEditingBox,
   tool,
   annotations,
@@ -26,50 +26,38 @@ const DrawingPanel = ({
 }) => {
   const bboxes = annotations[selectedImage] || []
 
-  const activeLabel = undefined // TODO: get from props
+  const activeLabel = undefined || 'Untitled Label' // TODO: get from props
 
   const handleBoxStarted = useCallback(
     box => {
-      const editingBox = {
-        ...box,
-        label: box.label || activeLabel || 'Untitled Label'
-      }
-      setEditingBox(selectedImage, idForBox(editingBox), editingBox)
+      setEditingBox(box)
     },
-    [activeLabel, selectedImage, setEditingBox]
+    [setEditingBox]
   )
 
   const handleBoxChanged = useCallback(
-    (id, box) => {
-      const editingBox = {
-        ...box,
-        label: box.label || activeLabel || 'Untitled Label'
-      }
-      setEditingBox(selectedImage, id, editingBox)
+    box => {
+      setEditingBox(box)
     },
-    [activeLabel, selectedImage, setEditingBox]
+    [setEditingBox]
   )
 
   const handleBoxFinished = useCallback(
-    (id, box) => {
-      setEditingBox(undefined, undefined, undefined)
-      createBox(selectedImage, {
-        ...box,
-        label: box.label || activeLabel || 'Untitled Label'
-      })
-      if (id) {
-        const box = bboxes.find(box => idForBox(box) === id)
-        deleteBox(selectedImage, box)
+    box => {
+      const boxToUpdate = bboxes.find(b => b.id === box.id)
+      if (boxToUpdate) {
+        updateBox(selectedImage, boxToUpdate, box)
+      } else {
+        createBox(selectedImage, box)
       }
+      setEditingBox(undefined)
     },
-    [activeLabel, bboxes, createBox, deleteBox, selectedImage, setEditingBox]
+    [bboxes, createBox, updateBox, selectedImage, setEditingBox]
   )
 
   let mergedBoxes = [...bboxes]
-  if (editing.id) {
-    mergedBoxes = mergedBoxes.filter(box => idForBox(box) !== editing.id)
-  }
   if (editing.box) {
+    mergedBoxes = mergedBoxes.filter(box => box.id !== editing.box.id)
     mergedBoxes.unshift(editing.box)
   }
 
@@ -102,6 +90,7 @@ const DrawingPanel = ({
           >
             <Canvas
               mode={tool}
+              activeLabel={activeLabel}
               bboxes={mergedBoxes}
               image={image}
               hovered={hoveredBox}
@@ -120,7 +109,7 @@ const mapStateToProps = state => ({
   annotations: state.collection.annotations,
   editing: state.editing
 })
-const mapDispatchToProps = { createBox, deleteBox, setEditingBox }
+const mapDispatchToProps = { createBox, updateBox, setEditingBox }
 export default connect(
   mapStateToProps,
   mapDispatchToProps

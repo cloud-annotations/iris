@@ -45,6 +45,7 @@
 
 import produce, { immerable } from 'immer'
 import COS from './api/COSv2'
+import { generateUUID } from 'Utils'
 
 const listAllObjects = async (cos, params) => {
   const recursivelyQuery = async (continuationToken, list = []) => {
@@ -103,11 +104,17 @@ export default class Collection {
     const fileList = objectList.map(object => object.Key)
     const images = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
 
+    const annotations = produce(collectionJson.annotations, draft => {
+      Object.keys(draft).forEach(image => {
+        draft[image] = draft[image].map(box => ({ ...box, id: generateUUID() }))
+      })
+    })
+
     const collection = new Collection(
       collectionJson.type,
       collectionJson.labels,
       images,
-      collectionJson.annotations
+      annotations
     )
     collection.cos = cos
     collection.bucket = bucket
@@ -206,14 +213,7 @@ export default class Collection {
   deleteBox(image, box, syncComplete) {
     const collection = produce(this, draft => {
       draft.annotations[image].splice(
-        draft.annotations[image].findIndex(
-          oldBBox =>
-            oldBBox.x === box.x &&
-            oldBBox.x2 === box.x2 &&
-            oldBBox.y === box.y &&
-            oldBBox.y2 === box.y2 &&
-            oldBBox.label === box.label
-        ),
+        draft.annotations[image].findIndex(oldBBox => oldBBox.id === box.id),
         1
       )
       if (draft.annotations[image].length === 0) {

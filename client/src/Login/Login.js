@@ -42,7 +42,7 @@ const useCheckIfLoggedIn = () => {
       checkLoginStatus()
       history.push('/')
     } catch (error) {
-      console.log(error)
+      console.error(error)
     }
   }, [])
 }

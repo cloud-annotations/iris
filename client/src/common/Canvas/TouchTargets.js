@@ -4,23 +4,23 @@ import styles from './TouchTargets.module.css'
 
 export default class Rect extends Component {
   handleTopLeftCorner = e => {
-    const { onCornerGrabbed, boxId } = this.props
-    onCornerGrabbed(e, boxId, [0, 0])
+    const { onCornerGrabbed, bbox } = this.props
+    onCornerGrabbed(e, bbox.id, [0, 0])
   }
 
   handleTopRightCorner = e => {
-    const { onCornerGrabbed, boxId } = this.props
-    onCornerGrabbed(e, boxId, [1, 0])
+    const { onCornerGrabbed, bbox } = this.props
+    onCornerGrabbed(e, bbox.id, [1, 0])
   }
 
   handleBottomRightCorner = e => {
-    const { onCornerGrabbed, boxId } = this.props
-    onCornerGrabbed(e, boxId, [1, 1])
+    const { onCornerGrabbed, bbox } = this.props
+    onCornerGrabbed(e, bbox.id, [1, 1])
   }
 
   handleBottomLeftCorner = e => {
-    const { onCornerGrabbed, boxId } = this.props
-    onCornerGrabbed(e, boxId, [0, 1])
+    const { onCornerGrabbed, bbox } = this.props
+    onCornerGrabbed(e, bbox.id, [0, 1])
   }
 
   render() {

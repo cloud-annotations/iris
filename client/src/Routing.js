@@ -44,7 +44,7 @@ const useAccount = dispatch => {
         )
       })
       .catch(error => {
-        console.log(error)
+        console.error(error)
       })
   }, [dispatch])
 }
@@ -59,7 +59,7 @@ const useUpgradeToken = account => {
           setTokenUpgraded(true)
         })
         .catch(error => {
-          console.log(error)
+          console.error(error)
         })
     }
   }, [account])
@@ -81,7 +81,7 @@ const useResourceList = (dispatch, tokenUpgraded) => {
           )
         })
         .catch(error => {
-          console.log(error)
+          console.error(error)
         })
     }
   }, [dispatch, tokenUpgraded])
@@ -98,7 +98,7 @@ const useProfile = (dispatch, account) => {
           dispatch(setProfile(user))
         })
         .catch(error => {
-          console.log(error)
+          console.error(error)
         })
     }
   }, [account, dispatch])

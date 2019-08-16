@@ -11,6 +11,7 @@
     "carbon-components-react": "^6.38.1",
     "carbon-icons": "^7.0.7",
     "crypto-js": "^3.1.9-1",
+    "framer-motion": "^1.6.2",
     "gh-pages": "^1.2.0",
     "http-proxy-middleware": "^0.19.1",
     "immer": "^3.1.3",

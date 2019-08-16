@@ -4,23 +4,23 @@ import Nobs from './Nobs'
 import TouchTargets from './TouchTargets'
 
 import styles from './Canvas.module.css'
+import { generateUUID } from 'Utils'
 
 export const MOVE = 'move'
 export const BOX = 'box'
 
-export const idForBox = box => {
-  if (!box) {
-    return undefined
-  }
-  return `${box.x}${box.y}${box.x2}${box.y2}${box.label}`
-}
+// export const idForBox = box => {
+//   if (!box) {
+//     return undefined
+//   }
+//   return `${box.x}${box.y}${box.x2}${box.y2}${box.label}`
+// }
 
 export default class App extends Component {
   state = {
     size: { imageWidth: 0, imageHeight: 0 }
   }
 
-  editingBoxId = undefined
   box = undefined
   canvasRect = undefined
   dragging = false
@@ -45,7 +45,7 @@ export default class App extends Component {
   }
 
   handleCanvasDragStart = e => {
-    const { mode, onBoxStarted } = this.props
+    const { mode, activeLabel, onBoxStarted } = this.props
     const { size } = this.state
 
     // Start drag if it was a left click.
@@ -72,10 +72,12 @@ export default class App extends Component {
     const mY = (e.clientY - this.canvasRect.top) / imageHeight
 
     const box = {
+      id: generateUUID(),
       x: Math.min(1, Math.max(0, mX)),
       y: Math.min(1, Math.max(0, mY)),
       x2: Math.min(1, Math.max(0, mX)),
-      y2: Math.min(1, Math.max(0, mY))
+      y2: Math.min(1, Math.max(0, mY)),
+      label: activeLabel
     }
 
     onBoxStarted(box)
@@ -104,10 +106,7 @@ export default class App extends Component {
     this.move = move
     this.dragging = true
 
-    const box = bboxes.find(box => idForBox(box) === boxId)
-
-    this.editingBoxId = boxId
-    this.box = box
+    this.box = bboxes.find(b => b.id === boxId)
   }
 
   handleMouseMove = e => {
@@ -160,7 +159,7 @@ export default class App extends Component {
       ...rest
     }
 
-    onBoxChanged(this.editingBoxId, computedBox)
+    onBoxChanged(computedBox)
 
     this.box = computedBox
   }
@@ -172,10 +171,9 @@ export default class App extends Component {
       return
     }
 
-    onBoxFinished(this.editingBoxId, this.box)
+    onBoxFinished(this.box)
 
     this.dragging = false
-    this.editingBoxId = undefined
     this.box = undefined
   }
 
@@ -200,8 +198,6 @@ export default class App extends Component {
   render() {
     const { hovered, bboxes, mode, image } = this.props
     const { size } = this.state
-
-    const boxesWithTemp = bboxes
 
     return (
       <div
@@ -229,8 +225,8 @@ export default class App extends Component {
             height: size.imageHeight
           }}
         >
-          {boxesWithTemp.map(bbox => (
-            <div key={idForBox(bbox)}>
+          {bboxes.map(bbox => (
+            <div key={bbox.id}>
               <Box bbox={bbox} imageSize={size} />
               {mode === MOVE && <Nobs bbox={bbox} imageSize={size} />}
             </div>
@@ -248,20 +244,19 @@ export default class App extends Component {
           }}
         >
           {mode === BOX &&
-            boxesWithTemp.map(bbox => (
+            bboxes.map(bbox => (
               <Box
-                key={idForBox(bbox)}
+                key={bbox.id}
                 bbox={bbox}
-                hovered={idForBox(hovered) === idForBox(bbox)}
+                hovered={hovered && hovered.id === bbox.id}
                 mode={BOX}
                 imageSize={size}
               />
             ))}
           {mode === MOVE &&
-            boxesWithTemp.map(bbox => (
+            bboxes.map(bbox => (
               <TouchTargets
-                key={idForBox(bbox)}
-                boxId={idForBox(bbox)}
+                key={bbox.id}
                 bbox={bbox}
                 onCornerGrabbed={this.handleMouseDown}
                 imageSize={size}

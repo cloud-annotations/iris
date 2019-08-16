@@ -113,7 +113,6 @@ const Buckets = ({
       const activeAccount = accounts.find(
         account => accountNameForAccount(account) === item
       ).accountId
-      console.log(activeAccount)
       dispatch(
         setAccounts({
           accounts: accounts,
@@ -128,7 +127,6 @@ const Buckets = ({
     item => {
       const activeResource = resources.find(resource => resource.name === item)
         .id
-      console.log(activeResource)
       dispatch(
         setResources({
           resources: resources,

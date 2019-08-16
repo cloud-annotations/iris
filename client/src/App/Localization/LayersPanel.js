@@ -1,12 +1,18 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { motion } from 'framer-motion'
 import { connect } from 'react-redux'
 
 import styles from './LayersPanel.module.css'
-import { idForBox } from 'common/Canvas/Canvas'
 import { createBox, deleteBox } from 'redux/collection'
 
 const MAX_HEIGHT = 24
 const MAX_WIDTH = 24
+
+const transition = {
+  type: 'tween',
+  ease: 'easeOut',
+  duration: 0.225
+}
 
 const calculateCrop = (x1, x2, y1, y2, imageSize) => {
   // If the boxes are still being dragged, the values might not be in the right order.
@@ -219,10 +225,6 @@ const ListItem = connect(
   }
 )
 
-const keyForItem = (image, box) => {
-  return `${image}+${JSON.stringify(box)}`
-}
-
 const LayersPanel = ({
   bboxes,
   imageName,
@@ -234,10 +236,8 @@ const LayersPanel = ({
   const [imageDims, setImageDims] = useState([0, 0])
   let mergedBoxes = [...bboxes]
 
-  if (editing.id) {
-    mergedBoxes = mergedBoxes.filter(box => idForBox(box) !== editing.id)
-  }
   if (editing.box) {
+    mergedBoxes = mergedBoxes.filter(box => box.id !== editing.box.id)
     mergedBoxes.unshift(editing.box)
   }
 
@@ -252,15 +252,21 @@ const LayersPanel = ({
   return (
     <div className={styles.wrapper}>
       {mergedBoxes.map(box => (
-        <ListItem
-          key={keyForItem(image, box)}
-          box={box}
-          image={image}
-          imageName={imageName}
-          imageDims={imageDims}
-          onBoxEnter={onBoxEnter}
-          onBoxLeave={onBoxLeave}
-        />
+        <motion.div
+          key={box.id}
+          positionTransition={transition}
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0, transition: transition }}
+        >
+          <ListItem
+            box={box}
+            image={image}
+            imageName={imageName}
+            imageDims={imageDims}
+            onBoxEnter={onBoxEnter}
+            onBoxLeave={onBoxLeave}
+          />
+        </motion.div>
       ))}
     </div>
   )
