@@ -3,7 +3,8 @@ import React from 'react'
 const TOP_HEIGHT = '36px'
 const LEFT_WIDTH = '50px'
 const RIGHT_WIDTH = '272px'
-const BOTTOM_HEIGHT = '116px'
+// const BOTTOM_HEIGHT = '116px'
+const BOTTOM_HEIGHT = '138px'
 
 const DefaultLayout = ({ top, left, content, right, bottom }) => {
   return (
