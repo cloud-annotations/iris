@@ -14,6 +14,8 @@ body {
 }
 
 body.dark {
+  --skeleton: rgba(255, 255, 255, 0.1);
+
   --textInput: #282828;
   --textInputUnderline: #606060;
 
@@ -37,6 +39,8 @@ body.dark {
 }
 
 body.light {
+  --skeleton: rgba(0, 98, 255, 0.1);
+
   --textInput: #f3f3f3;
   --textInputUnderline: #a7a7a7;
 
