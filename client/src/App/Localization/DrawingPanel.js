@@ -3,13 +3,15 @@ import { connect } from 'react-redux'
 
 import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
-import { createBox, deleteBox } from 'redux/collection'
-import { setActiveBox } from 'redux/editor'
+import { createBox, deleteBox, createLabel } from 'redux/collection'
+import { setActiveBox, setActiveLabel } from 'redux/editor'
 import { uniqueColor } from './color-utils'
 
 const DrawingPanel = ({
   createBox,
   deleteBox,
+  createLabel,
+  setActiveLabel,
   setActiveBox,
   annotations,
   selectedImage,
@@ -38,6 +40,12 @@ const DrawingPanel = ({
 
   const handleBoxFinished = useCallback(
     box => {
+      // If the active label doesn't exit, create it. We shouldn't have to trim
+      // it, because it shouldn't be anything other than `Untitled Label`.
+      if (!labels.includes(box.label)) {
+        createLabel(box.label)
+        setActiveLabel(box.label)
+      }
       const boxToUpdate = bboxes.find(b => b.id === box.id)
       if (boxToUpdate) {
         deleteBox(selectedImage, boxToUpdate)
@@ -47,7 +55,16 @@ const DrawingPanel = ({
       }
       setActiveBox(undefined)
     },
-    [bboxes, setActiveBox, createBox, selectedImage, deleteBox]
+    [
+      labels,
+      bboxes,
+      setActiveBox,
+      createLabel,
+      setActiveLabel,
+      deleteBox,
+      selectedImage,
+      createBox
+    ]
   )
 
   let mergedBoxes = [...bboxes]
@@ -92,7 +109,7 @@ const DrawingPanel = ({
           >
             <Canvas
               mode={tool}
-              activeLabel={activeLabel || 'Untitled Label'} // TODO: We need to create the untitled label...
+              activeLabel={activeLabel || 'Untitled Label'}
               cmap={cmap}
               bboxes={mergedBoxes}
               image={image}
@@ -116,7 +133,13 @@ const mapStateToProps = state => ({
   hoveredBox: state.editor.hoveredBox,
   tool: state.editor.tool
 })
-const mapDispatchToProps = { createBox, deleteBox, setActiveBox }
+const mapDispatchToProps = {
+  createBox,
+  deleteBox,
+  setActiveBox,
+  createLabel,
+  setActiveLabel
+}
 export default connect(
   mapStateToProps,
   mapDispatchToProps
