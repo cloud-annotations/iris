@@ -5,13 +5,7 @@ import Canvas from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, deleteBox } from 'redux/collection'
 import { setActiveBox } from 'redux/editor'
-
-const uniqueColor = (index, numberOfColors) => {
-  const baseHue = 196
-  const spread = 360 / numberOfColors
-  const hue = Math.round((index * spread + baseHue) % 360)
-  return `hsl(${hue}, 100%, 50%)`
-}
+import { uniqueColor } from './color-utils'
 
 const DrawingPanel = ({
   createBox,
@@ -21,6 +15,7 @@ const DrawingPanel = ({
   selectedImage,
   image,
   tool,
+  labels,
   activeLabel,
   activeBox,
   hoveredBox
@@ -61,6 +56,13 @@ const DrawingPanel = ({
     mergedBoxes.unshift(activeBox)
   }
 
+  const cmap = labels.reduce((acc, label, i) => {
+    acc[label] = uniqueColor(i, labels.length)
+    return acc
+  }, {})
+
+  const activeColor = cmap[activeLabel] || 'white'
+
   return (
     <div
       style={{
@@ -73,7 +75,7 @@ const DrawingPanel = ({
       }}
     >
       <CrossHair
-        color={uniqueColor(7, 10)}
+        color={activeColor}
         active={tool === 'box'}
         children={
           <div
@@ -91,6 +93,7 @@ const DrawingPanel = ({
             <Canvas
               mode={tool}
               activeLabel={activeLabel || 'Untitled Label'} // TODO: We need to create the untitled label...
+              cmap={cmap}
               bboxes={mergedBoxes}
               image={image}
               hovered={hoveredBox}
@@ -107,6 +110,7 @@ const DrawingPanel = ({
 
 const mapStateToProps = state => ({
   annotations: state.collection.annotations,
+  labels: state.collection.labels,
   activeBox: state.editor.box,
   activeLabel: state.editor.label,
   hoveredBox: state.editor.hoveredBox,

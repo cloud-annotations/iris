@@ -195,7 +195,7 @@ export default class App extends Component {
   }
 
   render() {
-    const { hovered, bboxes, mode, image } = this.props
+    const { hovered, bboxes, mode, image, cmap } = this.props
     const { size } = this.state
 
     return (
@@ -226,7 +226,7 @@ export default class App extends Component {
         >
           {bboxes.map(bbox => (
             <div key={bbox.id}>
-              <Box bbox={bbox} imageSize={size} />
+              <Box bbox={bbox} cmap={cmap} imageSize={size} />
               {mode === MOVE && <Nobs bbox={bbox} imageSize={size} />}
             </div>
           ))}
@@ -247,6 +247,7 @@ export default class App extends Component {
               <Box
                 key={bbox.id}
                 bbox={bbox}
+                cmap={cmap}
                 hovered={hovered && hovered.id === bbox.id}
                 mode={BOX}
                 imageSize={size}
