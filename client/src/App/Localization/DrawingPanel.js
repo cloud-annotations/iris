@@ -1,11 +1,42 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 
-import Canvas from 'common/Canvas/Canvas'
+import Canvas, { BOX, MOVE } from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, deleteBox, createLabel } from 'redux/collection'
 import { setActiveBox, setActiveLabel } from 'redux/editor'
 import { uniqueColor } from './color-utils'
+
+const useIsControlPressed = () => {
+  const [isPressed, setIsPressed] = useState(false)
+  const handleKeyDown = useCallback(e => {
+    if (document.activeElement.tagName.toLowerCase() === 'input') {
+      setIsPressed(false)
+    }
+
+    if (e.ctrlKey || e.metaKey) {
+      setIsPressed(true)
+    }
+  }, [])
+
+  const handleKeyUp = useCallback(e => {
+    setIsPressed(false)
+    if (e.ctrlKey || e.metaKey) {
+      setIsPressed(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keyup', handleKeyUp)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [handleKeyDown, handleKeyUp])
+
+  return isPressed
+}
 
 const DrawingPanel = ({
   createBox,
@@ -23,6 +54,8 @@ const DrawingPanel = ({
   hoveredBox
 }) => {
   const bboxes = annotations[selectedImage] || []
+
+  const isControlPressed = useIsControlPressed()
 
   const handleBoxStarted = useCallback(
     box => {
@@ -80,6 +113,8 @@ const DrawingPanel = ({
 
   const activeColor = cmap[activeLabel] || 'white'
 
+  const activeTool = isControlPressed ? MOVE : tool
+
   return (
     <div
       style={{
@@ -93,7 +128,7 @@ const DrawingPanel = ({
     >
       <CrossHair
         color={activeColor}
-        active={tool === 'box'}
+        active={activeTool === BOX}
         children={
           <div
             style={{
@@ -108,7 +143,7 @@ const DrawingPanel = ({
             }}
           >
             <Canvas
-              mode={tool}
+              mode={activeTool}
               activeLabel={activeLabel || 'Untitled Label'}
               cmap={cmap}
               bboxes={mergedBoxes}
