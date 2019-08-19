@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { connect } from 'react-redux'
 
 import styles from './LayersPanel.module.css'
-import { createBox, deleteBox } from 'redux/collection'
+import { deleteBox, createLabel, createBox } from 'redux/collection'
 import { setHoveredBox } from 'redux/editor'
 
 const MAX_HEIGHT = 24
@@ -58,34 +58,58 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
   }
 }
 
+// TODO: Make a component for DropDown and hooks.
+const useOnClickOutside = (ref, handler) => {
+  useEffect(() => {
+    const listener = e => {
+      // Do nothing if clicking ref's element or descendent elements
+      if (!ref.current || ref.current.contains(e.target)) {
+        return
+      }
+      handler(e)
+    }
+
+    document.addEventListener('mousedown', listener)
+    document.addEventListener('touchstart', listener)
+
+    return () => {
+      document.removeEventListener('mousedown', listener)
+      document.removeEventListener('touchstart', listener)
+    }
+  }, [ref, handler])
+}
+
 const mapStateToListItemProps = state => ({
   labels: state.collection.labels
 })
 const mapDispatchToProps = {
-  createBox,
   deleteBox,
-  setHoveredBox
+  createBox,
+  setHoveredBox,
+  createLabel
 }
 const ListItem = connect(
   mapStateToListItemProps,
   mapDispatchToProps
 )(
   ({
-    createBox,
     deleteBox,
+    createBox,
     setHoveredBox,
+    createLabel,
     box,
     labels,
     imageName,
     image,
     imageDims
   }) => {
-    const [editing, setEditing] = useState(false)
+    const [labelOpen, setLabelOpen] = useState(false)
+    const [labelEditingValue, setEditingLabelValue] = useState(undefined)
 
     const inputRef = useRef(null)
 
     const handleEdit = useCallback(() => {
-      setEditing(e => !e)
+      setLabelOpen(true)
     }, [])
 
     const handleDelete = useCallback(() => {
@@ -95,28 +119,63 @@ const ListItem = connect(
     useEffect(() => {
       // calling this directly after setEditing doesn't work, which is why we need
       // to use and effect.
-      if (editing) {
+      if (labelOpen) {
         inputRef.current.focus()
         inputRef.current.select()
       }
-    }, [editing])
+    }, [labelOpen])
 
+    const ref = useRef(null)
     const handleBlur = useCallback(() => {
-      inputRef.current.value = box.label
-      setEditing(false)
-    }, [box.label])
+      setEditingLabelValue(undefined)
+      setLabelOpen(false)
+    }, [])
+    useOnClickOutside(ref, handleBlur)
+
+    const handleChange = useCallback(e => {
+      setEditingLabelValue(e.target.value)
+    }, [])
 
     const handleKeyPress = useCallback(
       e => {
         if (e.key === 'Enter') {
-          // TODO: Check if label exists, if not, create one.
-          deleteBox(imageName, box)
-          createBox(imageName, { ...box, label: inputRef.current.value })
-          setEditing(false)
+          const newActiveLabel = inputRef.current.value.trim()
+          if (newActiveLabel) {
+            if (!labels.includes(newActiveLabel)) {
+              createLabel(newActiveLabel)
+            }
+            deleteBox(imageName, box)
+            createBox(imageName, { ...box, label: newActiveLabel })
+          }
+          setEditingLabelValue(undefined)
+          setLabelOpen(false)
         }
+      },
+      [box, createBox, createLabel, deleteBox, imageName, labels]
+    )
+
+    const handleLabelChosen = useCallback(
+      label => e => {
+        e.stopPropagation()
+        deleteBox(imageName, box)
+        createBox(imageName, { ...box, label: label })
+        setEditingLabelValue(undefined)
+        setLabelOpen(false)
       },
       [box, createBox, deleteBox, imageName]
     )
+
+    const query = (labelEditingValue || '').trim()
+    const filteredLabels =
+      query === ''
+        ? labels
+        : labels
+            // If the query is at the begining of the label.
+            .filter(
+              item => item.toLowerCase().indexOf(query.toLowerCase()) === 0
+            )
+            // Only sort the list when we filter, to make it easier to see diff.
+            .sort((a, b) => a.length - b.length)
 
     const handleBoxEnter = useCallback(
       box => () => {
@@ -140,7 +199,7 @@ const ListItem = connect(
 
     return (
       <div
-        className={editing ? styles.editing : styles.listItemWrapper}
+        className={labelOpen ? styles.editing : styles.listItemWrapper}
         onMouseEnter={handleBoxEnter(box)}
         onMouseLeave={handleBoxLeave}
       >
@@ -155,11 +214,15 @@ const ListItem = connect(
             }}
           />
         </div>
-        <div className={styles.dropDownWrapper}>
-          {labels.length > 0 && (
-            <div className={editing ? styles.cardOpen : styles.card}>
-              {labels.map(label => (
-                <div className={styles.listItem} key={label}>
+        <div ref={ref} className={styles.dropDownWrapper}>
+          {filteredLabels.length > 0 && (
+            <div className={labelOpen ? styles.cardOpen : styles.card}>
+              {filteredLabels.map(label => (
+                <div
+                  className={styles.listItem}
+                  key={label}
+                  onClick={handleLabelChosen(label)}
+                >
                   {label}
                 </div>
               ))}
@@ -168,11 +231,14 @@ const ListItem = connect(
           <input
             ref={inputRef}
             className={styles.editTextWrapper}
-            readOnly={!editing}
-            disabled={!editing}
+            readOnly={!labelOpen}
+            disabled={!labelOpen}
+            onChange={handleChange}
             onKeyPress={handleKeyPress}
-            onBlur={handleBlur}
-            defaultValue={box.label}
+            // We need to use undefined because and empty string is falsy
+            value={
+              labelEditingValue !== undefined ? labelEditingValue : box.label
+            }
             type="text"
           />
         </div>

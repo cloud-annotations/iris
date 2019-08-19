@@ -41,8 +41,8 @@ const LabelDropDown = connect(
   const [labelEditingValue, setEditingLabelValue] = useState(undefined)
 
   const inputRef = useRef(null)
-  const ref = useRef(null)
 
+  const ref = useRef(null)
   const handleBlur = useCallback(() => {
     setEditingLabelValue(undefined)
     setLabelOpen(false)
