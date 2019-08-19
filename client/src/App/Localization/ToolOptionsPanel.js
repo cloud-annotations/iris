@@ -5,6 +5,26 @@ import { setActiveLabel } from 'redux/editor'
 import { createLabel } from 'redux/collection'
 import styles from './ToolOptionsPanel.module.css'
 
+const useOnClickOutside = (ref, handler) => {
+  useEffect(() => {
+    const listener = e => {
+      // Do nothing if clicking ref's element or descendent elements
+      if (!ref.current || ref.current.contains(e.target)) {
+        return
+      }
+      handler(e)
+    }
+
+    document.addEventListener('mousedown', listener)
+    document.addEventListener('touchstart', listener)
+
+    return () => {
+      document.removeEventListener('mousedown', listener)
+      document.removeEventListener('touchstart', listener)
+    }
+  }, [ref, handler])
+}
+
 const mapStateToProps = state => ({
   activeLabel: state.editor.label,
   labels: state.collection.labels
@@ -21,6 +41,13 @@ const LabelDropDown = connect(
   const [labelEditingValue, setEditingLabelValue] = useState(undefined)
 
   const inputRef = useRef(null)
+  const ref = useRef(null)
+
+  const handleBlur = useCallback(() => {
+    setEditingLabelValue(undefined)
+    setLabelOpen(false)
+  }, [])
+  useOnClickOutside(ref, handleBlur)
 
   // If there's no active label, use the first label in the list. If the
   // list is empty, use a default label of `Untitled Label`.
@@ -35,11 +62,6 @@ const LabelDropDown = connect(
       inputRef.current.select()
     }
   }, [labelOpen])
-
-  const handleBlur = useCallback(() => {
-    setEditingLabelValue(undefined)
-    setLabelOpen(false)
-  }, [])
 
   const handleChange = useCallback(e => {
     setEditingLabelValue(e.target.value)
@@ -66,15 +88,30 @@ const LabelDropDown = connect(
     setLabelOpen(true)
   }, [])
 
+  const handleLabelChosen = useCallback(
+    label => e => {
+      e.stopPropagation()
+      setActiveLabel(label)
+      setEditingLabelValue(undefined)
+      setLabelOpen(false)
+    },
+    [setActiveLabel]
+  )
+
   return (
     <div
+      ref={ref}
       onClick={handleClick}
       className={labelOpen ? styles.labelDropDownOpen : styles.labelDropDown}
     >
       {labels.length > 0 && (
         <div className={labelOpen ? styles.cardOpen : styles.card}>
           {labels.map(label => (
-            <div className={styles.listItem} key={label}>
+            <div
+              className={styles.listItem}
+              key={label}
+              onClick={handleLabelChosen(label)}
+            >
               {label}
             </div>
           ))}
@@ -87,7 +124,6 @@ const LabelDropDown = connect(
         disabled={!labelOpen}
         onChange={handleChange}
         onKeyPress={handleKeyPress}
-        onBlur={handleBlur}
         // We need to use undefined because and empty string is falsy
         value={labelEditingValue !== undefined ? labelEditingValue : labelValue}
         type="text"
