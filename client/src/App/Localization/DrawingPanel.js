@@ -38,6 +38,39 @@ const useIsControlPressed = () => {
   return isPressed
 }
 
+const useToggleLabel = (activeLabel, labels, setActiveLabel) => {
+  const handleKeyDown = useCallback(
+    e => {
+      if (document.activeElement.tagName.toLowerCase() === 'input') {
+        return
+      }
+
+      const char = e.key.toLowerCase()
+      if (char === 'q') {
+        setActiveLabel(
+          labels[(labels.indexOf(activeLabel) + 1) % labels.length]
+        )
+      }
+      let labelIndex = parseInt(char) - 1
+      // Treat 0 as 10 because it comes after 9 on the keyboard.
+      if (labelIndex < 0) {
+        labelIndex = 9
+      }
+      if (labelIndex < labels.length) {
+        setActiveLabel(labels[labelIndex])
+      }
+    },
+    [activeLabel, labels, setActiveLabel]
+  )
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handleKeyDown])
+}
+
 const DrawingPanel = ({
   createBox,
   deleteBox,
@@ -56,6 +89,7 @@ const DrawingPanel = ({
   const bboxes = annotations[selectedImage] || []
 
   const isControlPressed = useIsControlPressed()
+  useToggleLabel(activeLabel, labels, setActiveLabel)
 
   const handleBoxStarted = useCallback(
     box => {
