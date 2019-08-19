@@ -98,15 +98,25 @@ const LabelDropDown = connect(
     [setActiveLabel]
   )
 
+  const query = (labelEditingValue || '').trim()
+  const filteredLabels =
+    query === ''
+      ? labels
+      : labels
+          // If the query is at the begining of the label.
+          .filter(item => item.toLowerCase().indexOf(query.toLowerCase()) === 0)
+          // Only sort the list when we filter, to make it easier to see diff.
+          .sort((a, b) => a.length - b.length)
+
   return (
     <div
       ref={ref}
       onClick={handleClick}
       className={labelOpen ? styles.labelDropDownOpen : styles.labelDropDown}
     >
-      {labels.length > 0 && (
+      {filteredLabels.length > 0 && (
         <div className={labelOpen ? styles.cardOpen : styles.card}>
-          {labels.map(label => (
+          {filteredLabels.map(label => (
             <div
               className={styles.listItem}
               key={label}
