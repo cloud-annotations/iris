@@ -49,12 +49,34 @@ const useImage = (endpoint, bucket, image) => {
 
 const Localization = ({ bucket, location, collection }) => {
   const [selection, setSelection] = useState(0)
+  const [imageFilter, setImageFilter] = useState(undefined)
 
   const handleSelectionChanged = useCallback(selection => {
     setSelection(selection)
   }, [])
 
-  const images = collection.images
+  const handleImageFilterChange = useCallback(e => {
+    switch (e.target.value) {
+      case 'all':
+        setImageFilter(undefined)
+        break
+      case 'labeled':
+        setImageFilter(true)
+        break
+      case 'unlabeled':
+        setImageFilter(false)
+        break
+      default:
+        break
+    }
+  }, [])
+
+  // TODO: Use image name instead of index as the `selection` so we can easily
+  // inject the current image into the list.
+  const images =
+    imageFilter === undefined
+      ? collection.images
+      : collection.getLabeledImages(imageFilter)
   const selectedImage = images[selection]
 
   const bboxes = collection.annotations[selectedImage] || []
@@ -137,10 +159,11 @@ const Localization = ({ bucket, location, collection }) => {
                 fontSize: '12px',
                 color: 'var(--brightText)'
               }}
+              onChange={handleImageFilterChange}
             >
-              <option>All Images</option>
-              <option>Labeled</option>
-              <option>Unlabeled</option>
+              <option value="all">All Images</option>
+              <option value="labeled">Labeled</option>
+              <option value="unlabeled">Unlabeled</option>
             </select>
           </div>
           <div
