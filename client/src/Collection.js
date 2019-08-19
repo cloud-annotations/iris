@@ -243,8 +243,8 @@ export default class Collection {
 
 const syncBucket = async (bucket, collection, syncComplete) => {
   const string = JSON.stringify(collection.toJSON())
-  const b = new Blob([string], { type: 'application/json;charset=utf-8;' })
-  console.log('syning with', string)
-  // await bucket.putFile({ name: '_annotations.json', blob: b })
+  const blob = new Blob([string], { type: 'application/json;charset=utf-8;' })
+  // TODO: Uncomment this to sync changes.
+  // await bucket.putFile({ name: '_annotations.json', blob: blob })
   syncComplete && syncComplete()
 }

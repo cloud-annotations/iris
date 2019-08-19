@@ -14,6 +14,9 @@ body {
 }
 
 body.dark {
+  --dropzoneGrad1: hsla(0, 0%, 0%, 1);
+  --dropzoneGrad2: hsla(0, 0%, 0%, 0.85);
+
   --skeleton: rgba(255, 255, 255, 0.1);
 
   --textInput: #282828;
@@ -39,6 +42,9 @@ body.dark {
 }
 
 body.light {
+  --dropzoneGrad1: hsla(0, 0%, 100%, 1);
+  --dropzoneGrad2: hsla(0, 0%, 100%, 0.85);
+
   --skeleton: rgba(0, 98, 255, 0.1);
 
   --textInput: #f3f3f3;
