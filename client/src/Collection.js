@@ -90,11 +90,14 @@ export default class Collection {
   static async load(endpoint, bucket) {
     const cos = new COS({ endpoint: endpoint })
 
-    const collectionPromise = await cos.getObject({
-      Bucket: bucket,
-      Key: '_annotations.json'
-    })
-    const objectListPromise = await listAllObjects(cos, { Bucket: bucket })
+    const collectionPromise = optional(
+      cos.getObject({
+        Bucket: bucket,
+        Key: '_annotations.json'
+      }),
+      {}
+    )
+    const objectListPromise = listAllObjects(cos, { Bucket: bucket })
 
     const [collectionJson, objectList] = await Promise.all([
       collectionPromise,
