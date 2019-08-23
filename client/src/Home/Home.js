@@ -1,10 +1,18 @@
-import React from 'react'
+import React, { useCallback } from 'react'
+
+import styles from './Home.module.css'
 
 const Home = () => {
+  const handleClick = useCallback(() => {
+    window.location.href = '/auth/login'
+  }, [])
+
   return (
-    <>
-      <a href="/auth/login">Continue with IBM Cloud</a>
-    </>
+    <div className={styles.wrapper}>
+      <div className={styles.button} onClick={handleClick}>
+        Continue with IBM Cloud
+      </div>
+    </div>
   )
 }
 
