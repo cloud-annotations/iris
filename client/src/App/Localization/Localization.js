@@ -123,7 +123,8 @@ const Localization = ({ bucket, location, collection }) => {
               zIndex: 10,
               display: 'flex',
               alignItems: 'center',
-              borderBottom: '1px solid var(--toolBarSpacer)'
+              borderBottom: '1px solid var(--toolBarSpacer)',
+              userSelect: 'none'
             }}
           >
             <div
@@ -157,7 +158,8 @@ const Localization = ({ bucket, location, collection }) => {
                   "'ibm-plex-sans', Helvetica Neue, Arial, sans-serif",
                 fontWeight: 500,
                 fontSize: '12px',
-                color: 'var(--brightText)'
+                color: 'var(--brightText)',
+                cursor: 'pointer'
               }}
               onChange={handleImageFilterChange}
             >

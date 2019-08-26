@@ -38,7 +38,13 @@ export default class App extends Component {
   }
 
   handleCanvasDragStart = e => {
-    const { mode, activeLabel, onBoxStarted } = this.props
+    const {
+      mode,
+      bboxes,
+      activeLabel,
+      onBoxStarted,
+      onBoxFinished
+    } = this.props
     const { size } = this.state
 
     // Start drag if it was a left click.
@@ -47,6 +53,13 @@ export default class App extends Component {
     }
 
     if (mode !== BOX) {
+      return
+    }
+
+    // If we are still dragging then they drew too small of a box. So we are
+    // in double click mode.
+    if (this.dragging) {
+      this.handleDragEnd()
       return
     }
 
@@ -163,6 +176,10 @@ export default class App extends Component {
     }
 
     const { x, y, x2, y2, ...rest } = bboxes.find(b => b.id === this.box.id)
+
+    if (x - x2 === 0 && y - y2 === 0) {
+      return
+    }
 
     onBoxFinished({
       x: Math.min(x, x2),

@@ -29,6 +29,43 @@ const Home = () => {
           <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
           Annotations
         </div>
+        <a
+          href="https://github.com/cloud-annotations"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Docs
+        </a>
+        <a
+          href="https://github.com/cloud-annotations"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub
+        </a>
+        <div className={styles.button} onClick={handleClick}>
+          Log in
+        </div>
+      </div>
+      <div className={styles.leftWrapper}>
+        <div className={styles.bigText}>Cloud Annotations</div>
+        <div className={styles.subText}>
+          Something something lorem epson sid alor mit Something something lorem
+          epson sid alor mit Something something lorem epson sid alor mit
+          Something something lorem epson sid alor mit
+        </div>
+        <div className={styles.buttonsWrapper}>
+          {loading ? (
+            <div className={styles.loading}>
+              <InlineLoading description="Loading" success={false} />
+            </div>
+          ) : (
+            <div className={styles.button} onClick={handleClick}>
+              Continue with IBM Cloud
+            </div>
+          )}
+          <div className={styles.button}>Documentation</div>
+        </div>
       </div>
       <div className={styles.videoWrapper}>
         <img className={styles.image} src={windowDark} alt="" />
@@ -44,15 +81,6 @@ const Home = () => {
           <source src={video2} type="video/mp4" />
         </video>
       </div>
-      {loading ? (
-        <div className={styles.loading}>
-          <InlineLoading description="Loading" success={false} />
-        </div>
-      ) : (
-        <div className={styles.button} onClick={handleClick}>
-          Continue with IBM Cloud
-        </div>
-      )}
     </div>
   )
 }
