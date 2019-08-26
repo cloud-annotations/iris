@@ -139,6 +139,14 @@ export async function canvasToBlob(canvas) {
   })
 }
 
+export async function canvasToFile(canvas, name) {
+  return new Promise((resolve, _) => {
+    canvas.toBlob(blob => {
+      resolve({ blob: blob, name: name })
+    }, 'image/jpeg')
+  })
+}
+
 export async function namedCanvasToFile(namedCanvas) {
   return new Promise((resolve, _) => {
     namedCanvas.canvas.toBlob(blob => {

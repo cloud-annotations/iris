@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
+import localforage from 'localforage'
 import { connect } from 'react-redux'
 import { Loading } from 'carbon-components-react'
 import queryString from 'query-string'
@@ -9,7 +10,8 @@ import {
   loadCollection,
   clearCollection,
   setCollectionType,
-  setCollection
+  setCollection,
+  uploadImages
 } from 'redux/collection'
 import Localization from './Localization/Localization'
 import Classification from './Classification/Classification'
@@ -19,16 +21,18 @@ import AppBar from './AppBar'
 import AppBarLayout from './AppBarLayout'
 
 import styles from './App.module.css'
+import { generateUUID, readFile, imageToCanvas, canvasToFile } from 'Utils'
 
-const uploadFiles = (collection, fileList, label, onPartReady, onComplete) => {
-  const FPS = 3
-  const images = fileList.filter(file => file.type.startsWith('image/'))
-  const videos = fileList.filter(file => file.type.startsWith('video/'))
-
-  // collection = collection.addVideos(videos, FPS, label, onPartReady, onComplete)
-  collection = collection.addImages(images, label, onPartReady, onComplete)
-
-  return collection
+const generateFiles = async images => {
+  const readFiles = images.map(async file => {
+    const image = await readFile(file)
+    const canvas = await imageToCanvas(image, 1500, 1500, 'scaleAspectFit')
+    const name = `${generateUUID()}.jpg`
+    const dataURL = canvas.toDataURL('image/jpeg')
+    await localforage.setItem(name, dataURL)
+    return canvasToFile(canvas, name)
+  })
+  return await Promise.all(readFiles)
 }
 
 const AnnotationPanel = ({ bucket, location, type }) => {
@@ -50,6 +54,7 @@ const App = ({
   setCollection,
   clearCollection,
   setCollectionType,
+  uploadImages,
   profile,
   collection
 }) => {
@@ -100,20 +105,13 @@ const App = ({
   }, [])
 
   const handleDrop = useCallback(
-    files => {
+    async fileList => {
       setDropActive(false)
-      const newCollection = uploadFiles(
-        collection,
-        files,
-        null,
-        newCollection => {
-          setCollection(newCollection)
-        },
-        () => {}
-      )
-      setCollection(newCollection)
+      const images = fileList.filter(file => file.type.startsWith('image/'))
+      const files = await generateFiles(images)
+      uploadImages(files)
     },
-    [collection, setCollection]
+    [uploadImages]
   )
 
   const type = collection.type
@@ -161,7 +159,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   setCollection,
   clearCollection,
-  setCollectionType
+  setCollectionType,
+  uploadImages
 }
 export default connect(
   mapStateToProps,

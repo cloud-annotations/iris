@@ -176,6 +176,14 @@ export default class Collection {
   }
 
   uploadImages(images, syncComplete) {
+    images.forEach(image =>
+      this.cos.putObject({
+        Bucket: this.bucket,
+        Key: image.name,
+        Body: image.blob
+      })
+    )
+
     // TODO: We need to actually upload the images first.
     const collection = produce(this, draft => {
       draft.images.push(...images)
