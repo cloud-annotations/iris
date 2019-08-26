@@ -39,7 +39,28 @@ export default async (endpoint, bucket, imageUrl, forcedHeight) => {
         Key: imageUrl
       })
 
-      if (forcedHeight) {
+      if (!blob.type.startsWith('image/')) {
+        // If responce isn't an image, try 4 more times, 500, 1000, 2000, 3000.
+        await new Promise((resolve, _) => {
+          const recursiveRetry = (wait, tries) => {
+            setTimeout(async () => {
+              blob = await new COS({ endpoint: endpoint }).getObject({
+                Bucket: bucket,
+                Key: imageUrl
+              })
+              if (blob.type.startsWith('image/') || tries === 0) {
+                resolve()
+              } else {
+                recursiveRetry((4 - tries) * 1000, tries - 1)
+              }
+            }, wait)
+          }
+          recursiveRetry(500, 3)
+        })
+      }
+
+      // If still isn't an image don't save it.
+      if (forcedHeight && blob.type.startsWith('image/')) {
         blob = await shrinkBlob(blob, forcedHeight)
         // Let's only cache if the image is small.
         localforage.setItem(imageUrl, blob)

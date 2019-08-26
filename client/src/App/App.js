@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import localforage from 'localforage'
 import { connect } from 'react-redux'
 import { Loading } from 'carbon-components-react'
 import queryString from 'query-string'
@@ -21,18 +20,14 @@ import AppBar from './AppBar'
 import AppBarLayout from './AppBarLayout'
 
 import styles from './App.module.css'
-import { generateUUID, readFile, imageToCanvas, canvasToFile } from 'Utils'
+import { convertToJpeg, videoToJpegs } from 'Utils'
 
-const generateFiles = async images => {
-  const readFiles = images.map(async file => {
-    const image = await readFile(file)
-    const canvas = await imageToCanvas(image, 1500, 1500, 'scaleAspectFit')
-    const name = `${generateUUID()}.jpg`
-    const dataURL = canvas.toDataURL('image/jpeg')
-    await localforage.setItem(name, dataURL)
-    return canvasToFile(canvas, name)
-  })
-  return await Promise.all(readFiles)
+const FPS = 3
+
+const generateFiles = async (images, videos) => {
+  const imageFiles = images.map(async image => await convertToJpeg(image))
+  const videoFiles = videos.map(async video => await videoToJpegs(video, FPS))
+  return (await Promise.all([...imageFiles, ...videoFiles])).flat()
 }
 
 const AnnotationPanel = ({ bucket, location, type }) => {
@@ -108,7 +103,8 @@ const App = ({
     async fileList => {
       setDropActive(false)
       const images = fileList.filter(file => file.type.startsWith('image/'))
-      const files = await generateFiles(images)
+      const videos = fileList.filter(file => file.type.startsWith('video/'))
+      const files = await generateFiles(images, videos)
       uploadImages(files)
     },
     [uploadImages]

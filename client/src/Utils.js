@@ -111,9 +111,61 @@ export async function convertToJpeg(blob) {
       c.height = image.height
       ctx.drawImage(image, 0, 0)
       const result = dataURItoBlob(c.toDataURL('image/jpeg'))
-      resolve(result)
+      resolve({
+        blob: result,
+        name: `${generateUUID()}.jpg`
+      })
     }
   })
+}
+
+export const videoToJpegs = async (videoFile, fps) => {
+  const fileURL = URL.createObjectURL(videoFile)
+
+  const video = await new Promise((resolve, _) => {
+    const video = document.createElement('video')
+    video.onloadeddata = () => {
+      resolve(video)
+    }
+    video.src = fileURL
+  })
+
+  const getCanvasForTime = (video, time) => {
+    return new Promise((resolve, _) => {
+      video.onseeked = () => {
+        const c = window.document.createElement('canvas')
+        const ctx = c.getContext('2d')
+        c.width = video.videoWidth
+        c.height = video.videoHeight
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, c.width, c.height)
+        }
+        resolve(c)
+      }
+      video.currentTime = time
+    })
+  }
+
+  // If the video doesn't have a duration, stop.
+  if (isNaN(video.duration)) {
+    return
+  }
+
+  // video duration * frames per second => total frames.
+  const totalFrames = Math.floor(video.duration * fps)
+
+  // We need to use a classical loop, because we need to wait for the promise to
+  // execute before we can seek to the next frame.
+  let frames = []
+  for (let i = 0; i < totalFrames; i++) {
+    // frame / frames per second => seek time of that frame in the video.
+    frames.push(await getCanvasForTime(video, i / fps))
+  }
+
+  return frames.map(frame => ({
+    blob: dataURItoBlob(frame.toDataURL('image/jpeg')),
+    name: `${generateUUID()}.jpg`
+  }))
 }
 
 function dataURItoBlob(dataURI) {

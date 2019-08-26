@@ -184,9 +184,9 @@ export default class Collection {
       })
     )
 
-    // TODO: We need to actually upload the images first.
     const collection = produce(this, draft => {
-      draft.images.push(...images)
+      const imageNames = images.map(image => image.name)
+      draft.images.unshift(...imageNames)
     })
 
     syncBucket(this.cos, collection, syncComplete)
