@@ -38,13 +38,7 @@ export default class App extends Component {
   }
 
   handleCanvasDragStart = e => {
-    const {
-      mode,
-      bboxes,
-      activeLabel,
-      onBoxStarted,
-      onBoxFinished
-    } = this.props
+    const { mode, activeLabel, onBoxStarted } = this.props
     const { size } = this.state
 
     // Start drag if it was a left click.
@@ -170,6 +164,7 @@ export default class App extends Component {
 
   handleDragEnd = () => {
     const { bboxes, onBoxFinished } = this.props
+    const { imageWidth, imageHeight } = this.state.size
 
     if (!this.dragging) {
       return
@@ -177,7 +172,11 @@ export default class App extends Component {
 
     const { x, y, x2, y2, ...rest } = bboxes.find(b => b.id === this.box.id)
 
-    if (x - x2 === 0 && y - y2 === 0) {
+    // If the box is less than or equal to 1 pixel, there was probably no drag.
+    if (
+      Math.abs(imageWidth * (x - x2)) <= 1 &&
+      Math.abs(imageHeight * (y - y2) <= 1)
+    ) {
       return
     }
 
