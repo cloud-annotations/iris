@@ -148,7 +148,8 @@ export const videoToJpegs = async (videoFile, fps) => {
 
   // If the video doesn't have a duration, stop.
   if (isNaN(video.duration)) {
-    return
+    // TODO: actually test this...
+    return []
   }
 
   // video duration * frames per second => total frames.

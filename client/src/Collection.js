@@ -53,7 +53,7 @@ const listAllObjects = async (cos, params) => {
       ...params,
       ContinuationToken: continuationToken
     })
-    const { NextContinuationToken, Contents } = res.ListBucketResult
+    const { NextContinuationToken, Contents = [] } = res.ListBucketResult
     const currentList = [...list, ...Contents]
     if (NextContinuationToken) {
       return await recursivelyQuery(NextContinuationToken, currentList)
@@ -95,8 +95,9 @@ export default class Collection {
         Bucket: bucket,
         Key: '_annotations.json'
       }),
-      {}
+      { type: undefined, labels: [], images: [], annotations: {} }
     )
+
     const objectListPromise = listAllObjects(cos, { Bucket: bucket })
 
     const [collectionJson, objectList] = await Promise.all([
