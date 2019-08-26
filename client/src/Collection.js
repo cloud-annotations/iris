@@ -126,7 +126,7 @@ export default class Collection {
     return collection
   }
 
-  // TODO: Memoize this function.
+  // TODO: Maybe memoize this function.
   getLabeledImages(withLabel) {
     const labeled = Object.keys(this.annotations)
     if (withLabel === true) {

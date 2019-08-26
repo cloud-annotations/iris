@@ -48,12 +48,13 @@ const useImage = (endpoint, bucket, image) => {
 }
 
 const Localization = ({ bucket, location, collection }) => {
-  const [selection, setSelection] = useState(0)
+  const [selection, setSelection] = useState(undefined)
   const [imageFilter, setImageFilter] = useState(undefined)
 
-  const handleSelectionChanged = useCallback(selection => {
-    setSelection(selection)
-  }, [])
+  const images =
+    imageFilter === undefined
+      ? collection.images
+      : collection.getLabeledImages(imageFilter)
 
   const handleImageFilterChange = useCallback(e => {
     switch (e.target.value) {
@@ -71,13 +72,15 @@ const Localization = ({ bucket, location, collection }) => {
     }
   }, [])
 
-  // TODO: Use image name instead of index as the `selection` so we can easily
-  // inject the current image into the list.
-  const images =
-    imageFilter === undefined
-      ? collection.images
-      : collection.getLabeledImages(imageFilter)
-  const selectedImage = images[selection]
+  const handleSelectionChanged = useCallback(
+    selection => {
+      setSelection(images[selection])
+    },
+    [images]
+  )
+
+  const selectedImage = selection || images[0]
+  const selectedIndex = images.indexOf(selectedImage)
 
   const bboxes = collection.annotations[selectedImage] || []
 
@@ -180,7 +183,7 @@ const Localization = ({ bucket, location, collection }) => {
             <HorizontalListController
               items={images}
               cells={cells}
-              selection={selection}
+              selection={selectedIndex}
               onSelectionChanged={handleSelectionChanged}
             />
           </div>
