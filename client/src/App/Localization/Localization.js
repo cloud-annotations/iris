@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { connect } from 'react-redux'
 
-import HorizontalListController from 'common/HorizontalList/HorizontalListController'
 import ImageTileV3 from 'common/ImageTile/ImageTileV3'
 import LayersPanel from './LayersPanel'
+import ImagesPanel from './ImagesPanel'
 import DefaultLayout from './DefaultLayout'
 import ToolsPanel from './ToolsPanel'
 import ToolOptionsPanel from './ToolOptionsPanel'
@@ -93,6 +93,8 @@ const Localization = ({ bucket, location, collection }) => {
     ))
   }, [endpoint, bucket, images])
 
+  const mapOfLabelCount = collection.getLabelMapCount()
+
   return (
     <DefaultLayout
       top={<ToolOptionsPanel />}
@@ -106,88 +108,14 @@ const Localization = ({ bucket, location, collection }) => {
         />
       }
       bottom={
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            left: 0,
-            top: 0,
-            background: 'var(--secondaryBg)'
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: 0,
-              right: '272px',
-              left: '50px',
-              height: '28px',
-              zIndex: 10,
-              display: 'flex',
-              alignItems: 'center',
-              borderBottom: '1px solid var(--toolBarSpacer)',
-              userSelect: 'none'
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                width: '130px',
-                height: '28px',
-                display: 'flex',
-                zIndex: -1,
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                fontFamily:
-                  "'ibm-plex-sans', Helvetica Neue, Arial, sans-serif",
-                fontWeight: 500,
-                fontSize: '12px',
-                color: 'var(--detailText)',
-                paddingRight: '10px'
-              }}
-            >
-              {images.length.toLocaleString()}
-            </div>
-            <select
-              style={{
-                background: 'transparent',
-                border: 'none',
-                outline: 'none',
-                marginLeft: '6px',
-                width: '130px',
-                fontFamily:
-                  "'ibm-plex-sans', Helvetica Neue, Arial, sans-serif",
-                fontWeight: 500,
-                fontSize: '12px',
-                color: 'var(--brightText)',
-                cursor: 'pointer'
-              }}
-              onChange={handleImageFilterChange}
-            >
-              <option value="all">All Images</option>
-              <option value="labeled">Labeled</option>
-              <option value="unlabeled">Unlabeled</option>
-            </select>
-          </div>
-          <div
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              left: 0,
-              height: '113px'
-            }}
-          >
-            <HorizontalListController
-              items={images}
-              cells={cells}
-              selection={selectedIndex}
-              onSelectionChanged={handleSelectionChanged}
-            />
-          </div>
-        </div>
+        <ImagesPanel
+          images={images}
+          labels={mapOfLabelCount}
+          handleImageFilterChange={handleImageFilterChange}
+          cells={cells}
+          selectedIndex={selectedIndex}
+          handleSelectionChanged={handleSelectionChanged}
+        />
       }
     />
   )

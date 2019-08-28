@@ -6,6 +6,7 @@ const SET_ACTIVE_IMAGE = 'cloud-annotations/editor/SET_ACTIVE_IMAGE'
 const SET_ACTIVE_TOOL = 'cloud-annotations/editor/SET_ACTIVE_TOOL'
 const SET_ACTIVE_LABEL = 'cloud-annotations/editor/SET_ACTIVE_LABEL'
 const SET_HOVERED_BOX = 'cloud-annotations/editor/SET_HOVERED_BOX'
+const RESET_EDITOR = 'cloud-annotations/editor/RESET_EDITOR'
 
 // Reducer
 const defaultEditor = {
@@ -17,6 +18,8 @@ const defaultEditor = {
 }
 export default function reducer(editor = defaultEditor, action = {}) {
   switch (action.type) {
+    case RESET_EDITOR:
+      return defaultEditor
     case SET_ACTIVE_BOX:
       return { ...editor, box: action.box }
     case SET_ACTIVE_IMAGE:
@@ -33,6 +36,10 @@ export default function reducer(editor = defaultEditor, action = {}) {
 }
 
 // Action Creators
+export const reset = () => ({
+  type: RESET_EDITOR
+})
+
 export const setActiveBox = box => ({
   type: SET_ACTIVE_BOX,
   box: box

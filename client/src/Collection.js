@@ -126,6 +126,21 @@ export default class Collection {
     return collection
   }
 
+  getLabelMapCount() {
+    return this.labels.reduce((acc, label) => {
+      acc[label] = Object.keys(this.annotations).reduce((acc, image) => {
+        acc += this.annotations[image].reduce((acc, annotation) => {
+          if (annotation.label === label) {
+            acc++
+          }
+          return acc
+        }, 0)
+        return acc
+      }, 0)
+      return acc
+    }, {})
+  }
+
   // TODO: Maybe memoize this function.
   getLabeledImages(withLabel) {
     const labeled = Object.keys(this.annotations)

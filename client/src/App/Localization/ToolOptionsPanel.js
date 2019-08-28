@@ -131,7 +131,7 @@ const LabelDropDown = connect(
         ref={inputRef}
         className={styles.editTextWrapper}
         readOnly={!labelOpen}
-        disabled={!labelOpen}
+        // disabled={!labelOpen} this causes issues in FireFox
         onChange={handleChange}
         onKeyPress={handleKeyPress}
         // We need to use undefined because and empty string is falsy
