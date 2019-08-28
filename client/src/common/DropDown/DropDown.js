@@ -30,7 +30,7 @@ const DropDown = ({ active, list, onChosen }) => {
     setOpen(false)
   }, [])
 
-  const dropDownRef = useRef()
+  const dropDownRef = useRef(null)
   useOnBlur(dropDownRef, blurListener)
 
   const handleClick = useCallback(() => {
@@ -80,7 +80,7 @@ export const ProfileDropDown = ({ profile }) => {
     setOpen(false)
   }, [])
 
-  const dropDownRef = useRef()
+  const dropDownRef = useRef(null)
   useOnBlur(dropDownRef, blurListener)
 
   const handleClick = useCallback(() => {

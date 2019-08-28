@@ -81,7 +81,7 @@
   height: 100%;
   flex-shrink: 0;
   opacity: 0.53;
-  padding: 0 20px 0 20px;
+  padding: 0 10px 0 20px;
 }
 
 .labelItem:hover {
@@ -90,10 +90,6 @@
 
 .labelItem:first-child {
   margin-left: 10px;
-}
-
-.labelItem:last-child {
-  margin-right: 40px;
 }
 
 .labelItemCount {
@@ -107,4 +103,24 @@
   right: 0;
   left: 0;
   height: 113px;
+}
+
+.labelItem:hover .icon {
+  visibility: visible;
+}
+
+.icon {
+  flex-shrink: 0;
+  height: 12px;
+  visibility: hidden;
+  margin-left: 15px;
+  fill: var(--detailText);
+}
+
+.icon:hover {
+  fill: var(--brightText);
+}
+
+.deleteIcon {
+  composes: icon;
 }

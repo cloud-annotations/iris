@@ -166,7 +166,7 @@ const TableList = ({
 const Search = ({ onFilterResults }) => {
   const [active, setActive] = useState(false)
 
-  const inputRef = useRef()
+  const inputRef = useRef(null)
 
   useEffect(() => {
     const blurListener = () => {
