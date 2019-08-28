@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useCallback } from 'react'
 import { connect } from 'react-redux'
 import HorizontalListController from 'common/HorizontalList/HorizontalListController'
-import { deleteLabel } from 'redux/collection'
+import { deleteLabel, syncAction } from 'redux/collection'
 
 import styles from './ImagesPanel.module.css'
 
@@ -39,16 +39,16 @@ const ImagesPanel = ({
   cells,
   selectedIndex,
   handleSelectionChanged,
-  deleteLabel
+  syncAction
 }) => {
   const scrollElementRef = useRef(null)
   useBlockSwipeBack(scrollElementRef)
 
   const handleDelete = useCallback(
     label => () => {
-      deleteLabel(label)
+      syncAction(deleteLabel, [label])
     },
-    [deleteLabel]
+    [syncAction]
   )
 
   return (
@@ -91,7 +91,7 @@ const ImagesPanel = ({
 }
 
 const mapDispatchToProps = {
-  deleteLabel
+  syncAction
 }
 export default connect(
   undefined,

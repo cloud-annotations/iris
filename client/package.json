@@ -28,6 +28,7 @@
     "react-scripts": "3.0.1",
     "react-toggle": "^4.0.2",
     "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0",
     "typescript": "^3.2.2"
   },
   "scripts": {

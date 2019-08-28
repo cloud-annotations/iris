@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { connect } from 'react-redux'
 
 import styles from './LayersPanel.module.css'
-import { deleteBox, createLabel, createBox } from 'redux/collection'
+import { deleteBox, createLabel, createBox, syncAction } from 'redux/collection'
 import { setHoveredBox } from 'redux/editor'
 
 const MAX_HEIGHT = 24
@@ -83,183 +83,167 @@ const mapStateToListItemProps = state => ({
   labels: state.collection.labels
 })
 const mapDispatchToProps = {
-  deleteBox,
-  createBox,
-  setHoveredBox,
-  createLabel
+  syncAction,
+  setHoveredBox
 }
 const ListItem = connect(
   mapStateToListItemProps,
   mapDispatchToProps
-)(
-  ({
-    deleteBox,
-    createBox,
-    setHoveredBox,
-    createLabel,
-    box,
-    labels,
-    imageName,
-    image,
-    imageDims
-  }) => {
-    const [labelOpen, setLabelOpen] = useState(false)
-    const [labelEditingValue, setEditingLabelValue] = useState(undefined)
+)(({ setHoveredBox, syncAction, box, labels, imageName, image, imageDims }) => {
+  const [labelOpen, setLabelOpen] = useState(false)
+  const [labelEditingValue, setEditingLabelValue] = useState(undefined)
 
-    const inputRef = useRef(null)
+  const inputRef = useRef(null)
 
-    const handleEdit = useCallback(() => {
-      setLabelOpen(true)
-    }, [])
+  const handleEdit = useCallback(() => {
+    setLabelOpen(true)
+  }, [])
 
-    const handleDelete = useCallback(() => {
-      deleteBox(imageName, box)
-    }, [box, deleteBox, imageName])
+  const handleDelete = useCallback(() => {
+    syncAction(deleteBox, [imageName, box])
+  }, [syncAction, box, imageName])
 
-    useEffect(() => {
-      // calling this directly after setEditing doesn't work, which is why we need
-      // to use and effect.
-      if (labelOpen) {
-        inputRef.current.focus()
-        inputRef.current.select()
-      }
-    }, [labelOpen])
+  useEffect(() => {
+    // calling this directly after setEditing doesn't work, which is why we need
+    // to use and effect.
+    if (labelOpen) {
+      inputRef.current.focus()
+      inputRef.current.select()
+    }
+  }, [labelOpen])
 
-    const ref = useRef(null)
-    const handleBlur = useCallback(() => {
-      setEditingLabelValue(undefined)
-      setLabelOpen(false)
-    }, [])
-    useOnClickOutside(ref, handleBlur)
+  const ref = useRef(null)
+  const handleBlur = useCallback(() => {
+    setEditingLabelValue(undefined)
+    setLabelOpen(false)
+  }, [])
+  useOnClickOutside(ref, handleBlur)
 
-    const handleChange = useCallback(e => {
-      setEditingLabelValue(e.target.value)
-    }, [])
+  const handleChange = useCallback(e => {
+    setEditingLabelValue(e.target.value)
+  }, [])
 
-    const handleKeyPress = useCallback(
-      e => {
-        if (e.key === 'Enter') {
-          const newActiveLabel = inputRef.current.value.trim()
-          if (newActiveLabel) {
-            if (!labels.includes(newActiveLabel)) {
-              createLabel(newActiveLabel)
-            }
-            deleteBox(imageName, box)
-            createBox(imageName, { ...box, label: newActiveLabel })
+  const handleKeyPress = useCallback(
+    e => {
+      if (e.key === 'Enter') {
+        const newActiveLabel = inputRef.current.value.trim()
+        if (newActiveLabel) {
+          if (!labels.includes(newActiveLabel)) {
+            syncAction(createLabel, [newActiveLabel])
           }
-          setEditingLabelValue(undefined)
-          setLabelOpen(false)
+          syncAction(deleteBox, [imageName, box])
+          syncAction(createBox, [imageName, { ...box, label: newActiveLabel }])
         }
-      },
-      [box, createBox, createLabel, deleteBox, imageName, labels]
-    )
-
-    const handleLabelChosen = useCallback(
-      label => e => {
-        e.stopPropagation()
-        deleteBox(imageName, box)
-        createBox(imageName, { ...box, label: label })
         setEditingLabelValue(undefined)
         setLabelOpen(false)
-      },
-      [box, createBox, deleteBox, imageName]
-    )
+      }
+    },
+    [box, imageName, labels, syncAction]
+  )
 
-    const query = (labelEditingValue || '').trim()
-    const filteredLabels =
-      query === ''
-        ? labels
-        : labels
-            // If the query is at the begining of the label.
-            .filter(
-              item => item.toLowerCase().indexOf(query.toLowerCase()) === 0
-            )
-            // Only sort the list when we filter, to make it easier to see diff.
-            .sort((a, b) => a.length - b.length)
+  const handleLabelChosen = useCallback(
+    label => e => {
+      e.stopPropagation()
+      syncAction(deleteBox, [imageName, box])
+      syncAction(createBox, [imageName, { ...box, label: label }])
+      setEditingLabelValue(undefined)
+      setLabelOpen(false)
+    },
+    [box, imageName, syncAction]
+  )
 
-    const handleBoxEnter = useCallback(
-      box => () => {
-        setHoveredBox(box)
-      },
-      [setHoveredBox]
-    )
+  const query = (labelEditingValue || '').trim()
+  const filteredLabels =
+    query === ''
+      ? labels
+      : labels
+          // If the query is at the begining of the label.
+          .filter(item => item.toLowerCase().indexOf(query.toLowerCase()) === 0)
+          // Only sort the list when we filter, to make it easier to see diff.
+          .sort((a, b) => a.length - b.length)
 
-    const handleBoxLeave = useCallback(() => {
-      setHoveredBox(undefined)
-    }, [setHoveredBox])
+  const handleBoxEnter = useCallback(
+    box => () => {
+      setHoveredBox(box)
+    },
+    [setHoveredBox]
+  )
 
-    const {
-      cropWidth,
-      cropHeight,
-      xOffset,
-      yOffset,
-      fullWidth,
-      fullHeight
-    } = calculateCrop(box.x, box.x2, box.y, box.y2, imageDims)
+  const handleBoxLeave = useCallback(() => {
+    setHoveredBox(undefined)
+  }, [setHoveredBox])
 
-    return (
-      <div
-        className={labelOpen ? styles.editing : styles.listItemWrapper}
-        onMouseEnter={handleBoxEnter(box)}
-        onMouseLeave={handleBoxLeave}
-      >
-        <div className={styles.thumbnailWrapper}>
-          <div
-            style={{
-              backgroundImage: `url(${image})`,
-              width: `${cropWidth}px`,
-              height: `${cropHeight}px`,
-              backgroundPosition: `${xOffset}px ${yOffset}px`,
-              backgroundSize: `${fullWidth}px ${fullHeight}px`
-            }}
-          />
-        </div>
-        <div ref={ref} className={styles.dropDownWrapper}>
-          {filteredLabels.length > 0 && (
-            <div className={labelOpen ? styles.cardOpen : styles.card}>
-              {filteredLabels.map(label => (
-                <div
-                  className={styles.listItem}
-                  key={label}
-                  onClick={handleLabelChosen(label)}
-                >
-                  {label}
-                </div>
-              ))}
-            </div>
-          )}
-          <input
-            ref={inputRef}
-            className={styles.editTextWrapper}
-            readOnly={!labelOpen}
-            disabled={!labelOpen}
-            onChange={handleChange}
-            onKeyPress={handleKeyPress}
-            // We need to use undefined because and empty string is falsy
-            value={
-              labelEditingValue !== undefined ? labelEditingValue : box.label
-            }
-            type="text"
-          />
-        </div>
-        <div onClick={handleEdit} className={styles.editIcon}>
-          <svg height="12px" width="12px" viewBox="2 2 36 36">
-            <g>
-              <path d="m30 2.5l-5 5 7.5 7.5 5-5-7.5-7.5z m-27.5 27.5l0 7.5 7.5 0 20-20-7.5-7.5-20 20z m7.5 5h-5v-5h2.5v2.5h2.5v2.5z" />
-            </g>
-          </svg>
-        </div>
-        <div onClick={handleDelete} className={styles.deleteIcon}>
-          <svg height="12px" width="12px" viewBox="2 2 36 36">
-            <g>
-              <path d="m31.6 10.7l-9.3 9.3 9.3 9.3-2.3 2.3-9.3-9.3-9.3 9.3-2.3-2.3 9.3-9.3-9.3-9.3 2.3-2.3 9.3 9.3 9.3-9.3z" />
-            </g>
-          </svg>
-        </div>
+  const {
+    cropWidth,
+    cropHeight,
+    xOffset,
+    yOffset,
+    fullWidth,
+    fullHeight
+  } = calculateCrop(box.x, box.x2, box.y, box.y2, imageDims)
+
+  return (
+    <div
+      className={labelOpen ? styles.editing : styles.listItemWrapper}
+      onMouseEnter={handleBoxEnter(box)}
+      onMouseLeave={handleBoxLeave}
+    >
+      <div className={styles.thumbnailWrapper}>
+        <div
+          style={{
+            backgroundImage: `url(${image})`,
+            width: `${cropWidth}px`,
+            height: `${cropHeight}px`,
+            backgroundPosition: `${xOffset}px ${yOffset}px`,
+            backgroundSize: `${fullWidth}px ${fullHeight}px`
+          }}
+        />
       </div>
-    )
-  }
-)
+      <div ref={ref} className={styles.dropDownWrapper}>
+        {filteredLabels.length > 0 && (
+          <div className={labelOpen ? styles.cardOpen : styles.card}>
+            {filteredLabels.map(label => (
+              <div
+                className={styles.listItem}
+                key={label}
+                onClick={handleLabelChosen(label)}
+              >
+                {label}
+              </div>
+            ))}
+          </div>
+        )}
+        <input
+          ref={inputRef}
+          className={styles.editTextWrapper}
+          readOnly={!labelOpen}
+          disabled={!labelOpen}
+          onChange={handleChange}
+          onKeyPress={handleKeyPress}
+          // We need to use undefined because and empty string is falsy
+          value={
+            labelEditingValue !== undefined ? labelEditingValue : box.label
+          }
+          type="text"
+        />
+      </div>
+      <div onClick={handleEdit} className={styles.editIcon}>
+        <svg height="12px" width="12px" viewBox="2 2 36 36">
+          <g>
+            <path d="m30 2.5l-5 5 7.5 7.5 5-5-7.5-7.5z m-27.5 27.5l0 7.5 7.5 0 20-20-7.5-7.5-20 20z m7.5 5h-5v-5h2.5v2.5h2.5v2.5z" />
+          </g>
+        </svg>
+      </div>
+      <div onClick={handleDelete} className={styles.deleteIcon}>
+        <svg height="12px" width="12px" viewBox="2 2 36 36">
+          <g>
+            <path d="m31.6 10.7l-9.3 9.3 9.3 9.3-2.3 2.3-9.3-9.3-9.3 9.3-2.3-2.3 9.3-9.3-9.3-9.3 2.3-2.3 9.3 9.3 9.3-9.3z" />
+          </g>
+        </svg>
+      </div>
+    </div>
+  )
+})
 
 const LayersPanel = ({ bboxes, imageName, image, activeBox }) => {
   const [imageDims, setImageDims] = useState([0, 0])

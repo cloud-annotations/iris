@@ -10,7 +10,8 @@ import {
   clearCollection,
   setCollectionType,
   setCollection,
-  uploadImages
+  uploadImages,
+  syncAction
 } from 'redux/collection'
 import Localization from './Localization/Localization'
 import Classification from './Classification/Classification'
@@ -48,13 +49,11 @@ const App = ({
   location: { search },
   setCollection,
   clearCollection,
-  setCollectionType,
-  uploadImages,
+  syncAction,
   profile,
   collection
 }) => {
   const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(0)
   const [dropActive, setDropActive] = useState(false)
 
   const location = queryString.parse(search).location
@@ -83,12 +82,9 @@ const App = ({
 
   const handleSubmit = useCallback(
     async choice => {
-      setSaving(s => s + 1)
-      setCollectionType(choice, () => {
-        setSaving(s => s - 1)
-      })
+      syncAction(setCollectionType, [choice])
     },
-    [setCollectionType]
+    [syncAction]
   )
 
   const handleDragEnter = useCallback(() => {
@@ -105,9 +101,9 @@ const App = ({
       const images = fileList.filter(file => file.type.startsWith('image/'))
       const videos = fileList.filter(file => file.type.startsWith('video/'))
       const files = await generateFiles(images, videos)
-      uploadImages(files)
+      syncAction(uploadImages, [files])
     },
-    [uploadImages]
+    [syncAction]
   )
 
   const type = collection.type
@@ -155,8 +151,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   setCollection,
   clearCollection,
-  setCollectionType,
-  uploadImages
+  syncAction
 }
 export default connect(
   mapStateToProps,

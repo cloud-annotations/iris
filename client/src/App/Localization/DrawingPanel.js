@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 
 import Canvas, { BOX, MOVE } from 'common/Canvas/Canvas'
 import CrossHair from 'common/CrossHair/CrossHair'
-import { createBox, deleteBox, createLabel } from 'redux/collection'
+import { createBox, deleteBox, createLabel, syncAction } from 'redux/collection'
 import { setActiveBox, setActiveLabel } from 'redux/editor'
 import { uniqueColor } from './color-utils'
 
@@ -72,11 +72,9 @@ const useToggleLabel = (activeLabel, labels, setActiveLabel) => {
 }
 
 const DrawingPanel = ({
-  createBox,
-  deleteBox,
-  createLabel,
   setActiveLabel,
   setActiveBox,
+  syncAction,
   annotations,
   selectedImage,
   image,
@@ -110,28 +108,19 @@ const DrawingPanel = ({
       // If the active label doesn't exit, create it. We shouldn't have to trim
       // it, because it shouldn't be anything other than `Untitled Label`.
       if (!labels.includes(box.label)) {
-        createLabel(box.label)
+        syncAction(createLabel, [box.label])
         setActiveLabel(box.label)
       }
       const boxToUpdate = bboxes.find(b => b.id === box.id)
       if (boxToUpdate) {
-        deleteBox(selectedImage, boxToUpdate)
-        createBox(selectedImage, box)
+        syncAction(deleteBox, [selectedImage, boxToUpdate])
+        syncAction(createBox, [selectedImage, box])
       } else {
-        createBox(selectedImage, box)
+        syncAction(createBox, [selectedImage, box])
       }
       setActiveBox(undefined)
     },
-    [
-      labels,
-      bboxes,
-      setActiveBox,
-      createLabel,
-      setActiveLabel,
-      deleteBox,
-      selectedImage,
-      createBox
-    ]
+    [labels, bboxes, setActiveBox, syncAction, setActiveLabel, selectedImage]
   )
 
   let mergedBoxes = [...bboxes]
@@ -178,7 +167,7 @@ const DrawingPanel = ({
           >
             <Canvas
               mode={activeTool}
-              activeLabel={activeLabel || 'Untitled Label'}
+              activeLabel={activeLabel}
               cmap={cmap}
               bboxes={mergedBoxes}
               image={image}
@@ -203,10 +192,8 @@ const mapStateToProps = state => ({
   tool: state.editor.tool
 })
 const mapDispatchToProps = {
-  createBox,
-  deleteBox,
+  syncAction,
   setActiveBox,
-  createLabel,
   setActiveLabel
 }
 export default connect(

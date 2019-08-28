@@ -1,7 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import GoogleAnalytics from 'react-ga'
-import { createStore } from 'redux'
+import thunk from 'redux-thunk'
+import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
 
 import Routing from './Routing'
@@ -20,7 +21,8 @@ GoogleAnalytics.initialize('UA-130502274-1')
 const darkMode = localStorage.getItem('darkMode') === 'true'
 document.body.className = darkMode ? 'dark' : 'light'
 
-const store = createStore(reducers)
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
 
 // Clear store on history change.
 history.listen(() => store.dispatch(reset()))

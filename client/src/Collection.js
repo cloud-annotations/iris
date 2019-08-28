@@ -54,7 +54,8 @@ const listAllObjects = async (cos, params) => {
       ContinuationToken: continuationToken
     })
     const { NextContinuationToken, Contents = [] } = res.ListBucketResult
-    const currentList = [...list, ...Contents]
+    const wrappedContents = Array.isArray(Contents) ? Contents : [Contents]
+    const currentList = [...list, ...wrappedContents]
     if (NextContinuationToken) {
       return await recursivelyQuery(NextContinuationToken, currentList)
     }
@@ -162,7 +163,7 @@ export default class Collection {
       draft.type = type
     })
 
-    syncBucket(this.cos, collection, syncComplete)
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
     return collection
   }
 
@@ -171,7 +172,7 @@ export default class Collection {
       draft.labels.push(newLabel)
     })
 
-    syncBucket(this.cos, collection, syncComplete)
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
     return collection
   }
 
@@ -187,11 +188,12 @@ export default class Collection {
       })
     })
 
-    syncBucket(this.cos, collection, syncComplete)
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
     return collection
   }
 
   uploadImages(images, syncComplete) {
+    // TODO: Do we need to wait until these requests finish?
     images.forEach(image =>
       this.cos.putObject({
         Bucket: this.bucket,
@@ -205,7 +207,7 @@ export default class Collection {
       draft.images.unshift(...imageNames)
     })
 
-    syncBucket(this.cos, collection, syncComplete)
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
     return collection
   }
 
@@ -221,7 +223,7 @@ export default class Collection {
       })
     })
 
-    syncBucket(this.cos, collection, syncComplete)
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
     return collection
   }
 
@@ -233,7 +235,7 @@ export default class Collection {
       draft.annotations[image].unshift(newBox)
     })
 
-    syncBucket(this.cos, collection, syncComplete)
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
     return collection
   }
 
@@ -251,7 +253,7 @@ export default class Collection {
       }
     })
 
-    syncBucket(this.cos, collection, syncComplete)
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
     return collection
   }
 
@@ -265,10 +267,15 @@ export default class Collection {
   }
 }
 
-const syncBucket = async (bucket, collection, syncComplete) => {
+const syncBucket = async (cos, bucket, collection, syncComplete) => {
   const string = JSON.stringify(collection.toJSON())
   const blob = new Blob([string], { type: 'application/json;charset=utf-8;' })
   // TODO: Uncomment this to sync changes.
   // await bucket.putFile({ name: '_annotations.json', blob: blob })
+  await cos.putObject({
+    Bucket: bucket,
+    Key: '_annotations.json',
+    Body: blob
+  })
   syncComplete && syncComplete()
 }

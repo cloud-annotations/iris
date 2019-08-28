@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import { connect } from 'react-redux'
 
 import { setActiveLabel } from 'redux/editor'
-import { createLabel } from 'redux/collection'
+import { createLabel, syncAction } from 'redux/collection'
 import styles from './ToolOptionsPanel.module.css'
 
 const useOnClickOutside = (ref, handler) => {
@@ -31,12 +31,12 @@ const mapStateToProps = state => ({
 })
 const mapDispatchToProps = {
   setActiveLabel,
-  createLabel
+  syncAction
 }
 const LabelDropDown = connect(
   mapStateToProps,
   mapDispatchToProps
-)(({ labels, activeLabel, setActiveLabel, createLabel }) => {
+)(({ labels, activeLabel, setActiveLabel, syncAction }) => {
   const [labelOpen, setLabelOpen] = useState(false)
   const [labelEditingValue, setEditingLabelValue] = useState(undefined)
 
@@ -49,10 +49,17 @@ const LabelDropDown = connect(
   }, [])
   useOnClickOutside(ref, handleBlur)
 
-  // If there's no active label, use the first label in the list. If the
-  // list is empty, use a default label of `Untitled Label`.
-  const labelValue =
-    activeLabel || (labels.length > 0 ? labels[0] : 'Untitled Label')
+  useEffect(() => {
+    if (labels.length > 0) {
+      if (!labels.includes(activeLabel)) {
+        setActiveLabel(labels[0])
+      } else {
+        // Do nothing.
+      }
+    } else {
+      setActiveLabel('Untitled Label')
+    }
+  }, [activeLabel, labels, setActiveLabel])
 
   useEffect(() => {
     // calling this directly after setEditing doesn't work, which is why we need
@@ -73,7 +80,7 @@ const LabelDropDown = connect(
         const newActiveLabel = inputRef.current.value.trim()
         if (newActiveLabel) {
           if (!labels.includes(newActiveLabel)) {
-            createLabel(newActiveLabel)
+            syncAction(createLabel, [newActiveLabel])
           }
           setActiveLabel(newActiveLabel)
         }
@@ -81,7 +88,7 @@ const LabelDropDown = connect(
         setLabelOpen(false)
       }
     },
-    [createLabel, labels, setActiveLabel]
+    [syncAction, labels, setActiveLabel]
   )
 
   const handleClick = useCallback(() => {
@@ -135,7 +142,9 @@ const LabelDropDown = connect(
         onChange={handleChange}
         onKeyPress={handleKeyPress}
         // We need to use undefined because and empty string is falsy
-        value={labelEditingValue !== undefined ? labelEditingValue : labelValue}
+        value={
+          labelEditingValue !== undefined ? labelEditingValue : activeLabel
+        }
         type="text"
       />
       <svg

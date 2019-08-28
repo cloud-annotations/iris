@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react'
+import { connect } from 'react-redux'
 import Toggle from 'react-toggle'
 
 import 'react-toggle/style.css'
@@ -10,7 +11,7 @@ import history from 'globalHistory'
 import moon from './moon.png'
 import styles from './AppBar.module.css'
 
-const AppBar = ({ bucket, profile }) => {
+const AppBar = ({ bucket, profile, saving }) => {
   const [darkModeToggle, setDarkModeToggle] = useState(
     localStorage.getItem('darkMode') === 'true'
   )
@@ -40,7 +41,9 @@ const AppBar = ({ bucket, profile }) => {
           <div className={styles.option}>File</div>
           <div className={styles.option}>Edit</div>
           <div className={styles.option}>Image</div>
-          <div className={styles.saved}>Saved</div>
+          <div className={styles.saved}>
+            {saving > 0 ? 'Saving...' : 'Saved'}
+          </div>
         </div>
       </div>
       <Toggle
@@ -66,4 +69,7 @@ const AppBar = ({ bucket, profile }) => {
   )
 }
 
-export default AppBar
+const mapPropsToState = state => ({
+  saving: state.editor.saving
+})
+export default connect(mapPropsToState)(AppBar)
