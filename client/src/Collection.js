@@ -185,6 +185,10 @@ export default class Collection {
         draft.annotations[image] = draft.annotations[image].filter(
           a => a.label !== label
         )
+        // Ensure images without annotations are removed.
+        if (draft.annotations[image].length === 0) {
+          delete draft.annotations[image]
+        }
       })
     })
 

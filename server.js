@@ -174,11 +174,11 @@ const tokenPoking = (
 
 // TODO: We should refresh the token, but it makes things slower, so find a
 // better way to refresh. They have an hour before they get booted out.
-// app.use((req, res, next) => {
-//   tokenPoking(res, { refresh_token: req.cookies.refresh_token }, () => {
-//     next()
-//   })
-// })
+app.use((req, res, next) => {
+  tokenPoking(res, { refresh_token: req.cookies.refresh_token }, () => {
+    next()
+  })
+})
 
 app.get('/auth/login', (req, res) => {
   const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`
