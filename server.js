@@ -172,9 +172,8 @@ const tokenPoking = (
   })
 }
 
-// TODO: We should refresh the token, but it makes things slower, so find a
-// better way to refresh. They have an hour before they get booted out.
-app.use((req, res, next) => {
+// Refresh the token anytime we try to save something.
+app.put('/api/proxy/*', (req, res, next) => {
   tokenPoking(res, { refresh_token: req.cookies.refresh_token }, () => {
     next()
   })
