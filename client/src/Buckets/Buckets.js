@@ -96,7 +96,29 @@ const Buckets = ({
       setBucketToDelete(false)
       setListOfLoadingBuckets(list => [...list, bucketName])
       try {
-        await new COS({ endpoint: defaultEndpoint }).deleteBucket({
+        const cos = new COS({ endpoint: defaultEndpoint })
+
+        // Recursively delete 1000 objects at time.
+        const deleteAllObjects = async () => {
+          const res = await cos.listObjectsV2({ Bucket: bucketName })
+          const { Contents = [] } = res.ListBucketResult
+          const contents = Array.isArray(Contents) ? Contents : [Contents]
+          const objects = contents.map(item => ({ Key: item.Key }))
+          if (objects.length > 0) {
+            await cos.deleteObjects({
+              Bucket: bucketName,
+              Delete: {
+                Objects: objects
+              }
+            })
+            await deleteAllObjects()
+          }
+          return
+        }
+
+        await deleteAllObjects()
+
+        await cos.deleteBucket({
           Bucket: bucketName
         })
       } catch (error) {
