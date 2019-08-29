@@ -172,24 +172,10 @@ const tokenPoking = (
   })
 }
 
-// Refresh token every request.
+// TODO: We should refresh the token, but it makes things slower, so find a
+// better way to refresh. They have an hour before they get booted out.
 // app.use((req, res, next) => {
-//   const options = {
-//     method: 'POST',
-//     json: true,
-//     url: 'https://iam.bluemix.net/identity/token',
-//     qs: {
-//       refresh_token: req.cookies.refresh_token,
-//       grant_type: 'refresh_token'
-//     },
-//     headers: {
-//       Authorization: 'Basic Yng6Yng='
-//     }
-//   }
-//   request(options, (error, response, body) => {
-//     if (isSuccess(error, response)) {
-//       setToken(res, body)
-//     }
+//   tokenPoking(res, { refresh_token: req.cookies.refresh_token }, () => {
 //     next()
 //   })
 // })
@@ -219,7 +205,7 @@ app.get('/auth/callback', (req, res) => {
   const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`
   const { code } = req.query
 
-  tokenPoking(res, { code: code, redirectUri: redirectUri }, response => {
+  tokenPoking(res, { code: code, redirectUri: redirectUri }, () => {
     res.redirect('/')
   })
 })
@@ -259,13 +245,9 @@ app.get('/auth/userinfo', (req, res) => {
 app.get('/api/upgrade-token', (req, res) => {
   const { refresh_token } = req.cookies
   const { account } = req.query
-  tokenPoking(
-    res,
-    { refresh_token: refresh_token, account: account },
-    response => {
-      res.end()
-    }
-  )
+  tokenPoking(res, { refresh_token: refresh_token, account: account }, () => {
+    res.end()
+  })
 })
 
 app.get('/api/accounts', (req, res) => {
@@ -370,10 +352,9 @@ app.all('/api/proxy/*', (req, res) => {
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client')))
 
-  app.get('*', (req, res) => {
+  app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, 'client', 'index.html'))
   })
 }
 
-// app.listen(port)
 http.listen(port, () => console.log('listening on port ' + port))
