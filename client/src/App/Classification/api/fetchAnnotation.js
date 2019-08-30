@@ -1,5 +1,4 @@
-import localforage from 'localforage'
-import { handleErrors, arrayBufferToBase64 } from './../Utils'
+import { handleErrors } from './../Utils'
 
 export default (endpoint, bucket, imageUrl) => {
   const annotationUrl =
@@ -13,7 +12,6 @@ export default (endpoint, bucket, imageUrl) => {
     .then(response => response.text())
     .then(str => new window.DOMParser().parseFromString(str, 'text/xml'))
     .then(data => {
-      const size = data.getElementsByTagName('size')[0]
       const width = data.getElementsByTagName('width')[0].innerHTML
       const height = data.getElementsByTagName('height')[0].innerHTML
       const objects = data.getElementsByTagName('object')

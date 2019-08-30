@@ -1,6 +1,6 @@
 .App-Parent {
   position: fixed;
-  top: 100px;
+  top: 50px;
   left: 209px;
   right: 0px;
   bottom: 0px;
@@ -11,13 +11,13 @@
 }
 
 .App-Parent.--Active {
-  top: 150px;
+  top: 100px;
   transition: all 250ms ease;
 }
 
 .App-DropZone {
   position: fixed;
-  top: 100px;
+  top: 50px;
   left: 209px;
   right: 0px;
   bottom: 0px;
@@ -25,7 +25,7 @@
 
 .App-DropTarget {
   position: fixed;
-  top: 100px;
+  top: 50px;
   left: 209px;
   z-index: 1000;
   right: 0px;

@@ -34,7 +34,8 @@ const generateFiles = async (images, videos) => {
 const AnnotationPanel = ({ bucket, location, type }) => {
   switch (type) {
     case 'classification':
-      return <LegacyApp location={location} bucket={bucket} />
+      // Using legacy app.
+      return <div />
     case 'localization':
       return <Localization location={location} bucket={bucket} />
     default:
@@ -117,29 +118,37 @@ const App = ({
       />
       <Loading active={loading} />
 
-      <AppBarLayout
-        appBar={<AppBar bucket={bucket} profile={profile} />}
-        content={
-          <Dropzone
-            disableClick
-            style={{ position: 'absolute' }} /* must override from here */
-            className={styles.dropzone}
-            accept="image/*,video/*"
-            onDrop={handleDrop}
-            onDragEnter={handleDragEnter}
-            onDragLeave={handleDragLeave}
-          >
-            <div className={dropActive ? styles.dropActive : styles.drop}>
-              <div className={styles.dropOutline}>
-                <div className={styles.dropText}>
-                  Drop to upload your images
+      {type === 'classification' ? (
+        <LegacyApp location={location} bucket={bucket} />
+      ) : (
+        <AppBarLayout
+          appBar={<AppBar bucket={bucket} profile={profile} />}
+          content={
+            <Dropzone
+              disableClick
+              style={{ position: 'absolute' }} /* must override from here */
+              className={styles.dropzone}
+              accept="image/*,video/*"
+              onDrop={handleDrop}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+            >
+              <div className={dropActive ? styles.dropActive : styles.drop}>
+                <div className={styles.dropOutline}>
+                  <div className={styles.dropText}>
+                    Drop to upload your images
+                  </div>
                 </div>
               </div>
-            </div>
-            <AnnotationPanel location={location} bucket={bucket} type={type} />
-          </Dropzone>
-        }
-      />
+              <AnnotationPanel
+                location={location}
+                bucket={bucket}
+                type={type}
+              />
+            </Dropzone>
+          }
+        />
+      )}
     </>
   )
 }

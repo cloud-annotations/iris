@@ -1,4 +1,4 @@
-import { generateUUID, handleErrors } from './../Utils'
+import { handleErrors } from './../Utils'
 
 export default (endpoint, bucket, files) => {
   const baseUrl = `/api/proxy/${endpoint}/${bucket}`

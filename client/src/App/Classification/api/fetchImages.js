@@ -13,11 +13,9 @@ import { validateCookies, handleErrors } from './../Utils'
   }
 */
 export const fetchTest = (endpoint, bucket) => {
-  const UNLABELED = 'Unlabeled'
   const TYPE_FILE = '_type'
   const ANNOTATIONS_FILE = '_annotations.csv'
   const LABELS_FILE = '_labels.csv'
-  const IMAGE_REGEX = /.(jpg|jpeg|png)$/i
 
   const baseUrl = `/api/proxy/${endpoint}/${bucket}`
 
