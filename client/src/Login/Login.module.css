@@ -27,7 +27,7 @@
   left: 0px;
   right: 0px;
   bottom: 76px;
-  z-index: -1;
+  /* z-index: -1; */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   background-color: var(--bg);

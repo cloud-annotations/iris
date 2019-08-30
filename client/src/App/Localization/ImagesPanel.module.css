@@ -47,7 +47,7 @@
   width: 130px;
   height: 28px;
   display: flex;
-  z-index: -1;
+  /* z-index: -1; */
   align-items: center;
   justify-content: flex-end;
   font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;

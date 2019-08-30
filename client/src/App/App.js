@@ -14,7 +14,7 @@ import {
   syncAction
 } from 'redux/collection'
 import Localization from './Localization/Localization'
-import Classification from './Classification/Classification'
+import LegacyApp from './Classification/App'
 import { locationFinder } from './endpointFinder'
 import ChooseBucketModal from './ChooseBucketModal'
 import AppBar from './AppBar'
@@ -34,7 +34,7 @@ const generateFiles = async (images, videos) => {
 const AnnotationPanel = ({ bucket, location, type }) => {
   switch (type) {
     case 'classification':
-      return <Classification />
+      return <LegacyApp location={location} bucket={bucket} />
     case 'localization':
       return <Localization location={location} bucket={bucket} />
     default:

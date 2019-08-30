@@ -1,0 +1,8 @@
+.choiceWrapper {
+  margin-top: 16px;
+  display: flex;
+}
+
+.choiceWrapper > *:first-of-type {
+  margin-right: 16px;
+}

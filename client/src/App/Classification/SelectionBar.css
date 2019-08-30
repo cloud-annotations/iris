@@ -1,0 +1,166 @@
+.SelectionBar {
+  z-index: 2;
+  position: fixed;
+  top: 100px;
+  left: 209px;
+  right: 0px;
+  height: 50px;
+  background-color: #4071b0;
+  align-items: stretch;
+  display: none;
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #ffffff;
+}
+
+.SelectionBar.--Active {
+  display: flex;
+}
+
+.SelectionBar-count {
+  width: 160px;
+  /* margin-left: 18px; */
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.SelectionBar-Wrapper {
+  display: flex;
+  align-items: center;
+  padding: 0 25px;
+}
+
+.SelectionBar-count-Wrapper {
+  padding-right: 0;
+}
+
+.SelectionBar-Wrapper:hover.SelectionBar-Button {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.SelectionBar-close-IconWrapper {
+  margin-left: auto;
+}
+
+.SelectionBar-close-Icon {
+  height: 15px;
+  width: 15px;
+  fill: #ffffff;
+}
+
+.SelectionBar-DropDown {
+  position: relative;
+  display: flex;
+}
+
+.SelectionBar-DropDown.--Active {
+  width: 152px;
+}
+
+.SelectionBar-DropDown-Filter {
+  visibility: collapse;
+  position: absolute;
+  background-color: #f4f7fb;
+  left: -25px;
+  top: -15px;
+  height: 50px;
+  width: 202px;
+  padding: 0 25px;
+  outline: none;
+  border: none;
+  margin: 0; /* Safari layout fix */
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.SelectionBar-DropDown-Filter::placeholder {
+  font-weight: normal;
+  opacity: 0.6;
+}
+
+.SelectionBar-DropDown.--Active .SelectionBar-DropDown-Filter {
+  visibility: visible;
+}
+
+.SelectionBar-dropdown-Icon {
+  align-self: center;
+  margin-left: 8px;
+  fill: #ffffff;
+}
+
+.SelectionBar-DropDown.--Active .SelectionBar-dropdown-Icon {
+  margin-left: auto;
+}
+
+.SelectionBar-DropDown-Menu {
+  visibility: collapse;
+  position: absolute;
+  left: -25px;
+  top: 35px;
+  box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.1);
+  max-height: calc(100vh - 150px - 40px); /*150 for topbar, 40 for margin*/
+  overflow-y: auto;
+  background-color: #ffffff;
+  color: rgb(21, 41, 53);
+  width: 202px;
+  z-index: 100;
+}
+
+.SelectionBar-DropDown.--Active .SelectionBar-DropDown-Menu {
+  visibility: visible;
+}
+
+.SelectionBar-DropDown-Menu.--Filtering
+  .SelectionBar-DropDown-MenuItemWrapper:first-child {
+  background-color: rgba(85, 150, 230, 0.15);
+}
+
+.SelectionBar-DropDown-Menu.--Filtering
+  .SelectionBar-DropDown-MenuItemWrapper:first-child:hover {
+  background-color: rgba(85, 150, 230, 0.25);
+}
+
+.SelectionBar-DropDown-MenuItemWrapper,
+.SelectionBar-DropDown-MenuItemWrapper-Button {
+  padding: 9px 25px;
+  display: flex;
+}
+
+.SelectionBar-DropDown-MenuItemWrapper:hover,
+.SelectionBar-DropDown-MenuItemWrapper-Button:hover {
+  /* color: #3d70b2; */
+  background-color: rgba(85, 150, 230, 0.1);
+}
+
+.SelectionBar-DropDown-MenuItemWrapper-Button {
+  background-color: rgba(85, 150, 230, 0.15);
+}
+
+.SelectionBar-DropDown-MenuItemWrapper-Button:hover {
+  /* color: #3d70b2; */
+  background-color: rgba(85, 150, 230, 0.25);
+}
+
+.SelectionBar-DropDown-MenuItem {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.SelectionBar-DropDown-MenuItem-highlight {
+  color: #4071b0;
+}
+
+.SelectionBar-DropDown-MenuItemWrapper-Button .SelectionBar-DropDown-MenuItem {
+  font-style: italic;
+}
+
+.SelectionBar-DropDown-MenuItem {
+  align-self: center;
+}

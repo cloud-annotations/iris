@@ -1,0 +1,32 @@
+.wrapper {
+  position: absolute;
+  user-select: none;
+}
+
+.draw {
+  position: absolute;
+  border: 1px solid white;
+  left: 1px;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+}
+
+.fill {
+  position: absolute;
+  background-color: white;
+  opacity: 0.1;
+  left: 4px;
+  top: 4px;
+  right: 4px;
+  bottom: 4px;
+}
+
+.move {
+  position: absolute;
+  border: 1px solid white;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+}

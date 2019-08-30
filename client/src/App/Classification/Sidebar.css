@@ -1,0 +1,192 @@
+.Sidebar {
+  /* z-index: -2; */
+  position: fixed;
+  border-right: 1px solid #dfe3e6;
+  width: 209px;
+  top: 100px;
+  bottom: 0px;
+  left: 0px;
+  background-color: #ffffff;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.Sidebar-Fixed-Items {
+  border-bottom: 1px solid #dfe3e6;
+  padding: 8px 0 2px 0;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.Sidebar-Item {
+  display: flex;
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: #152935;
+  padding: 9px 20px;
+
+  line-height: 23px;
+
+  border-left: 4px solid transparent;
+  position: relative;
+}
+
+.Sidebar-Item:hover {
+  color: #3d70b2;
+  background-color: rgba(85, 150, 230, 0.1);
+}
+
+.Sidebar-Item.--NoHover {
+  color: #152935;
+  background-color: #ffffff;
+}
+
+/* Must come after --NoHover */
+.Sidebar-Item.--Active {
+  color: #3d70b2;
+  font-weight: 700;
+  border-left: 4px solid #3d70b2;
+}
+
+.Sidebar-itemOverflow-Menu {
+  visibility: collapse;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: white;
+  z-index: 1;
+  box-shadow: 0px 3px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: transform ease 100ms;
+  transform: scaleX(0.5) scaleY(0.5);
+  transform-origin: top right;
+}
+
+.Sidebar-itemOverflow-Menu.--Active {
+  visibility: visible;
+  transform: scaleX(1) scaleY(1);
+}
+
+.Sidebar-itemOverflow-MenuItem {
+  padding: 6px 20px;
+  color: #152935;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.Sidebar-itemOverflow-MenuItem:hover {
+  background-color: rgba(85, 150, 230, 0.1);
+  color: #3d70b2;
+}
+
+.Sidebar-itemOverflow-MenuItem.--Danger:hover {
+  background-color: #e0182d;
+  color: #ffffff;
+}
+
+.Sidebar-itemOverflow-MenuItem.--Dissabled {
+  opacity: 0.2;
+}
+
+.Sidebar-itemOverflow-MenuItem.--Dissabled:hover {
+  color: #152935;
+  background-color: #ffffff;
+}
+
+.Sidebar-itemOverflow {
+  visibility: collapse;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  fill: #5a6872;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+
+.Sidebar-itemOverflow:hover {
+  opacity: 1;
+}
+
+.Sidebar-Item:hover .Sidebar-itemOverflow {
+  visibility: visible;
+  width: 20px;
+}
+
+.Sidebar-itemTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 20px;
+}
+
+.Sidebar-itemCount {
+  margin-left: auto;
+}
+
+.Sidebar-addLabel-Button {
+  padding: 9px 0;
+  margin: 16px 10px 8px 10px;
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+
+  color: #3d70b2;
+  font-size: 14px;
+  font-weight: 600;
+
+  text-align: center;
+  border: 2px solid #3d70b2;
+}
+
+.Sidebar-addLabel-Button--Hidden {
+  visibility: hidden;
+}
+
+.Sidebar-addLabel-Button:hover {
+  background-color: #3d70b2;
+  color: #ffffff;
+}
+
+.Sidebar-addLabel-FieldWrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.Sidebar-addLabel-Field {
+  outline: none;
+  border: none;
+  margin: 0; /* Safari layout fix */
+  padding: 14px 43px 14px 25px;
+  width: 100%;
+  border-top: 1px solid #dfe3e6;
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.Sidebar-thinAdd-Icon {
+  fill: #3d70b2;
+}
+
+.Sidebar-thinAdd-IconWrapper {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+
+  padding: 16px 15px 0px 15px;
+}
+
+.Sidebar-addLabel-Field::placeholder {
+  font-style: italic;
+}
