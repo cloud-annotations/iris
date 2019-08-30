@@ -5,7 +5,7 @@
   left: 0px;
   right: 0px;
   height: 50px;
-  background-color: #f5f7fa;
+  background-color: var(--appBar);
   /* background-color: #ffffff; */
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
 
@@ -23,7 +23,7 @@
   display: flex;
   align-items: center;
   padding: 0 25px 0 20px;
-  border-right: 1px solid #dfe3e6;
+  /* border-right: 1px solid var(--appBarShadow); */
 }
 
 .BucketBar-addImages {
@@ -38,26 +38,27 @@
   display: flex;
   align-items: center;
   padding: 0 25px;
-  color: #5a6872;
+  color: var(--brightText);
 }
 
 .BucketBar-back-Icon {
-  fill: #4e7cb6;
+  fill: white;
   margin-right: 8px;
 }
 
 .BucketBar-addImages-Icon {
-  fill: #4e7cb6;
+  fill: white;
   margin-right: 12px;
 }
 
 .BucketBar-Button {
-  color: #4e7cb6;
+  background: var(--blue);
+  color: white;
   text-decoration: none;
 }
 
 .BucketBar-Button:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+  background: var(--blue-hover);
 }
 
 .BucketBar input[type='file'] {
@@ -70,6 +71,11 @@
 }
 
 .BucketBar-save {
-  opacity: 0.5;
+  color: var(--detailText);
   margin-left: 18px;
+}
+
+.BucketBar-legacy {
+  color: var(--detailText);
+  margin-right: 18px;
 }

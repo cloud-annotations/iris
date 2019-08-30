@@ -126,7 +126,7 @@
 
 /* Link */
 
-a,
+/* a,
 a:visited {
   color: var(--blue);
   text-decoration: none;
@@ -143,4 +143,4 @@ a:active {
 a:focus {
   color: var(--brightText);
   box-shadow: 0 3px var(--brightText);
-}
+} */

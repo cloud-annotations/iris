@@ -1,18 +1,18 @@
 .Sidebar {
   /* z-index: -2; */
   position: fixed;
-  border-right: 1px solid #dfe3e6;
+  border-right: 1px solid var(--border);
   width: 209px;
   top: 50px;
   bottom: 0px;
   left: 0px;
-  background-color: #ffffff;
+  background-color: var(--secondaryBg);
   overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 .Sidebar-Fixed-Items {
-  border-bottom: 1px solid #dfe3e6;
+  border-bottom: 1px solid var(--highlight);
   padding: 8px 0 2px 0;
   margin-bottom: 8px;
   position: relative;
@@ -25,7 +25,7 @@
     Helvetica, Arial, Roboto, sans-serif;
   font-size: 14px;
   font-weight: 500;
-  color: #152935;
+  color: var(--brightText);
   padding: 9px 20px;
 
   line-height: 23px;
@@ -35,20 +35,19 @@
 }
 
 .Sidebar-Item:hover {
-  color: #3d70b2;
-  background-color: rgba(85, 150, 230, 0.1);
+  background-color: var(--highlight);
 }
 
 .Sidebar-Item.--NoHover {
-  color: #152935;
-  background-color: #ffffff;
+  background-color: var(--secondaryBg);
 }
 
 /* Must come after --NoHover */
 .Sidebar-Item.--Active {
-  color: #3d70b2;
+  /* color: var(--blue); */
+  background-color: var(--highlight);
   font-weight: 700;
-  border-left: 4px solid #3d70b2;
+  border-left: 4px solid var(--blue);
 }
 
 .Sidebar-itemOverflow-Menu {
@@ -136,12 +135,12 @@
   font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
     Helvetica, Arial, Roboto, sans-serif;
 
-  color: #3d70b2;
+  color: var(--blue);
   font-size: 14px;
   font-weight: 600;
 
   text-align: center;
-  border: 2px solid #3d70b2;
+  border: 2px solid var(--blue);
 }
 
 .Sidebar-addLabel-Button--Hidden {
@@ -149,7 +148,7 @@
 }
 
 .Sidebar-addLabel-Button:hover {
-  background-color: #3d70b2;
+  background-color: var(--blue);
   color: #ffffff;
 }
 
@@ -176,7 +175,7 @@
 }
 
 .Sidebar-thinAdd-Icon {
-  fill: #3d70b2;
+  fill: var(--blue);
 }
 
 .Sidebar-thinAdd-IconWrapper {

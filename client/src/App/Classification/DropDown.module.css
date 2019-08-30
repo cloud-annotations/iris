@@ -80,7 +80,7 @@
 
 .icon {
   margin-left: auto;
-  fill: #3c71b2;
+  fill: var(--blue);
 }
 
 .bar .icon {
@@ -154,7 +154,7 @@
 }
 
 .highlight {
-  color: #4071b0;
+  color: var(--blue);
 }
 
 .menuItemButton .menuItem {
