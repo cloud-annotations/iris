@@ -143,7 +143,9 @@ const LabelDropDown = connect(
         onKeyPress={handleKeyPress}
         // We need to use undefined because and empty string is falsy
         value={
-          labelEditingValue !== undefined ? labelEditingValue : activeLabel
+          labelEditingValue !== undefined
+            ? labelEditingValue
+            : activeLabel || '' // If active label happens to be undefined the component will become uncontrolled.
         }
         type="text"
       />

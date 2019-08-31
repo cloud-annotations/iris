@@ -49,6 +49,7 @@
 }
 
 .baseOption {
+  position: relative;
   margin-top: 2px;
   border: 1px solid transparent;
   padding: 4px 6px;
@@ -62,6 +63,25 @@
 .option:hover {
   background-color: var(--highlight);
   border-radius: 4px;
+}
+
+.optionCardBase {
+  position: absolute;
+  color: black;
+  z-index: 10;
+  top: 100%;
+  height: 100px;
+  background-color: white;
+}
+
+.optionCard {
+  composes: optionCardBase;
+  visibility: hidden;
+}
+
+.optionCardOpen {
+  composes: optionCardBase;
+  visibility: visible;
 }
 
 .saved {
