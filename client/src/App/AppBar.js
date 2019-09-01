@@ -7,13 +7,24 @@ import './react-toggle-overrides.css'
 
 import { ProfileDropDown } from 'common/DropDown/DropDown'
 import history from 'globalHistory'
+import { uploadImages, syncAction } from 'redux/collection'
 
 import moon from './moon.png'
 import styles from './AppBar.module.css'
 import useOnClickOutside from 'hooks/useOnClickOutside'
+import { getDataTransferItems, convertToJpeg, videoToJpegs } from 'Utils'
 
-const AppBar = ({ bucket, profile, saving }) => {
+const FPS = 3
+
+const generateFiles = async (images, videos) => {
+  const imageFiles = images.map(async image => await convertToJpeg(image))
+  const videoFiles = videos.map(async video => await videoToJpegs(video, FPS))
+  return (await Promise.all([...imageFiles, ...videoFiles])).flat()
+}
+
+const AppBar = ({ bucket, profile, saving, syncAction }) => {
   const optionsRef = useRef(null)
+  const fileInputRef = useRef(null)
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [lastHoveredOption, setLastHoveredOption] = useState(undefined)
   const [darkModeToggle, setDarkModeToggle] = useState(
@@ -46,6 +57,19 @@ const AppBar = ({ bucket, profile, saving }) => {
 
   useOnClickOutside(optionsRef, handleClickOutside)
 
+  const handleFileChosen = useCallback(
+    async e => {
+      const fileList = getDataTransferItems(e)
+      const images = fileList.filter(file => file.type.startsWith('image/'))
+      const videos = fileList.filter(file => file.type.startsWith('video/'))
+      const files = await generateFiles(images, videos)
+      syncAction(uploadImages, [files])
+      fileInputRef.current.value = null
+      fileInputRef.current.blur()
+    },
+    [syncAction]
+  )
+
   return (
     <div className={styles.wrapper}>
       <div onClick={handleClick} className={styles.home}>
@@ -75,39 +99,21 @@ const AppBar = ({ bucket, profile, saving }) => {
                     : styles.optionCard
                 }
               >
-                <div className={styles.listItem}>Upload media</div>
-                <div className={styles.listDivider} />
-                <div className={styles.listItem}>Export CACLI</div>
                 <div className={styles.listItem}>
-                  Export Create ML / Turi Create
+                  Upload media
+                  <input
+                    className={styles.upload}
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*,video/*"
+                    onChange={handleFileChosen}
+                    multiple
+                  />
                 </div>
-                <div className={styles.listItem}>Export Pascal VOC</div>
-                <div className={styles.listItem}>Export YOLO</div>
-                <div className={styles.listDivider} />
-                <div className={styles.listItem}>Import</div>
+                {/* <div className={styles.listDivider} */}
               </div>
             </div>
-            {/* <div
-              id="edit"
-              className={
-                optionsOpen && lastHoveredOption === 'edit'
-                  ? styles.optionOpen
-                  : styles.option
-              }
-              onClick={handleOptionClick}
-              onMouseEnter={handleOptionHover}
-            >
-              Edit
-              <div
-                className={
-                  optionsOpen && lastHoveredOption === 'edit'
-                    ? styles.optionCardOpen
-                    : styles.optionCard
-                }
-              >
-                <div className={styles.listItem}>Nothing</div>
-              </div>
-            </div> */}
+
             <div
               id="image"
               className={
@@ -127,8 +133,6 @@ const AppBar = ({ bucket, profile, saving }) => {
                 }
               >
                 <div className={styles.listItem}>Delete</div>
-                <div className={styles.listItem}>Rotate</div>
-                <div className={styles.listItem}>Crop</div>
               </div>
             </div>
           </div>
@@ -163,4 +167,10 @@ const AppBar = ({ bucket, profile, saving }) => {
 const mapPropsToState = state => ({
   saving: state.editor.saving
 })
-export default connect(mapPropsToState)(AppBar)
+const mapDispatchToProps = {
+  syncAction
+}
+export default connect(
+  mapPropsToState,
+  mapDispatchToProps
+)(AppBar)

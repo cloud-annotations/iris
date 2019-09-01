@@ -26,6 +26,7 @@
 }
 
 .filter {
+  position: relative; /* must be this */
   background: transparent;
   border: none;
   outline: none;
