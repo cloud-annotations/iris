@@ -63,7 +63,7 @@ const AppBar = ({
     setLastHoveredOption(e.currentTarget.id)
   }, [])
 
-  useOnClickOutside(optionsRef, handleClickOutside)
+  useOnClickOutside(optionsRef, handleClickOutside, true)
 
   const handleFileChosen = useCallback(
     async e => {

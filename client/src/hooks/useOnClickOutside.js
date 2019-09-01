@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const useOnClickOutside = (ref, handler) => {
+const useOnClickOutside = (ref, handler, hideOnBlur) => {
   useEffect(() => {
     const listener = e => {
       // Do nothing if clicking ref's element or descendent elements
@@ -11,9 +11,8 @@ const useOnClickOutside = (ref, handler) => {
     }
 
     const loseFocusListener = e => {
-      if (!document.hasFocus()) {
-        // TODO: decide if I want this.
-        // handler(e)
+      if (!document.hasFocus() && hideOnBlur) {
+        handler(e)
       }
     }
 
@@ -34,7 +33,7 @@ const useOnClickOutside = (ref, handler) => {
       document.removeEventListener('mousedown', listener)
       document.removeEventListener('touchstart', listener)
     }
-  }, [ref, handler])
+  }, [ref, handler, hideOnBlur])
 }
 
 export default useOnClickOutside
