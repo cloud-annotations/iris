@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { connect } from 'react-redux'
 import Toggle from 'react-toggle'
 
@@ -10,26 +10,7 @@ import history from 'globalHistory'
 
 import moon from './moon.png'
 import styles from './AppBar.module.css'
-
-const useOnClickOutside = (ref, handler) => {
-  useEffect(() => {
-    const listener = e => {
-      // Do nothing if clicking ref's element or descendent elements
-      if (!ref.current || ref.current.contains(e.target)) {
-        return
-      }
-      handler(e)
-    }
-
-    document.addEventListener('mousedown', listener)
-    document.addEventListener('touchstart', listener)
-
-    return () => {
-      document.removeEventListener('mousedown', listener)
-      document.removeEventListener('touchstart', listener)
-    }
-  }, [ref, handler])
-}
+import useOnClickOutside from 'hooks/useOnClickOutside'
 
 const AppBar = ({ bucket, profile, saving }) => {
   const optionsRef = useRef(null)
@@ -78,7 +59,11 @@ const AppBar = ({ bucket, profile, saving }) => {
           <div ref={optionsRef} className={styles.options}>
             <div
               id="file"
-              className={styles.option}
+              className={
+                optionsOpen && lastHoveredOption === 'file'
+                  ? styles.optionOpen
+                  : styles.option
+              }
               onClick={handleOptionClick}
               onMouseEnter={handleOptionHover}
             >
@@ -90,12 +75,25 @@ const AppBar = ({ bucket, profile, saving }) => {
                     : styles.optionCard
                 }
               >
-                Bloop
+                <div className={styles.listItem}>Upload media</div>
+                <div className={styles.listDivider} />
+                <div className={styles.listItem}>Export CACLI</div>
+                <div className={styles.listItem}>
+                  Export Create ML / Turi Create
+                </div>
+                <div className={styles.listItem}>Export Pascal VOC</div>
+                <div className={styles.listItem}>Export YOLO</div>
+                <div className={styles.listDivider} />
+                <div className={styles.listItem}>Import</div>
               </div>
             </div>
-            <div
+            {/* <div
               id="edit"
-              className={styles.option}
+              className={
+                optionsOpen && lastHoveredOption === 'edit'
+                  ? styles.optionOpen
+                  : styles.option
+              }
               onClick={handleOptionClick}
               onMouseEnter={handleOptionHover}
             >
@@ -107,12 +105,16 @@ const AppBar = ({ bucket, profile, saving }) => {
                     : styles.optionCard
                 }
               >
-                Bloop
+                <div className={styles.listItem}>Nothing</div>
               </div>
-            </div>
+            </div> */}
             <div
               id="image"
-              className={styles.option}
+              className={
+                optionsOpen && lastHoveredOption === 'image'
+                  ? styles.optionOpen
+                  : styles.option
+              }
               onClick={handleOptionClick}
               onMouseEnter={handleOptionHover}
             >
@@ -124,7 +126,9 @@ const AppBar = ({ bucket, profile, saving }) => {
                     : styles.optionCard
                 }
               >
-                Bloop
+                <div className={styles.listItem}>Delete</div>
+                <div className={styles.listItem}>Rotate</div>
+                <div className={styles.listItem}>Crop</div>
               </div>
             </div>
           </div>

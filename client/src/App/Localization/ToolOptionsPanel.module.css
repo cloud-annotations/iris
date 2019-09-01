@@ -73,7 +73,6 @@
   top: 100%;
   left: 6px;
   z-index: 10;
-  position: absolute;
   background-color: var(--secondaryBg);
   max-height: calc(80vh - 174px);
   width: 185px;

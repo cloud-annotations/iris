@@ -23,6 +23,7 @@ body.dark {
   --textInputUnderline: #606060;
 
   --dropDownBorder: #414141;
+  --listDivider: var(--dropDownBorder);
 
   --toolBarSpacer: #000000;
 
@@ -53,12 +54,13 @@ body.light {
   --toolBarSpacer: #dadce0;
 
   --dropDownBorder: transparent;
+  --listDivider: #dadce0;
 
   --toolColor: var(--blue);
   --textInputBack: #eef4fc;
   --activeHighlight: var(--blue);
   --default-font-weight: 500;
-  --border: rgb(217, 217, 217);
+  --border: var(--listDivider); /*rgb(217, 217, 217);*/
   --bg: hsl(210, 17%, 98%);
   --secondaryBg: white;
   --appBar: #ffffff;

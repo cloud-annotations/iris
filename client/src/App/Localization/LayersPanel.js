@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import styles from './LayersPanel.module.css'
 import { deleteBox, createLabel, createBox, syncAction } from 'redux/collection'
 import { setHoveredBox } from 'redux/editor'
+import useOnClickOutside from 'hooks/useOnClickOutside'
 
 const MAX_HEIGHT = 24
 const MAX_WIDTH = 24
@@ -56,27 +57,6 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
     fullWidth: scale * imageSize[0],
     fullHeight: scale * imageSize[1]
   }
-}
-
-// TODO: Make a component for DropDown and hooks.
-const useOnClickOutside = (ref, handler) => {
-  useEffect(() => {
-    const listener = e => {
-      // Do nothing if clicking ref's element or descendent elements
-      if (!ref.current || ref.current.contains(e.target)) {
-        return
-      }
-      handler(e)
-    }
-
-    document.addEventListener('mousedown', listener)
-    document.addEventListener('touchstart', listener)
-
-    return () => {
-      document.removeEventListener('mousedown', listener)
-      document.removeEventListener('touchstart', listener)
-    }
-  }, [ref, handler])
 }
 
 const mapStateToListItemProps = state => ({

@@ -53,11 +53,11 @@
   margin-top: 2px;
   border: 1px solid transparent;
   padding: 4px 6px;
+  cursor: pointer;
 }
 
 .option {
   composes: baseOption;
-  cursor: pointer;
 }
 
 .option:hover {
@@ -65,13 +65,36 @@
   border-radius: 4px;
 }
 
+.optionOpen {
+  composes: baseOption;
+  background-color: var(--highlight);
+  border-radius: 4px 4px 0 0;
+}
+
 .optionCardBase {
   position: absolute;
   color: black;
   z-index: 10;
-  top: 100%;
-  height: 100px;
-  background-color: white;
+  top: calc(100% + 1px);
+  left: -1px;
+
+  padding: 6px 0;
+
+  color: var(--secondaryText);
+  background-color: var(--secondaryBg);
+  max-height: calc(80vh - 174px);
+  min-width: 185px;
+  max-width: 314px;
+  border-radius: 0 4px 4px 4px;
+  overflow: auto;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
+  border: 1px solid var(--dropDownBorder);
+}
+
+.listDivider {
+  margin: 6px 0;
+  height: 1px;
+  background: var(--listDivider);
 }
 
 .optionCard {
@@ -82,6 +105,17 @@
 .optionCardOpen {
   composes: optionCardBase;
   visibility: visible;
+}
+
+.listItem {
+  padding: 8px 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.listItem:hover {
+  background-color: var(--highlight);
 }
 
 .saved {
