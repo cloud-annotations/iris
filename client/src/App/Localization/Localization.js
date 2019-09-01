@@ -10,6 +10,7 @@ import ToolOptionsPanel from './ToolOptionsPanel'
 import fetchImage from 'api/fetchImage'
 import DrawingPanel from './DrawingPanel'
 import { endpointForLocationConstraint } from 'endpoints'
+import { setActiveImage } from 'redux/editor'
 
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
@@ -47,8 +48,14 @@ const useImage = (endpoint, bucket, image) => {
   return imageData
 }
 
-const Localization = ({ bucket, location, collection }) => {
-  const [selection, setSelection] = useState(undefined)
+const Localization = ({
+  bucket,
+  location,
+  collection,
+  activeImage,
+  setActiveImage
+}) => {
+  // const [selectedImage, setSelectedImage] = useState(undefined)
   const [imageFilter, setImageFilter] = useState(undefined)
 
   const images =
@@ -74,18 +81,21 @@ const Localization = ({ bucket, location, collection }) => {
 
   const handleSelectionChanged = useCallback(
     selection => {
-      setSelection(images[selection])
+      setActiveImage(images[selection])
     },
-    [images]
+    [images, setActiveImage]
   )
 
-  const selectedImage = selection || images[0]
-  const selectedIndex = images.indexOf(selectedImage)
+  useEffect(() => {
+    setActiveImage(activeImage || images[0])
+  }, [activeImage, images, setActiveImage])
 
-  const bboxes = collection.annotations[selectedImage] || []
+  const selectedIndex = images.indexOf(activeImage)
+
+  const bboxes = collection.annotations[activeImage] || []
 
   const endpoint = endpointForLocationConstraint(location)
-  const imageData = useImage(endpoint, bucket, selectedImage)
+  const imageData = useImage(endpoint, bucket, activeImage)
 
   const cells = useMemo(() => {
     return images.map(image => (
@@ -99,10 +109,10 @@ const Localization = ({ bucket, location, collection }) => {
     <DefaultLayout
       top={<ToolOptionsPanel />}
       left={<ToolsPanel />}
-      content={<DrawingPanel selectedImage={selectedImage} image={imageData} />}
+      content={<DrawingPanel selectedImage={activeImage} image={imageData} />}
       right={
         <LayersPanel
-          imageName={selectedImage}
+          imageName={activeImage}
           bboxes={bboxes}
           image={imageData}
         />
@@ -122,6 +132,14 @@ const Localization = ({ bucket, location, collection }) => {
 }
 
 const mapStateToProps = state => ({
-  collection: state.collection
+  collection: state.collection,
+  activeImage: state.editor.image
 })
-export default connect(mapStateToProps)(Localization)
+
+const mapDispatchToProps = {
+  setActiveImage
+}
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Localization)

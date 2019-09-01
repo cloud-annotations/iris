@@ -7,12 +7,13 @@ import './react-toggle-overrides.css'
 
 import { ProfileDropDown } from 'common/DropDown/DropDown'
 import history from 'globalHistory'
-import { uploadImages, syncAction } from 'redux/collection'
+import { uploadImages, syncAction, deleteImages } from 'redux/collection'
 
 import moon from './moon.png'
 import styles from './AppBar.module.css'
 import useOnClickOutside from 'hooks/useOnClickOutside'
 import { getDataTransferItems, convertToJpeg, videoToJpegs } from 'Utils'
+import { setActiveImage } from 'redux/editor'
 
 const FPS = 3
 
@@ -22,7 +23,14 @@ const generateFiles = async (images, videos) => {
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
 }
 
-const AppBar = ({ bucket, profile, saving, syncAction }) => {
+const AppBar = ({
+  bucket,
+  profile,
+  saving,
+  syncAction,
+  activeImage,
+  setActiveImage
+}) => {
   const optionsRef = useRef(null)
   const fileInputRef = useRef(null)
   const [optionsOpen, setOptionsOpen] = useState(false)
@@ -69,6 +77,11 @@ const AppBar = ({ bucket, profile, saving, syncAction }) => {
     },
     [syncAction]
   )
+
+  const handleDeleteImage = useCallback(() => {
+    syncAction(deleteImages, [[activeImage]])
+    setActiveImage(undefined)
+  }, [activeImage, syncAction, setActiveImage])
 
   return (
     <div className={styles.wrapper}>
@@ -132,7 +145,9 @@ const AppBar = ({ bucket, profile, saving, syncAction }) => {
                     : styles.optionCard
                 }
               >
-                <div className={styles.listItem}>Delete</div>
+                <div className={styles.listItem} onClick={handleDeleteImage}>
+                  Delete
+                </div>
               </div>
             </div>
           </div>
@@ -165,10 +180,12 @@ const AppBar = ({ bucket, profile, saving, syncAction }) => {
 }
 
 const mapPropsToState = state => ({
-  saving: state.editor.saving
+  saving: state.editor.saving,
+  activeImage: state.editor.image
 })
 const mapDispatchToProps = {
-  syncAction
+  syncAction,
+  setActiveImage
 }
 export default connect(
   mapPropsToState,

@@ -216,7 +216,15 @@ export default class Collection {
   }
 
   deleteImages(images, syncComplete) {
-    // TODO: We need to actually delete the images first.
+    // TODO: Do we need to wait until this request finishes?
+    const objects = images.map(image => ({ Key: image }))
+    this.cos.deleteObjects({
+      Bucket: this.bucket,
+      Delete: {
+        Objects: objects
+      }
+    })
+
     const collection = produce(this, draft => {
       images.forEach(image => {
         draft.images.splice(draft.images.findIndex(i => i === image), 1)
@@ -271,11 +279,11 @@ export default class Collection {
   }
 }
 
+// TODO: We can pass a promise chain here so we can wait for that to complete as
+// well.
 const syncBucket = async (cos, bucket, collection, syncComplete) => {
   const string = JSON.stringify(collection.toJSON())
   const blob = new Blob([string], { type: 'application/json;charset=utf-8;' })
-  // TODO: Uncomment this to sync changes.
-  // await bucket.putFile({ name: '_annotations.json', blob: blob })
   await cos.putObject({
     Bucket: bucket,
     Key: '_annotations.json',
