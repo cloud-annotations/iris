@@ -57,7 +57,6 @@ const Localization = ({
   activeImage,
   setActiveImage
 }) => {
-  // const [selectedImage, setSelectedImage] = useState(undefined)
   const [imageFilter, setImageFilter] = useState(undefined)
 
   const images =
