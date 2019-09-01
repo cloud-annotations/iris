@@ -21,9 +21,9 @@ const useImage = (endpoint, bucket, image) => {
     let canceled = false
     let loaded = false
 
-    const loadImage = async image => {
-      const imageData = await fetchImage(endpoint, bucket, image, false)
-      if (!canceled) {
+    const loadImage = async imageToLoad => {
+      const imageData = await fetchImage(endpoint, bucket, imageToLoad, false)
+      if (!canceled && image === imageToLoad) {
         loaded = true
         setImageData(imageData.image)
       }
@@ -33,12 +33,14 @@ const useImage = (endpoint, bucket, image) => {
     // to an empty image. This prevents flickering if the image is cached, but
     // wipes the image fast enough if it's not cached.
     setTimeout(() => {
-      if (!loaded) {
+      if (!canceled && !loaded) {
         setImageData(EMPTY_IMAGE)
       }
     }, 20)
 
-    loadImage(image)
+    if (image) {
+      loadImage(image)
+    }
 
     return () => {
       canceled = true
@@ -63,21 +65,25 @@ const Localization = ({
       ? collection.images
       : collection.getLabeledImages(imageFilter)
 
-  const handleImageFilterChange = useCallback(e => {
-    switch (e.target.value) {
-      case 'all':
-        setImageFilter(undefined)
-        break
-      case 'labeled':
-        setImageFilter(true)
-        break
-      case 'unlabeled':
-        setImageFilter(false)
-        break
-      default:
-        break
-    }
-  }, [])
+  const handleImageFilterChange = useCallback(
+    e => {
+      switch (e.target.value) {
+        case 'all':
+          setImageFilter(undefined)
+          break
+        case 'labeled':
+          setImageFilter(true)
+          break
+        case 'unlabeled':
+          setImageFilter(false)
+          break
+        default:
+          break
+      }
+      setActiveImage(undefined)
+    },
+    [setActiveImage]
+  )
 
   const handleSelectionChanged = useCallback(
     selection => {
