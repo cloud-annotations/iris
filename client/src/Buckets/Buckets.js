@@ -78,7 +78,7 @@ const Buckets = ({
     bucketName => {
       dispatchLoadBuckets(activeResource)
       setIsCreateBucketModalOpen(false)
-      history.push(`/${bucketName}`)
+      history.push(`/${bucketName}?location=us`)
     },
     [activeResource, dispatchLoadBuckets]
   )

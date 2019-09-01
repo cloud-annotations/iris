@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 
 import Canvas, { BOX, MOVE } from 'common/Canvas/Canvas'
+import EmptySet from 'common/EmptySet/EmptySet'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, deleteBox, createLabel, syncAction } from 'redux/collection'
 import { setActiveBox, setActiveLabel } from 'redux/editor'
@@ -160,36 +161,40 @@ const DrawingPanel = ({
         border: '1px solid var(--border)'
       }}
     >
-      <CrossHair
-        color={activeColor}
-        active={activeTool === BOX}
-        children={
-          <div
-            style={{
-              position: 'absolute',
-              top: '0',
-              left: '0',
-              right: '0',
-              bottom: '0',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center'
-            }}
-          >
-            <Canvas
-              mode={activeTool}
-              activeLabel={activeLabel}
-              cmap={cmap}
-              bboxes={mergedBoxes}
-              image={image}
-              hovered={hoveredBox}
-              onBoxStarted={handleBoxStarted}
-              onBoxChanged={handleBoxChanged}
-              onBoxFinished={handleBoxFinished}
-            />
-          </div>
-        }
-      />
+      {selectedImage ? (
+        <CrossHair
+          color={activeColor}
+          active={activeTool === BOX}
+          children={
+            <div
+              style={{
+                position: 'absolute',
+                top: '0',
+                left: '0',
+                right: '0',
+                bottom: '0',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <Canvas
+                mode={activeTool}
+                activeLabel={activeLabel}
+                cmap={cmap}
+                bboxes={mergedBoxes}
+                image={image}
+                hovered={hoveredBox}
+                onBoxStarted={handleBoxStarted}
+                onBoxChanged={handleBoxChanged}
+                onBoxFinished={handleBoxFinished}
+              />
+            </div>
+          }
+        />
+      ) : (
+        <EmptySet show />
+      )}
     </div>
   )
 }

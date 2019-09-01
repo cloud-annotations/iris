@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import GridControllerV2 from 'common/Grid/GridControllerV2'
 import ImageTile from './ImageTile'
-import EmptySet from './EmptySet'
+import EmptySet from 'common/EmptySet/EmptySet'
 import SelectionBar from './SelectionBar'
 import { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
 import GoogleAnalytics from 'react-ga'

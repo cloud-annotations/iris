@@ -11,13 +11,13 @@
 }
 
 .circle {
-  border: 4px solid rgba(0, 0, 0, 0.04);
+  border: 4px solid var(--listDivider);
   border-radius: 50%;
-  width: 430px;
-  height: 430px;
+  width: 330px;
+  height: 330px;
   position: absolute;
-  left: 0px;
-  top: 0px;
+  left: 50px;
+  top: 65px;
 }
 
 .image {
@@ -44,7 +44,7 @@
 
 .textContainer {
   bottom: 70px;
-  color: rgb(144, 144, 144);
+  color: var(--detailText);
   height: 54px;
   margin-bottom: 0px;
   margin-top: 0px;

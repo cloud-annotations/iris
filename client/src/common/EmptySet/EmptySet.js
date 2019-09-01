@@ -15,9 +15,9 @@ export default class EmptySet extends Component {
         <div className={styles.image2} />
         <div className={styles.textContainer}>
           <div className={styles.largeText}>Drop images here</div>
-          <div className={styles.smallText}>
+          {/* <div className={styles.smallText}>
             or use the “Add Images” button.
-          </div>
+          </div> */}
         </div>
       </div>
     )
