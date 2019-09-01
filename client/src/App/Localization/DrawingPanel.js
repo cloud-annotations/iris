@@ -17,21 +17,32 @@ const useIsControlPressed = () => {
     if (e.ctrlKey || e.metaKey) {
       setIsPressed(true)
     }
+
+    if (e.shiftKey) {
+      setIsPressed(false)
+    }
   }, [])
 
   const handleKeyUp = useCallback(e => {
     setIsPressed(false)
-    if (e.ctrlKey || e.metaKey) {
-      setIsPressed(false)
-    }
   }, [])
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('keyup', handleKeyUp)
+
+    document.addEventListener('msvisibilitychange', handleKeyUp)
+    document.addEventListener('webkitvisibilitychange', handleKeyUp)
+    document.addEventListener('visibilitychange', handleKeyUp)
+    window.addEventListener('blur', handleKeyUp)
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('keyup', handleKeyUp)
+
+      document.removeEventListener('msvisibilitychange', handleKeyUp)
+      document.removeEventListener('webkitvisibilitychange', handleKeyUp)
+      document.removeEventListener('visibilitychange', handleKeyUp)
+      window.removeEventListener('blur', handleKeyUp)
     }
   }, [handleKeyDown, handleKeyUp])
 

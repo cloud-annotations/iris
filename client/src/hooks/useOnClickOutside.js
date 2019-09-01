@@ -12,7 +12,8 @@ const useOnClickOutside = (ref, handler) => {
 
     const loseFocusListener = e => {
       if (!document.hasFocus()) {
-        handler(e)
+        // TODO: decide if I want this.
+        // handler(e)
       }
     }
 

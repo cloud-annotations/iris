@@ -85,6 +85,10 @@
   display: flex;
 }
 
+/* The actual content size is 2088px x 1148px */
+/* Which is about ~0.68965517 */
+/* We need video to be 1440 x 791.724135*/
+
 .videoWrapper {
   flex-shrink: 0;
   --width: 700px;

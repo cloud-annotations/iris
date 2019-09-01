@@ -67,6 +67,7 @@ const AppBar = ({
 
   const handleFileChosen = useCallback(
     async e => {
+      e.stopPropagation()
       const fileList = getDataTransferItems(e)
       const images = fileList.filter(file => file.type.startsWith('image/'))
       const videos = fileList.filter(file => file.type.startsWith('video/'))
@@ -74,14 +75,20 @@ const AppBar = ({
       syncAction(uploadImages, [files])
       fileInputRef.current.value = null
       fileInputRef.current.blur()
+      setOptionsOpen(false)
     },
     [syncAction]
   )
 
-  const handleDeleteImage = useCallback(() => {
-    syncAction(deleteImages, [[activeImage]])
-    setActiveImage(undefined)
-  }, [activeImage, syncAction, setActiveImage])
+  const handleDeleteImage = useCallback(
+    e => {
+      e.stopPropagation()
+      syncAction(deleteImages, [[activeImage]])
+      setActiveImage(undefined)
+      setOptionsOpen(false)
+    },
+    [activeImage, syncAction, setActiveImage]
+  )
 
   return (
     <div className={styles.wrapper}>
