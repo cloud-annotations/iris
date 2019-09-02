@@ -29,6 +29,7 @@ const Buckets = ({
   buckets,
   resources,
   activeResource,
+  loadingResources,
   accounts,
   activeAccount,
   dispatch
@@ -208,20 +209,51 @@ const Buckets = ({
         onSubmit={handleSubmitCreateModal}
         instanceId={activeResource}
       />
-      <Table
-        buckets={buckets}
-        listOfLoadingBuckets={listOfLoadingBuckets}
-        onDeleteBucket={handleDeleteBucket}
-        onCreateBucket={handleCreateBucket}
-        onRowSelected={handleRowSelected}
-        loading={loading}
-      />
+      {loadingResources || resources.length > 0 ? (
+        <Table
+          buckets={buckets}
+          listOfLoadingBuckets={listOfLoadingBuckets}
+          onDeleteBucket={handleDeleteBucket}
+          onCreateBucket={handleCreateBucket}
+          onRowSelected={handleRowSelected}
+          loading={loading}
+        />
+      ) : (
+        <div className={styles.noObjectStorage}>
+          <div className={styles.noBucketsTitle} style={{ marginTop: '60px' }}>
+            No Object Storage instance
+          </div>
+          <div className={styles.noBucketsSub}>
+            We use object storage to save your annotations. You can create an
+            Object Storage instance for free on{' '}
+            <a
+              className={styles.getStartedLink}
+              href="https://cloud.ibm.com/catalog/services/cloud-object-storage"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              IBM Cloud
+            </a>
+            . Once created, refresh this page.
+          </div>
+          <a
+            href="https://cloud.ibm.com/catalog/services/cloud-object-storage"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.createBucket}
+            style={{ height: '48px', marginTop: '40px' }}
+          >
+            <div className={styles.createBucketText}>Get started</div>
+          </a>
+        </div>
+      )}
     </div>
   )
 }
 
 const mapStateToProps = state => ({
   resources: state.resources.resources,
+  loadingResources: state.resources.loading,
   activeResource: state.resources.activeResource,
   accounts: state.accounts.accounts,
   activeAccount: state.accounts.activeAccount,
