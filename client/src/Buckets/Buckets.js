@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import GoogleAnalytics from 'react-ga'
 import { connect } from 'react-redux'
 import { loadBuckets } from 'redux/buckets'
 
