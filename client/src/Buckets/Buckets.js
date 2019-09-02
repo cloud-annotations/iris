@@ -14,6 +14,7 @@ import history from 'globalHistory'
 import styles from './Buckets.module.css'
 import { setResources } from 'redux/resources'
 import { setAccounts } from 'redux/accounts'
+import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 const accountNameForAccount = account => {
   if (account && account.softlayer) {
@@ -48,9 +49,7 @@ const Buckets = ({
     [dispatch]
   )
 
-  useEffect(() => {
-    GoogleAnalytics.pageview('buckets')
-  }, [])
+  useGoogleAnalytics('buckets')
 
   useEffect(() => {
     if (activeResource) {

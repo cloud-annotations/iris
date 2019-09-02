@@ -11,6 +11,7 @@ import fetchImage from 'api/fetchImage'
 import DrawingPanel from './DrawingPanel'
 import { endpointForLocationConstraint } from 'endpoints'
 import { setActiveImage } from 'redux/editor'
+import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
@@ -58,6 +59,8 @@ const Localization = ({
   setActiveImage
 }) => {
   const [imageFilter, setImageFilter] = useState(undefined)
+
+  useGoogleAnalytics('localization')
 
   const images =
     imageFilter === undefined
