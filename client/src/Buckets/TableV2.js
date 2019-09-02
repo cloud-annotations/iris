@@ -111,54 +111,64 @@ const TableList = ({
   return (
     <>
       {!loading ? (
-        <DataTable
-          sortRow={customSortRow}
-          rows={sortedBuckets}
-          headers={headers}
-          render={({ rows, headers, getHeaderProps }) => (
-            <DataTable.TableContainer>
-              <DataTable.Table zebra={false}>
-                <DataTable.TableHead>
-                  <DataTable.TableRow>
-                    {headers.map(header => (
-                      <DataTable.TableHeader {...getHeaderProps({ header })}>
-                        {header.header}
-                      </DataTable.TableHeader>
-                    ))}
-                    <DataTable.TableHeader isSortable={false} />
-                  </DataTable.TableRow>
-                </DataTable.TableHead>
-                <DataTable.TableBody>
-                  {/* Draw each row */}
-                  {rows.map(row => (
-                    <DataTable.TableRow
-                      key={row.id}
-                      onClick={handleRowClick(row.id)}
-                    >
-                      {/* Draw each column in each row */}
-                      {row.cells.map(cell => (
-                        <DataTable.TableCell key={cell.id}>
-                          {cell.value}
-                        </DataTable.TableCell>
+        <>
+          <DataTable
+            sortRow={customSortRow}
+            rows={sortedBuckets}
+            headers={headers}
+            render={({ rows, headers, getHeaderProps }) => (
+              <DataTable.TableContainer>
+                <DataTable.Table zebra={false}>
+                  <DataTable.TableHead>
+                    <DataTable.TableRow>
+                      {headers.map(header => (
+                        <DataTable.TableHeader {...getHeaderProps({ header })}>
+                          {header.header}
+                        </DataTable.TableHeader>
                       ))}
-                      {/* Draw delete button column */}
-                      <DataTable.TableCell
-                        className={styles.rowOverflow}
-                        onClick={handleDeleteBucket(row.id)}
-                      >
-                        {listOfLoadingBuckets.includes(row.id) ? (
-                          <InlineLoading success={false} />
-                        ) : (
-                          <DeleteIcon />
-                        )}
-                      </DataTable.TableCell>
+                      <DataTable.TableHeader isSortable={false} />
                     </DataTable.TableRow>
-                  ))}
-                </DataTable.TableBody>
-              </DataTable.Table>
-            </DataTable.TableContainer>
+                  </DataTable.TableHead>
+                  <DataTable.TableBody>
+                    {/* Draw each row */}
+                    {rows.map(row => (
+                      <DataTable.TableRow
+                        key={row.id}
+                        onClick={handleRowClick(row.id)}
+                      >
+                        {/* Draw each column in each row */}
+                        {row.cells.map(cell => (
+                          <DataTable.TableCell key={cell.id}>
+                            {cell.value}
+                          </DataTable.TableCell>
+                        ))}
+                        {/* Draw delete button column */}
+                        <DataTable.TableCell
+                          className={styles.rowOverflow}
+                          onClick={handleDeleteBucket(row.id)}
+                        >
+                          {listOfLoadingBuckets.includes(row.id) ? (
+                            <InlineLoading success={false} />
+                          ) : (
+                            <DeleteIcon />
+                          )}
+                        </DataTable.TableCell>
+                      </DataTable.TableRow>
+                    ))}
+                  </DataTable.TableBody>
+                </DataTable.Table>
+              </DataTable.TableContainer>
+            )}
+          />
+          {sortedBuckets.length === 0 && (
+            <div className={styles.noBuckets}>
+              <div className={styles.noBucketsTitle}>No buckets</div>
+              <div className={styles.noBucketsSub}>
+                To get started create a new project.
+              </div>
+            </div>
           )}
-        />
+        </>
       ) : (
         <DataTableSkeleton />
       )}

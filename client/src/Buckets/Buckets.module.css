@@ -172,3 +172,27 @@
 .rowOverflow:hover {
   fill: var(--error);
 }
+
+.noBuckets {
+  background: var(--secondaryBg);
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.noBucketsTitle {
+  font-size: 18px;
+  color: var(--secondaryText);
+  margin-bottom: 4px;
+}
+
+.noBucketsSub {
+  font-size: 14px;
+  color: var(--detailText);
+  margin-bottom: 8px;
+}

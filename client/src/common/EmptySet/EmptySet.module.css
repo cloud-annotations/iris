@@ -11,17 +11,18 @@
 }
 
 .circle {
-  border: 4px solid var(--listDivider);
+  background: var(--secondaryBg);
+  /* border: 4px solid var(--listDivider); */
   border-radius: 50%;
-  width: 330px;
-  height: 330px;
+  width: 350px;
+  height: 350px;
   position: absolute;
-  left: 50px;
+  left: 40px;
   top: 65px;
 }
 
 .image {
-  background: no-repeat url('images.png');
+  background: no-repeat var(--images);
   background-size: 200px 125px;
   width: 100px;
   height: 125px;
@@ -59,10 +60,12 @@
 
 .largeText {
   composes: text;
+  color: var(--secondaryText);
   font-size: 18px;
 }
 
 .smallText {
   composes: text;
-  font-size: 13px;
+  color: var(--detailText);
+  font-size: 14px;
 }
