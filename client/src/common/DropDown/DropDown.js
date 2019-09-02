@@ -73,6 +73,26 @@ if (process.env.NODE_ENV === 'production') {
   baseEndpoint = 'cloud.ibm.com'
 }
 
+const Image = ({ photo }) => {
+  return (
+    <>
+      {photo ? (
+        <img alt="" className={styles.profile} src={photo} />
+      ) : (
+        <svg
+          className={styles.icon}
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+        >
+          <path d="M16 2a14 14 0 1 0 14 14A14 14 0 0 0 16 2zm0 5a4.5 4.5 0 1 1-4.5 4.5A4.49 4.49 0 0 1 16 7zm8 17.92a11.93 11.93 0 0 1-16 0v-.58A5.2 5.2 0 0 1 13 19h6a5.21 5.21 0 0 1 5 5.31v.61z"></path>
+        </svg>
+      )}
+    </>
+  )
+}
+
 export const ProfileDropDown = ({ profile }) => {
   const [open, setOpen] = useState(false)
 
@@ -108,14 +128,14 @@ export const ProfileDropDown = ({ profile }) => {
       onClick={handleClick}
       ref={dropDownRef}
     >
-      <img alt="" className={styles.profile} src={profile.photo} />
+      <Image photo={profile.photo} />
       {open && (
         <div className={styles.profileCard}>
           <div className={styles.detailWrapper}>
             <div className={styles.name}>
               {profile.firstname} {profile.lastname}
             </div>
-            <img alt="" className={styles.profile2} src={profile.photo} />
+            <Image photo={profile.photo} />
           </div>
           <div className={styles.userId}>{profile.user_id}</div>
           <div className={styles.logout} onClick={handleLogout}>

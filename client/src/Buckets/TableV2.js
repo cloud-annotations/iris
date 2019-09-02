@@ -55,7 +55,8 @@ const TableList = ({
   buckets,
   listOfLoadingBuckets,
   onDeleteBucket,
-  onRowSelected
+  onRowSelected,
+  loading
 }) => {
   const headers = [
     { key: 'name', header: 'NAME' },
@@ -76,6 +77,8 @@ const TableList = ({
     sortedBuckets = [...buckets]
     sortedBuckets = sortedBuckets.filter(bucket => bucket.name.includes(filter))
     sortedBuckets.sort((a, b) => new Date(b.created) - new Date(a.created))
+  } else {
+    sortedBuckets = []
   }
 
   const compare = (a, b, locale = 'en') => {
@@ -107,7 +110,7 @@ const TableList = ({
 
   return (
     <>
-      {sortedBuckets ? (
+      {!loading ? (
         <DataTable
           sortRow={customSortRow}
           rows={sortedBuckets}
@@ -212,7 +215,8 @@ const Table = ({
   listOfLoadingBuckets,
   onDeleteBucket,
   onCreateBucket,
-  onRowSelected
+  onRowSelected,
+  loading
 }) => {
   const [filter, setFilter] = useState('')
 
@@ -233,6 +237,7 @@ const Table = ({
         listOfLoadingBuckets={listOfLoadingBuckets}
         onDeleteBucket={onDeleteBucket}
         onRowSelected={onRowSelected}
+        loading={loading}
       />
     </div>
   )

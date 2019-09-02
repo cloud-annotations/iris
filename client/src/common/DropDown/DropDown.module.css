@@ -150,3 +150,7 @@
 .logout:hover {
   background-color: var(--blue-hover);
 }
+
+.icon {
+  fill: var(--brightText);
+}

@@ -35,13 +35,17 @@ const Buckets = ({
 }) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
   const [bucketToDelete, setBucketToDelete] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const [listOfLoadingBuckets, setListOfLoadingBuckets] = useState([])
 
   const dispatchLoadBuckets = useCallback(
     async chosenInstance => {
       try {
+        // We only want to show the loading indicator when we first load the
+        // page. Don't `setLoading(true)`
         dispatch(await loadBuckets(chosenInstance))
+        setLoading(false)
       } catch (error) {
         console.error(error)
       }
@@ -50,6 +54,13 @@ const Buckets = ({
   )
 
   useGoogleAnalytics('buckets')
+
+  useEffect(() => {
+    // Loading until activeResource is ready.
+    if (!buckets) {
+      setLoading(true)
+    }
+  }, [buckets])
 
   useEffect(() => {
     if (activeResource) {
@@ -203,6 +214,7 @@ const Buckets = ({
         onDeleteBucket={handleDeleteBucket}
         onCreateBucket={handleCreateBucket}
         onRowSelected={handleRowSelected}
+        loading={loading}
       />
     </div>
   )
