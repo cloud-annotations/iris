@@ -5,11 +5,15 @@ import styles from './Home.module.css'
 import windowDark from './window-dark.png'
 import video from './tmp.webm'
 import video2 from './tmp.mp4'
+import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 // ffmpeg -i input.mp4 -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 1 -an -f webm /dev/null && \
 // ffmpeg -i input.mp4 -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 2 -c:a libopus output.webm
 const Home = () => {
   const [loading, setLoading] = useState(false)
+
+  useGoogleAnalytics('home')
+
   const handleClick = useCallback(() => {
     window.location.href = '/auth/login'
     setLoading(true)
