@@ -1,7 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Modal, TextInput, Loading } from 'carbon-components-react'
 
-import COS from 'api/COS'
+import COS from 'api/COSv2'
+import { defaultEndpoint } from 'endpoints'
+
+const transitionEndEventName = (() => {
+  const el = document.createElement('div')
+  const transitions = {
+    transition: 'transitionend',
+    OTransition: 'otransitionend', // oTransitionEnd in very old Opera
+    MozTransition: 'transitionend',
+    WebkitTransition: 'webkitTransitionEnd'
+  }
+
+  for (let i in transitions) {
+    if (transitions.hasOwnProperty(i) && el.style[i] !== undefined) {
+      return transitions[i]
+    }
+  }
+})()
 
 // REGEX.
 const combineRegex = (reg1, reg2) => RegExp(`${reg1.source}|${reg2.source}`)
@@ -19,10 +36,20 @@ const NAME_EXISTS =
 const TOO_SHORT = 'Must be at least 3 characters.'
 const EMPTY_NAME = 'Bucket name is required.'
 
-const CreateModal = ({ isOpen, onClose, onSubmit }) => {
+const CreateModal = ({ isOpen, onClose, onSubmit, instanceId }) => {
   const [isLoading, setIsLoading] = useState(false)
   const [textInputValue, setTextInputValue] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+
+  if (isOpen) {
+    const modal = document.getElementById('create-bucket-modal')
+    const input = document.getElementById('create-bucket-modal-text-input')
+    if (modal && input) {
+      modal.addEventListener(transitionEndEventName, () => {
+        input.focus()
+      })
+    }
+  }
 
   useEffect(() => {
     // Only allow alphanumeric characters and 1 (`.` or `-`) in a row.
@@ -62,11 +89,11 @@ const CreateModal = ({ isOpen, onClose, onSubmit }) => {
 
     setIsLoading(true)
 
-    const endpoint = localStorage.getItem('loginUrl')
-    const instanceId = localStorage.getItem('resourceId')
-
     try {
-      await new COS(endpoint).createBucket(instanceId, textInputValue)
+      await new COS({ endpoint: defaultEndpoint }).createBucket({
+        Bucket: textInputValue,
+        IBMServiceInstanceId: instanceId
+      })
       setErrorMessage('')
       setTextInputValue('')
       onSubmit(textInputValue)
@@ -81,7 +108,7 @@ const CreateModal = ({ isOpen, onClose, onSubmit }) => {
       }
     }
     setIsLoading(false)
-  }, [onSubmit, textInputValue])
+  }, [instanceId, onSubmit, textInputValue])
 
   const handleClose = useCallback(() => {
     setErrorMessage('')
@@ -91,6 +118,7 @@ const CreateModal = ({ isOpen, onClose, onSubmit }) => {
 
   return (
     <Modal
+      id="create-bucket-modal"
       open={isOpen}
       shouldSubmitOnEnter
       modalHeading="Bucket name"
@@ -107,7 +135,7 @@ const CreateModal = ({ isOpen, onClose, onSubmit }) => {
         value={textInputValue}
         invalidText={errorMessage}
         invalid={errorMessage !== ''}
-        data-modal-primary-focus
+        id="create-bucket-modal-text-input"
       />
     </Modal>
   )

@@ -26,8 +26,15 @@ export const loadBuckets = async instanceId => {
   })
 
   let buckets = res.ListAllMyBucketsResult.Buckets
+  // If the buckets aren't an array, it was either one bucket or no buckets.
   if (!Array.isArray(buckets)) {
-    buckets = [buckets.Bucket]
+    if (buckets.Bucket) {
+      // Add the bucket to an empty array
+      buckets = [buckets.Bucket]
+    } else {
+      // return an empty array if no buckets.
+      buckets = []
+    }
   }
 
   buckets = buckets.map(bucket => ({

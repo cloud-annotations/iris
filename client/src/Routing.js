@@ -9,7 +9,7 @@ import Buckets from './Buckets/Buckets'
 import history from 'globalHistory'
 import { checkLoginStatus } from './Utils'
 import { setAccounts } from 'redux/accounts'
-import { setResources } from 'redux/resources'
+import { setResources, setLoading } from 'redux/resources'
 import { setProfile } from 'redux/profile'
 
 const useCookieCheck = interval => {
@@ -44,7 +44,7 @@ const useAccount = dispatch => {
         )
       })
       .catch(error => {
-        console.log(error)
+        console.error(error)
       })
   }, [dispatch])
 }
@@ -59,7 +59,7 @@ const useUpgradeToken = account => {
           setTokenUpgraded(true)
         })
         .catch(error => {
-          console.log(error)
+          console.error(error)
         })
     }
   }, [account])
@@ -70,18 +70,22 @@ const useUpgradeToken = account => {
 const useResourceList = (dispatch, tokenUpgraded) => {
   useEffect(() => {
     if (tokenUpgraded) {
+      dispatch(setLoading(true))
       fetch('/api/cos-instances')
         .then(res => res.json())
         .then(json => {
+          const { resources } = json
+          const [firstResource] = resources
           dispatch(
             setResources({
-              resources: json.resources,
-              activeResource: json.resources[0].id
+              resources: resources,
+              activeResource: firstResource && firstResource.id
             })
           )
+          dispatch(setLoading(false))
         })
         .catch(error => {
-          console.log(error)
+          console.error(error)
         })
     }
   }, [dispatch, tokenUpgraded])
@@ -98,7 +102,7 @@ const useProfile = (dispatch, account) => {
           dispatch(setProfile(user))
         })
         .catch(error => {
-          console.log(error)
+          console.error(error)
         })
     }
   }, [account, dispatch])

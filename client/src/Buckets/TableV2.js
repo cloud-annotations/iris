@@ -44,7 +44,7 @@ const CreateIconV2 = () => (
 const CreateBucket = ({ handleClick }) => {
   return (
     <div className={styles.createBucket} onClick={handleClick}>
-      <div className={styles.createBucketText}>Create bucket</div>
+      <div className={styles.createBucketText}>Start a new project</div>
       <CreateIconV2 />
     </div>
   )
@@ -55,7 +55,8 @@ const TableList = ({
   buckets,
   listOfLoadingBuckets,
   onDeleteBucket,
-  onRowSelected
+  onRowSelected,
+  loading
 }) => {
   const headers = [
     { key: 'name', header: 'NAME' },
@@ -76,6 +77,8 @@ const TableList = ({
     sortedBuckets = [...buckets]
     sortedBuckets = sortedBuckets.filter(bucket => bucket.name.includes(filter))
     sortedBuckets.sort((a, b) => new Date(b.created) - new Date(a.created))
+  } else {
+    sortedBuckets = []
   }
 
   const compare = (a, b, locale = 'en') => {
@@ -107,55 +110,65 @@ const TableList = ({
 
   return (
     <>
-      {sortedBuckets ? (
-        <DataTable
-          sortRow={customSortRow}
-          rows={sortedBuckets}
-          headers={headers}
-          render={({ rows, headers, getHeaderProps }) => (
-            <DataTable.TableContainer>
-              <DataTable.Table zebra={false}>
-                <DataTable.TableHead>
-                  <DataTable.TableRow>
-                    {headers.map(header => (
-                      <DataTable.TableHeader {...getHeaderProps({ header })}>
-                        {header.header}
-                      </DataTable.TableHeader>
-                    ))}
-                    <DataTable.TableHeader isSortable={false} />
-                  </DataTable.TableRow>
-                </DataTable.TableHead>
-                <DataTable.TableBody>
-                  {/* Draw each row */}
-                  {rows.map(row => (
-                    <DataTable.TableRow
-                      key={row.id}
-                      onClick={handleRowClick(row.id)}
-                    >
-                      {/* Draw each column in each row */}
-                      {row.cells.map(cell => (
-                        <DataTable.TableCell key={cell.id}>
-                          {cell.value}
-                        </DataTable.TableCell>
+      {!loading ? (
+        <>
+          <DataTable
+            sortRow={customSortRow}
+            rows={sortedBuckets}
+            headers={headers}
+            render={({ rows, headers, getHeaderProps }) => (
+              <DataTable.TableContainer>
+                <DataTable.Table zebra={false}>
+                  <DataTable.TableHead>
+                    <DataTable.TableRow>
+                      {headers.map(header => (
+                        <DataTable.TableHeader {...getHeaderProps({ header })}>
+                          {header.header}
+                        </DataTable.TableHeader>
                       ))}
-                      {/* Draw delete button column */}
-                      <DataTable.TableCell
-                        className={styles.rowOverflow}
-                        onClick={handleDeleteBucket(row.id)}
-                      >
-                        {listOfLoadingBuckets.includes(row.id) ? (
-                          <InlineLoading success={false} />
-                        ) : (
-                          <DeleteIcon />
-                        )}
-                      </DataTable.TableCell>
+                      <DataTable.TableHeader isSortable={false} />
                     </DataTable.TableRow>
-                  ))}
-                </DataTable.TableBody>
-              </DataTable.Table>
-            </DataTable.TableContainer>
+                  </DataTable.TableHead>
+                  <DataTable.TableBody>
+                    {/* Draw each row */}
+                    {rows.map(row => (
+                      <DataTable.TableRow
+                        key={row.id}
+                        onClick={handleRowClick(row.id)}
+                      >
+                        {/* Draw each column in each row */}
+                        {row.cells.map(cell => (
+                          <DataTable.TableCell key={cell.id}>
+                            {cell.value}
+                          </DataTable.TableCell>
+                        ))}
+                        {/* Draw delete button column */}
+                        <DataTable.TableCell
+                          className={styles.rowOverflow}
+                          onClick={handleDeleteBucket(row.id)}
+                        >
+                          {listOfLoadingBuckets.includes(row.id) ? (
+                            <InlineLoading success={false} />
+                          ) : (
+                            <DeleteIcon />
+                          )}
+                        </DataTable.TableCell>
+                      </DataTable.TableRow>
+                    ))}
+                  </DataTable.TableBody>
+                </DataTable.Table>
+              </DataTable.TableContainer>
+            )}
+          />
+          {sortedBuckets.length === 0 && (
+            <div className={styles.noBuckets}>
+              <div className={styles.noBucketsTitle}>No buckets</div>
+              <div className={styles.noBucketsSub}>
+                To get started create a new project.
+              </div>
+            </div>
           )}
-        />
+        </>
       ) : (
         <DataTableSkeleton />
       )}
@@ -166,7 +179,7 @@ const TableList = ({
 const Search = ({ onFilterResults }) => {
   const [active, setActive] = useState(false)
 
-  const inputRef = useRef()
+  const inputRef = useRef(null)
 
   useEffect(() => {
     const blurListener = () => {
@@ -212,7 +225,8 @@ const Table = ({
   listOfLoadingBuckets,
   onDeleteBucket,
   onCreateBucket,
-  onRowSelected
+  onRowSelected,
+  loading
 }) => {
   const [filter, setFilter] = useState('')
 
@@ -233,6 +247,7 @@ const Table = ({
         listOfLoadingBuckets={listOfLoadingBuckets}
         onDeleteBucket={onDeleteBucket}
         onRowSelected={onRowSelected}
+        loading={loading}
       />
     </div>
   )

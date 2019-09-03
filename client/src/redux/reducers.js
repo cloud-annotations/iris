@@ -4,11 +4,13 @@ import resourcesReducer from './resources'
 import profileReducer from './profile'
 import bucketsReducer from './buckets'
 import collectionReducer from './collection'
+import editorReducer from './editor'
 
 export default combineReducers({
   accounts: accountsReducer,
   resources: resourcesReducer,
   profile: profileReducer,
   buckets: bucketsReducer,
-  collection: collectionReducer
+  collection: collectionReducer,
+  editor: editorReducer
 })

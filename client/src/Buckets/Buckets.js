@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import GoogleAnalytics from 'react-ga'
 import { connect } from 'react-redux'
 import { loadBuckets } from 'redux/buckets'
 
@@ -8,11 +7,13 @@ import CreateModal from './CreateModal'
 import DeleteModal from './DeleteModal'
 import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
 import COS from 'api/COSv2'
+import { defaultEndpoint } from 'endpoints'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
 import { setResources } from 'redux/resources'
 import { setAccounts } from 'redux/accounts'
+import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 const accountNameForAccount = account => {
   if (account && account.softlayer) {
@@ -27,19 +28,24 @@ const Buckets = ({
   buckets,
   resources,
   activeResource,
+  loadingResources,
   accounts,
   activeAccount,
   dispatch
 }) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
   const [bucketToDelete, setBucketToDelete] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const [listOfLoadingBuckets, setListOfLoadingBuckets] = useState([])
 
   const dispatchLoadBuckets = useCallback(
     async chosenInstance => {
       try {
+        // We only want to show the loading indicator when we first load the
+        // page. Don't `setLoading(true)`
         dispatch(await loadBuckets(chosenInstance))
+        setLoading(false)
       } catch (error) {
         console.error(error)
       }
@@ -47,9 +53,14 @@ const Buckets = ({
     [dispatch]
   )
 
+  useGoogleAnalytics('buckets')
+
   useEffect(() => {
-    GoogleAnalytics.pageview('buckets')
-  }, [])
+    // Loading until activeResource is ready.
+    if (!buckets) {
+      setLoading(true)
+    }
+  }, [buckets])
 
   useEffect(() => {
     if (activeResource) {
@@ -75,11 +86,11 @@ const Buckets = ({
 
   const handleSubmitCreateModal = useCallback(
     bucketName => {
-      dispatchLoadBuckets()
+      dispatchLoadBuckets(activeResource)
       setIsCreateBucketModalOpen(false)
-      history.push(`/${bucketName}`)
+      history.push(`/${bucketName}?location=us`)
     },
-    [dispatchLoadBuckets]
+    [activeResource, dispatchLoadBuckets]
   )
 
   const handleDeleteBucket = useCallback(bucketName => {
@@ -94,16 +105,39 @@ const Buckets = ({
     async bucketName => {
       setBucketToDelete(false)
       setListOfLoadingBuckets(list => [...list, bucketName])
-      const endpoint = localStorage.getItem('loginUrl')
       try {
-        await new COS(endpoint).deleteBucket(bucketName)
+        const cos = new COS({ endpoint: defaultEndpoint })
+
+        // Recursively delete 1000 objects at time.
+        const deleteAllObjects = async () => {
+          const res = await cos.listObjectsV2({ Bucket: bucketName })
+          const { Contents = [] } = res.ListBucketResult
+          const contents = Array.isArray(Contents) ? Contents : [Contents]
+          const objects = contents.map(item => ({ Key: item.Key }))
+          if (objects.length > 0) {
+            await cos.deleteObjects({
+              Bucket: bucketName,
+              Delete: {
+                Objects: objects
+              }
+            })
+            await deleteAllObjects()
+          }
+          return
+        }
+
+        await deleteAllObjects()
+
+        await cos.deleteBucket({
+          Bucket: bucketName
+        })
       } catch (error) {
         console.error(error)
       }
-      await dispatchLoadBuckets()
+      await dispatchLoadBuckets(activeResource)
       setListOfLoadingBuckets(list => list.filter(b => b !== bucketName))
     },
-    [dispatchLoadBuckets]
+    [activeResource, dispatchLoadBuckets]
   )
 
   const handleAccountChosen = useCallback(
@@ -111,7 +145,6 @@ const Buckets = ({
       const activeAccount = accounts.find(
         account => accountNameForAccount(account) === item
       ).accountId
-      console.log(activeAccount)
       dispatch(
         setAccounts({
           accounts: accounts,
@@ -126,7 +159,6 @@ const Buckets = ({
     item => {
       const activeResource = resources.find(resource => resource.name === item)
         .id
-      console.log(activeResource)
       dispatch(
         setResources({
           resources: resources,
@@ -174,20 +206,53 @@ const Buckets = ({
         isOpen={isCreateBucketModalOpen}
         onClose={handleCloseCreateModal}
         onSubmit={handleSubmitCreateModal}
+        instanceId={activeResource}
       />
-      <Table
-        buckets={buckets}
-        listOfLoadingBuckets={listOfLoadingBuckets}
-        onDeleteBucket={handleDeleteBucket}
-        onCreateBucket={handleCreateBucket}
-        onRowSelected={handleRowSelected}
-      />
+      {loadingResources || resources.length > 0 ? (
+        <Table
+          buckets={buckets}
+          listOfLoadingBuckets={listOfLoadingBuckets}
+          onDeleteBucket={handleDeleteBucket}
+          onCreateBucket={handleCreateBucket}
+          onRowSelected={handleRowSelected}
+          loading={loading}
+        />
+      ) : (
+        <div className={styles.noObjectStorage}>
+          <div className={styles.noBucketsTitle} style={{ marginTop: '60px' }}>
+            No Object Storage instance
+          </div>
+          <div className={styles.noBucketsSub}>
+            We use object storage to save your annotations. You can create an
+            Object Storage instance for free on{' '}
+            <a
+              className={styles.getStartedLink}
+              href="https://cloud.ibm.com/catalog/services/cloud-object-storage"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              IBM Cloud
+            </a>
+            . Once created, refresh this page.
+          </div>
+          <a
+            href="https://cloud.ibm.com/catalog/services/cloud-object-storage"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.createBucket}
+            style={{ height: '48px', marginTop: '40px' }}
+          >
+            <div className={styles.createBucketText}>Get started</div>
+          </a>
+        </div>
+      )}
     </div>
   )
 }
 
 const mapStateToProps = state => ({
   resources: state.resources.resources,
+  loadingResources: state.resources.loading,
   activeResource: state.resources.activeResource,
   accounts: state.accounts.accounts,
   activeAccount: state.accounts.activeAccount,

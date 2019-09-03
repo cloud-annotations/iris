@@ -14,13 +14,13 @@
   bottom: 0px;
   z-index: 1000;
   padding: 12px;
-  color: #5a6872;
+  color: var(--detailText);
   visibility: hidden;
   background: radial-gradient(
     ellipse at center,
-    hsla(0, 0%, 100%, 1) 0%,
-    hsla(0, 0%, 100%, 0.85) 65%,
-    hsla(0, 0%, 100%, 0.85) 100%
+    var(--dropzoneGrad1) 0%,
+    var(--dropzoneGrad2) 65%,
+    var(--dropzoneGrad2) 100%
   );
   opacity: 0;
   transition: visibility 0.2s, opacity 0.2s;
@@ -33,7 +33,7 @@
 }
 
 .dropOutline {
-  border: 6px #8d9ba5 dashed;
+  border: 6px var(--textInputUnderline) dashed;
   background-color: rgba(141, 155, 165, 0.15);
   border-radius: 5px;
   width: 100%;

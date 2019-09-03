@@ -1,4 +1,6 @@
 import { parseXML } from 'Utils'
+import MD5 from 'crypto-js/md5'
+import Base64 from 'crypto-js/enc-base64'
 
 const xmlAsJsonFetch = async (url, options) => {
   const res = await fetch(url, options)
@@ -17,7 +19,10 @@ const xmlAsJsonFetch = async (url, options) => {
 
 const blobFetch = async (url, options) => {
   const res = await fetch(url, options)
-  return await res.blob()
+  if (url.endsWith('.json')) {
+    return res.json()
+  }
+  return res.blob()
 }
 
 export default class COS {
@@ -87,7 +92,24 @@ export default class COS {
    * @param {Object[]} Delete.Objects
    * @param {string} Delete.Objects[].Key Key name of the object to delete.
    */
-  deleteObjects = async ({ Bucket, Delete }) => {}
+  deleteObjects = async ({ Bucket, Delete }) => {
+    const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>'
+    const objectString = Delete.Objects.map(
+      object => `<Object><Key>${object.Key}</Key></Object>`
+    ).join('')
+    const deleteXml = `${xmlHeader}<Delete>${objectString}</Delete>`
+    const md5Hash = MD5(deleteXml).toString(Base64)
+
+    const url = `/api/proxy/${this.endpoint}/${Bucket}?delete=`
+    const options = {
+      method: 'POST',
+      body: deleteXml,
+      headers: {
+        'Content-MD5': md5Hash
+      }
+    }
+    return await xmlAsJsonFetch(url, options)
+  }
 
   /**
    * Returns the region the bucket resides in.
@@ -160,12 +182,14 @@ export default class COS {
    * ContinuationToken is obfuscated and is not a real key
    */
   listObjectsV2 = async ({ Bucket, ContinuationToken }) => {
-    const url = new URL(`/api/proxy/${this.endpoint}/${Bucket}`)
     const params = { 'list-type': 2 }
     if (ContinuationToken) {
       params['continuation-token'] = ContinuationToken
     }
-    url.search = new URLSearchParams(params)
+
+    const search = new URLSearchParams(params)
+    const url = `/api/proxy/${this.endpoint}/${Bucket}?${search.toString()}`
+
     const options = {
       method: 'GET'
     }

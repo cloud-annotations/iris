@@ -44,10 +44,6 @@ export const hmacLogin = async (accessKeyId, endpoint, secretAccessKey) => {
   localStorage.setItem('endpoint', endpoint)
   localStorage.setItem('secretAccessKey', secretAccessKey)
 
-  console.log(accessKeyId)
-  console.log(endpoint)
-  console.log(secretAccessKey)
-
   const { protocol, host } = window.location
 
   const config = {

@@ -111,9 +111,62 @@ export async function convertToJpeg(blob) {
       c.height = image.height
       ctx.drawImage(image, 0, 0)
       const result = dataURItoBlob(c.toDataURL('image/jpeg'))
-      resolve(result)
+      resolve({
+        blob: result,
+        name: `${generateUUID()}.jpg`
+      })
     }
   })
+}
+
+export const videoToJpegs = async (videoFile, fps) => {
+  const fileURL = URL.createObjectURL(videoFile)
+
+  const video = await new Promise((resolve, _) => {
+    const video = document.createElement('video')
+    video.onloadeddata = () => {
+      resolve(video)
+    }
+    video.src = fileURL
+  })
+
+  const getCanvasForTime = (video, time) => {
+    return new Promise((resolve, _) => {
+      video.onseeked = () => {
+        const c = window.document.createElement('canvas')
+        const ctx = c.getContext('2d')
+        c.width = video.videoWidth
+        c.height = video.videoHeight
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, c.width, c.height)
+        }
+        resolve(c)
+      }
+      video.currentTime = time
+    })
+  }
+
+  // If the video doesn't have a duration, stop.
+  if (isNaN(video.duration)) {
+    // TODO: actually test this...
+    return []
+  }
+
+  // video duration * frames per second => total frames.
+  const totalFrames = Math.floor(video.duration * fps)
+
+  // We need to use a classical loop, because we need to wait for the promise to
+  // execute before we can seek to the next frame.
+  let frames = []
+  for (let i = 0; i < totalFrames; i++) {
+    // frame / frames per second => seek time of that frame in the video.
+    frames.push(await getCanvasForTime(video, i / fps))
+  }
+
+  return frames.map(frame => ({
+    blob: dataURItoBlob(frame.toDataURL('image/jpeg')),
+    name: `${generateUUID()}.jpg`
+  }))
 }
 
 function dataURItoBlob(dataURI) {
@@ -139,6 +192,14 @@ export async function canvasToBlob(canvas) {
   })
 }
 
+export async function canvasToFile(canvas, name) {
+  return new Promise((resolve, _) => {
+    canvas.toBlob(blob => {
+      resolve({ blob: blob, name: name })
+    }, 'image/jpeg')
+  })
+}
+
 export async function namedCanvasToFile(namedCanvas) {
   return new Promise((resolve, _) => {
     namedCanvas.canvas.toBlob(blob => {
@@ -153,6 +214,16 @@ export function clearCookies(cookies) {
   })
 }
 
+// There are 2 types of arrays:
+// <List>
+//    <ListItem></ListItem>
+//    <ListItem></ListItem>
+//    <ListItem></ListItem>
+// </List>
+//
+// <List><ListItem></ListItem></List>
+// <List><ListItem></ListItem></List>
+// <List><ListItem></ListItem></List>
 export const parseXML = xmlString => {
   const xml = new window.DOMParser().parseFromString(xmlString, 'text/xml')
   const recursivelyGenerateJson = (json, rootNode) => {
@@ -160,6 +231,16 @@ export const parseXML = xmlString => {
       const mutate = item => {
         if (Array.isArray(json)) {
           json.push(item)
+        } else if (Object.keys(json).includes(element.tagName)) {
+          // If the Key is already in the json, assume type 2 list.
+          if (Array.isArray(json[element.tagName])) {
+            // If the key is already a list just append the next item.
+            json[element.tagName].push(item)
+          } else {
+            // if it's not turn the item into an array and push items.
+            const oldItem = json[element.tagName]
+            json[element.tagName] = [oldItem, item]
+          }
         } else {
           json[element.tagName] = item
         }
@@ -169,7 +250,11 @@ export const parseXML = xmlString => {
         mutate(element.innerHTML)
       } else if (
         element.children.length > 1 &&
-        element.children[0].tagName === element.children[1].tagName // assume array
+        // If all child tags are the same assume array type 1
+        Array.prototype.every.call(
+          element.children,
+          child => child.tagName === element.children[0].tagName
+        )
       ) {
         mutate(recursivelyGenerateJson([], element.children))
       } else {

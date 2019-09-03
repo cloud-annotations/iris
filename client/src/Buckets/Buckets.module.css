@@ -4,7 +4,7 @@
   left: 0px;
   right: 0px;
   bottom: 0px;
-  z-index: -1;
+  /* z-index: -1; */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -126,6 +126,7 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .createBucket:hover {
@@ -159,7 +160,7 @@
 .rowOverflow {
   width: 48px;
   padding-left: 1.5rem !important;
-  fill: #8c9ba5;
+  fill: var(--detailText);
 }
 
 .deleteIcon {
@@ -170,5 +171,60 @@
 }
 
 .rowOverflow:hover {
-  fill: #3d70b2;
+  fill: var(--error);
+}
+
+.noBuckets {
+  background: var(--secondaryBg);
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.noBucketsTitle {
+  font-size: 18px;
+  color: var(--secondaryText);
+  margin-bottom: 4px;
+}
+
+.noBucketsSub {
+  font-size: 14px;
+  color: var(--detailText);
+  margin-bottom: 8px;
+  max-width: 560px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.noObjectStorage {
+  margin: 60px 5%;
+  background: var(--secondaryBg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.getStartedLink,
+.getStartedLink:visited {
+  /* color: var(--blue); */
+  text-decoration: none;
+}
+
+.getStartedLink:hover {
+  box-shadow: 0 1px var(--blue);
+}
+
+.getStartedLink:active {
+  color: var(--brightText);
+}
+
+.getStartedLink:focus {
+  color: var(--brightText);
+  box-shadow: 0 3px var(--brightText);
 }
