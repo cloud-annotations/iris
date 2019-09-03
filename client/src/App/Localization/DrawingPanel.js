@@ -153,13 +153,8 @@ const DrawingPanel = ({
 
   const activeTool = isControlPressed ? MOVE : tool
 
-  // const maxBubbles = 3
-  // const othersCount = Math.max(headCount - 1, 0)
-  // const clippedCount = Math.min(othersCount, maxBubbles)
-  // const overflowCount = othersCount - maxBubbles
-
   const maxBubbles = 3
-  const othersCount = Math.max(10 - 1, 0)
+  const othersCount = Math.max(headCount - 1, 0)
   const clippedCount = Math.min(othersCount, maxBubbles)
   const overflowCount = othersCount - maxBubbles
 
