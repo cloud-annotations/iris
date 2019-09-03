@@ -11,8 +11,9 @@
   font-weight: 400;
   font-size: 14px;
   padding: 0 18px;
+  width: 220px;
   min-width: 220px;
-  margin: 0 50px;
+  /* margin: 0 50px; */
   display: flex;
   align-items: center;
 }
@@ -28,10 +29,21 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+  text-decoration: none;
+  margin-right: 8px;
+}
+
+.buttonSecondary {
+  composes: button;
+  background-color: var(--secondaryButton);
 }
 
 .button:hover {
   background-color: var(--blue-hover);
+}
+
+.buttonSecondary:hover {
+  background-color: var(--secondaryButtonHover);
 }
 
 .button:active {
@@ -51,8 +63,16 @@
 }
 
 .titleBar .button {
+  width: 120px;
   min-width: 120px;
   margin: 0;
+}
+
+.titleBar .loading {
+  width: 120px;
+  min-width: 120px;
+  margin: 0;
+  padding: 0;
 }
 
 .titlePrefix {
@@ -117,4 +137,24 @@
   left: var(--left);
   width: calc(100% - 2 * var(--left));
   border-radius: 0 0 var(--cornerRadius) var(--cornerRadius);
+}
+
+.link,
+.link:visited {
+  color: var(--brightText);
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+.link:hover {
+  box-shadow: 0 1px var(--blue);
+}
+
+.link:active {
+  color: var(--brightText);
+}
+
+.link:focus {
+  color: var(--brightText);
+  box-shadow: 0 3px var(--brightText);
 }

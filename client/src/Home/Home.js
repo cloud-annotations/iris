@@ -12,13 +12,19 @@ import { useGoogleAnalytics } from 'googleAnalyticsHook'
 // ffmpeg -i final.mov -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 1 -an -f webm /dev/null && \
 // ffmpeg -i final.mov -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 2 -c:a libopus output.webm
 const Home = () => {
-  const [loading, setLoading] = useState(false)
+  const [loading1, setLoading1] = useState(false)
+  const [loading2, setLoading2] = useState(false)
 
   useGoogleAnalytics('home')
 
-  const handleClick = useCallback(() => {
+  const handleClick1 = useCallback(() => {
     window.location.href = '/auth/login'
-    setLoading(true)
+    setLoading1(true)
+  }, [])
+
+  const handleClick2 = useCallback(() => {
+    window.location.href = '/auth/login'
+    setLoading2(true)
   }, [])
 
   const videoRef = useRef(null)
@@ -36,41 +42,55 @@ const Home = () => {
           Annotations
         </div>
         <a
-          href="https://github.com/cloud-annotations"
+          className={styles.link}
+          href="https://cloud-annotations.github.io/training/object-detection/cli/"
           target="_blank"
           rel="noopener noreferrer"
         >
           Docs
         </a>
         <a
+          className={styles.link}
           href="https://github.com/cloud-annotations"
           target="_blank"
           rel="noopener noreferrer"
         >
           GitHub
         </a>
-        <div className={styles.button} onClick={handleClick}>
-          Log in
-        </div>
+        {loading1 ? (
+          <div className={styles.loading}>
+            <InlineLoading description="Loading" success={false} />
+          </div>
+        ) : (
+          <div className={styles.button} onClick={handleClick1}>
+            Log in
+          </div>
+        )}
       </div>
       <div className={styles.leftWrapper}>
         <div className={styles.bigText}>Cloud Annotations</div>
         <div className={styles.subText}>
-          Something something lorem epson sid alor mit Something something lorem
-          epson sid alor mit Something something lorem epson sid alor mit
-          Something something lorem epson sid alor mit
+          A fast, easy and collaborative open source image annotation tool for
+          teams and individuals.
         </div>
         <div className={styles.buttonsWrapper}>
-          {loading ? (
+          {loading2 ? (
             <div className={styles.loading}>
               <InlineLoading description="Loading" success={false} />
             </div>
           ) : (
-            <div className={styles.button} onClick={handleClick}>
+            <div className={styles.button} onClick={handleClick2}>
               Continue with IBM Cloud
             </div>
           )}
-          <div className={styles.button}>Documentation</div>
+          <a
+            className={styles.buttonSecondary}
+            href="https://cloud-annotations.github.io/training/object-detection/cli/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Documentation
+          </a>
         </div>
       </div>
       <div className={styles.videoWrapper}>
