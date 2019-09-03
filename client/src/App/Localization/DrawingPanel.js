@@ -8,6 +8,8 @@ import { createBox, deleteBox, createLabel, syncAction } from 'redux/collection'
 import { setActiveBox, setActiveLabel } from 'redux/editor'
 import { uniqueColor } from './color-utils'
 
+import styles from './DrawingPanel.module.css'
+
 const useIsControlPressed = () => {
   const [isPressed, setIsPressed] = useState(false)
   const handleKeyDown = useCallback(e => {
@@ -94,7 +96,8 @@ const DrawingPanel = ({
   labels,
   activeLabel,
   activeBox,
-  hoveredBox
+  hoveredBox,
+  headCount
 }) => {
   const bboxes = annotations[selectedImage] || []
 
@@ -150,34 +153,46 @@ const DrawingPanel = ({
 
   const activeTool = isControlPressed ? MOVE : tool
 
+  // const maxBubbles = 3
+  // const othersCount = Math.max(headCount - 1, 0)
+  // const clippedCount = Math.min(othersCount, maxBubbles)
+  // const overflowCount = othersCount - maxBubbles
+
+  const maxBubbles = 3
+  const othersCount = Math.max(10 - 1, 0)
+  const clippedCount = Math.min(othersCount, maxBubbles)
+  const overflowCount = othersCount - maxBubbles
+
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: '0',
-        left: '0',
-        right: '0',
-        bottom: '0',
-        border: '1px solid var(--border)'
-      }}
-    >
+    <div className={styles.wrapper}>
+      <div className={styles.roomHolder}>
+        {[...new Array(clippedCount)].map(() => (
+          <div className={styles.chatHead}>
+            <div>
+              <svg
+                className={styles.chatHeadIcon}
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="2 2 28 28"
+              >
+                <path d="M16 2a14 14 0 1 0 14 14A14 14 0 0 0 16 2zm0 5a4.5 4.5 0 1 1-4.5 4.5A4.49 4.49 0 0 1 16 7zm8 17.92a11.93 11.93 0 0 1-16 0v-.58A5.2 5.2 0 0 1 13 19h6a5.21 5.21 0 0 1 5 5.31v.61z"></path>
+              </svg>
+            </div>
+          </div>
+        ))}
+        {overflowCount > 0 && (
+          <div className={styles.chatHeadOverflow}>
+            <div>+{overflowCount}</div>
+          </div>
+        )}
+      </div>
       {selectedImage ? (
         <CrossHair
           color={activeColor}
           active={activeTool === BOX}
           children={
-            <div
-              style={{
-                position: 'absolute',
-                top: '0',
-                left: '0',
-                right: '0',
-                bottom: '0',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center'
-              }}
-            >
+            <div className={styles.canvasWrapper}>
               <Canvas
                 mode={activeTool}
                 activeLabel={activeLabel}
@@ -205,7 +220,8 @@ const mapStateToProps = state => ({
   activeBox: state.editor.box,
   activeLabel: state.editor.label,
   hoveredBox: state.editor.hoveredBox,
-  tool: state.editor.tool
+  tool: state.editor.tool,
+  headCount: state.editor.headCount
 })
 const mapDispatchToProps = {
   syncAction,

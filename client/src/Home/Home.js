@@ -3,12 +3,14 @@ import { InlineLoading } from 'carbon-components-react'
 
 import styles from './Home.module.css'
 import windowDark from './window-dark.png'
-import video from './tmp.webm'
-import video2 from './tmp.mp4'
+import video from './trim.webm'
+import video2 from './trim.mp4'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
-// ffmpeg -i input.mp4 -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 1 -an -f webm /dev/null && \
-// ffmpeg -i input.mp4 -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 2 -c:a libopus output.webm
+// ffmpeg -i output.webm -c copy -t 00:00:10.5 trim.webm
+// ffmpeg -i trim.webm -vf loop=60:1:0,setpts=N/FRAME_RATE/TB -cpu-used 1 pause2.webm
+// ffmpeg -i final.mov -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 1 -an -f webm /dev/null && \
+// ffmpeg -i final.mov -c:v libvpx-vp9 -b:v 0 -crf 30 -pass 2 -c:a libopus output.webm
 const Home = () => {
   const [loading, setLoading] = useState(false)
 

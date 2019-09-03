@@ -282,12 +282,14 @@ export default class Collection {
 // TODO: We can pass a promise chain here so we can wait for that to complete as
 // well.
 const syncBucket = async (cos, bucket, collection, syncComplete) => {
-  const string = JSON.stringify(collection.toJSON())
-  const blob = new Blob([string], { type: 'application/json;charset=utf-8;' })
-  await cos.putObject({
-    Bucket: bucket,
-    Key: '_annotations.json',
-    Body: blob
-  })
-  syncComplete && syncComplete()
+  if (syncComplete) {
+    const string = JSON.stringify(collection.toJSON())
+    const blob = new Blob([string], { type: 'application/json;charset=utf-8;' })
+    await cos.putObject({
+      Bucket: bucket,
+      Key: '_annotations.json',
+      Body: blob
+    })
+    syncComplete()
+  }
 }

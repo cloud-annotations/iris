@@ -1,6 +1,7 @@
 import Collection from 'Collection'
 import { endpointForLocationConstraint } from 'endpoints'
 import { incrementSaving, decrementSaving } from 'redux/editor'
+import socket from 'globalSocket'
 
 // Actions
 const SET = 'cloud-annotations/collection/SET'
@@ -19,18 +20,91 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
       return action.collection
     case SET_TYPE:
       return collection.setType(...action.params)
+
     case CREATE_LABEL:
+      {
+        const [label, onComplete] = action.params
+        if (onComplete) {
+          socket.emit('patch', {
+            op: '+',
+            value: {
+              labels: { label: label }
+            }
+          })
+        }
+      }
       return collection.createLabel(...action.params)
+
     case DELETE_LABEL:
+      {
+        const [label, onComplete] = action.params
+        if (onComplete) {
+          socket.emit('patch', {
+            op: '-',
+            value: {
+              labels: { label: label }
+            }
+          })
+        }
+      }
       return collection.deleteLabel(...action.params)
+
     case UPLOAD_IMAGES:
+      {
+        const [images, onComplete] = action.params
+        if (onComplete) {
+          socket.emit('patch', {
+            op: '+',
+            value: {
+              images: { images: images }
+            }
+          })
+        }
+      }
       return collection.uploadImages(...action.params)
+
     case DELETE_IMAGES:
+      {
+        const [images, onComplete] = action.params
+        if (onComplete) {
+          socket.emit('patch', {
+            op: '-',
+            value: {
+              images: { images: images }
+            }
+          })
+        }
+      }
       return collection.deleteImages(...action.params)
+
     case CREATE_BOX:
+      {
+        const [image, box, onComplete] = action.params
+        if (onComplete) {
+          socket.emit('patch', {
+            op: '+',
+            value: {
+              annotations: { image: image, box: box }
+            }
+          })
+        }
+      }
       return collection.createBox(...action.params)
+
     case DELETE_BOX:
+      {
+        const [image, box, onComplete] = action.params
+        if (onComplete) {
+          socket.emit('patch', {
+            op: '-',
+            value: {
+              annotations: { image: image, box: box }
+            }
+          })
+        }
+      }
       return collection.deleteBox(...action.params)
+
     default:
       return collection
   }
