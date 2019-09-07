@@ -88,7 +88,14 @@ const Localization = ({
   )
 
   const handleSelectionChanged = useCallback(
-    selection => {
+    (selection, key) => {
+      if (key.shiftKey) {
+        // shift expand.
+      }
+
+      if (key.ctrlKey) {
+        // single expand.
+      }
       setActiveImage(images[selection])
     },
     [images, setActiveImage]

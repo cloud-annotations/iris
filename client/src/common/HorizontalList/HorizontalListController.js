@@ -35,7 +35,7 @@ const HorizontalListController = ({
       const right = Math.min(selection + 1, items.length - 1)
       if (char === 'arrowright') {
         e.preventDefault()
-        onSelectionChanged(right)
+        onSelectionChanged(right, {})
         const target = document.getElementById(items[right])
         if (!target) {
           return
@@ -44,7 +44,7 @@ const HorizontalListController = ({
           target.offsetLeft - (target.parentNode.offsetWidth / 2 - 208)
       } else if (char === 'arrowleft') {
         e.preventDefault()
-        onSelectionChanged(left)
+        onSelectionChanged(left, {})
         const target = document.getElementById(items[left])
         if (!target) {
           return
@@ -53,7 +53,7 @@ const HorizontalListController = ({
           target.offsetLeft - (target.parentNode.offsetWidth / 2 - 208)
       } else if (char === ' ') {
         e.preventDefault()
-        onSelectionChanged(right)
+        onSelectionChanged(right, {})
         const target = document.getElementById(items[right])
         if (!target) {
           return
@@ -93,8 +93,19 @@ const HorizontalListController = ({
   }, [handleKeyDown])
 
   const handleItemSelected = useCallback(
-    (_, index) => {
-      onSelectionChanged(index)
+    (e, index) => {
+      // Shift is dominant.
+      if (e.shiftKey) {
+        onSelectionChanged(index, { shiftKey: true })
+        return
+      }
+
+      if (e.ctrlKey || e.metaKey) {
+        onSelectionChanged(index, { ctrlKey: true })
+        return
+      }
+
+      onSelectionChanged(index, {})
     },
     [onSelectionChanged]
   )
