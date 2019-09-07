@@ -7,7 +7,7 @@ import fetchImage from 'api/fetchImage'
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
 
-const ImageTile = ({ selected, endpoint, bucket, item }) => {
+const ImageTile = ({ selected, secondarySelected, endpoint, bucket, item }) => {
   const imageRef = useRef(null)
   const [image, setImage] = useState(EMPTY_IMAGE)
 
@@ -38,7 +38,16 @@ const ImageTile = ({ selected, endpoint, bucket, item }) => {
   }, [handleObserver])
 
   return (
-    <div className={selected ? styles.selected : styles.container}>
+    <div
+      className={
+        selected
+          ? styles.selected
+          : secondarySelected
+          ? styles.secondarySelected
+          : styles.container
+      }
+    >
+      <div className={styles.highlight} />
       <img
         ref={imageRef}
         draggable={false}

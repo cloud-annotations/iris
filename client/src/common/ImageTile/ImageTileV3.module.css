@@ -14,6 +14,7 @@
 }
 
 .image {
+  position: relative;
   height: 100%;
 
   background-color: var(--highlight);
@@ -34,9 +35,13 @@
 .selected:hover .image {
   /* border: 1px solid #4071b0;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); */
+  /* This will only look nice with a certain image size */
   height: 71.4%;
-  margin: 0 20.328px; /* This will only look nice with a certain image size*/
+  margin: 0 20.328px;
+  /* margin: 0 7px; */
+  /* margin: 0 12px; */
   border: 2px solid var(--blue);
+  /* outline: 12px solid var(--highlight); */
 }
 
 .iconWrapper {
@@ -69,3 +74,35 @@
   height: 24px;
   margin: 1px;
 }
+
+.secondarySelected {
+  composes: container;
+}
+
+.secondarySelected .image,
+.secondarySelected:hover .image {
+  height: 71.4%;
+  /* This will only look nice with a certain image size*/
+  margin: 0 7px;
+  margin: 0 20.328px;
+  /* margin: 0 12px; */
+  border: 2px solid var(--blue);
+  /* outline: 12px solid var(--highlight); */
+}
+
+.secondarySelected .highlight,
+.selected .highlight {
+  height: 100%;
+  background: var(--highlight);
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  top: 0;
+  border-radius: 4px;
+}
+
+/* .secondarySelected .iconWrapper,
+.secondarySelected:hover .iconWrapper {
+  opacity: 1;
+  transition: none; 
+} */

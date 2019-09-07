@@ -30,7 +30,11 @@ GoogleAnalytics.initialize('UA-130502274-1')
 const darkMode = localStorage.getItem('darkMode') === 'true'
 document.body.className = darkMode ? 'dark' : 'light'
 
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+const composeEnhancers =
+  window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({
+    // trace: true,
+    // traceLimit: 25
+  }) || compose
 const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
 
 // Clear store on history change.

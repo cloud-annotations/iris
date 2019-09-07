@@ -39,7 +39,8 @@ const ImagesPanel = ({
   cells,
   selectedIndex,
   handleSelectionChanged,
-  syncAction
+  syncAction,
+  range
 }) => {
   const scrollElementRef = useRef(null)
   useBlockSwipeBack(scrollElementRef)
@@ -82,6 +83,7 @@ const ImagesPanel = ({
         <HorizontalListController
           items={images}
           cells={cells}
+          range={range}
           selection={selectedIndex}
           onSelectionChanged={handleSelectionChanged}
         />

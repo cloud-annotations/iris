@@ -153,7 +153,7 @@ const AppBar = ({
                 }
               >
                 <div className={styles.listItem} onClick={handleDeleteImage}>
-                  Delete
+                  Delete image
                 </div>
               </div>
             </div>

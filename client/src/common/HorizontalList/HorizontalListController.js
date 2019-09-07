@@ -19,6 +19,7 @@ const HorizontalListController = ({
   cells,
   items,
   selection,
+  range,
   onSelectionChanged
 }) => {
   const horizontalScrollRef = useRef(null)
@@ -94,18 +95,10 @@ const HorizontalListController = ({
 
   const handleItemSelected = useCallback(
     (e, index) => {
-      // Shift is dominant.
-      if (e.shiftKey) {
-        onSelectionChanged(index, { shiftKey: true })
-        return
-      }
-
-      if (e.ctrlKey || e.metaKey) {
-        onSelectionChanged(index, { ctrlKey: true })
-        return
-      }
-
-      onSelectionChanged(index, {})
+      onSelectionChanged(index, {
+        ctrlKey: e.ctrlKey || e.metaKey,
+        shiftKey: e.shiftKey
+      })
     },
     [onSelectionChanged]
   )
@@ -119,6 +112,7 @@ const HorizontalListController = ({
             id={items[i]}
             key={items[i]}
             selected={selection === i}
+            secondarySelected={range.includes(i)}
             onItemSelected={handleItemSelected}
             listItem={cell}
           />

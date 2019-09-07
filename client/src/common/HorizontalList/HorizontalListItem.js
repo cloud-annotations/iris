@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 
 const HorizontalListItem = React.memo(
-  ({ onItemSelected, selected, listItem, index, id }) => {
+  ({ onItemSelected, selected, secondarySelected, listItem, index, id }) => {
     const handleClick = useCallback(
       e => {
         onItemSelected(e, index)
@@ -10,7 +10,10 @@ const HorizontalListItem = React.memo(
     )
     return (
       <div id={id} onClick={handleClick}>
-        {React.cloneElement(listItem, { selected: selected })}
+        {React.cloneElement(listItem, {
+          selected: selected,
+          secondarySelected: secondarySelected
+        })}
       </div>
     )
   }
