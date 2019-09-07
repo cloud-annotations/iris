@@ -5,6 +5,9 @@ import history from 'globalHistory'
 // Actions
 const SET_ACTIVE_BOX = 'cloud-annotations/editor/SET_ACTIVE_BOX'
 const SET_ACTIVE_IMAGE = 'cloud-annotations/editor/SET_ACTIVE_IMAGE'
+const CLEAR_RANGE = 'cloud-annotations/editor/CLEAR_RANGE'
+const CTRL_EXPAND_RANGE = 'cloud-annotations/editor/CTRL_EXPAND_RANGE'
+const SHIFT_EXPAND_RANGE = 'cloud-annotations/editor/SHIFT_EXPAND_RANGE'
 const SET_ACTIVE_TOOL = 'cloud-annotations/editor/SET_ACTIVE_TOOL'
 const SET_ACTIVE_LABEL = 'cloud-annotations/editor/SET_ACTIVE_LABEL'
 const SET_HOVERED_BOX = 'cloud-annotations/editor/SET_HOVERED_BOX'
@@ -18,6 +21,7 @@ const defaultEditor = {
   saving: 0,
   box: undefined,
   image: undefined,
+  range: [],
   tool: BOX,
   label: undefined,
   hoveredBox: undefined,
@@ -36,7 +40,39 @@ export default function reducer(editor = defaultEditor, action = {}) {
     case SET_ACTIVE_IMAGE:
       const bucket = history.location.pathname.split('/')[1]
       socket.emit('join', { bucket: bucket, image: action.image })
-      return { ...editor, image: action.image }
+      return { ...editor, image: action.image, range: [action.image] }
+    case CTRL_EXPAND_RANGE:
+      const rangeHasImage = editor.range.includes(action.image)
+
+      // Add or remove the new image.
+      const newRange = rangeHasImage
+        ? editor.range.filter(i => i !== action.image)
+        : [action.image, ...editor.range]
+
+      // TODO: This is pure filth.
+      let newActiveImage
+      if (rangeHasImage) {
+        if (editor.image === action.image) {
+          if (newRange.length === 0) {
+            newActiveImage = editor.image
+            newRange.push(editor.image)
+          } else {
+            newActiveImage = newRange[0]
+          }
+        } else {
+          newActiveImage = editor.image
+        }
+      } else {
+        newActiveImage = action.image
+      }
+
+      return {
+        ...editor,
+        image: newActiveImage,
+        range: newRange
+      }
+    case SHIFT_EXPAND_RANGE:
+      return { ...editor, range: [] }
     case SET_ACTIVE_TOOL:
       return { ...editor, tool: action.tool }
     case SET_ACTIVE_LABEL:
@@ -63,6 +99,20 @@ export const setActiveBox = box => ({
 export const setActiveImage = image => ({
   type: SET_ACTIVE_IMAGE,
   image: image
+})
+
+export const clearRange = () => ({
+  type: CLEAR_RANGE
+})
+
+export const ctlExpandRange = image => ({
+  type: CTRL_EXPAND_RANGE,
+  image: image
+})
+
+export const shiftExpandRange = index => ({
+  type: SHIFT_EXPAND_RANGE,
+  index: index
 })
 
 export const setActiveTool = tool => ({

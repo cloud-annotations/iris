@@ -10,7 +10,12 @@ import ToolOptionsPanel from './ToolOptionsPanel'
 import fetchImage from 'api/fetchImage'
 import DrawingPanel from './DrawingPanel'
 import { endpointForLocationConstraint } from 'endpoints'
-import { setActiveImage } from 'redux/editor'
+import {
+  setActiveImage,
+  clearRange,
+  ctlExpandRange,
+  shiftExpandRange
+} from 'redux/editor'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 const EMPTY_IMAGE =
@@ -56,7 +61,11 @@ const Localization = ({
   location,
   collection,
   activeImage,
-  setActiveImage
+  setActiveImage,
+  shiftExpandRange,
+  ctlExpandRange,
+  clearRange,
+  range
 }) => {
   const [imageFilter, setImageFilter] = useState(undefined)
 
@@ -88,17 +97,26 @@ const Localization = ({
   )
 
   const handleSelectionChanged = useCallback(
-    selection => {
-      setActiveImage(images[selection])
+    (selection, key) => {
+      if (key.shiftKey) {
+        // later...
+      } else if (key.ctrlKey) {
+        ctlExpandRange(images[selection])
+      } else {
+        setActiveImage(images[selection])
+      }
     },
-    [images, setActiveImage]
+    [ctlExpandRange, images, setActiveImage]
   )
 
   useEffect(() => {
-    setActiveImage(activeImage || images[0])
+    if (!activeImage) {
+      setActiveImage(images[0])
+    }
   }, [activeImage, images, setActiveImage])
 
   const selectedIndex = images.indexOf(activeImage)
+  const rangeIndex = range.map(image => images.indexOf(image))
 
   const bboxes = collection.annotations[activeImage] || []
 
@@ -131,6 +149,7 @@ const Localization = ({
           labels={mapOfLabelCount}
           handleImageFilterChange={handleImageFilterChange}
           cells={cells}
+          range={rangeIndex}
           selectedIndex={selectedIndex}
           handleSelectionChanged={handleSelectionChanged}
         />
@@ -141,11 +160,15 @@ const Localization = ({
 
 const mapStateToProps = state => ({
   collection: state.collection,
-  activeImage: state.editor.image
+  activeImage: state.editor.image,
+  range: state.editor.range
 })
 
 const mapDispatchToProps = {
-  setActiveImage
+  setActiveImage,
+  shiftExpandRange,
+  ctlExpandRange,
+  clearRange
 }
 export default connect(
   mapStateToProps,

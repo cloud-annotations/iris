@@ -5,30 +5,40 @@ import Canvas, { BOX, MOVE } from 'common/Canvas/Canvas'
 import EmptySet from 'common/EmptySet/EmptySet'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, deleteBox, createLabel, syncAction } from 'redux/collection'
-import { setActiveBox, setActiveLabel } from 'redux/editor'
+import { setActiveBox, setActiveLabel, setActiveTool } from 'redux/editor'
 import { uniqueColor } from './color-utils'
 
 import styles from './DrawingPanel.module.css'
 
-const useIsControlPressed = () => {
+const useIsControlPressed = onCtrlChange => {
   const [isPressed, setIsPressed] = useState(false)
-  const handleKeyDown = useCallback(e => {
-    if (document.activeElement.tagName.toLowerCase() === 'input') {
+  const handleKeyDown = useCallback(
+    e => {
+      if (document.activeElement.tagName.toLowerCase() === 'input') {
+        setIsPressed(false)
+        onCtrlChange(false)
+        return
+      }
+
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        setIsPressed(true)
+        onCtrlChange(true)
+        return
+      }
+
       setIsPressed(false)
-    }
+      onCtrlChange(false)
+    },
+    [onCtrlChange]
+  )
 
-    if (e.ctrlKey || e.metaKey) {
-      setIsPressed(true)
-    }
-
-    if (e.shiftKey) {
+  const handleKeyUp = useCallback(
+    e => {
       setIsPressed(false)
-    }
-  }, [])
-
-  const handleKeyUp = useCallback(e => {
-    setIsPressed(false)
-  }, [])
+      onCtrlChange(false)
+    },
+    [onCtrlChange]
+  )
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
@@ -88,6 +98,7 @@ const useToggleLabel = (activeLabel, labels, setActiveLabel) => {
 const DrawingPanel = ({
   setActiveLabel,
   setActiveBox,
+  setActiveTool,
   syncAction,
   annotations,
   selectedImage,
@@ -101,7 +112,14 @@ const DrawingPanel = ({
 }) => {
   const bboxes = annotations[selectedImage] || []
 
-  const isControlPressed = useIsControlPressed()
+  const handleControlChange = useCallback(
+    isPressed => {
+      setActiveTool(isPressed ? MOVE : BOX)
+    },
+    [setActiveTool]
+  )
+
+  useIsControlPressed(handleControlChange)
   useToggleLabel(activeLabel, labels, setActiveLabel)
 
   const handleBoxStarted = useCallback(
@@ -151,7 +169,7 @@ const DrawingPanel = ({
 
   const activeColor = cmap[activeLabel] || 'white'
 
-  const activeTool = isControlPressed ? MOVE : tool
+  // const activeTool = isControlPressed ? MOVE : tool
 
   const maxBubbles = 3
   const othersCount = Math.max(headCount - 1, 0)
@@ -185,11 +203,11 @@ const DrawingPanel = ({
       {selectedImage ? (
         <CrossHair
           color={activeColor}
-          active={activeTool === BOX}
+          active={tool === BOX}
           children={
             <div className={styles.canvasWrapper}>
               <Canvas
-                mode={activeTool}
+                mode={tool}
                 activeLabel={activeLabel}
                 cmap={cmap}
                 bboxes={mergedBoxes}
@@ -221,7 +239,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = {
   syncAction,
   setActiveBox,
-  setActiveLabel
+  setActiveLabel,
+  setActiveTool
 }
 export default connect(
   mapStateToProps,
