@@ -28,7 +28,7 @@ const AppBar = ({
   profile,
   saving,
   syncAction,
-  activeImage,
+  imageRange,
   setActiveImage
 }) => {
   const optionsRef = useRef(null)
@@ -83,11 +83,11 @@ const AppBar = ({
   const handleDeleteImage = useCallback(
     e => {
       e.stopPropagation()
-      syncAction(deleteImages, [[activeImage]])
+      syncAction(deleteImages, [imageRange])
       setActiveImage(undefined)
       setOptionsOpen(false)
     },
-    [activeImage, syncAction, setActiveImage]
+    [imageRange, syncAction, setActiveImage]
   )
 
   return (
@@ -153,7 +153,9 @@ const AppBar = ({
                 }
               >
                 <div className={styles.listItem} onClick={handleDeleteImage}>
-                  Delete image
+                  {imageRange.length > 1
+                    ? `Delete ${imageRange.length} images`
+                    : 'Delete image'}
                 </div>
               </div>
             </div>
@@ -188,7 +190,7 @@ const AppBar = ({
 
 const mapPropsToState = state => ({
   saving: state.editor.saving,
-  activeImage: state.editor.image
+  imageRange: state.editor.range
 })
 const mapDispatchToProps = {
   syncAction,
