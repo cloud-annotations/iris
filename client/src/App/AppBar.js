@@ -1,6 +1,8 @@
 import React, { useState, useCallback, useRef } from 'react'
 import { connect } from 'react-redux'
 import Toggle from 'react-toggle'
+import JSZip from 'jszip'
+import { saveAs } from 'file-saver'
 
 import 'react-toggle/style.css'
 import './react-toggle-overrides.css'
@@ -14,6 +16,8 @@ import styles from './AppBar.module.css'
 import useOnClickOutside from 'hooks/useOnClickOutside'
 import { getDataTransferItems, convertToJpeg, videoToJpegs } from 'Utils'
 import { setActiveImage } from 'redux/editor'
+import COS from 'api/COSv2'
+import { defaultEndpoint } from 'endpoints'
 
 const FPS = 3
 
@@ -23,13 +27,27 @@ const generateFiles = async (images, videos) => {
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
 }
 
+const zipImages = async (bucket, collection, folder) => {
+  const labeledImageNames = Object.keys(collection.annotations)
+  await Promise.all(
+    labeledImageNames.map(async name => {
+      const imgData = await new COS({ endpoint: defaultEndpoint }).getObject({
+        Bucket: bucket,
+        Key: name
+      })
+      folder.file(name, imgData, { binary: true })
+    })
+  )
+}
+
 const AppBar = ({
   bucket,
   profile,
   saving,
   syncAction,
   imageRange,
-  setActiveImage
+  setActiveImage,
+  collection
 }) => {
   const optionsRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -90,6 +108,56 @@ const AppBar = ({
     [imageRange, syncAction, setActiveImage]
   )
 
+  const handleExportYOLO = useCallback(async () => {
+    const zip = new JSZip()
+    const folder = zip.folder(bucket)
+    await zipImages(bucket, collection, folder)
+
+    Object.keys(collection.annotations).forEach(name => {
+      const annotationTxt = collection.annotations[name]
+        .map(annotation => {
+          const labelIndex = collection.labels.indexOf(annotation.label)
+          const width = (annotation.x2 - annotation.x).toFixed(6)
+          const height = (annotation.y2 - annotation.y).toFixed(6)
+          const midX = (annotation.x + width / 2).toFixed(6)
+          const midY = (annotation.y + height / 2).toFixed(6)
+          return `${labelIndex} ${midX} ${midY} ${width} ${height}`
+        })
+        .join('\n')
+      folder.file(
+        `${name.replace(/\.(jpg|jpeg|png)$/i, '')}.txt`,
+        annotationTxt
+      )
+    })
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' })
+    saveAs(zipBlob, `${bucket}.zip`)
+  }, [bucket, collection])
+
+  const handleExportCreateML = useCallback(async () => {
+    const zip = new JSZip()
+    const folder = zip.folder(bucket)
+    await zipImages(bucket, collection, folder)
+
+    const collectionJson = collection.toJSON()
+    folder.file('_annotations.json', JSON.stringify(collectionJson))
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' })
+    saveAs(zipBlob, `${bucket}.zip`)
+  }, [bucket, collection])
+
+  const handleExportVOC = useCallback(async () => {
+    const zip = new JSZip()
+    const folder = zip.folder(bucket)
+    await zipImages(bucket, collection, folder)
+
+    const collectionJson = collection.toJSON()
+    folder.file('_annotations.json', JSON.stringify(collectionJson))
+
+    const zipBlob = await zip.generateAsync({ type: 'blob' })
+    saveAs(zipBlob, `${bucket}.zip`)
+  }, [bucket, collection])
+
   return (
     <div className={styles.wrapper}>
       <div onClick={handleClick} className={styles.home}>
@@ -130,7 +198,16 @@ const AppBar = ({
                     multiple
                   />
                 </div>
-                {/* <div className={styles.listDivider} */}
+                <div className={styles.listDivider} />
+                <div className={styles.listItem} onClick={handleExportYOLO}>
+                  Export as YOLO
+                </div>
+                <div className={styles.listItem} onClick={handleExportCreateML}>
+                  Export as Create ML
+                </div>
+                <div className={styles.listItem} onClick={handleExportVOC}>
+                  Export as Pascal VOC
+                </div>
               </div>
             </div>
 
@@ -190,7 +267,8 @@ const AppBar = ({
 
 const mapPropsToState = state => ({
   saving: state.editor.saving,
-  imageRange: state.editor.range
+  imageRange: state.editor.range,
+  collection: state.collection
 })
 const mapDispatchToProps = {
   syncAction,
