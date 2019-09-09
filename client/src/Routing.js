@@ -120,7 +120,7 @@ const Routing = ({ dispatch, activeAccount }) => {
       <Switch>
         {/* With `Switch` there will only ever be one child here */}
         <Route exact path="/" component={Buckets} />
-        <Route path="/otherlogin" component={Login} />
+        {/* <Route path="/otherlogin" component={Login} /> */}
         <Route path="/login" component={Home} />
         <Route path="/:bucket" component={App} />
       </Switch>

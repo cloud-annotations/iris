@@ -49,8 +49,7 @@ export const getSignatureHeaders = config => {
 
   var standardizedResource = bucket + '/' + objectKey
   var standardizedQuerystring = requestParameters
-  var standardizedHeaders =
-    'host:' + host + '\n' + 'x-amz-date:' + timestamp + '\n'
+  var standardizedHeaders = 'host:' + host + '\nx-amz-date:' + timestamp + '\n'
   var signedHeaders = 'host;x-amz-date'
   var payloadHash = hashHex('')
 
@@ -69,8 +68,7 @@ export const getSignatureHeaders = config => {
 
   // assemble string-to-sign
   var hashingAlgorithm = 'AWS4-HMAC-SHA256'
-  var credentialScope =
-    datestamp + '/' + region + '/' + 's3' + '/' + 'aws4_request'
+  var credentialScope = datestamp + '/' + region + '/s3/aws4_request'
   var sts =
     hashingAlgorithm +
     '\n' +

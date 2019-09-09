@@ -65,7 +65,7 @@ const ImagesPanel = ({
         </select>
         <div ref={scrollElementRef} className={styles.labelList}>
           {Object.keys(labels).map(label => (
-            <div className={styles.labelItem}>
+            <div key={label} className={styles.labelItem}>
               <div>{label}</div>
               <div className={styles.labelItemCount}>{labels[label]}</div>
               <div onClick={handleDelete(label)} className={styles.deleteIcon}>
