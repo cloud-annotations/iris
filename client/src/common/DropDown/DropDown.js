@@ -7,7 +7,7 @@ import { clearCookies } from 'Utils'
 const Chevron = () => (
   <svg className={styles.chevronIcon} viewBox="0 0 12 7">
     <path
-      fill-rule="nonzero"
+      fillRule="nonzero"
       d="M6.002 5.55L11.27 0l.726.685L6.003 7 0 .685.726 0z"
     />
   </svg>
@@ -48,7 +48,7 @@ const DropDown = ({ active, list, onChosen }) => {
 
   return (
     <div
-      tabindex="0"
+      tabIndex="0"
       className={open ? styles.open : styles.closed}
       onClick={handleClick}
       ref={dropDownRef}
@@ -123,7 +123,7 @@ export const ProfileDropDown = ({ profile }) => {
 
   return (
     <div
-      tabindex="0"
+      tabIndex="0"
       className={open ? styles.profileOpen : styles.profileClosed}
       onClick={handleClick}
       ref={dropDownRef}

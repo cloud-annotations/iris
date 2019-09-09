@@ -22,13 +22,13 @@ const SearchIcon = () => (
 
 const CreateIconV2 = () => (
   <svg className={styles.createBucketIcon} viewBox="0 0 24 24">
-    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+    <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
       <g transform="translate(-499.000000, -168.000000)">
         <g transform="translate(495.000000, 164.000000)">
           <g
             transform="translate(4.000000, 4.000000)"
             fill="#ffffff"
-            fill-rule="nonzero"
+            fillRule="nonzero"
           >
             <polygon points="13 11 13 0 11 0 11 11 0 11 0 13 11 13 11 24 13 24 13 13 24 13 24 11" />
           </g>

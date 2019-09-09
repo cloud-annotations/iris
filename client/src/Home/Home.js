@@ -98,7 +98,7 @@ const Home = () => {
         <video
           ref={videoRef}
           className={styles.video}
-          autoplay
+          autoPlay
           loop
           muted
           preload="auto"
