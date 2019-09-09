@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react'
+import ReactDOMServer from 'react-dom/server'
 import { connect } from 'react-redux'
 import Toggle from 'react-toggle'
 import JSZip from 'jszip'
@@ -192,10 +193,38 @@ const AppBar = ({
       setOptionsOpen(false)
       const zip = new JSZip()
       const folder = zip.folder(bucket)
-      await zipImages(bucket, collection, folder)
-
-      const collectionJson = collection.toJSON()
-      folder.file('_annotations.json', JSON.stringify(collectionJson))
+      const images = await zipImages(bucket, collection, folder)
+      images.forEach(({ name, dimensions }) => {
+        const annotation = (
+          <annotation>
+            <folder>{bucket}</folder>
+            <filename>{name}</filename>
+            <size>
+              <width>{dimensions.width}</width>
+              <height>{dimensions.height}</height>
+              <depth>3</depth>
+            </size>
+            {collection.annotations[name].map(annotation => (
+              <object>
+                <name>{annotation.label}</name>
+                <pose>Unspecified</pose>
+                <truncated>0</truncated>
+                <difficult>0</difficult>
+                <bndbox>
+                  <xmin>{annotation.x * dimensions.width}</xmin>
+                  <ymin>{annotation.y * dimensions.height}</ymin>
+                  <xmax>{annotation.x2 * dimensions.width}</xmax>
+                  <ymax>{annotation.y2 * dimensions.height}</ymax>
+                </bndbox>
+              </object>
+            ))}
+          </annotation>
+        )
+        folder.file(
+          `${name.replace(/\.(jpg|jpeg|png)$/i, '')}.xml`,
+          ReactDOMServer.renderToStaticMarkup(annotation)
+        )
+      })
 
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
