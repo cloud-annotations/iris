@@ -200,8 +200,8 @@ const AppBar = ({
             <folder>{bucket}</folder>
             <filename>{name}</filename>
             <size>
-              <width>{dimensions.width}</width>
-              <height>{dimensions.height}</height>
+              <width>{Math.round(dimensions.width)}</width>
+              <height>{Math.round(dimensions.height)}</height>
               <depth>3</depth>
             </size>
             {collection.annotations[name].map(annotation => (
@@ -211,10 +211,10 @@ const AppBar = ({
                 <truncated>0</truncated>
                 <difficult>0</difficult>
                 <bndbox>
-                  <xmin>{annotation.x * dimensions.width}</xmin>
-                  <ymin>{annotation.y * dimensions.height}</ymin>
-                  <xmax>{annotation.x2 * dimensions.width}</xmax>
-                  <ymax>{annotation.y2 * dimensions.height}</ymax>
+                  <xmin>{Math.round(annotation.x * dimensions.width)}</xmin>
+                  <ymin>{Math.round(annotation.y * dimensions.height)}</ymin>
+                  <xmax>{Math.round(annotation.x2 * dimensions.width)}</xmax>
+                  <ymax>{Math.round(annotation.y2 * dimensions.height)}</ymax>
                 </bndbox>
               </object>
             ))}
