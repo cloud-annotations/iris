@@ -48,7 +48,7 @@ function download_config {
 
 function attempt_build {
   echo Building $IMAGE_NAME ...
-  ibmcloud cr build --no-cache --pull -t $IMAGE_NAME .
+  ibmcloud cr build  --no-cache --pull --build-arg CLIENT_ID=$CLIENT_ID --build-arg CLIENT_SECRET=$CLIENT_SECRET -t $IMAGE_NAME .
 }
 
 function set_image {

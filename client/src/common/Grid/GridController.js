@@ -122,8 +122,6 @@ export default class GridController extends Component {
     const x2 = normalizedEndIndex % columnCount
     const y2 = Math.floor(normalizedEndIndex / columnCount)
 
-    console.log(`(${x1}, ${y1}) -> (${x2}, ${y2})`)
-
     const safeSelection = SafetyNet(collection).selection(selection)
     const intermediateSelection = safeSelection.map((selectState, index) => {
       // If item is outside of the selection, return the same state.

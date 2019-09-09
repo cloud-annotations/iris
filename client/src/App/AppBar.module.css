@@ -1,0 +1,151 @@
+.wrapper {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: var(--appBar);
+}
+
+.home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--blue);
+  height: 100%;
+  width: 64px;
+  cursor: pointer;
+}
+
+.home:hover {
+  background-color: var(--blue-hover);
+}
+
+.homeIcon {
+  fill: white;
+  width: 32px;
+  height: 32px;
+}
+
+.headerWrapper {
+  margin-left: 6px;
+  height: 100%;
+}
+
+.bucketName {
+  font-size: 18px;
+  color: var(--brightText);
+  margin-top: 9px;
+  padding: 2px 8px;
+}
+
+.options {
+  display: flex;
+  font-size: 14px;
+  color: var(--secondaryText);
+  align-items: center;
+}
+
+.baseOption {
+  position: relative;
+  margin-top: 2px;
+  border: 1px solid transparent;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.option {
+  composes: baseOption;
+}
+
+.option:hover {
+  background-color: var(--highlight);
+  border-radius: 4px;
+}
+
+.optionOpen {
+  composes: baseOption;
+  background-color: var(--highlight);
+  border-radius: 4px 4px 0 0;
+}
+
+.optionCardBase {
+  position: absolute;
+  color: black;
+  z-index: 10;
+  top: calc(100% + 1px);
+  left: -1px;
+
+  padding: 6px 0;
+
+  color: var(--secondaryText);
+  background-color: var(--secondaryBg);
+  max-height: calc(80vh - 174px);
+  min-width: 185px;
+  max-width: 314px;
+  border-radius: 0 4px 4px 4px;
+  overflow: auto;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
+  border: 1px solid var(--dropDownBorder);
+}
+
+.listDivider {
+  margin: 6px 0;
+  height: 1px;
+  background: var(--listDivider);
+}
+
+.optionCard {
+  composes: optionCardBase;
+  visibility: hidden;
+}
+
+.optionCardOpen {
+  composes: optionCardBase;
+  visibility: visible;
+}
+
+.listItem {
+  position: relative;
+  padding: 8px 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.listItem:hover {
+  background-color: var(--highlight);
+}
+
+.saved {
+  composes: baseOption;
+  margin-left: 14px;
+  color: var(--detailText);
+}
+
+.toggle {
+  margin-left: auto;
+  margin-right: 20px;
+}
+
+.profile {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  box-shadow: 0 -1px 0 0 #fff, 1px 0 0 0 #fff, -1px 0 0 0 #fff, 0 1px 0 0 #fff;
+}
+
+.profileWrapper {
+  margin: 0 16px 0 8px;
+}
+
+.upload {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+}

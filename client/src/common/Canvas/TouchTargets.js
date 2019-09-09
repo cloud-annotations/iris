@@ -3,9 +3,24 @@ import React, { Component } from 'react'
 import styles from './TouchTargets.module.css'
 
 export default class Rect extends Component {
-  handleMouseDown = e => {
-    const { onCornerGrabbed, index } = this.props
-    onCornerGrabbed(e, index)
+  handleTopLeftCorner = e => {
+    const { onCornerGrabbed, bbox } = this.props
+    onCornerGrabbed(e, bbox.id, [0, 0])
+  }
+
+  handleTopRightCorner = e => {
+    const { onCornerGrabbed, bbox } = this.props
+    onCornerGrabbed(e, bbox.id, [1, 0])
+  }
+
+  handleBottomRightCorner = e => {
+    const { onCornerGrabbed, bbox } = this.props
+    onCornerGrabbed(e, bbox.id, [1, 1])
+  }
+
+  handleBottomLeftCorner = e => {
+    const { onCornerGrabbed, bbox } = this.props
+    onCornerGrabbed(e, bbox.id, [0, 1])
   }
 
   render() {
@@ -23,27 +38,23 @@ export default class Rect extends Component {
     return (
       <div className={styles.wrapper} style={dimensions}>
         <div
-          id="00"
-          onMouseDown={this.handleMouseDown}
-          onTouchStart={this.handleMouseDown}
+          onMouseDown={this.handleTopLeftCorner}
+          onTouchStart={this.handleTopLeftCorner}
           className={styles.topLeft}
         />
         <div
-          id="10"
-          onMouseDown={this.handleMouseDown}
-          onTouchStart={this.handleMouseDown}
+          onMouseDown={this.handleTopRightCorner}
+          onTouchStart={this.handleTopRightCorner}
           className={styles.topRight}
         />
         <div
-          id="11"
-          onMouseDown={this.handleMouseDown}
-          onTouchStart={this.handleMouseDown}
+          onMouseDown={this.handleBottomRightCorner}
+          onTouchStart={this.handleBottomRightCorner}
           className={styles.bottomRight}
         />
         <div
-          id="01"
-          onMouseDown={this.handleMouseDown}
-          onTouchStart={this.handleMouseDown}
+          onMouseDown={this.handleBottomLeftCorner}
+          onTouchStart={this.handleBottomLeftCorner}
           className={styles.bottomLeft}
         />
       </div>

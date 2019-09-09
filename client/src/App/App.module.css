@@ -1,0 +1,49 @@
+.dropzone {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+.drop {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  z-index: 1000;
+  padding: 12px;
+  color: var(--detailText);
+  visibility: hidden;
+  background: radial-gradient(
+    ellipse at center,
+    var(--dropzoneGrad1) 0%,
+    var(--dropzoneGrad2) 65%,
+    var(--dropzoneGrad2) 100%
+  );
+  opacity: 0;
+  transition: visibility 0.2s, opacity 0.2s;
+}
+
+.dropActive {
+  composes: drop;
+  visibility: visible;
+  opacity: 1;
+}
+
+.dropOutline {
+  border: 6px var(--textInputUnderline) dashed;
+  background-color: rgba(141, 155, 165, 0.15);
+  border-radius: 5px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropText {
+  font-size: 24px;
+  font-weight: 600;
+}

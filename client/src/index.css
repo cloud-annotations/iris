@@ -1,10 +1,87 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #f5f7fa;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
   /* text-rendering: optimizelegibility; */
+  background-color: var(--bg);
+  color: var(--brightText);
+  --error: #da1e28;
+  --blue: #0062ff;
+  --blue-hover: #0353e9;
+  --font-size-14: 14px;
+}
+
+body.dark {
+  --secondaryButton: #6f6f6f;
+  --secondaryButtonHover: #606060;
+
+  --images: url('common/EmptySet/imagesdark.png');
+
+  --dropzoneGrad1: hsla(0, 0%, 0%, 1);
+  --dropzoneGrad2: hsla(0, 0%, 0%, 0.85);
+
+  --skeleton: rgba(255, 255, 255, 0.1);
+
+  --textInput: #282828;
+  --textInputUnderline: #606060;
+
+  --dropDownBorder: #414141;
+  --listDivider: var(--dropDownBorder);
+
+  --toolBarSpacer: #000000;
+
+  --toolColor: #ffffff;
+  --textInputBack: #21282a;
+  --activeHighlight: var(--blue);
+  --default-font-weight: normal;
+  --bg: #111417;
+  --border: transparent;
+  --secondaryBg: #181c1e;
+  --appBar: #1b1f21;
+  --appBarShadow: var(--bg);
+  --brightText: rgba(255, 255, 255, 1);
+  --secondaryText: rgba(255, 255, 255, 0.87);
+  --detailText: rgba(255, 255, 255, 0.53);
+  --highlight: #26292a;
+}
+
+body.light {
+  --secondaryButton: #3d3d3d;
+  --secondaryButtonHover: #4c4c4c;
+
+  --images: url('common/EmptySet/imageslight.png');
+
+  --dropzoneGrad1: hsla(0, 0%, 100%, 1);
+  --dropzoneGrad2: hsla(0, 0%, 100%, 0.85);
+
+  --skeleton: rgba(0, 98, 255, 0.1);
+
+  --textInput: #f3f3f3;
+  --textInputUnderline: #a7a7a7;
+
+  --toolBarSpacer: #dadce0;
+
+  --dropDownBorder: transparent;
+  --listDivider: #dadce0;
+
+  --toolColor: var(--blue);
+  --textInputBack: #eef4fc;
+  --activeHighlight: var(--blue);
+  --default-font-weight: 500;
+  --border: var(--listDivider); /*rgb(217, 217, 217);*/
+  --bg: hsl(210, 17%, 98%);
+  --secondaryBg: white;
+  --appBar: #ffffff;
+  --appBarShadow: var(--border);
+  /* --brightText: #152935; */
+  /* --secondaryText: rgb(90, 104, 114); */
+  /* --detailText: rgba(90, 104, 114, 0.5); */
+  --brightText: rgba(0, 0, 0, 1);
+  --secondaryText: rgba(0, 0, 0, 0.87);
+  --detailText: rgba(0, 0, 0, 0.53);
+  --highlight: #eef4fc;
 }
 
 * {

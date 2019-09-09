@@ -4,17 +4,20 @@ import Nobs from './Nobs'
 import TouchTargets from './TouchTargets'
 
 import styles from './Canvas.module.css'
+import { generateUUID } from 'Utils'
 
 export const MOVE = 'move'
 export const BOX = 'box'
 
 export default class App extends Component {
   state = {
-    size: { imageWidth: 0, imageHeight: 0 },
-    dragging: false,
-    move: [0, 0],
-    box: 0
+    size: { imageWidth: 0, imageHeight: 0 }
   }
+
+  box = undefined
+  canvasRect = undefined
+  dragging = false
+  move = [0, 0]
 
   canvasRef = React.createRef()
 
@@ -35,7 +38,7 @@ export default class App extends Component {
   }
 
   handleCanvasDragStart = e => {
-    const { mode, onDrawStarted } = this.props
+    const { mode, activeLabel, onBoxStarted } = this.props
     const { size } = this.state
 
     // Start drag if it was a left click.
@@ -47,6 +50,13 @@ export default class App extends Component {
       return
     }
 
+    // If we are still dragging then they drew too small of a box. So we are
+    // in double click mode.
+    if (this.dragging) {
+      this.handleDragEnd()
+      return
+    }
+
     const { imageWidth, imageHeight } = size
 
     e = (() => {
@@ -57,27 +67,29 @@ export default class App extends Component {
     })()
 
     // bug fix for mobile safari thinking there is a scroll.
-    const rect = this.canvasRef.current.getBoundingClientRect()
-    const mX = (e.clientX - rect.left) / imageWidth
-    const mY = (e.clientY - rect.top) / imageHeight
+    this.canvasRect = this.canvasRef.current.getBoundingClientRect()
+    const mX = (e.clientX - this.canvasRect.left) / imageWidth
+    const mY = (e.clientY - this.canvasRect.top) / imageHeight
 
-    onDrawStarted({
+    const box = {
+      id: generateUUID(),
       x: Math.min(1, Math.max(0, mX)),
       y: Math.min(1, Math.max(0, mY)),
       x2: Math.min(1, Math.max(0, mX)),
-      y2: Math.min(1, Math.max(0, mY))
-    })
+      y2: Math.min(1, Math.max(0, mY)),
+      label: activeLabel
+    }
 
-    this.setState({
-      canvasRect: rect,
-      dragging: true,
-      move: [1, 1],
-      box: 0
-    })
+    onBoxStarted(box)
+
+    this.dragging = true
+    this.move = [1, 1]
+    this.editingBoxId = undefined
+    this.box = box
   }
 
-  handleMouseDown = (e, index) => {
-    const { mode } = this.props
+  handleMouseDown = (e, boxId, move) => {
+    const { bboxes, mode } = this.props
 
     // Start drag if it was a left click.
     if (e.button && e.button !== 0) {
@@ -89,38 +101,23 @@ export default class App extends Component {
     }
 
     // bug fix for mobile safari thinking there is a scroll.
-    const rect = this.canvasRef.current.getBoundingClientRect()
+    this.canvasRect = this.canvasRef.current.getBoundingClientRect()
 
-    const id = e.target.id
-    const move = [0, 0]
-    if (id.startsWith('0')) {
-      move[0] = 0
-    } else {
-      move[0] = 1
-    }
-    if (id.endsWith('0')) {
-      move[1] = 0
-    } else {
-      move[1] = 1
-    }
+    this.move = move
+    this.dragging = true
 
-    this.setState({
-      canvasRect: rect,
-      dragging: true,
-      move: move,
-      box: index
-    })
+    this.box = bboxes.find(b => b.id === boxId)
   }
 
   handleMouseMove = e => {
-    const { onCoordinatesChanged, bboxes } = this.props
-    const { canvasRect, dragging, move, box, size } = this.state
+    const { onBoxChanged } = this.props
+    const { size } = this.state
 
-    if (!dragging) {
+    if (!this.dragging) {
       return
     }
 
-    const { x, y, x2, y2, ...rest } = bboxes[box]
+    const { x, y, x2, y2, ...rest } = this.box
     const { imageWidth, imageHeight } = size
 
     e = (() => {
@@ -130,16 +127,15 @@ export default class App extends Component {
       return e.touches[0]
     })()
 
-    const rect = canvasRect
-    const mX = (e.clientX - rect.left) / imageWidth
-    const mY = (e.clientY - rect.top) / imageHeight
+    const mX = (e.clientX - this.canvasRect.left) / imageWidth
+    const mY = (e.clientY - this.canvasRect.top) / imageHeight
 
     let newX
     let newY
     let newX2
     let newY2
 
-    if (move[0] === 0) {
+    if (this.move[0] === 0) {
       newX = mX
       newX2 = x2
     } else {
@@ -147,7 +143,7 @@ export default class App extends Component {
       newX2 = mX
     }
 
-    if (move[1] === 0) {
+    if (this.move[1] === 0) {
       newY = mY
       newY2 = y2
     } else {
@@ -155,48 +151,48 @@ export default class App extends Component {
       newY2 = mY
     }
 
-    onCoordinatesChanged(
-      {
-        x: Math.min(1, Math.max(0, newX)),
-        y: Math.min(1, Math.max(0, newY)),
-        x2: Math.min(1, Math.max(0, newX2)),
-        y2: Math.min(1, Math.max(0, newY2)),
-        ...rest
-      },
-      box
-    )
+    const computedBox = {
+      x: Math.min(1, Math.max(0, newX)),
+      y: Math.min(1, Math.max(0, newY)),
+      x2: Math.min(1, Math.max(0, newX2)),
+      y2: Math.min(1, Math.max(0, newY2)),
+      ...rest
+    }
+
+    onBoxChanged(computedBox)
   }
 
-  handleDragEnd = e => {
-    const { onBoxFinished, bboxes } = this.props
-    const { dragging, box } = this.state
+  handleDragEnd = () => {
+    const { bboxes, onBoxFinished } = this.props
+    const { imageWidth, imageHeight } = this.state.size
 
-    if (!dragging) {
+    if (!this.dragging) {
       return
     }
 
-    const { x, y, x2, y2, ...rest } = bboxes[box]
+    const { x, y, x2, y2, ...rest } = bboxes.find(b => b.id === this.box.id)
 
-    onBoxFinished(
-      {
-        x: Math.min(x, x2),
-        y: Math.min(y, y2),
-        x2: Math.max(x, x2),
-        y2: Math.max(y, y2),
-        ...rest
-      },
-      box
-    )
-    this.setState({ dragging: false })
+    // If the box is less than or equal to 1 pixel, there was probably no drag.
+    if (
+      Math.abs(imageWidth * (x - x2)) <= 1 &&
+      Math.abs(imageHeight * (y - y2) <= 1)
+    ) {
+      return
+    }
+
+    onBoxFinished({
+      x: Math.min(x, x2),
+      y: Math.min(y, y2),
+      x2: Math.max(x, x2),
+      y2: Math.max(y, y2),
+      ...rest
+    })
+
+    this.dragging = false
+    this.box = undefined
   }
 
-  handleWindowResize = e => {
-    const { onImageDimensionChanged } = this.props
-
-    onImageDimensionChanged(
-      this.canvasRef.current.clientWidth,
-      this.canvasRef.current.clientHeight
-    )
+  handleWindowResize = () => {
     this.setState({
       size: {
         imageWidth: this.canvasRef.current.clientWidth,
@@ -206,8 +202,6 @@ export default class App extends Component {
   }
 
   handleOnImageLoad = e => {
-    const { onImageDimensionChanged } = this.props
-    onImageDimensionChanged(e.target.clientWidth, e.target.clientHeight)
     this.setState({
       size: {
         imageWidth: e.target.clientWidth,
@@ -217,6 +211,9 @@ export default class App extends Component {
   }
 
   render() {
+    const { hovered, bboxes, mode, image, cmap } = this.props
+    const { size } = this.state
+
     return (
       <div
         draggable={false}
@@ -228,48 +225,60 @@ export default class App extends Component {
           className={styles.image}
           alt=""
           draggable={false}
-          src={this.props.image}
+          src={image}
           onLoad={this.handleOnImageLoad}
           ref={this.canvasRef}
           onDragStart={e => {
             e.preventDefault()
           }}
         />
-        <div className={styles.blendMode}>
-          {this.props.bboxes.map((bbox, i) => (
-            <div>
-              <Box key={i} index={i} bbox={bbox} imageSize={this.state.size} />
-              {this.props.mode === MOVE && (
-                <Nobs
-                  key={i}
-                  index={i}
-                  bbox={bbox}
-                  imageSize={this.state.size}
-                />
-              )}
+
+        <div
+          className={styles.blendMode}
+          style={{
+            width: size.imageWidth,
+            height: size.imageHeight
+          }}
+        >
+          {bboxes.map(bbox => (
+            <div key={bbox.id}>
+              <Box bbox={bbox} cmap={cmap} imageSize={size} />
+              {mode === MOVE && <Nobs bbox={bbox} imageSize={size} />}
             </div>
           ))}
         </div>
-        {this.props.mode === BOX &&
-          this.props.bboxes.map((bbox, i) => (
-            <Box
-              key={i}
-              index={i}
-              bbox={bbox}
-              mode={BOX}
-              imageSize={this.state.size}
-            />
-          ))}
-        {this.props.mode === MOVE &&
-          this.props.bboxes.map((bbox, i) => (
-            <TouchTargets
-              key={i}
-              index={i}
-              bbox={bbox}
-              onCornerGrabbed={this.handleMouseDown}
-              imageSize={this.state.size}
-            />
-          ))}
+
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: size.imageWidth,
+            height: size.imageHeight
+          }}
+        >
+          {mode === BOX &&
+            bboxes.map(bbox => (
+              <Box
+                key={bbox.id}
+                bbox={bbox}
+                cmap={cmap}
+                hovered={hovered && hovered.id === bbox.id}
+                mode={BOX}
+                imageSize={size}
+              />
+            ))}
+          {mode === MOVE &&
+            bboxes.map(bbox => (
+              <TouchTargets
+                key={bbox.id}
+                bbox={bbox}
+                onCornerGrabbed={this.handleMouseDown}
+                imageSize={size}
+              />
+            ))}
+        </div>
       </div>
     )
   }

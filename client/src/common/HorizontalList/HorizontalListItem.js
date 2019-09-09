@@ -1,17 +1,22 @@
-import React, { PureComponent } from 'react'
+import React, { useCallback } from 'react'
 
-export default class HorizontalListItem extends PureComponent {
-  handleClick = e => {
-    const { onItemSelected, index } = this.props
-    onItemSelected(e, index)
-  }
-
-  render() {
-    const { listItem, style, id } = this.props
+const HorizontalListItem = React.memo(
+  ({ onItemSelected, selected, secondarySelected, listItem, index, id }) => {
+    const handleClick = useCallback(
+      e => {
+        onItemSelected(e, index)
+      },
+      [index, onItemSelected]
+    )
     return (
-      <div id={id} style={style} onClick={this.handleClick}>
-        {listItem}
+      <div id={id} onClick={handleClick}>
+        {React.cloneElement(listItem, {
+          selected: selected,
+          secondarySelected: secondarySelected
+        })}
       </div>
     )
   }
-}
+)
+
+export default HorizontalListItem

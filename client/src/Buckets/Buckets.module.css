@@ -1,0 +1,230 @@
+.wrapper {
+  position: fixed;
+  top: 64px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  /* z-index: -1; */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.titleBar {
+  position: fixed;
+  z-index: 100;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 20px 20px 0 var(--bg);
+}
+
+.titlePrefix {
+  font-weight: 400;
+}
+
+.title {
+  margin-left: 32px;
+  margin-right: auto;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.profile {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  box-shadow: 0 -1px 0 0 #fff, 1px 0 0 0 #fff, -1px 0 0 0 #fff, 0 1px 0 0 #fff;
+}
+
+.profileWrapper {
+  cursor: pointer;
+  height: 48px;
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 8px 0 4px;
+}
+
+.profileWrapper:hover {
+  background-color: var(--highlight);
+}
+
+.section {
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 300;
+  margin-bottom: 20px;
+}
+
+.search {
+  height: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  position: static;
+}
+
+.searchFull {
+  composes: search;
+  background-color: var(--highlight);
+}
+
+.searchActive {
+  composes: search;
+  background-color: var(--highlight);
+  box-shadow: inset 0 0 0 2px var(--blue);
+  transition: all 0.2s cubic-bezier(0.2, 0.2, 0.38, 0.9);
+}
+
+.search:hover {
+  background-color: var(--highlight);
+}
+
+.searchIcon {
+  fill: var(--detailText);
+  height: 16px;
+  width: 16px;
+  margin: 0 16px;
+}
+
+.inputWrapper {
+  height: 100%;
+  flex: 1;
+}
+
+.searchInput {
+  color: var(--brightText);
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  height: 100%;
+  width: 100%;
+  background-color: transparent;
+  outline: none;
+  border: none;
+}
+
+.createBucket {
+  background-color: var(--blue);
+  /* border: 2px solid transparent; */
+  height: 100%;
+  color: #fff;
+  font-weight: 400;
+  font-size: 14px;
+  padding: 0 18px;
+  min-width: 220px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.createBucket:hover {
+  background-color: var(--blue-hover);
+}
+
+.createBucket:active {
+  box-shadow: inset 0 0 0 2px #fff;
+  transition: all 0.2s cubic-bezier(0.2, 0.2, 0.38, 0.9);
+}
+
+.createBucketText {
+  padding-right: 12px;
+}
+
+.createBucketIcon {
+  height: 12px;
+  width: 12px;
+  fill: #ffffff;
+  margin-left: auto;
+}
+
+.table {
+  margin: 60px 5%;
+}
+
+.textInput {
+  margin-bottom: 2px; /* show the underline */
+}
+
+.rowOverflow {
+  width: 48px;
+  padding-left: 1.5rem !important;
+  fill: var(--detailText);
+}
+
+.deleteIcon {
+  margin-top: 4px;
+  width: 32px;
+  height: 32px;
+  padding: 8px;
+}
+
+.rowOverflow:hover {
+  fill: var(--error);
+}
+
+.noBuckets {
+  background: var(--secondaryBg);
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.noBucketsTitle {
+  font-size: 18px;
+  color: var(--secondaryText);
+  margin-bottom: 4px;
+}
+
+.noBucketsSub {
+  font-size: 14px;
+  color: var(--detailText);
+  margin-bottom: 8px;
+  max-width: 560px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.noObjectStorage {
+  margin: 60px 5%;
+  background: var(--secondaryBg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.getStartedLink,
+.getStartedLink:visited {
+  /* color: var(--blue); */
+  text-decoration: none;
+}
+
+.getStartedLink:hover {
+  box-shadow: 0 1px var(--blue);
+}
+
+.getStartedLink:active {
+  color: var(--brightText);
+}
+
+.getStartedLink:focus {
+  color: var(--brightText);
+  box-shadow: 0 3px var(--brightText);
+}

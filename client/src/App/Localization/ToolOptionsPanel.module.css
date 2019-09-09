@@ -1,0 +1,103 @@
+.wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background-color: var(--secondaryBg);
+  display: flex;
+  align-items: center;
+  padding-left: 47px; /* account for divider margin */
+}
+
+.divider {
+  margin: 0px 4px;
+  border-left: 1px solid var(--toolBarSpacer);
+  height: 20px;
+}
+
+.labelDropDownBase {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--secondaryText);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3.5px 6px 3.5px 8px;
+  width: 160px;
+  cursor: pointer;
+}
+
+.labelDropDown {
+  composes: labelDropDownBase;
+}
+
+.labelDropDown:hover {
+  background-color: var(--highlight);
+  border-radius: 4px;
+}
+
+.labelDropDownOpen {
+  composes: labelDropDownBase;
+}
+
+.editTextBase {
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--brightText);
+  height: 19px;
+  width: 122px;
+  padding-left: 4px;
+  border: none;
+  outline: none;
+  margin-right: auto;
+}
+
+.editTextWrapper {
+  composes: editTextBase;
+  background-color: transparent;
+}
+
+.labelDropDownOpen .editTextWrapper {
+  background-color: var(--textInput);
+  box-shadow: 0 0 0 2px var(--blue);
+}
+
+.dropDownIcon {
+  fill: var(--secondaryText);
+}
+
+.cardBase {
+  position: absolute;
+  top: 100%;
+  left: 6px;
+  z-index: 10;
+  background-color: var(--secondaryBg);
+  max-height: calc(80vh - 174px);
+  width: 185px;
+  border-radius: 0 4px 4px 4px;
+  overflow: auto;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
+  border: 1px solid var(--dropDownBorder);
+}
+
+.card {
+  composes: cardBase;
+  visibility: hidden;
+}
+
+.cardOpen {
+  composes: cardBase;
+}
+
+.listItem {
+  padding: 10px 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.listItem:hover {
+  background-color: var(--highlight);
+}

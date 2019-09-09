@@ -10,9 +10,13 @@ const io = require('socket.io')(http)
 const redis = require('socket.io-redis')
 const port = process.env.PORT || 9000
 
+require('dotenv').config()
+
 app.use(express.static(__dirname + '/public'))
 
+let baseEndpoint = 'test.cloud.ibm.com'
 if (process.env.NODE_ENV === 'production') {
+  baseEndpoint = 'cloud.ibm.com'
   io.adapter(redis({ host: 'redis.default.svc.cluster.local', port: 6379 }))
 }
 
@@ -97,7 +101,7 @@ const isSuccess = (error, response) => {
 const setToken = (res, json) => {
   const { access_token, refresh_token, expiration } = json
   res
-    .cookie('token', access_token, {
+    .cookie('access_token', access_token, {
       expires: new Date(expiration * 1000)
     })
     .cookie('refresh_token', refresh_token, {
@@ -105,75 +109,251 @@ const setToken = (res, json) => {
     })
 }
 
-// Refresh token every request.
-app.use((req, res, next) => {
+const toBase64 = str => {
+  return Buffer.from(str, 'utf8').toString('base64')
+}
+
+const tokenPoking = (
+  res,
+  { code, redirectUri, account, refresh_token },
+  done
+) => {
   const options = {
-    method: 'POST',
-    json: true,
-    url: 'https://iam.bluemix.net/identity/token',
-    qs: {
-      refresh_token: req.cookies.refresh_token,
-      grant_type: 'refresh_token'
-    },
-    headers: {
-      Authorization: 'Basic Yng6Yng='
-    }
+    url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
+    method: 'GET'
   }
+
+  // get the proper auth endpoint.
   request(options, (error, response, body) => {
     if (isSuccess(error, response)) {
-      setToken(res, body)
+      const { token_endpoint } = JSON.parse(body)
+      const { CLIENT_ID, CLIENT_SECRET } = process.env
+
+      // Request parameters
+      const options = {
+        url: token_endpoint,
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${toBase64(`${CLIENT_ID}:${CLIENT_SECRET}`)}`
+        },
+        form: {
+          grant_type: 'refresh_token'
+        },
+        json: true
+      }
+
+      if (code && redirectUri) {
+        options.form.grant_type = 'authorization_code'
+        options.form.redirect_uri = redirectUri
+        options.form.code = code
+      }
+
+      if (refresh_token) {
+        options.form.refresh_token = refresh_token
+      }
+
+      if (account) {
+        options.form.bss_account = account
+      }
+
+      // Start the request
+      request(options, function(error, response, body) {
+        if (isSuccess(error, response)) {
+          setToken(res, body)
+          done(body)
+        } else {
+          console.error(error)
+          res.end()
+        }
+      })
+    } else {
+      res.end()
     }
+  })
+}
+
+// Refresh the token anytime we try to save something.
+app.put('/api/proxy/*', (req, res, next) => {
+  tokenPoking(res, { refresh_token: req.cookies.refresh_token }, () => {
     next()
   })
 })
 
-// Authenticate user.
-app.get('/api/auth', (req, res) => {
+app.get('/auth/login', (req, res) => {
+  const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`
+
   const options = {
-    method: 'POST',
-    json: true,
-    url: 'https://iam.bluemix.net/oidc/token',
-    qs: {
-      apikey: req.query.apikey,
-      response_type: 'cloud_iam',
-      grant_type: 'urn:ibm:params:oauth:grant-type:apikey'
-    },
-    headers: {
-      Authorization: 'Basic Yng6Yng='
-    }
+    url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
+    method: 'GET'
   }
+
+  // get the proper auth endpoint.
   request(options, (error, response, body) => {
-    if (isSuccess(error, response)) {
-      setToken(res, body)
+    if (!error && response.statusCode == 200) {
+      const { CLIENT_ID } = process.env
+      const { authorization_endpoint } = JSON.parse(body)
+      const redirectUrl = `${authorization_endpoint}?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}`
+      res.redirect(redirectUrl)
+    } else {
+      res.end()
     }
-    res.sendStatus(response.statusCode)
+  })
+})
+
+app.get('/auth/callback', (req, res) => {
+  const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`
+  const { code } = req.query
+
+  tokenPoking(res, { code: code, redirectUri: redirectUri }, () => {
+    res.redirect('/')
+  })
+})
+
+app.get('/auth/userinfo', (req, res) => {
+  const { access_token } = req.cookies
+
+  const options = {
+    url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
+    method: 'GET'
+  }
+
+  // get the proper auth endpoint.
+  request(options, (error, response, body) => {
+    if (!error && response.statusCode == 200) {
+      const { userinfo_endpoint } = JSON.parse(body)
+      const options = {
+        url: userinfo_endpoint,
+        headers: {
+          Authorization: 'bearer ' + access_token
+        },
+        method: 'GET'
+      }
+      request(options, (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          res.send(JSON.parse(body).iam_id)
+        } else {
+          res.end()
+        }
+      })
+    } else {
+      res.end()
+    }
+  })
+})
+
+app.get('/api/upgrade-token', (req, res) => {
+  const { refresh_token } = req.cookies
+  const { account } = req.query
+  tokenPoking(res, { refresh_token: refresh_token, account: account }, () => {
+    res.end()
+  })
+})
+
+app.get('/api/accounts', (req, res) => {
+  const { access_token } = req.cookies
+
+  const options = {
+    url: `https://accounts.${baseEndpoint}/coe/v2/accounts`,
+    method: 'GET',
+    headers: {
+      Authorization: 'bearer ' + access_token
+    },
+    json: true
+  }
+
+  request(options, function(error, response, body) {
+    if (isSuccess(error, response)) {
+      const { resources } = body
+      const slim = resources.map(account => ({
+        accountId: account.metadata.guid,
+        name: account.entity.name,
+        softlayer: account.entity.bluemix_subscriptions[0].softlayer_account_id
+      }))
+      res.send(slim)
+    } else {
+      res.end()
+    }
+  })
+})
+
+app.get('/api/accounts/:id/users/:user', (req, res) => {
+  const { access_token } = req.cookies
+  const { id, user } = req.params
+
+  const options = {
+    url: `https://user-management.${baseEndpoint}/v2/accounts/${id}/users/${user}`,
+    method: 'GET',
+    headers: {
+      Authorization: 'bearer ' + access_token
+    },
+    json: true
+  }
+
+  request(options, function(error, response, body) {
+    if (isSuccess(error, response)) {
+      res.send(body)
+    } else {
+      res.end()
+    }
+  })
+})
+
+app.get('/api/cos-instances', (req, res) => {
+  const { access_token } = req.cookies
+
+  const options = {
+    url: `https://resource-controller.${baseEndpoint}/v2/resource_instances?resource_id=dff97f5c-bc5e-4455-b470-411c3edbe49c`,
+    method: 'GET',
+    headers: {
+      Authorization: 'bearer ' + access_token
+    },
+    json: true
+  }
+
+  request(options, function(error, response, body) {
+    if (isSuccess(error, response)) {
+      res.send(body)
+    } else {
+      res.end()
+    }
   })
 })
 
 // Proxy any other request.
 app.all('/api/proxy/*', (req, res) => {
-  const token = req.cookies.token
+  const token = req.cookies.access_token
   const url = `https://${req.params[0]}`
+
+  const headers = {}
+  if (token) {
+    headers['Authorization'] = `bearer ${token}`
+  }
+
   req
     .pipe(
       request({
         url: url,
         qs: req.query,
-        headers: {
-          Authorization: 'bearer ' + token
-        }
+        headers: headers
       })
     )
+    .on('error', e => {
+      console.error(e)
+      res.sendStatus(500)
+    })
     .pipe(res)
+    .on('error', e => {
+      console.error(e)
+      res.sendStatus(500)
+    })
 })
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client')))
 
-  app.get('*', (req, res) => {
+  app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, 'client', 'index.html'))
   })
 }
 
-// app.listen(port)
 http.listen(port, () => console.log('listening on port ' + port))

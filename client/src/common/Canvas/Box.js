@@ -6,8 +6,8 @@ import styles from './Box.module.css'
 
 export default class Rect extends Component {
   render() {
-    const { bbox, imageSize } = this.props
-    const { x, y, x2, y2, color } = bbox
+    const { mode, bbox, cmap, imageSize, hovered } = this.props
+    const { x, y, x2, y2, label } = bbox
     const { imageWidth, imageHeight } = imageSize
 
     const dimensions = {
@@ -17,10 +17,13 @@ export default class Rect extends Component {
       height: Math.abs(Math.round((y2 - y) * imageHeight))
     }
 
-    const boxColor = this.props.mode === BOX ? color : 'white'
+    const boxColor = mode === BOX ? cmap[label] || 'white' : 'white'
 
     return (
-      <div className={styles.wrapper} style={dimensions}>
+      <div
+        className={hovered ? styles.wrapperHover : styles.wrapper}
+        style={dimensions}
+      >
         <div
           className={this.props.mode === BOX ? styles.draw : styles.move}
           style={{ borderColor: boxColor }}

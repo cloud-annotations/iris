@@ -1,0 +1,99 @@
+.SelectionBar {
+  z-index: 2;
+  position: fixed;
+  top: 50px;
+  left: 209px;
+  right: 0px;
+  height: 50px;
+  background-color: var(--blue);
+  align-items: stretch;
+  display: none;
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #ffffff;
+}
+
+.SelectionBar.--Active {
+  display: flex;
+}
+
+.SelectionBar-count {
+  width: 160px;
+  /* margin-left: 18px; */
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.SelectionBar-Wrapper {
+  display: flex;
+  align-items: center;
+  padding: 0 25px;
+}
+
+.SelectionBar-count-Wrapper {
+  padding-right: 0;
+}
+
+.SelectionBar-Wrapper:hover.SelectionBar-Button {
+  background-color: var(--blue-hover);
+}
+
+.SelectionBar-close-IconWrapper {
+  margin-left: auto;
+}
+
+.SelectionBar-close-Icon {
+  height: 15px;
+  width: 15px;
+  fill: #ffffff;
+}
+
+.SelectionBar-DropDown {
+  position: relative;
+  display: flex;
+}
+
+.SelectionBar-DropDown.--Active {
+  width: 152px;
+}
+
+.SelectionBar-DropDown-Filter {
+  visibility: collapse;
+  position: absolute;
+  background-color: #f4f7fb;
+  left: -25px;
+  top: -15px;
+  height: 50px;
+  width: 202px;
+  padding: 0 25px;
+  outline: none;
+  border: none;
+  margin: 0; /* Safari layout fix */
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.SelectionBar-DropDown-Filter::placeholder {
+  font-weight: normal;
+  opacity: 0.6;
+}
+
+.SelectionBar-DropDown.--Active .SelectionBar-DropDown-Filter {
+  visibility: visible;
+}
+
+.SelectionBar-dropdown-Icon {
+  align-self: center;
+  margin-left: 8px;
+  fill: #ffffff;
+}
+
+.SelectionBar-DropDown.--Active .SelectionBar-dropdown-Icon {
+  margin-left: auto;
+}
