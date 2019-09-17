@@ -30,33 +30,35 @@ const useCookieCheck = interval => {
 }
 
 const useAccount = dispatch => {
-  const loadAccounts = useCallback(() => {
-    console.log('loading accounts')
-    dispatch(setLoadingAccounts(true))
-    fetch('/api/accounts')
-      .then(res => res.json())
-      .then(accounts => {
-        const [firstAccount] = accounts
-        dispatch(
-          setAccounts({
-            accounts: accounts,
-            activeAccount: firstAccount && firstAccount.accountId
-          })
-        )
-        dispatch(setLoadingAccounts(false))
-        if (accounts.length === 0) {
-          setTimeout(() => {
-            loadAccounts()
-          }, 15000)
-        }
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }, [dispatch])
+  const loadAccounts = useCallback(
+    tries => {
+      dispatch(setLoadingAccounts(true))
+      fetch('/api/accounts')
+        .then(res => res.json())
+        .then(accounts => {
+          const [firstAccount] = accounts
+          dispatch(
+            setAccounts({
+              accounts: accounts,
+              activeAccount: firstAccount && firstAccount.accountId
+            })
+          )
+          dispatch(setLoadingAccounts(false))
+          if (accounts.length === 0 && tries < 300) {
+            setTimeout(() => {
+              loadAccounts(tries + 1)
+            }, 10000)
+          }
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    },
+    [dispatch]
+  )
 
   useEffect(() => {
-    loadAccounts()
+    loadAccounts(0)
   }, [loadAccounts])
 }
 
@@ -79,35 +81,37 @@ const useUpgradeToken = account => {
 }
 
 const useResourceList = (dispatch, tokenUpgraded) => {
-  const loadResources = useCallback(() => {
-    console.log('loading resources')
-    dispatch(setLoadingResources(true))
-    fetch('/api/cos-instances')
-      .then(res => res.json())
-      .then(json => {
-        const { resources } = json
-        const [firstResource] = resources
-        dispatch(
-          setResources({
-            resources: resources,
-            activeResource: firstResource && firstResource.id
-          })
-        )
-        dispatch(setLoadingResources(false))
-        if (resources.length === 0) {
-          setTimeout(() => {
-            loadResources()
-          }, 15000)
-        }
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }, [dispatch])
+  const loadResources = useCallback(
+    tries => {
+      dispatch(setLoadingResources(true))
+      fetch('/api/cos-instances')
+        .then(res => res.json())
+        .then(json => {
+          const { resources } = json
+          const [firstResource] = resources
+          dispatch(
+            setResources({
+              resources: resources,
+              activeResource: firstResource && firstResource.id
+            })
+          )
+          dispatch(setLoadingResources(false))
+          if (resources.length === 0 && tries < 300) {
+            setTimeout(() => {
+              loadResources(tries + 1)
+            }, 10000)
+          }
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    },
+    [dispatch]
+  )
 
   useEffect(() => {
     if (tokenUpgraded) {
-      loadResources()
+      loadResources(0)
     }
   }, [loadResources, tokenUpgraded])
 }
