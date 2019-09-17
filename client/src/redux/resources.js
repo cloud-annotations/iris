@@ -23,4 +23,4 @@ export default function reducer(resources = defaultResources, action = {}) {
 // Action Creators
 export const setResources = r => ({ type: SET, resources: r })
 
-export const setLoading = l => ({ type: SET_LOADING, loading: l })
+export const setLoadingResources = l => ({ type: SET_LOADING, loading: l })

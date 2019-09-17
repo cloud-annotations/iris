@@ -23,12 +23,107 @@ const accountNameForAccount = account => {
   }
 }
 
+const ConditionalTable = connect(state => ({
+  resources: state.resources.resources,
+  loadingResources: state.resources.loading,
+  accounts: state.accounts.accounts,
+  loadingAccounts: state.accounts.loading,
+  buckets: state.buckets
+}))(
+  ({
+    loadingAccounts,
+    accounts,
+    loadingResources,
+    resources,
+    buckets,
+    listOfLoadingBuckets,
+    handleDeleteBucket,
+    handleCreateBucket,
+    handleRowSelected,
+    loading
+  }) => {
+    if (!loadingAccounts && accounts.length === 0) {
+      return (
+        <div className={styles.noObjectStorage}>
+          <div className={styles.noBucketsTitle} style={{ marginTop: '60px' }}>
+            Account not yet activated
+          </div>
+          <div className={styles.noBucketsSub}>
+            Your IBM Cloud account hasn't been activated yet. You can activate
+            your account by logging into{' '}
+            <a
+              className={styles.getStartedLink}
+              href="https://cloud.ibm.com?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              IBM Cloud
+            </a>
+            . Once activated, refresh this page.
+          </div>
+          <a
+            href="https://cloud.ibm.com?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.createBucket}
+            style={{ height: '48px', marginTop: '40px' }}
+          >
+            <div className={styles.createBucketText}>Activate your account</div>
+          </a>
+        </div>
+      )
+    }
+
+    if (!loadingResources && resources.length === 0) {
+      return (
+        <div className={styles.noObjectStorage}>
+          <div className={styles.noBucketsTitle} style={{ marginTop: '60px' }}>
+            No Object Storage instance
+          </div>
+          <div className={styles.noBucketsSub}>
+            We use object storage to save your annotations. You can create an
+            Object Storage instance for free on{' '}
+            <a
+              className={styles.getStartedLink}
+              href="https://cloud.ibm.com/catalog/services/cloud-object-storage?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              IBM Cloud
+            </a>
+            . Once created, refresh this page.
+          </div>
+          <a
+            href="https://cloud.ibm.com/catalog/services/cloud-object-storage?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.createBucket}
+            style={{ height: '48px', marginTop: '40px' }}
+          >
+            <div className={styles.createBucketText}>Get started</div>
+          </a>
+        </div>
+      )
+    }
+
+    return (
+      <Table
+        buckets={buckets}
+        listOfLoadingBuckets={listOfLoadingBuckets}
+        onDeleteBucket={handleDeleteBucket}
+        onCreateBucket={handleCreateBucket}
+        onRowSelected={handleRowSelected}
+        loading={loading}
+      />
+    )
+  }
+)
+
 const Buckets = ({
   profile,
   buckets,
   resources,
   activeResource,
-  loadingResources,
   accounts,
   activeAccount,
   dispatch
@@ -142,13 +237,10 @@ const Buckets = ({
 
   const handleAccountChosen = useCallback(
     item => {
-      const activeAccount = accounts.find(
-        account => accountNameForAccount(account) === item
-      ).accountId
       dispatch(
         setAccounts({
           accounts: accounts,
-          activeAccount: activeAccount
+          activeAccount: item
         })
       )
     },
@@ -157,12 +249,10 @@ const Buckets = ({
 
   const handleResourceChosen = useCallback(
     item => {
-      const activeResource = resources.find(resource => resource.name === item)
-        .id
       dispatch(
         setResources({
           resources: resources,
-          activeResource: activeResource
+          activeResource: item
         })
       )
     },
@@ -186,12 +276,18 @@ const Buckets = ({
         </div>
         <DropDown
           active={activeResourceObject && activeResourceObject.name}
-          list={resources.map(resource => resource.name)}
+          list={resources.map(resource => ({
+            display: resource.name,
+            id: resource.id
+          }))}
           onChosen={handleResourceChosen}
         />
         <DropDown
           active={accountNameForAccount(activeAccountObject)}
-          list={accounts.map(account => accountNameForAccount(account))}
+          list={accounts.map(account => ({
+            display: accountNameForAccount(account),
+            id: account.accountId
+          }))}
           onChosen={handleAccountChosen}
         />
         <ProfileDropDown profile={profile} />
@@ -208,51 +304,19 @@ const Buckets = ({
         onSubmit={handleSubmitCreateModal}
         instanceId={activeResource}
       />
-      {loadingResources || resources.length > 0 ? (
-        <Table
-          buckets={buckets}
-          listOfLoadingBuckets={listOfLoadingBuckets}
-          onDeleteBucket={handleDeleteBucket}
-          onCreateBucket={handleCreateBucket}
-          onRowSelected={handleRowSelected}
-          loading={loading}
-        />
-      ) : (
-        <div className={styles.noObjectStorage}>
-          <div className={styles.noBucketsTitle} style={{ marginTop: '60px' }}>
-            No Object Storage instance
-          </div>
-          <div className={styles.noBucketsSub}>
-            We use object storage to save your annotations. You can create an
-            Object Storage instance for free on{' '}
-            <a
-              className={styles.getStartedLink}
-              href="https://cloud.ibm.com/catalog/services/cloud-object-storage?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              IBM Cloud
-            </a>
-            . Once created, refresh this page.
-          </div>
-          <a
-            href="https://cloud.ibm.com/catalog/services/cloud-object-storage?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.createBucket}
-            style={{ height: '48px', marginTop: '40px' }}
-          >
-            <div className={styles.createBucketText}>Get started</div>
-          </a>
-        </div>
-      )}
+      <ConditionalTable
+        listOfLoadingBuckets={listOfLoadingBuckets}
+        handleDeleteBucket={handleDeleteBucket}
+        handleCreateBucket={handleCreateBucket}
+        handleRowSelected={handleRowSelected}
+        loading={loading}
+      />
     </div>
   )
 }
 
 const mapStateToProps = state => ({
   resources: state.resources.resources,
-  loadingResources: state.resources.loading,
   activeResource: state.resources.activeResource,
   accounts: state.accounts.accounts,
   activeAccount: state.accounts.activeAccount,
