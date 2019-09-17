@@ -23,11 +23,14 @@ import AppBarLayout from './AppBarLayout'
 import styles from './App.module.css'
 import { convertToJpeg, videoToJpegs } from 'Utils'
 
-const FPS = 3
+// This makes setting frames per second easier from the dev inspector.
+window.FPS = 3
 
 const generateFiles = async (images, videos) => {
   const imageFiles = images.map(async image => await convertToJpeg(image))
-  const videoFiles = videos.map(async video => await videoToJpegs(video, FPS))
+  const videoFiles = videos.map(
+    async video => await videoToJpegs(video, window.FPS)
+  )
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
 }
 

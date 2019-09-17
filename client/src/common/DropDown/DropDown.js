@@ -58,8 +58,12 @@ const DropDown = ({ active, list, onChosen }) => {
       {open && (
         <div className={styles.droplist}>
           {list.map(item => (
-            <div onClick={handleChosen(item)} className={styles.dropItem}>
-              {item}
+            <div
+              key={item.id}
+              onClick={handleChosen(item.id)}
+              className={styles.dropItem}
+            >
+              {item.display}
             </div>
           ))}
         </div>
@@ -73,10 +77,11 @@ if (process.env.NODE_ENV === 'production') {
   baseEndpoint = 'cloud.ibm.com'
 }
 
+const IMAGE_REGEX = /\.(jpg|jpeg|png)$/i
 const Image = ({ photo }) => {
   return (
     <>
-      {photo ? (
+      {photo && photo.match(IMAGE_REGEX) ? (
         <img alt="" className={styles.profile} src={photo} />
       ) : (
         <svg
@@ -118,7 +123,7 @@ export const ProfileDropDown = ({ profile }) => {
     )
     setTimeout(() => {
       wind.close()
-    }, 0)
+    }, 10000)
   }, [])
 
   return (

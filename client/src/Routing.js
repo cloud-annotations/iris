@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Router, Route, Switch } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 import App from './App/App'
-import Login from './Login/Login'
 import Home from './Home/Home'
 import Buckets from './Buckets/Buckets'
 import history from 'globalHistory'
 import { checkLoginStatus } from './Utils'
-import { setAccounts } from 'redux/accounts'
-import { setResources, setLoading } from 'redux/resources'
+import { setAccounts, setLoadingAccounts } from 'redux/accounts'
+import { setResources, setLoadingResources } from 'redux/resources'
 import { setProfile } from 'redux/profile'
 
 const useCookieCheck = interval => {
@@ -31,22 +30,36 @@ const useCookieCheck = interval => {
 }
 
 const useAccount = dispatch => {
+  const loadAccounts = useCallback(
+    tries => {
+      fetch('/api/accounts')
+        .then(res => res.json())
+        .then(accounts => {
+          const [firstAccount] = accounts
+          dispatch(
+            setAccounts({
+              accounts: accounts,
+              activeAccount: firstAccount && firstAccount.accountId
+            })
+          )
+          dispatch(setLoadingAccounts(false))
+          if (accounts.length === 0 && tries < 300) {
+            setTimeout(() => {
+              loadAccounts(tries + 1)
+            }, 10000)
+          }
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    },
+    [dispatch]
+  )
+
   useEffect(() => {
-    fetch('/api/accounts')
-      .then(res => res.json())
-      .then(accounts => {
-        const account = accounts[0].accountId
-        dispatch(
-          setAccounts({
-            accounts: accounts,
-            activeAccount: account
-          })
-        )
-      })
-      .catch(error => {
-        console.error(error)
-      })
-  }, [dispatch])
+    dispatch(setLoadingAccounts(true))
+    loadAccounts(0)
+  }, [dispatch, loadAccounts])
 }
 
 const useUpgradeToken = account => {
@@ -68,9 +81,8 @@ const useUpgradeToken = account => {
 }
 
 const useResourceList = (dispatch, tokenUpgraded) => {
-  useEffect(() => {
-    if (tokenUpgraded) {
-      dispatch(setLoading(true))
+  const loadResources = useCallback(
+    tries => {
       fetch('/api/cos-instances')
         .then(res => res.json())
         .then(json => {
@@ -82,13 +94,26 @@ const useResourceList = (dispatch, tokenUpgraded) => {
               activeResource: firstResource && firstResource.id
             })
           )
-          dispatch(setLoading(false))
+          dispatch(setLoadingResources(false))
+          if (resources.length === 0 && tries < 300) {
+            setTimeout(() => {
+              loadResources(tries + 1)
+            }, 10000)
+          }
         })
         .catch(error => {
           console.error(error)
         })
+    },
+    [dispatch]
+  )
+
+  useEffect(() => {
+    if (tokenUpgraded) {
+      dispatch(setLoadingResources(true))
+      loadResources(0)
     }
-  }, [dispatch, tokenUpgraded])
+  }, [dispatch, loadResources, tokenUpgraded])
 }
 
 const useProfile = (dispatch, account) => {
