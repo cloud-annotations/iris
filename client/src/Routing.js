@@ -32,7 +32,6 @@ const useCookieCheck = interval => {
 const useAccount = dispatch => {
   const loadAccounts = useCallback(
     tries => {
-      dispatch(setLoadingAccounts(true))
       fetch('/api/accounts')
         .then(res => res.json())
         .then(accounts => {
@@ -58,8 +57,9 @@ const useAccount = dispatch => {
   )
 
   useEffect(() => {
+    dispatch(setLoadingAccounts(true))
     loadAccounts(0)
-  }, [loadAccounts])
+  }, [dispatch, loadAccounts])
 }
 
 const useUpgradeToken = account => {
@@ -83,7 +83,6 @@ const useUpgradeToken = account => {
 const useResourceList = (dispatch, tokenUpgraded) => {
   const loadResources = useCallback(
     tries => {
-      dispatch(setLoadingResources(true))
       fetch('/api/cos-instances')
         .then(res => res.json())
         .then(json => {
@@ -111,9 +110,10 @@ const useResourceList = (dispatch, tokenUpgraded) => {
 
   useEffect(() => {
     if (tokenUpgraded) {
+      dispatch(setLoadingResources(true))
       loadResources(0)
     }
-  }, [loadResources, tokenUpgraded])
+  }, [dispatch, loadResources, tokenUpgraded])
 }
 
 const useProfile = (dispatch, account) => {
