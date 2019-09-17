@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Router, Route, Switch } from 'react-router-dom'
 import { connect } from 'react-redux'
 
@@ -30,30 +30,34 @@ const useCookieCheck = interval => {
 }
 
 const useAccount = dispatch => {
-  useEffect(() => {
+  const loadAccounts = useCallback(() => {
+    console.log('loading accounts')
     dispatch(setLoadingAccounts(true))
     fetch('/api/accounts')
       .then(res => res.json())
       .then(accounts => {
-        const account = (() => {
-          try {
-            return accounts[0].accountId
-          } catch {
-            return null
-          }
-        })()
+        const [firstAccount] = accounts
         dispatch(
           setAccounts({
             accounts: accounts,
-            activeAccount: account
+            activeAccount: firstAccount && firstAccount.accountId
           })
         )
         dispatch(setLoadingAccounts(false))
+        if (accounts.length === 0) {
+          setTimeout(() => {
+            loadAccounts()
+          }, 15000)
+        }
       })
       .catch(error => {
         console.error(error)
       })
   }, [dispatch])
+
+  useEffect(() => {
+    loadAccounts()
+  }, [loadAccounts])
 }
 
 const useUpgradeToken = account => {
@@ -75,27 +79,37 @@ const useUpgradeToken = account => {
 }
 
 const useResourceList = (dispatch, tokenUpgraded) => {
+  const loadResources = useCallback(() => {
+    console.log('loading resources')
+    dispatch(setLoadingResources(true))
+    fetch('/api/cos-instances')
+      .then(res => res.json())
+      .then(json => {
+        const { resources } = json
+        const [firstResource] = resources
+        dispatch(
+          setResources({
+            resources: resources,
+            activeResource: firstResource && firstResource.id
+          })
+        )
+        dispatch(setLoadingResources(false))
+        if (resources.length === 0) {
+          setTimeout(() => {
+            loadResources()
+          }, 15000)
+        }
+      })
+      .catch(error => {
+        console.error(error)
+      })
+  }, [dispatch])
+
   useEffect(() => {
     if (tokenUpgraded) {
-      dispatch(setLoadingResources(true))
-      fetch('/api/cos-instances')
-        .then(res => res.json())
-        .then(json => {
-          const { resources } = json
-          const [firstResource] = resources
-          dispatch(
-            setResources({
-              resources: resources,
-              activeResource: firstResource && firstResource.id
-            })
-          )
-          dispatch(setLoadingResources(false))
-        })
-        .catch(error => {
-          console.error(error)
-        })
+      loadResources()
     }
-  }, [dispatch, tokenUpgraded])
+  }, [loadResources, tokenUpgraded])
 }
 
 const useProfile = (dispatch, account) => {
