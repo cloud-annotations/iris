@@ -77,10 +77,11 @@ if (process.env.NODE_ENV === 'production') {
   baseEndpoint = 'cloud.ibm.com'
 }
 
+const IMAGE_REGEX = /\.(jpg|jpeg|png)$/i
 const Image = ({ photo }) => {
   return (
     <>
-      {photo ? (
+      {photo && photo.match(IMAGE_REGEX) ? (
         <img alt="" className={styles.profile} src={photo} />
       ) : (
         <svg
@@ -122,7 +123,7 @@ export const ProfileDropDown = ({ profile }) => {
     )
     setTimeout(() => {
       wind.close()
-    }, 0)
+    }, 10000)
   }, [])
 
   return (
