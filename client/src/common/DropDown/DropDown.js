@@ -58,8 +58,12 @@ const DropDown = ({ active, list, onChosen }) => {
       {open && (
         <div className={styles.droplist}>
           {list.map(item => (
-            <div onClick={handleChosen(item)} className={styles.dropItem}>
-              {item}
+            <div
+              key={item.id}
+              onClick={handleChosen(item.id)}
+              className={styles.dropItem}
+            >
+              {item.display}
             </div>
           ))}
         </div>

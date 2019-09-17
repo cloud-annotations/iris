@@ -3,7 +3,6 @@ import { Router, Route, Switch } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 import App from './App/App'
-import Login from './Login/Login'
 import Home from './Home/Home'
 import Buckets from './Buckets/Buckets'
 import history from 'globalHistory'

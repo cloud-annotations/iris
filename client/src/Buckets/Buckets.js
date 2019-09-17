@@ -237,13 +237,10 @@ const Buckets = ({
 
   const handleAccountChosen = useCallback(
     item => {
-      const activeAccount = accounts.find(
-        account => accountNameForAccount(account) === item
-      ).accountId
       dispatch(
         setAccounts({
           accounts: accounts,
-          activeAccount: activeAccount
+          activeAccount: item
         })
       )
     },
@@ -252,12 +249,10 @@ const Buckets = ({
 
   const handleResourceChosen = useCallback(
     item => {
-      const activeResource = resources.find(resource => resource.name === item)
-        .id
       dispatch(
         setResources({
           resources: resources,
-          activeResource: activeResource
+          activeResource: item
         })
       )
     },
@@ -281,12 +276,18 @@ const Buckets = ({
         </div>
         <DropDown
           active={activeResourceObject && activeResourceObject.name}
-          list={resources.map(resource => resource.name)}
+          list={resources.map(resource => ({
+            display: resource.name,
+            id: resource.id
+          }))}
           onChosen={handleResourceChosen}
         />
         <DropDown
           active={accountNameForAccount(activeAccountObject)}
-          list={accounts.map(account => accountNameForAccount(account))}
+          list={accounts.map(account => ({
+            display: accountNameForAccount(account),
+            id: account.accountId
+          }))}
           onChosen={handleAccountChosen}
         />
         <ProfileDropDown profile={profile} />
