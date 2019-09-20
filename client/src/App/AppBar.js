@@ -20,11 +20,11 @@ import { setActiveImage } from 'redux/editor'
 import COS from 'api/COSv2'
 import { defaultEndpoint } from 'endpoints'
 
-const FPS = 3
-
 const generateFiles = async (images, videos) => {
   const imageFiles = images.map(async image => await convertToJpeg(image))
-  const videoFiles = videos.map(async video => await videoToJpegs(video, FPS))
+  const videoFiles = videos.map(
+    async video => await videoToJpegs(video, window.FPS)
+  )
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
 }
 
