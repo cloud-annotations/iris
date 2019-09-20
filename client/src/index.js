@@ -24,6 +24,12 @@ import {
   uploadImages
 } from 'redux/collection'
 
+// Global Settings:
+window.FPS = 3
+window.MAX_IMAGE_WIDTH = 1500
+window.MAX_IMAGE_HEIGHT = 1500
+window.IMAGE_SCALE_MODE = 'ASPECT_FIT' // || 'SCALE_FILL' || false
+
 GoogleAnalytics.initialize('UA-130502274-1')
 
 // Setup theme.

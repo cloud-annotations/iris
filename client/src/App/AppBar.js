@@ -21,9 +21,22 @@ import COS from 'api/COSv2'
 import { defaultEndpoint } from 'endpoints'
 
 const generateFiles = async (images, videos) => {
-  const imageFiles = images.map(async image => await convertToJpeg(image))
+  const imageFiles = images.map(
+    async image =>
+      await convertToJpeg(image, {
+        maxHeight: window.MAX_IMAGE_HEIGHT,
+        maxWidth: window.MAX_IMAGE_WIDTH,
+        mode: window.IMAGE_SCALE_MODE
+      })
+  )
   const videoFiles = videos.map(
-    async video => await videoToJpegs(video, window.FPS)
+    async video =>
+      await videoToJpegs(video, {
+        fps: window.FPS,
+        maxHeight: window.MAX_IMAGE_HEIGHT,
+        maxWidth: window.MAX_IMAGE_WIDTH,
+        mode: window.IMAGE_SCALE_MODE
+      })
   )
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
 }
