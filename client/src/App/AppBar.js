@@ -308,6 +308,14 @@ const AppBar = ({
                     ? `Delete ${imageRange.length} images`
                     : 'Delete image'}
                 </div>
+                {/* <div
+                  className={styles.listItem}
+                  onClick={handleEmptyLabelImage}
+                >
+                  {imageRange.length > 1
+                    ? `Include in training set (${imageRange.length}) `
+                    : 'Include in training set'}
+                </div> */}
               </div>
             </div>
           </div>
