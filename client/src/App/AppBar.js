@@ -20,11 +20,24 @@ import { setActiveImage } from 'redux/editor'
 import COS from 'api/COSv2'
 import { defaultEndpoint } from 'endpoints'
 
-const FPS = 3
-
 const generateFiles = async (images, videos) => {
-  const imageFiles = images.map(async image => await convertToJpeg(image))
-  const videoFiles = videos.map(async video => await videoToJpegs(video, FPS))
+  const imageFiles = images.map(
+    async image =>
+      await convertToJpeg(image, {
+        maxHeight: window.MAX_IMAGE_HEIGHT,
+        maxWidth: window.MAX_IMAGE_WIDTH,
+        mode: window.IMAGE_SCALE_MODE
+      })
+  )
+  const videoFiles = videos.map(
+    async video =>
+      await videoToJpegs(video, {
+        fps: window.FPS,
+        maxHeight: window.MAX_IMAGE_HEIGHT,
+        maxWidth: window.MAX_IMAGE_WIDTH,
+        mode: window.IMAGE_SCALE_MODE
+      })
+  )
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
 }
 
@@ -308,6 +321,14 @@ const AppBar = ({
                     ? `Delete ${imageRange.length} images`
                     : 'Delete image'}
                 </div>
+                {/* <div
+                  className={styles.listItem}
+                  onClick={handleEmptyLabelImage}
+                >
+                  {imageRange.length > 1
+                    ? `Include in training set (${imageRange.length}) `
+                    : 'Include in training set'}
+                </div> */}
               </div>
             </div>
           </div>
