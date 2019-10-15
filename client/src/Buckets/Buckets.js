@@ -113,7 +113,7 @@ const ConditionalTable = connect(state => ({
         onDeleteBucket={handleDeleteBucket}
         onCreateBucket={handleCreateBucket}
         onRowSelected={handleRowSelected}
-        loading={loading}
+        loading={loading || loadingResources}
       />
     )
   }
@@ -159,6 +159,7 @@ const Buckets = ({
 
   useEffect(() => {
     if (activeResource) {
+      setLoading(true)
       dispatchLoadBuckets(activeResource)
     }
   }, [activeResource, dispatchLoadBuckets])

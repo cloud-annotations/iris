@@ -30,7 +30,11 @@ export default function reducer(accounts = defaultAccounts, action = {}) {
         const [firstAccount] = action.accounts
         activeAccount = firstAccount.accountId
       }
-      return { accounts: action.accounts, activeAccount: activeAccount }
+      return {
+        ...accounts,
+        accounts: action.accounts,
+        activeAccount: activeAccount
+      }
     case SET_ACCOUNT:
       localStorage.setItem('activeAccount', action.account)
       return { ...accounts, activeAccount: action.account }
