@@ -74,19 +74,12 @@ const useUpgradeToken = account => {
   return tokenUpgraded
 }
 
-const recursivelyFetchResources = (url, oldResources) => {
+const recursivelyFetchResources = async (url, oldResources) => {
   if (url) {
-    const trimmedUrl = url.replace(/^\/v2\/resource_instances/, '')
-    fetch(`/api/cos-instances${trimmedUrl}`)
-      .then(res => res.json())
-      .then(json => {
-        const { next_url, resources } = json
-
-        return recursivelyFetchResources(next_url, [
-          ...oldResources,
-          ...resources
-        ])
-      })
+    const trimmed = url.replace(/^\/v2\/resource_instances/, '')
+    const json = await fetch(`/api/cos-instances${trimmed}`).then(r => r.json())
+    const { next_url, resources } = json
+    return recursivelyFetchResources(next_url, [...oldResources, ...resources])
   }
   return oldResources
 }
@@ -96,10 +89,8 @@ const useResourceList = (dispatch, tokenUpgraded) => {
     tries => {
       fetch('/api/cos-instances')
         .then(res => res.json())
-        .then(json => {
-          const { next_url, resources } = json
-          const allResources = recursivelyFetchResources(next_url, resources)
-
+        .then(json => recursivelyFetchResources(json.next_url, json.resources))
+        .then(allResources => {
           // Alphabetize the list by name.
           allResources.sort((a, b) =>
             a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
@@ -107,7 +98,7 @@ const useResourceList = (dispatch, tokenUpgraded) => {
 
           dispatch(setResources(allResources))
           dispatch(setLoadingResources(false))
-          if (resources.length === 0 && tries < 300) {
+          if (allResources.length === 0 && tries < 300) {
             setTimeout(() => {
               loadResources(tries + 1)
             }, 10000)
