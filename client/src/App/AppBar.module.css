@@ -86,7 +86,9 @@
   min-width: 185px;
   max-width: 314px;
   border-radius: 0 4px 4px 4px;
-  overflow: auto;
+  /* TODO overflow: auto; */
+  /* This won't let us scroll, but should be okay HERE ONLY */
+  overflow: visible;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
   border: 1px solid var(--dropDownBorder);
 }
@@ -117,6 +119,39 @@
 
 .listItem:hover {
   background-color: var(--highlight);
+}
+
+.popwrapperOpen {
+  position: relative;
+  background-color: var(--highlight);
+}
+
+.popwrapper {
+  position: relative;
+}
+
+.popout {
+  composes: optionCardBase;
+  visibility: hidden;
+  overflow: auto;
+  left: calc(100% - 2px);
+  top: 0px;
+  border-radius: 4px;
+}
+
+.popoutOpen {
+  composes: optionCardBase;
+  visibility: visible;
+  overflow: auto;
+  left: calc(100% - 2px);
+  top: 0px;
+  border-radius: 4px;
+}
+
+.chevronRightIcon {
+  position: absolute;
+  right: 14px;
+  fill: var(--secondaryText);
 }
 
 .saved {

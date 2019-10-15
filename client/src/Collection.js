@@ -239,6 +239,20 @@ export default class Collection {
     return collection
   }
 
+  labelImages(images, label, syncComplete) {
+    const collection = produce(this, draft => {
+      images.forEach(image => {
+        if (!draft.annotations[image]) {
+          draft.annotations[image] = []
+        }
+        draft.annotations[image].unshift({ label: label })
+      })
+    })
+
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
+    return collection
+  }
+
   createBox(image, newBox, syncComplete) {
     const collection = produce(this, draft => {
       if (!draft.annotations[image]) {

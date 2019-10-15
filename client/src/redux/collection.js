@@ -10,6 +10,7 @@ const CREATE_LABEL = 'cloud-annotations/collection/CREATE_LABEL'
 const DELETE_LABEL = 'cloud-annotations/collection/DELETE_LABEL'
 const UPLOAD_IMAGES = 'cloud-annotations/collection/UPLOAD_IMAGES'
 const DELETE_IMAGES = 'cloud-annotations/collection/DELETE_IMAGES'
+const LABEL_IMAGES = 'cloud-annotations/collection/LABEL_IMAGES'
 const CREATE_BOX = 'cloud-annotations/collection/CREATE_BOX'
 const DELETE_BOX = 'cloud-annotations/collection/DELETE_BOX'
 
@@ -77,6 +78,20 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
       }
       return collection.deleteImages(...action.params)
 
+    case LABEL_IMAGES:
+      {
+        const [images, label, onComplete] = action.params
+        if (onComplete) {
+          socket.emit('patch', {
+            op: '+',
+            value: {
+              bulkLabel: { images: images, label: label }
+            }
+          })
+        }
+      }
+      return collection.labelImages(...action.params)
+
     case CREATE_BOX:
       {
         const [image, box, onComplete] = action.params
@@ -137,6 +152,11 @@ export const uploadImages = (images, onComplete) => ({
 export const deleteImages = (images, onComplete) => ({
   type: DELETE_IMAGES,
   params: [images, onComplete]
+})
+
+export const labelImages = (images, label, onComplete) => ({
+  type: LABEL_IMAGES,
+  params: [images, label, onComplete]
 })
 
 export const createBox = (image, box, onComplete) => ({
