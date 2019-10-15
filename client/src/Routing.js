@@ -74,21 +74,21 @@ const useUpgradeToken = account => {
   return tokenUpgraded
 }
 
-const recursivelyFetchResources = (url, resources) => {
+const recursivelyFetchResources = (url, oldResources) => {
   if (url) {
     const trimmedUrl = url.replace(/^\/v2\/resource_instances/, '')
     fetch(`/api/cos-instances${trimmedUrl}`)
       .then(res => res.json())
       .then(json => {
-        const { next_url, next_resources } = json
+        const { next_url, resources } = json
 
         return recursivelyFetchResources(next_url, [
-          ...resources,
-          ...next_resources
+          ...oldResources,
+          ...resources
         ])
       })
   }
-  return resources
+  return oldResources
 }
 
 const useResourceList = (dispatch, tokenUpgraded) => {
