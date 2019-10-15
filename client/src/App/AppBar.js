@@ -333,7 +333,9 @@ const AppBar = ({
               onClick={handleOptionClick}
               onMouseEnter={handleOptionHover}
             >
-              Image
+              {imageRange.length > 1
+                ? `Images (${imageRange.length})`
+                : 'Image'}
               <div
                 className={
                   optionsOpen && lastHoveredOption === 'image'
@@ -346,9 +348,7 @@ const AppBar = ({
                   onClick={handleDeleteImage}
                   onMouseEnter={handleSubOptionHover}
                 >
-                  {imageRange.length > 1
-                    ? `Delete ${imageRange.length} images`
-                    : 'Delete image'}
+                  Delete
                 </div>
 
                 <div className={styles.listDivider} />
@@ -358,25 +358,28 @@ const AppBar = ({
                   onClick={handleEmptyLabelImage('Negative')}
                   onMouseEnter={handleSubOptionHover}
                 >
-                  {imageRange.length > 1
-                    ? `Mark ${imageRange.length} as "Negative"`
-                    : 'Mark as "Negative"'}
+                  Mark as "Negative"
                 </div>
 
                 <div
                   id="mark-as"
                   className={
-                    optionsOpen && lastHoveredSubOption === 'mark-as'
+                    collection.labels.length > 0 &&
+                    optionsOpen &&
+                    lastHoveredSubOption === 'mark-as'
                       ? styles.popwrapperOpen
                       : styles.popwrapper
                   }
                   onMouseEnter={handleSubOptionHover}
                 >
-                  <div className={styles.listItem}>
-                    {imageRange.length > 1
-                      ? `Mark ${imageRange.length} as`
-                      : 'Mark as'}
-
+                  <div
+                    className={
+                      collection.labels.length > 0
+                        ? styles.listItem
+                        : styles.disabled
+                    }
+                  >
+                    Mark as
                     <svg
                       className={styles.chevronRightIcon}
                       focusable="false"
@@ -392,7 +395,9 @@ const AppBar = ({
 
                   <div
                     className={
-                      optionsOpen && lastHoveredSubOption === 'mark-as'
+                      collection.labels.length > 0 &&
+                      optionsOpen &&
+                      lastHoveredSubOption === 'mark-as'
                         ? styles.popoutOpen
                         : styles.popout
                     }

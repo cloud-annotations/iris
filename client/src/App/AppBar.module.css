@@ -121,6 +121,20 @@
   background-color: var(--highlight);
 }
 
+.disabled {
+  cursor: default;
+  position: relative;
+  padding: 8px 14px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--disabledText);
+}
+
+.disabled .chevronRightIcon {
+  fill: var(--disabledText);
+}
+
 .popwrapperOpen {
   position: relative;
   background-color: var(--highlight);
