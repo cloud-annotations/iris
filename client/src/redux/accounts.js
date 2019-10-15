@@ -14,10 +14,15 @@ export default function reducer(accounts = defaultAccounts, action = {}) {
   switch (action.type) {
     case SET:
       let { activeAccount } = accounts
+      // If the current active account no longer exists, remove it.
+      if (!action.accounts.find(a => a.accountId === activeAccount)) {
+        activeAccount = null
+      }
+
       if (!activeAccount) {
         // Check saved account exists.
         const savedAccount = localStorage.getItem('activeAccount')
-        if (action.accounts.find(r => r.id === savedAccount)) {
+        if (action.accounts.find(a => a.accountId === savedAccount)) {
           activeAccount = savedAccount
         }
       }

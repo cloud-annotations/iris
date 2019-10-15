@@ -14,6 +14,12 @@ export default function reducer(resources = defaultResources, action = {}) {
   switch (action.type) {
     case SET:
       let { activeResource } = resources
+
+      // If the current active resource no longer exists, remove it.
+      if (!action.resources.find(r => r.id === activeResource)) {
+        activeResource = null
+      }
+
       if (!activeResource) {
         // Check saved resource exists.
         const savedResource = localStorage.getItem('activeResource')

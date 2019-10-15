@@ -100,9 +100,9 @@ const useResourceList = (dispatch, tokenUpgraded) => {
           const { next_url, resources } = json
           const allResources = recursivelyFetchResources(next_url, resources)
 
-          // Alphabetize the list.
+          // Alphabetize the list by name.
           allResources.sort((a, b) =>
-            a.toLowerCase() > b.toLowerCase() ? 1 : -1
+            a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
           )
 
           dispatch(setResources(allResources))

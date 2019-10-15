@@ -21,6 +21,7 @@
   display: flex;
   align-items: center;
   box-shadow: 0 20px 20px 0 var(--bg);
+  background-color: var(--bg);
 }
 
 .titlePrefix {
