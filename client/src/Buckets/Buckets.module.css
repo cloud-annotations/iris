@@ -1,9 +1,11 @@
 .wrapper {
   position: fixed;
-  top: 64px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
+  /* top: 64px; */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: 64px;
   /* z-index: -1; */
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -12,9 +14,9 @@
 .titleBar {
   position: fixed;
   z-index: 100;
-  top: 0px;
-  left: 0px;
-  right: 0px;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 64px;
   display: flex;
   align-items: center;

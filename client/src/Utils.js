@@ -97,7 +97,36 @@ export async function imageToCanvas(imageSrc, width, height, mode) {
   })
 }
 
-export async function convertToJpeg(blob) {
+const sizeForOptions = (
+  scaleMode,
+  actualWidth,
+  actualHeight,
+  maxWidth,
+  maxHeight
+) => {
+  if (scaleMode === 'SCALE_FILL') {
+    return { width: maxWidth || actualWidth, height: maxHeight || actualHeight }
+  }
+
+  // NOTE: Not a true aspect fit.
+  if (scaleMode === 'ASPECT_FIT') {
+    if (actualWidth > actualHeight) {
+      const aspect = actualHeight / actualWidth
+      const finalWidth = Math.min(actualWidth, maxWidth)
+      const finalHeight = finalWidth * aspect
+      return { width: finalWidth, height: finalHeight }
+    }
+    const aspect = actualWidth / actualHeight
+    const finalHeight = Math.min(actualHeight, maxHeight)
+    const finalWidth = finalHeight * aspect
+    return { width: finalWidth, height: finalHeight }
+  }
+
+  return { width: actualWidth, height: actualHeight }
+}
+
+export async function convertToJpeg(blob, options) {
+  const { maxWidth, maxHeight, scaleMode } = options
   return new Promise((resolve, reject) => {
     const c = document.createElement('canvas')
     const ctx = c.getContext('2d')
@@ -107,9 +136,18 @@ export async function convertToJpeg(blob) {
     const image = new Image()
     image.src = URL.createObjectURL(blob)
     image.onload = function() {
-      c.width = image.width
-      c.height = image.height
-      ctx.drawImage(image, 0, 0)
+      const size = sizeForOptions(
+        scaleMode,
+        image.width,
+        image.height,
+        maxWidth,
+        maxHeight
+      )
+
+      c.width = size.width
+      c.height = size.height
+
+      ctx.drawImage(image, 0, 0, c.width, c.height)
       const result = dataURItoBlob(c.toDataURL('image/jpeg'))
       resolve({
         blob: result,
@@ -119,7 +157,9 @@ export async function convertToJpeg(blob) {
   })
 }
 
-export const videoToJpegs = async (videoFile, fps) => {
+export const videoToJpegs = async (videoFile, options) => {
+  const { fps, maxWidth, maxHeight, scaleMode } = options
+
   const fileURL = URL.createObjectURL(videoFile)
 
   const video = await new Promise((resolve, _) => {
@@ -135,8 +175,18 @@ export const videoToJpegs = async (videoFile, fps) => {
       video.onseeked = () => {
         const c = window.document.createElement('canvas')
         const ctx = c.getContext('2d')
-        c.width = video.videoWidth
-        c.height = video.videoHeight
+
+        const size = sizeForOptions(
+          scaleMode,
+          video.videoWidth,
+          video.videoHeight,
+          maxWidth,
+          maxHeight
+        )
+
+        c.width = size.width
+        c.height = size.height
+
         if (ctx) {
           ctx.drawImage(video, 0, 0, c.width, c.height)
         }
