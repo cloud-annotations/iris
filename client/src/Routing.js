@@ -35,13 +35,7 @@ const useAccount = dispatch => {
       fetch('/api/accounts')
         .then(res => res.json())
         .then(accounts => {
-          const [firstAccount] = accounts
-          dispatch(
-            setAccounts({
-              accounts: accounts,
-              activeAccount: firstAccount && firstAccount.accountId
-            })
-          )
+          dispatch(setAccounts(accounts))
           dispatch(setLoadingAccounts(false))
           if (accounts.length === 0 && tries < 300) {
             setTimeout(() => {
@@ -80,20 +74,38 @@ const useUpgradeToken = account => {
   return tokenUpgraded
 }
 
+const recursivelyFetchResources = (url, resources) => {
+  if (url) {
+    const trimmedUrl = url.replace(/^\/v2\/resource_instances/, '')
+    fetch(`/api/cos-instances${trimmedUrl}`)
+      .then(res => res.json())
+      .then(json => {
+        const { next_url, next_resources } = json
+
+        return recursivelyFetchResources(next_url, [
+          ...resources,
+          ...next_resources
+        ])
+      })
+  }
+  return resources
+}
+
 const useResourceList = (dispatch, tokenUpgraded) => {
   const loadResources = useCallback(
     tries => {
       fetch('/api/cos-instances')
         .then(res => res.json())
         .then(json => {
-          const { resources } = json
-          const [firstResource] = resources
-          dispatch(
-            setResources({
-              resources: resources,
-              activeResource: firstResource && firstResource.id
-            })
+          const { next_url, resources } = json
+          const allResources = recursivelyFetchResources(next_url, resources)
+
+          // Alphabetize the list.
+          allResources.sort((a, b) =>
+            a.toLowerCase() > b.toLowerCase() ? 1 : -1
           )
+
+          dispatch(setResources(allResources))
           dispatch(setLoadingResources(false))
           if (resources.length === 0 && tries < 300) {
             setTimeout(() => {
