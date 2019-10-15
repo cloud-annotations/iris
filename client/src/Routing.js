@@ -8,7 +8,11 @@ import Buckets from './Buckets/Buckets'
 import history from 'globalHistory'
 import { checkLoginStatus } from './Utils'
 import { setAccounts, setLoadingAccounts } from 'redux/accounts'
-import { setResources, setLoadingResources } from 'redux/resources'
+import {
+  setResources,
+  setLoadingResources,
+  invalidateResources
+} from 'redux/resources'
 import { setProfile } from 'redux/profile'
 
 const useCookieCheck = interval => {
@@ -31,7 +35,7 @@ const useCookieCheck = interval => {
 
 const useAccount = dispatch => {
   const loadAccounts = useCallback(
-    tries => {
+    (tries = 0) => {
       fetch('/api/accounts')
         .then(res => res.json())
         .then(accounts => {
@@ -52,7 +56,7 @@ const useAccount = dispatch => {
 
   useEffect(() => {
     dispatch(setLoadingAccounts(true))
-    loadAccounts(0)
+    loadAccounts()
   }, [dispatch, loadAccounts])
 }
 
@@ -86,7 +90,7 @@ const recursivelyFetchResources = async (url, oldResources) => {
 
 const useResourceList = (dispatch, tokenUpgraded) => {
   const loadResources = useCallback(
-    tries => {
+    (tries = 0) => {
       fetch('/api/cos-instances')
         .then(res => res.json())
         .then(json => recursivelyFetchResources(json.next_url, json.resources))
@@ -113,8 +117,8 @@ const useResourceList = (dispatch, tokenUpgraded) => {
 
   useEffect(() => {
     if (tokenUpgraded) {
-      dispatch(setLoadingResources(true))
-      loadResources(0)
+      dispatch(invalidateResources(true))
+      loadResources()
     }
   }, [dispatch, loadResources, tokenUpgraded])
 }

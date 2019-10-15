@@ -2,6 +2,7 @@
 const SET = 'cloud-annotations/resources/SET'
 const SET_ACTIVE = 'cloud-annotations/resources/SET_ACTIVE'
 const SET_LOADING = 'cloud-annotations/resources/SET_LOADING'
+const INVALIDATE = 'cloud-annotations/resources/INVALIDATE'
 
 // Reducer
 const defaultResources = {
@@ -32,12 +33,18 @@ export default function reducer(resources = defaultResources, action = {}) {
         activeResource = firstResource.id
       }
 
-      return { resources: action.resources, activeResource: activeResource }
+      return {
+        ...resources,
+        resources: action.resources,
+        activeResource: activeResource
+      }
     case SET_ACTIVE:
       localStorage.setItem('activeResource', action.resource)
       return { ...resources, activeResource: action.resource }
     case SET_LOADING:
       return { ...resources, loading: action.loading }
+    case INVALIDATE:
+      return defaultResources
     default:
       return resources
   }
@@ -49,3 +56,5 @@ export const setResources = r => ({ type: SET, resources: r })
 export const setActiveResource = r => ({ type: SET_ACTIVE, resource: r })
 
 export const setLoadingResources = l => ({ type: SET_LOADING, loading: l })
+
+export const invalidateResources = () => ({ type: INVALIDATE })
