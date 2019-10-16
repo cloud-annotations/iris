@@ -95,6 +95,14 @@ const useToggleLabel = (activeLabel, labels, setActiveLabel) => {
   }, [handleKeyDown])
 }
 
+const partition = (array, isValid) =>
+  array.reduce(
+    ([pass, fail], item) => {
+      return isValid(item) ? [[...pass, item], fail] : [pass, [...fail, item]]
+    },
+    [[], []]
+  )
+
 const DrawingPanel = ({
   setActiveLabel,
   setActiveBox,
@@ -110,7 +118,12 @@ const DrawingPanel = ({
   hoveredBox,
   headCount
 }) => {
-  const bboxes = annotations[selectedImage] || []
+  const rawAnnotationsForImage = annotations[selectedImage] || []
+
+  const [bboxes, onlyLabels] = partition(
+    rawAnnotationsForImage,
+    box => box.x && box.y && box.x2 && box.y2
+  )
 
   const handleControlChange = useCallback(
     isPressed => {
@@ -179,6 +192,23 @@ const DrawingPanel = ({
   return (
     <div className={styles.wrapper}>
       <div className={styles.roomHolder}>
+        <div className={styles.labelHolder}>
+          {onlyLabels.map(label => (
+            <div className={styles.label}>
+              {label.label}
+              <svg
+                height="12px"
+                width="12px"
+                viewBox="2 2 36 36"
+                className={styles.deleteIcon}
+              >
+                <g>
+                  <path d="m31.6 10.7l-9.3 9.3 9.3 9.3-2.3 2.3-9.3-9.3-9.3 9.3-2.3-2.3 9.3-9.3-9.3-9.3 2.3-2.3 9.3 9.3 9.3-9.3z" />
+                </g>
+              </svg>
+            </div>
+          ))}
+        </div>
         {[...new Array(clippedCount)].map(() => (
           <div className={styles.chatHead}>
             <div>
