@@ -21,7 +21,8 @@ import {
   deleteLabel,
   createLabel,
   deleteImages,
-  uploadImages
+  uploadImages,
+  labelImages
 } from 'redux/collection'
 
 // Global Settings:
@@ -43,7 +44,7 @@ const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
 history.listen(() => store.dispatch(reset()))
 socket.on('patch', res => {
   const { op, value } = res
-  const { annotations, images, labels } = value
+  const { bulkLabel, annotations, images, labels } = value
 
   if (labels) {
     if (op === '+') {
@@ -74,6 +75,13 @@ socket.on('patch', res => {
     }
     if (op === '-') {
       store.dispatch(deleteBox(annotations.image, annotations.box, false))
+      return
+    }
+  }
+
+  if (bulkLabel) {
+    if (op === '+') {
+      store.dispatch(labelImages(bulkLabel.images, bulkLabel.label, false))
       return
     }
   }

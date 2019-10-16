@@ -95,6 +95,14 @@ const useToggleLabel = (activeLabel, labels, setActiveLabel) => {
   }, [handleKeyDown])
 }
 
+const partition = (array, isValid) =>
+  array.reduce(
+    ([pass, fail], item) => {
+      return isValid(item) ? [[...pass, item], fail] : [pass, [...fail, item]]
+    },
+    [[], []]
+  )
+
 const DrawingPanel = ({
   setActiveLabel,
   setActiveBox,
@@ -110,7 +118,16 @@ const DrawingPanel = ({
   hoveredBox,
   headCount
 }) => {
-  const bboxes = annotations[selectedImage] || []
+  const rawAnnotationsForImage = annotations[selectedImage] || []
+
+  const [bboxes, onlyLabels] = partition(
+    rawAnnotationsForImage,
+    box =>
+      box.x !== undefined &&
+      box.y !== undefined &&
+      box.x2 !== undefined &&
+      box.y2 !== undefined
+  )
 
   const handleControlChange = useCallback(
     isPressed => {
@@ -156,6 +173,13 @@ const DrawingPanel = ({
     [labels, bboxes, setActiveBox, syncAction, setActiveLabel, selectedImage]
   )
 
+  const handleDeleteLabel = useCallback(
+    label => () => {
+      syncAction(deleteBox, [selectedImage, { label: label }])
+    },
+    [syncAction, selectedImage]
+  )
+
   let mergedBoxes = [...bboxes]
   if (activeBox) {
     mergedBoxes = mergedBoxes.filter(box => box.id !== activeBox.id)
@@ -179,6 +203,24 @@ const DrawingPanel = ({
   return (
     <div className={styles.wrapper}>
       <div className={styles.roomHolder}>
+        <div className={styles.labelHolder}>
+          {onlyLabels.map(box => (
+            <div className={styles.label}>
+              {box.label}
+              <svg
+                height="12px"
+                width="12px"
+                viewBox="2 2 36 36"
+                className={styles.deleteIcon}
+                onClick={handleDeleteLabel(box.label)}
+              >
+                <g>
+                  <path d="m31.6 10.7l-9.3 9.3 9.3 9.3-2.3 2.3-9.3-9.3-9.3 9.3-2.3-2.3 9.3-9.3-9.3-9.3 2.3-2.3 9.3 9.3 9.3-9.3z" />
+                </g>
+              </svg>
+            </div>
+          ))}
+        </div>
         {[...new Array(clippedCount)].map(() => (
           <div className={styles.chatHead}>
             <div>
