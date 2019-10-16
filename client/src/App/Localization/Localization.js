@@ -118,7 +118,10 @@ const Localization = ({
   const selectedIndex = images.indexOf(activeImage)
   const rangeIndex = range.map(image => images.indexOf(image))
 
-  const bboxes = collection.annotations[activeImage] || []
+  const rawAnnotationsForImage = collection.annotations[activeImage] || []
+  const bboxes = rawAnnotationsForImage.filter(
+    box => box.x && box.y && box.x2 && box.y2
+  )
 
   const endpoint = endpointForLocationConstraint(location)
   const imageData = useImage(endpoint, bucket, activeImage)

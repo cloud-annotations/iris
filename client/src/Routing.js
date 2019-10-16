@@ -8,7 +8,11 @@ import Buckets from './Buckets/Buckets'
 import history from 'globalHistory'
 import { checkLoginStatus } from './Utils'
 import { setAccounts, setLoadingAccounts } from 'redux/accounts'
-import { setResources, setLoadingResources } from 'redux/resources'
+import {
+  setResources,
+  setLoadingResources,
+  invalidateResources
+} from 'redux/resources'
 import { setProfile } from 'redux/profile'
 
 const useCookieCheck = interval => {
@@ -31,17 +35,11 @@ const useCookieCheck = interval => {
 
 const useAccount = dispatch => {
   const loadAccounts = useCallback(
-    tries => {
+    (tries = 0) => {
       fetch('/api/accounts')
         .then(res => res.json())
         .then(accounts => {
-          const [firstAccount] = accounts
-          dispatch(
-            setAccounts({
-              accounts: accounts,
-              activeAccount: firstAccount && firstAccount.accountId
-            })
-          )
+          dispatch(setAccounts(accounts))
           dispatch(setLoadingAccounts(false))
           if (accounts.length === 0 && tries < 300) {
             setTimeout(() => {
@@ -58,7 +56,7 @@ const useAccount = dispatch => {
 
   useEffect(() => {
     dispatch(setLoadingAccounts(true))
-    loadAccounts(0)
+    loadAccounts()
   }, [dispatch, loadAccounts])
 }
 
@@ -80,22 +78,31 @@ const useUpgradeToken = account => {
   return tokenUpgraded
 }
 
+const recursivelyFetchResources = async (url, oldResources) => {
+  if (url) {
+    const trimmed = url.replace(/^\/v2\/resource_instances/, '')
+    const json = await fetch(`/api/cos-instances${trimmed}`).then(r => r.json())
+    const { next_url, resources } = json
+    return recursivelyFetchResources(next_url, [...oldResources, ...resources])
+  }
+  return oldResources
+}
+
 const useResourceList = (dispatch, tokenUpgraded) => {
   const loadResources = useCallback(
-    tries => {
+    (tries = 0) => {
       fetch('/api/cos-instances')
         .then(res => res.json())
-        .then(json => {
-          const { resources } = json
-          const [firstResource] = resources
-          dispatch(
-            setResources({
-              resources: resources,
-              activeResource: firstResource && firstResource.id
-            })
+        .then(json => recursivelyFetchResources(json.next_url, json.resources))
+        .then(allResources => {
+          // Alphabetize the list by name.
+          allResources.sort((a, b) =>
+            a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
           )
+
+          dispatch(setResources(allResources))
           dispatch(setLoadingResources(false))
-          if (resources.length === 0 && tries < 300) {
+          if (allResources.length === 0 && tries < 300) {
             setTimeout(() => {
               loadResources(tries + 1)
             }, 10000)
@@ -110,8 +117,8 @@ const useResourceList = (dispatch, tokenUpgraded) => {
 
   useEffect(() => {
     if (tokenUpgraded) {
-      dispatch(setLoadingResources(true))
-      loadResources(0)
+      dispatch(invalidateResources(true))
+      loadResources()
     }
   }, [dispatch, loadResources, tokenUpgraded])
 }

@@ -239,6 +239,32 @@ export default class Collection {
     return collection
   }
 
+  labelImages(images, label, syncComplete) {
+    const collection = produce(this, draft => {
+      images.forEach(image => {
+        if (!draft.annotations[image]) {
+          draft.annotations[image] = []
+        }
+        // Only inset one.
+        if (
+          !draft.annotations[image].find(
+            box =>
+              box.label === label &&
+              box.x === undefined &&
+              box.y === undefined &&
+              box.x2 === undefined &&
+              box.y2 === undefined
+          )
+        ) {
+          draft.annotations[image].unshift({ label: label })
+        }
+      })
+    })
+
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
+    return collection
+  }
+
   createBox(image, newBox, syncComplete) {
     const collection = produce(this, draft => {
       if (!draft.annotations[image]) {
@@ -254,7 +280,18 @@ export default class Collection {
   deleteBox(image, box, syncComplete) {
     const collection = produce(this, draft => {
       draft.annotations[image].splice(
-        draft.annotations[image].findIndex(oldBBox => oldBBox.id === box.id),
+        draft.annotations[image].findIndex(oldBBox => {
+          if (!box.id) {
+            return (
+              oldBBox.label === box.label &&
+              oldBBox.x === undefined &&
+              oldBBox.y === undefined &&
+              oldBBox.x2 === undefined &&
+              oldBBox.y2 === undefined
+            )
+          }
+          return oldBBox.id === box.id
+        }),
         1
       )
       if (draft.annotations[image].length === 0) {

@@ -15,9 +15,11 @@ require('dotenv').config()
 app.use(express.static(__dirname + '/public'))
 
 let baseEndpoint = 'test.cloud.ibm.com'
+let secure = false
 if (process.env.NODE_ENV === 'production') {
   baseEndpoint = 'cloud.ibm.com'
   io.adapter(redis({ host: 'redis.default.svc.cluster.local', port: 6379 }))
+  secure = true
 }
 
 const broadcastRoomCount = room => {
@@ -102,10 +104,14 @@ const setToken = (res, json) => {
   const { access_token, refresh_token, expiration } = json
   res
     .cookie('access_token', access_token, {
-      expires: new Date(expiration * 1000)
+      expires: new Date(expiration * 1000),
+      sameSite: 'none',
+      secure: secure
     })
     .cookie('refresh_token', refresh_token, {
-      expires: new Date(expiration * 1000)
+      expires: new Date(expiration * 1000),
+      sameSite: 'none',
+      secure: secure
     })
 }
 
@@ -299,10 +305,21 @@ app.get('/api/accounts/:id/users/:user', (req, res) => {
 })
 
 app.get('/api/cos-instances', (req, res) => {
+  let url = `https://resource-controller.${baseEndpoint}/v2/resource_instances?resource_id=dff97f5c-bc5e-4455-b470-411c3edbe49c`
   const { access_token } = req.cookies
 
+  const { next_docid, account_id } = req.query
+
+  if (next_docid) {
+    url += `&next_docid=${next_docid}`
+  }
+
+  if (account_id) {
+    url += `&account_id=${account_id}`
+  }
+
   const options = {
-    url: `https://resource-controller.${baseEndpoint}/v2/resource_instances?resource_id=dff97f5c-bc5e-4455-b470-411c3edbe49c`,
+    url: url,
     method: 'GET',
     headers: {
       Authorization: 'bearer ' + access_token

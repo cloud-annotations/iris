@@ -10,7 +10,13 @@ import './react-toggle-overrides.css'
 
 import { ProfileDropDown } from 'common/DropDown/DropDown'
 import history from 'globalHistory'
-import { uploadImages, syncAction, deleteImages } from 'redux/collection'
+import {
+  uploadImages,
+  syncAction,
+  deleteImages,
+  createLabel,
+  labelImages
+} from 'redux/collection'
 
 import moon from './moon.png'
 import styles from './AppBar.module.css'
@@ -78,6 +84,7 @@ const AppBar = ({
   const fileInputRef = useRef(null)
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [lastHoveredOption, setLastHoveredOption] = useState(undefined)
+  const [lastHoveredSubOption, setLastHoveredSubOption] = useState(undefined)
   const [darkModeToggle, setDarkModeToggle] = useState(
     localStorage.getItem('darkMode') === 'true'
   )
@@ -99,11 +106,16 @@ const AppBar = ({
   }, [])
 
   const handleClickOutside = useCallback(() => {
+    setLastHoveredSubOption(undefined)
     setOptionsOpen(false)
   }, [])
 
   const handleOptionHover = useCallback(e => {
     setLastHoveredOption(e.currentTarget.id)
+  }, [])
+
+  const handleSubOptionHover = useCallback(e => {
+    setLastHoveredSubOption(e.currentTarget.id)
   }, [])
 
   useOnClickOutside(optionsRef, handleClickOutside, true)
@@ -245,6 +257,19 @@ const AppBar = ({
     [bucket, collection]
   )
 
+  const handleEmptyLabelImage = useCallback(
+    label => e => {
+      e.stopPropagation()
+      setOptionsOpen(false)
+      setLastHoveredSubOption(undefined)
+      if (!collection.labels.includes(label)) {
+        syncAction(createLabel, [label])
+      }
+      syncAction(labelImages, [imageRange, label])
+    },
+    [collection.labels, imageRange, syncAction]
+  )
+
   return (
     <div className={styles.wrapper}>
       <div onClick={handleClick} className={styles.home}>
@@ -308,7 +333,9 @@ const AppBar = ({
               onClick={handleOptionClick}
               onMouseEnter={handleOptionHover}
             >
-              Image
+              {imageRange.length > 1
+                ? `Images (${imageRange.length})`
+                : 'Image'}
               <div
                 className={
                   optionsOpen && lastHoveredOption === 'image'
@@ -316,19 +343,75 @@ const AppBar = ({
                     : styles.optionCard
                 }
               >
-                <div className={styles.listItem} onClick={handleDeleteImage}>
-                  {imageRange.length > 1
-                    ? `Delete ${imageRange.length} images`
-                    : 'Delete image'}
-                </div>
-                {/* <div
+                <div
                   className={styles.listItem}
-                  onClick={handleEmptyLabelImage}
+                  onClick={handleDeleteImage}
+                  onMouseEnter={handleSubOptionHover}
                 >
-                  {imageRange.length > 1
-                    ? `Include in training set (${imageRange.length}) `
-                    : 'Include in training set'}
-                </div> */}
+                  Delete
+                </div>
+
+                <div className={styles.listDivider} />
+
+                <div
+                  className={styles.listItem}
+                  onClick={handleEmptyLabelImage('Negative')}
+                  onMouseEnter={handleSubOptionHover}
+                >
+                  Mark as "Negative"
+                </div>
+
+                <div
+                  id="mark-as"
+                  className={
+                    collection.labels.length > 0 &&
+                    optionsOpen &&
+                    lastHoveredSubOption === 'mark-as'
+                      ? styles.popwrapperOpen
+                      : styles.popwrapper
+                  }
+                  onMouseEnter={handleSubOptionHover}
+                >
+                  <div
+                    className={
+                      collection.labels.length > 0
+                        ? styles.listItem
+                        : styles.disabled
+                    }
+                  >
+                    Mark as
+                    <svg
+                      className={styles.chevronRightIcon}
+                      focusable="false"
+                      preserveAspectRatio="xMidYMid meet"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 32 32"
+                      aria-hidden="true"
+                    >
+                      <path d="M22 16L12 26l-1.4-1.4 8.6-8.6-8.6-8.6L12 6z"></path>
+                    </svg>
+                  </div>
+
+                  <div
+                    className={
+                      collection.labels.length > 0 &&
+                      optionsOpen &&
+                      lastHoveredSubOption === 'mark-as'
+                        ? styles.popoutOpen
+                        : styles.popout
+                    }
+                  >
+                    {collection.labels.map(label => (
+                      <div
+                        className={styles.listItem}
+                        onClick={handleEmptyLabelImage(label)}
+                      >
+                        {label}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

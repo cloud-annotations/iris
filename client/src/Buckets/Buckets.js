@@ -11,8 +11,8 @@ import { defaultEndpoint } from 'endpoints'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
-import { setResources } from 'redux/resources'
-import { setAccounts } from 'redux/accounts'
+import { setActiveResource } from 'redux/resources'
+import { setActiveAccount } from 'redux/accounts'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 const accountNameForAccount = account => {
@@ -113,7 +113,7 @@ const ConditionalTable = connect(state => ({
         onDeleteBucket={handleDeleteBucket}
         onCreateBucket={handleCreateBucket}
         onRowSelected={handleRowSelected}
-        loading={loading}
+        loading={loading || loadingResources}
       />
     )
   }
@@ -159,6 +159,7 @@ const Buckets = ({
 
   useEffect(() => {
     if (activeResource) {
+      setLoading(true)
       dispatchLoadBuckets(activeResource)
     }
   }, [activeResource, dispatchLoadBuckets])
@@ -237,26 +238,16 @@ const Buckets = ({
 
   const handleAccountChosen = useCallback(
     item => {
-      dispatch(
-        setAccounts({
-          accounts: accounts,
-          activeAccount: item
-        })
-      )
+      dispatch(setActiveAccount(item))
     },
-    [accounts, dispatch]
+    [dispatch]
   )
 
   const handleResourceChosen = useCallback(
     item => {
-      dispatch(
-        setResources({
-          resources: resources,
-          activeResource: item
-        })
-      )
+      dispatch(setActiveResource(item))
     },
-    [dispatch, resources]
+    [dispatch]
   )
 
   const activeAccountObject = accounts.find(

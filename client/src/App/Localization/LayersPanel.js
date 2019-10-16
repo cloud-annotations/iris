@@ -227,6 +227,7 @@ const ListItem = connect(
 
 const LayersPanel = ({ bboxes, imageName, image, activeBox }) => {
   const [imageDims, setImageDims] = useState([0, 0])
+
   let mergedBoxes = [...bboxes]
 
   if (activeBox) {

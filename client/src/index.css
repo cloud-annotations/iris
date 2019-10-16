@@ -44,6 +44,7 @@ body.dark {
   --brightText: rgba(255, 255, 255, 1);
   --secondaryText: rgba(255, 255, 255, 0.87);
   --detailText: rgba(255, 255, 255, 0.53);
+  --disabledText: rgba(255, 255, 255, 0.2);
   --highlight: #26292a;
 }
 
@@ -81,6 +82,7 @@ body.light {
   --brightText: rgba(0, 0, 0, 1);
   --secondaryText: rgba(0, 0, 0, 0.87);
   --detailText: rgba(0, 0, 0, 0.53);
+  --disabledText: rgba(0, 0, 0, 0.2);
   --highlight: #eef4fc;
 }
 
