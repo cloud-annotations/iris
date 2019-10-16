@@ -122,7 +122,11 @@ const DrawingPanel = ({
 
   const [bboxes, onlyLabels] = partition(
     rawAnnotationsForImage,
-    box => box.x && box.y && box.x2 && box.y2
+    box =>
+      box.x !== undefined &&
+      box.y !== undefined &&
+      box.x2 !== undefined &&
+      box.y2 !== undefined
   )
 
   const handleControlChange = useCallback(
@@ -169,6 +173,13 @@ const DrawingPanel = ({
     [labels, bboxes, setActiveBox, syncAction, setActiveLabel, selectedImage]
   )
 
+  const handleDeleteLabel = useCallback(
+    label => () => {
+      syncAction(deleteBox, [selectedImage, { label: label }])
+    },
+    [syncAction, selectedImage]
+  )
+
   let mergedBoxes = [...bboxes]
   if (activeBox) {
     mergedBoxes = mergedBoxes.filter(box => box.id !== activeBox.id)
@@ -193,14 +204,15 @@ const DrawingPanel = ({
     <div className={styles.wrapper}>
       <div className={styles.roomHolder}>
         <div className={styles.labelHolder}>
-          {onlyLabels.map(label => (
+          {onlyLabels.map(box => (
             <div className={styles.label}>
-              {label.label}
+              {box.label}
               <svg
                 height="12px"
                 width="12px"
                 viewBox="2 2 36 36"
                 className={styles.deleteIcon}
+                onClick={handleDeleteLabel(box.label)}
               >
                 <g>
                   <path d="m31.6 10.7l-9.3 9.3 9.3 9.3-2.3 2.3-9.3-9.3-9.3 9.3-2.3-2.3 9.3-9.3-9.3-9.3 2.3-2.3 9.3 9.3 9.3-9.3z" />
