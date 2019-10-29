@@ -30,7 +30,9 @@ export default function reducer(resources = defaultResources, action = {}) {
       }
       if (!activeResource) {
         const [firstResource] = action.resources
-        activeResource = firstResource.id
+        if (firstResource) {
+          activeResource = firstResource.id
+        }
       }
 
       return {
