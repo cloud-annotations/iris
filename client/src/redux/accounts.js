@@ -28,7 +28,9 @@ export default function reducer(accounts = defaultAccounts, action = {}) {
       }
       if (!activeAccount) {
         const [firstAccount] = action.accounts
-        activeAccount = firstAccount.accountId
+        if (firstAccount) {
+          activeAccount = firstAccount.accountId
+        }
       }
       return {
         ...accounts,
