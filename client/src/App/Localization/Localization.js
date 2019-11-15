@@ -120,7 +120,11 @@ const Localization = ({
 
   const rawAnnotationsForImage = collection.annotations[activeImage] || []
   const bboxes = rawAnnotationsForImage.filter(
-    box => box.x && box.y && box.x2 && box.y2
+    box =>
+      box.x !== undefined &&
+      box.y !== undefined &&
+      box.x2 !== undefined &&
+      box.y2 !== undefined
   )
 
   const endpoint = endpointForLocationConstraint(location)
@@ -173,7 +177,4 @@ const mapDispatchToProps = {
   ctlExpandRange,
   clearRange
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Localization)
+export default connect(mapStateToProps, mapDispatchToProps)(Localization)
