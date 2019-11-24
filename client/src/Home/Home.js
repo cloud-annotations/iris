@@ -67,45 +67,47 @@ const Home = () => {
           </div>
         )}
       </div>
-      <div className={styles.leftWrapper}>
-        <div className={styles.bigText}>Cloud Annotations</div>
-        <div className={styles.subText}>
-          A fast, easy and collaborative open source image annotation tool for
-          teams and individuals.
+      <div className={styles.contentWrapper}>
+        <div className={styles.leftWrapper}>
+          <div className={styles.bigText}>Cloud Annotations</div>
+          <div className={styles.subText}>
+            A fast, easy and collaborative open source image annotation tool for
+            teams and individuals.
+          </div>
+          <div className={styles.buttonsWrapper}>
+            {loading2 ? (
+              <div className={styles.loading}>
+                <InlineLoading description="Loading" success={false} />
+              </div>
+            ) : (
+              <div className={styles.button} onClick={handleClick2}>
+                Continue with IBM Cloud
+              </div>
+            )}
+            <a
+              className={styles.buttonSecondary}
+              href="https://cloud-annotations.github.io/training/object-detection/cli/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Documentation
+            </a>
+          </div>
         </div>
-        <div className={styles.buttonsWrapper}>
-          {loading2 ? (
-            <div className={styles.loading}>
-              <InlineLoading description="Loading" success={false} />
-            </div>
-          ) : (
-            <div className={styles.button} onClick={handleClick2}>
-              Continue with IBM Cloud
-            </div>
-          )}
-          <a
-            className={styles.buttonSecondary}
-            href="https://cloud-annotations.github.io/training/object-detection/cli/"
-            target="_blank"
-            rel="noopener noreferrer"
+        <div className={styles.videoWrapper}>
+          <img className={styles.image} src={windowDark} alt="" />
+          <video
+            ref={videoRef}
+            className={styles.video}
+            autoPlay
+            loop
+            muted
+            preload="auto"
           >
-            Documentation
-          </a>
+            <source src={video} type="video/webm" />
+            <source src={video2} type="video/mp4" />
+          </video>
         </div>
-      </div>
-      <div className={styles.videoWrapper}>
-        <img className={styles.image} src={windowDark} alt="" />
-        <video
-          ref={videoRef}
-          className={styles.video}
-          autoPlay
-          loop
-          muted
-          preload="auto"
-        >
-          <source src={video} type="video/webm" />
-          <source src={video2} type="video/mp4" />
-        </video>
       </div>
     </div>
   )

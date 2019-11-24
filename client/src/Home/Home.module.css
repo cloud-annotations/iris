@@ -1,9 +1,10 @@
 .wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
   width: 100vw;
+  position: fixed;
+  width: 100vw;
+  top: 0;
+  bottom: 0;
+  overflow: scroll;
 }
 
 .loading {
@@ -13,7 +14,6 @@
   padding: 0 18px;
   width: 220px;
   min-width: 220px;
-  /* margin: 0 50px; */
   display: flex;
   align-items: center;
 }
@@ -87,7 +87,8 @@
 }
 
 .leftWrapper {
-  width: 500px;
+  margin: 16px;
+  max-width: 500px;
 }
 
 .bigText {
@@ -103,6 +104,30 @@
 
 .buttonsWrapper {
   display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.contentWrapper {
+  /* position: fixed;
+  width: 100vw;
+  top: 0;
+  bottom: 0;
+  overflow: scroll; */
+  /* position: fixed; */
+  margin-top: 142px;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  /* max-height: 100%; */
+  /* overflow: scroll; */
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 700px) {
+  .contentWrapper {
+    margin-top: 80px;
+  }
 }
 
 /* The actual content size is 2088px x 1148px */
@@ -113,7 +138,11 @@
   flex-shrink: 0;
   --width: 700px;
   --height: calc(var(--width) * 1448 / 2312);
+  --mwidth: 100vw;
+  --mheight: calc(var(--mwidth) * 1448 / 2312);
   position: relative;
+  max-width: var(--mwidth);
+  max-height: var(--mheight);
   width: var(--width);
   height: var(--height);
 }
@@ -137,6 +166,21 @@
   left: var(--left);
   width: calc(100% - 2 * var(--left));
   border-radius: 0 0 var(--cornerRadius) var(--cornerRadius);
+}
+
+@media (max-width: 700px) {
+  .video {
+    --ratio: calc(var(--mwidth) / 2312);
+    --top: calc(152 * var(--ratio));
+    --left: calc(112 * var(--ratio));
+    --cornerRadius: calc(10 * var(--ratio));
+
+    position: absolute;
+    top: var(--top);
+    left: var(--left);
+    width: calc(100% - 2 * var(--left));
+    border-radius: 0 0 var(--cornerRadius) var(--cornerRadius);
+  }
 }
 
 .link,
