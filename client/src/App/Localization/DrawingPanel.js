@@ -284,7 +284,4 @@ const mapDispatchToProps = {
   setActiveLabel,
   setActiveTool
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DrawingPanel)
+export default connect(mapStateToProps, mapDispatchToProps)(DrawingPanel)

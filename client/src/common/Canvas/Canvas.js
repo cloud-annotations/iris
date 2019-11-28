@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import Prediction from './Prediction'
 import Box from './Box'
 import Nobs from './Nobs'
 import TouchTargets from './TouchTargets'
@@ -211,7 +212,7 @@ export default class App extends Component {
   }
 
   render() {
-    const { hovered, bboxes, mode, image, cmap } = this.props
+    const { hovered, bboxes, mode, image, cmap, predictions } = this.props
     const { size } = this.state
 
     return (
@@ -258,6 +259,10 @@ export default class App extends Component {
             height: size.imageHeight
           }}
         >
+          {/* {mode === BOX &&
+            predictions.map(prediction => (
+              <Prediction prediction={prediction} imageSize={size} />
+            ))} */}
           {mode === BOX &&
             bboxes.map(bbox => (
               <Box

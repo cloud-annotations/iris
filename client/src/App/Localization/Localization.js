@@ -17,6 +17,8 @@ import {
   shiftExpandRange
 } from 'redux/editor'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
+import AutoLabelPanel from './AutoLabelPanel'
+import SplitLayout from './SplitLayout'
 
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
@@ -68,6 +70,7 @@ const Localization = ({
   range
 }) => {
   const [imageFilter, setImageFilter] = useState(undefined)
+  const [autoLabelMode, setAutoLabelMode] = useState(false)
 
   useGoogleAnalytics('localization')
 
@@ -115,6 +118,14 @@ const Localization = ({
     }
   }, [activeImage, images, setActiveImage])
 
+  const handleExpandAutoLabel = useCallback(() => {
+    setAutoLabelMode(true)
+  }, [])
+
+  const handleCollapseAutoLabel = useCallback(() => {
+    setAutoLabelMode(false)
+  }, [])
+
   const selectedIndex = images.indexOf(activeImage)
   const rangeIndex = range.map(image => images.indexOf(image))
 
@@ -144,10 +155,22 @@ const Localization = ({
       left={<ToolsPanel />}
       content={<DrawingPanel selectedImage={activeImage} image={imageData} />}
       right={
-        <LayersPanel
-          imageName={activeImage}
-          bboxes={bboxes}
-          image={imageData}
+        <SplitLayout
+          expandBottom={autoLabelMode}
+          top={
+            <LayersPanel
+              imageName={activeImage}
+              bboxes={bboxes}
+              image={imageData}
+            />
+          }
+          bottom={
+            <AutoLabelPanel
+              expanded={autoLabelMode}
+              onExpand={handleExpandAutoLabel}
+              onCollapse={handleCollapseAutoLabel}
+            />
+          }
         />
       }
       bottom={
