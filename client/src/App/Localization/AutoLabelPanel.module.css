@@ -8,11 +8,8 @@
   overflow: auto;
 }
 
-.button {
-  background-color: var(--blue);
-  /* border: 2px solid transparent; */
+.buttonBase {
   height: 48px;
-  color: #fff;
   font-weight: 400;
   font-size: 14px;
   padding: 0 18px;
@@ -21,16 +18,45 @@
   align-items: center;
   cursor: pointer;
   text-decoration: none;
-  margin: 8px 16px;
 }
 
-.button:hover {
+/* Primary */
+.buttonPrimary {
+  composes: buttonBase;
+  background-color: var(--blue);
+  color: #fff;
+}
+
+.buttonPrimary:hover {
   background-color: var(--blue-hover);
 }
 
-.button:active {
+.buttonPrimary:active {
   box-shadow: inset 0 0 0 2px #fff;
   transition: all 0.2s cubic-bezier(0.2, 0.2, 0.38, 0.9);
+}
+
+/* Secondary */
+.buttonSecondary {
+  composes: buttonBase;
+  background-color: var(--secondaryButton);
+  color: #fff;
+}
+
+.buttonSecondary:hover {
+  background-color: var(--secondaryButtonHover);
+}
+
+.buttonSecondary:active {
+  box-shadow: inset 0 0 0 2px #fff;
+  transition: all 0.2s cubic-bezier(0.2, 0.2, 0.38, 0.9);
+}
+
+/* Dissabled */
+.buttonDissabled {
+  composes: buttonBase;
+  background-color: var(--dissabledButton);
+  color: var(--dissabledButtonText);
 }
 
 .buttonText {
@@ -38,24 +64,60 @@
 }
 
 .buttonIcon {
-  height: 12px;
-  width: 12px;
+  height: 18px;
+  width: 18px;
   fill: #ffffff;
   margin-left: auto;
 }
 
+.buttonAutoLabel {
+  composes: buttonPrimary;
+  margin: 8px 16px;
+}
+
 .buttonLoading {
-  background-color: var(--dissabledButton);
-  /* border: 2px solid transparent; */
-  height: 48px;
-  color: var(--dissabledButtonText);
-  font-weight: 400;
-  font-size: 14px;
-  padding: 0 18px;
-  min-width: 220px;
+  composes: buttonDissabled;
+  margin: 8px 16px;
+}
+
+.buttonLabel {
+  composes: buttonSecondary;
+  margin: 8px 16px 1px 16px;
+  box-shadow: 0 1px 0 0px var(--listDivider);
+}
+
+.buttonLabelAll {
+  composes: buttonSecondary;
+  margin: 0 16px 16px 16px;
+}
+
+.buttonNext {
+  composes: buttonPrimary;
+  margin: 8px 16px;
+}
+
+.loading {
+  height: 100%;
   display: flex;
   align-items: center;
-  cursor: pointer;
-  text-decoration: none;
-  margin: 8px 16px;
+  margin-left: auto;
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  margin: 16px 20px;
+}
+
+.title {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--brightText);
+}
+
+.done {
+  margin-left: auto;
+  font-size: 14px;
+  color: var(--secondaryText);
 }
