@@ -120,4 +120,12 @@
   margin-left: auto;
   font-size: 14px;
   color: var(--secondaryText);
+  border: 1px solid transparent;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+.done:hover {
+  background-color: var(--highlight);
+  border-radius: 4px;
 }

@@ -40,7 +40,9 @@ const Expanded = ({ handleClick }) => {
     <div className={styles.wrapper}>
       <div className={styles.titleBar}>
         <div className={styles.title}>Auto label</div>
-        <div className={styles.done}>Done</div>
+        <div className={styles.done} onClick={handleClick}>
+          Done
+        </div>
       </div>
       <div className={styles.buttonLabel}>
         <div className={styles.buttonText}>Label</div>
@@ -48,7 +50,7 @@ const Expanded = ({ handleClick }) => {
       <div className={styles.buttonLabelAll}>
         <div className={styles.buttonText}>Label all</div>
       </div>
-      <div className={styles.buttonNext} onClick={handleClick}>
+      <div className={styles.buttonNext}>
         <div className={styles.buttonText}>Next</div>
       </div>
     </div>
