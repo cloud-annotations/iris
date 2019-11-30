@@ -1,8 +1,6 @@
 import React, { Component } from 'react'
 
-import { BOX } from './Canvas'
-
-import styles from './Box.module.css'
+import styles from './Prediction.module.css'
 
 export default class Rect extends Component {
   render() {
@@ -18,15 +16,22 @@ export default class Rect extends Component {
       height: height * imageHeight
     }
 
+    if (activePrediction) {
+      return (
+        <div className={styles.wrapper} style={dimensions}>
+          <div className={styles.label}>{prediction.class}</div>
+          <div className={styles.inline} />
+          <div
+            className={styles.outline}
+            style={{ borderColor: 'var(--blue)' }}
+          />
+          <div className={styles.fill} />
+        </div>
+      )
+    }
     return (
       <div className={styles.wrapper} style={dimensions}>
-        <div
-          className={styles.draw}
-          style={{ borderColor: activePrediction ? 'blue' : 'red' }}
-        />
-        {this.props.mode === BOX && (
-          <div className={styles.fill} style={{ backgroundColor: 'red' }} />
-        )}
+        <div className={styles.label2}>{prediction.class}</div>
       </div>
     )
   }

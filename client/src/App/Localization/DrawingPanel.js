@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 
-import Canvas, { BOX, MOVE } from 'common/Canvas/Canvas'
+import Canvas, { BOX, MOVE, AUTO_LABEL } from 'common/Canvas/Canvas'
 import EmptySet from 'common/EmptySet/EmptySet'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, deleteBox, createLabel, syncAction } from 'redux/collection'
@@ -124,6 +124,10 @@ const DrawingPanel = ({
   setPredictions,
   activePrediction
 }) => {
+  if (autoLabelActive) {
+    tool = AUTO_LABEL
+  }
+
   //////////////////////////////////
   useEffect(() => {
     if (autoLabelActive && model && image) {
@@ -287,6 +291,7 @@ const DrawingPanel = ({
                 onBoxFinished={handleBoxFinished}
                 predictions={predictions}
                 activePrediction={activePrediction}
+                // autoLabelActive={autoLabelActive}
               />
             </div>
           }

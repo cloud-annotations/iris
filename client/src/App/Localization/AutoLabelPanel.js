@@ -44,6 +44,7 @@ const MagicIcon = () => {
 }
 
 const Expanded = ({ handleClick }) => {
+  const handleLabel = useCallback(() => {}, [])
   return (
     <div className={styles.wrapper}>
       <div className={styles.titleBar}>
@@ -52,11 +53,11 @@ const Expanded = ({ handleClick }) => {
           Done
         </div>
       </div>
-      <div className={styles.buttonLabel}>
-        <div className={styles.buttonText}>Label</div>
+      <div className={styles.buttonLabel} onClick={handleLabel}>
+        <div className={styles.buttonText}>Accept label</div>
       </div>
       <div className={styles.buttonLabelAll}>
-        <div className={styles.buttonText}>Label all</div>
+        <div className={styles.buttonText}>Accept all labels</div>
       </div>
       <div className={styles.buttonNext}>
         <div className={styles.buttonText}>Next</div>
@@ -102,16 +103,18 @@ const AutoLabelPanel = ({
       setActive(false)
       onCollapse()
     } else {
-      objectDetector.load(MODEL_PATH).then(async model => {
-        // warm up the model
-        const image = new ImageData(1, 1)
-        await model.detect(image)
-        setModel(model)
-        setActive(true)
-      })
+      setActive(true)
+      if (model === undefined) {
+        objectDetector.load(MODEL_PATH).then(async model => {
+          // warm up the model
+          const image = new ImageData(1, 1)
+          await model.detect(image)
+          setModel(model)
+        })
+      }
       onExpand()
     }
-  }, [expanded, onCollapse, onExpand, setActive, setModel])
+  }, [expanded, model, onCollapse, onExpand, setActive, setModel])
 
   if (expanded && model === undefined) {
     return <LoadingModel handleClick={handleClick} />
