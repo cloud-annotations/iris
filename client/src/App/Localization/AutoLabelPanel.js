@@ -1,5 +1,13 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
+import { connect } from 'react-redux'
 import { InlineLoading } from 'carbon-components-react'
+
+import {
+  setModel,
+  setActive,
+  setPredictions,
+  setActivePrediction
+} from 'redux/autoLabel'
 
 import styles from './AutoLabelPanel.module.css'
 
@@ -81,31 +89,17 @@ const Collapsed = ({ handleClick }) => {
   )
 }
 
-const AutoLabelPanel = ({ expanded, onExpand, onCollapse }) => {
-  const [model, setModel] = useState(undefined)
-  // const [predictions, setPredictions] = useState([])
-  // useEffect(() => {
-  //   if (model && image) {
-  //     const img = new Image()
-  //     img.onload = () => {
-  //       model.detect(img).then(predictions => {
-  //         console.log(predictions)
-  //         const scaledPredictions = predictions.map(prediction => {
-  //           prediction.bbox[0] /= img.width
-  //           prediction.bbox[1] /= img.height
-  //           prediction.bbox[2] /= img.width
-  //           prediction.bbox[3] /= img.height
-  //           return prediction
-  //         })
-  //         setPredictions(scaledPredictions)
-  //       })
-  //     }
-  //     img.src = image
-  //   }
-  // }, [image, model])
-
+const AutoLabelPanel = ({
+  expanded,
+  onExpand,
+  onCollapse,
+  model,
+  setModel,
+  setActive
+}) => {
   const handleClick = useCallback(() => {
     if (expanded) {
+      setActive(false)
       onCollapse()
     } else {
       objectDetector.load(MODEL_PATH).then(async model => {
@@ -113,10 +107,11 @@ const AutoLabelPanel = ({ expanded, onExpand, onCollapse }) => {
         const image = new ImageData(1, 1)
         await model.detect(image)
         setModel(model)
+        setActive(true)
       })
       onExpand()
     }
-  }, [expanded, onCollapse, onExpand])
+  }, [expanded, onCollapse, onExpand, setActive, setModel])
 
   if (expanded && model === undefined) {
     return <LoadingModel handleClick={handleClick} />
@@ -127,4 +122,12 @@ const AutoLabelPanel = ({ expanded, onExpand, onCollapse }) => {
   return <Collapsed handleClick={handleClick} />
 }
 
-export default AutoLabelPanel
+const mapStateToProps = state => ({
+  model: state.autoLabel.model
+})
+
+const mapDispatchToProps = {
+  setModel,
+  setActive
+}
+export default connect(mapStateToProps, mapDispatchToProps)(AutoLabelPanel)

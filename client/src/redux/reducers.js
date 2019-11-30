@@ -5,6 +5,7 @@ import profileReducer from './profile'
 import bucketsReducer from './buckets'
 import collectionReducer from './collection'
 import editorReducer from './editor'
+import autoLabelReducer from './autoLabel'
 
 export default combineReducers({
   accounts: accountsReducer,
@@ -12,5 +13,6 @@ export default combineReducers({
   profile: profileReducer,
   buckets: bucketsReducer,
   collection: collectionReducer,
-  editor: editorReducer
+  editor: editorReducer,
+  autoLabel: autoLabelReducer
 })

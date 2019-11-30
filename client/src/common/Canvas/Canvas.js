@@ -259,10 +259,10 @@ export default class App extends Component {
             height: size.imageHeight
           }}
         >
-          {/* {mode === BOX &&
+          {mode === BOX &&
             predictions.map(prediction => (
               <Prediction prediction={prediction} imageSize={size} />
-            ))} */}
+            ))}
           {mode === BOX &&
             bboxes.map(bbox => (
               <Box

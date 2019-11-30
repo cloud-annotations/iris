@@ -6,6 +6,7 @@ import EmptySet from 'common/EmptySet/EmptySet'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, deleteBox, createLabel, syncAction } from 'redux/collection'
 import { setActiveBox, setActiveLabel, setActiveTool } from 'redux/editor'
+import { setPredictions } from 'redux/autoLabel'
 import { uniqueColor } from './color-utils'
 
 import styles from './DrawingPanel.module.css'
@@ -116,8 +117,33 @@ const DrawingPanel = ({
   activeLabel,
   activeBox,
   hoveredBox,
-  headCount
+  headCount,
+  model,
+  autoLabelActive,
+  predictions,
+  setPredictions
 }) => {
+  //////////////////////////////////
+  useEffect(() => {
+    if (autoLabelActive && model && image) {
+      const img = new Image()
+      img.onload = () => {
+        model.detect(img).then(predictions => {
+          const scaledPredictions = predictions.map(prediction => {
+            prediction.bbox[0] /= img.width
+            prediction.bbox[1] /= img.height
+            prediction.bbox[2] /= img.width
+            prediction.bbox[3] /= img.height
+            return prediction
+          })
+          setPredictions(scaledPredictions)
+        })
+      }
+      img.src = image
+    }
+  }, [autoLabelActive, image, model, setPredictions])
+  //////////////////////////////////
+
   const rawAnnotationsForImage = annotations[selectedImage] || []
 
   const [bboxes, onlyLabels] = partition(
@@ -258,6 +284,7 @@ const DrawingPanel = ({
                 onBoxStarted={handleBoxStarted}
                 onBoxChanged={handleBoxChanged}
                 onBoxFinished={handleBoxFinished}
+                predictions={predictions}
               />
             </div>
           }
@@ -276,12 +303,16 @@ const mapStateToProps = state => ({
   activeLabel: state.editor.label,
   hoveredBox: state.editor.hoveredBox,
   tool: state.editor.tool,
-  headCount: state.editor.headCount
+  headCount: state.editor.headCount,
+  model: state.autoLabel.model,
+  autoLabelActive: state.autoLabel.active,
+  predictions: state.autoLabel.predictions
 })
 const mapDispatchToProps = {
   syncAction,
   setActiveBox,
   setActiveLabel,
-  setActiveTool
+  setActiveTool,
+  setPredictions
 }
 export default connect(mapStateToProps, mapDispatchToProps)(DrawingPanel)
