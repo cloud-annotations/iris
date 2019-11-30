@@ -85,10 +85,11 @@ const AppBar = ({
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [lastHoveredOption, setLastHoveredOption] = useState(undefined)
   const [lastHoveredSubOption, setLastHoveredSubOption] = useState(undefined)
-  const [darkModeToggle, setDarkModeToggle] = useState(false)
+  const [darkModeToggle, setDarkModeToggle] = useState(
+    document.body.className === 'dark'
+  )
 
   useEffect(() => {
-    setDarkModeToggle(document.body.className === 'dark')
     const observer = new MutationObserver(mutationsList => {
       for (let mutation of mutationsList) {
         if (
