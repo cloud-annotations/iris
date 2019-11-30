@@ -121,7 +121,8 @@ const DrawingPanel = ({
   model,
   autoLabelActive,
   predictions,
-  setPredictions
+  setPredictions,
+  activePrediction
 }) => {
   //////////////////////////////////
   useEffect(() => {
@@ -285,6 +286,7 @@ const DrawingPanel = ({
                 onBoxChanged={handleBoxChanged}
                 onBoxFinished={handleBoxFinished}
                 predictions={predictions}
+                activePrediction={activePrediction}
               />
             </div>
           }
@@ -306,7 +308,8 @@ const mapStateToProps = state => ({
   headCount: state.editor.headCount,
   model: state.autoLabel.model,
   autoLabelActive: state.autoLabel.active,
-  predictions: state.autoLabel.predictions
+  predictions: state.autoLabel.predictions,
+  activePrediction: state.autoLabel.activePrediction
 })
 const mapDispatchToProps = {
   syncAction,

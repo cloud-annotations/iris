@@ -6,7 +6,7 @@ import styles from './Box.module.css'
 
 export default class Rect extends Component {
   render() {
-    const { prediction, imageSize } = this.props
+    const { prediction, activePrediction, imageSize } = this.props
     const { bbox } = prediction
     const [x, y, width, height] = bbox
     const { imageWidth, imageHeight } = imageSize
@@ -20,7 +20,10 @@ export default class Rect extends Component {
 
     return (
       <div className={styles.wrapper} style={dimensions}>
-        <div className={styles.draw} style={{ borderColor: 'red' }} />
+        <div
+          className={styles.draw}
+          style={{ borderColor: activePrediction ? 'blue' : 'red' }}
+        />
         {this.props.mode === BOX && (
           <div className={styles.fill} style={{ backgroundColor: 'red' }} />
         )}

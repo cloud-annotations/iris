@@ -212,7 +212,15 @@ export default class App extends Component {
   }
 
   render() {
-    const { hovered, bboxes, mode, image, cmap, predictions } = this.props
+    const {
+      hovered,
+      bboxes,
+      mode,
+      image,
+      cmap,
+      predictions,
+      activePrediction
+    } = this.props
     const { size } = this.state
 
     return (
@@ -260,8 +268,12 @@ export default class App extends Component {
           }}
         >
           {mode === BOX &&
-            predictions.map(prediction => (
-              <Prediction prediction={prediction} imageSize={size} />
+            predictions.map((prediction, i) => (
+              <Prediction
+                prediction={prediction}
+                activePrediction={activePrediction === i}
+                imageSize={size}
+              />
             ))}
           {mode === BOX &&
             bboxes.map(bbox => (

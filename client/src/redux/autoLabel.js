@@ -5,6 +5,7 @@ const SET_PREDICTIONS = 'cloud-annotations/autoLabel/SET_PREDICTIONS'
 const SET_ACTIVE_PREDICTION =
   'cloud-annotations/autoLabel/SET_ACTIVE_PREDICTION'
 
+// TODO: Might make sense to merge this with editor.
 // Reducer
 const defaultAutoLabeler = {
   model: undefined,
