@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react'
+import React, { useState, useCallback, useRef, useEffect } from 'react'
 import ReactDOMServer from 'react-dom/server'
 import { connect } from 'react-redux'
 import Toggle from 'react-toggle'
@@ -85,16 +85,34 @@ const AppBar = ({
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [lastHoveredOption, setLastHoveredOption] = useState(undefined)
   const [lastHoveredSubOption, setLastHoveredSubOption] = useState(undefined)
-  const [darkModeToggle, setDarkModeToggle] = useState(
-    localStorage.getItem('darkMode') === 'true'
-  )
+  const [darkModeToggle, setDarkModeToggle] = useState(false)
+
+  useEffect(() => {
+    setDarkModeToggle(document.body.className === 'dark')
+    const observer = new MutationObserver(mutationsList => {
+      for (let mutation of mutationsList) {
+        if (
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'class'
+        ) {
+          setDarkModeToggle(document.body.className === 'dark')
+        }
+      }
+    })
+    observer.observe(document.body, { attributes: true })
+    return () => {
+      observer.disconnect()
+    }
+  }, [])
 
   const handleToggleDarkMode = useCallback(e => {
     e.target.blur() // give up focus so other inputs work properly.
-    const darkMode = !(localStorage.getItem('darkMode') === 'true')
-    setDarkModeToggle(darkMode)
-    localStorage.setItem('darkMode', darkMode)
-    document.body.className = darkMode ? 'dark' : 'light'
+    setDarkModeToggle(mode => {
+      const nextMode = !mode
+      localStorage.setItem('darkMode', nextMode)
+      document.body.className = nextMode ? 'dark' : 'light'
+      return nextMode
+    })
   }, [])
 
   const handleClick = useCallback(() => {
@@ -452,7 +470,4 @@ const mapDispatchToProps = {
   syncAction,
   setActiveImage
 }
-export default connect(
-  mapPropsToState,
-  mapDispatchToProps
-)(AppBar)
+export default connect(mapPropsToState, mapDispatchToProps)(AppBar)
