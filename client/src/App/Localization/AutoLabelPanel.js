@@ -43,8 +43,18 @@ const MagicIcon = () => {
   )
 }
 
-const Expanded = ({ handleClick }) => {
-  const handleLabel = useCallback(() => {}, [])
+const Expanded = connect(
+  state => ({
+    predictions: state.autoLabel.predictions,
+    activePrediction: state.autoLabel.activePrediction
+  }),
+  {
+    setActivePrediction
+  }
+)(({ handleClick, predictions, activePrediction, setActivePrediction }) => {
+  const handleLabel = useCallback(() => {
+    setActivePrediction((activePrediction + 1) % predictions.length)
+  }, [activePrediction, predictions.length, setActivePrediction])
   return (
     <div className={styles.wrapper}>
       <div className={styles.titleBar}>
@@ -59,12 +69,12 @@ const Expanded = ({ handleClick }) => {
       <div className={styles.buttonLabelAll}>
         <div className={styles.buttonText}>Accept all labels</div>
       </div>
-      <div className={styles.buttonNext}>
+      <div className={styles.buttonNext} onClick={handleLabel}>
         <div className={styles.buttonText}>Next</div>
       </div>
     </div>
   )
-}
+})
 
 const LoadingModel = ({ handleClick }) => {
   return (
