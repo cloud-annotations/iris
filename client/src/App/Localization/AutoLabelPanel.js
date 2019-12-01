@@ -9,9 +9,6 @@ import styles from './AutoLabelPanel.module.css'
 import objectDetector from '@cloud-annotations/object-detection'
 import { syncAction, createBox, createLabel } from 'redux/collection'
 
-const MODEL_PATH =
-  '/api/proxy/s3.us-west.cloud-object-storage.test.appdomain.cloud/funky/model_web'
-
 const MagicIcon = () => {
   return (
     <svg
@@ -167,7 +164,8 @@ const AutoLabelPanel = ({
   onCollapse,
   model,
   setModel,
-  setActive
+  setActive,
+  collection
 }) => {
   const handleClick = useCallback(() => {
     if (expanded) {
@@ -176,7 +174,8 @@ const AutoLabelPanel = ({
     } else {
       setActive(true)
       if (model === undefined) {
-        objectDetector.load(MODEL_PATH).then(async model => {
+        const path = `/api/proxy/${collection.cos.endpoint}/${collection.bucket}/model_web`
+        objectDetector.load(path).then(async model => {
           // warm up the model
           const image = new ImageData(1, 1)
           await model.detect(image)
@@ -185,7 +184,16 @@ const AutoLabelPanel = ({
       }
       onExpand()
     }
-  }, [expanded, model, onCollapse, onExpand, setActive, setModel])
+  }, [
+    collection.bucket,
+    collection.cos.endpoint,
+    expanded,
+    model,
+    onCollapse,
+    onExpand,
+    setActive,
+    setModel
+  ])
 
   if (expanded && model === undefined) {
     return <LoadingModel handleClick={handleClick} />
@@ -197,6 +205,7 @@ const AutoLabelPanel = ({
 }
 
 const mapStateToProps = state => ({
+  collection: state.collection,
   model: state.autoLabel.model
 })
 
