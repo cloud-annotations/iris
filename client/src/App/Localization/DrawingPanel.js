@@ -11,6 +11,24 @@ import { uniqueColor } from './color-utils'
 
 import styles from './DrawingPanel.module.css'
 
+const iou = (boxA, boxB) => {
+  const xA = Math.max(boxA.bbox[0], boxB.x)
+  const yA = Math.max(boxA.bbox[1], boxB.y)
+  const xB = Math.min(boxA.bbox[0] + boxA.bbox[2], boxB.x2)
+  const yB = Math.min(boxA.bbox[1] + boxA.bbox[3], boxB.y2)
+
+  const interArea = (xB - xA) * (yB - yA)
+
+  const boxAArea =
+    (boxA.bbox[0] + boxA.bbox[2] - boxA.bbox[0]) *
+    (boxA.bbox[1] + boxA.bbox[3] - boxA.bbox[1])
+  const boxBArea = (boxB.x2 - boxB.x) * (boxB.y2 - boxB.y)
+
+  const iou = interArea / (boxAArea + boxBArea - interArea)
+
+  return iou
+}
+
 const useIsControlPressed = onCtrlChange => {
   const [isPressed, setIsPressed] = useState(false)
   const handleKeyDown = useCallback(
@@ -141,12 +159,23 @@ const DrawingPanel = ({
             prediction.bbox[3] /= img.height
             return prediction
           })
-          setPredictions(scaledPredictions)
+          const bboxes = annotations[selectedImage] || []
+          const filteredPredictions = scaledPredictions.filter(
+            p => !bboxes.some(b => iou(p, b) > 0.5)
+          )
+          setPredictions(filteredPredictions)
         })
       }
       img.src = image
     }
-  }, [autoLabelActive, image, model, setPredictions])
+  }, [
+    annotations,
+    autoLabelActive,
+    image,
+    model,
+    selectedImage,
+    setPredictions
+  ])
   //////////////////////////////////
 
   const rawAnnotationsForImage = annotations[selectedImage] || []
