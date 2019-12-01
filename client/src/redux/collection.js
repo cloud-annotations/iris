@@ -13,6 +13,7 @@ const DELETE_IMAGES = 'cloud-annotations/collection/DELETE_IMAGES'
 const LABEL_IMAGES = 'cloud-annotations/collection/LABEL_IMAGES'
 const CREATE_BOX = 'cloud-annotations/collection/CREATE_BOX'
 const DELETE_BOX = 'cloud-annotations/collection/DELETE_BOX'
+const ADD_MODEL = 'cloud-annotations/collection/ADD_MODEL'
 
 // Reducer
 export default function reducer(collection = Collection.EMPTY, action = {}) {
@@ -120,6 +121,9 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
       }
       return collection.deleteBox(...action.params)
 
+    case ADD_MODEL:
+      return collection.addModel(...action.model)
+
     default:
       return collection
   }
@@ -167,6 +171,11 @@ export const createBox = (image, box, onComplete) => ({
 export const deleteBox = (image, box, onComplete) => ({
   type: DELETE_BOX,
   params: [image, box, onComplete]
+})
+
+export const addModel = model => ({
+  type: ADD_MODEL,
+  model: model
 })
 
 // Side Effects

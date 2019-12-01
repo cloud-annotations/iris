@@ -326,6 +326,16 @@ export default class Collection {
     return collection
   }
 
+  addModel(model) {
+    const collection = produce(this, draft => {
+      draft.models = [
+        `/api/proxy/${draft.endpoint}/${draft.bucket}/${model}`,
+        ...draft.models
+      ]
+    })
+    return collection
+  }
+
   toJSON() {
     return {
       version: VERSION,

@@ -15,8 +15,10 @@ import {
   syncAction,
   deleteImages,
   createLabel,
-  labelImages
+  labelImages,
+  addModel
 } from 'redux/collection'
+import { incrementSaving, decrementSaving } from 'redux/editor'
 
 import moon from './moon.png'
 import styles from './AppBar.module.css'
@@ -78,10 +80,14 @@ const AppBar = ({
   syncAction,
   imageRange,
   setActiveImage,
-  collection
+  collection,
+  incrementSaving,
+  decrementSaving,
+  addModel
 }) => {
-  const optionsRef = useRef(null)
-  const fileInputRef = useRef(null)
+  const optionsRef = useRef(undefined)
+  const mediaInputRef = useRef(undefined)
+  const modelInputRef = useRef(undefined)
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [lastHoveredOption, setLastHoveredOption] = useState(undefined)
   const [lastHoveredSubOption, setLastHoveredSubOption] = useState(undefined)
@@ -139,7 +145,7 @@ const AppBar = ({
 
   useOnClickOutside(optionsRef, handleClickOutside, true)
 
-  const handleFileChosen = useCallback(
+  const handleMediaChosen = useCallback(
     async e => {
       e.stopPropagation()
       const fileList = getDataTransferItems(e)
@@ -147,11 +153,73 @@ const AppBar = ({
       const videos = fileList.filter(file => file.type.startsWith('video/'))
       const files = await generateFiles(images, videos)
       syncAction(uploadImages, [files])
-      fileInputRef.current.value = null
-      fileInputRef.current.blur()
+      mediaInputRef.current.value = null
+      mediaInputRef.current.blur()
       setOptionsOpen(false)
     },
     [syncAction]
+  )
+
+  const handleModelChosen = useCallback(
+    async e => {
+      e.stopPropagation()
+      incrementSaving()
+
+      const fileList = getDataTransferItems(e)
+      const [zipFile] = fileList.filter(file =>
+        file.name.toLowerCase().endsWith('.zip')
+      )
+
+      JSZip.loadAsync(zipFile).then(zip => {
+        const modelFile = '/model.json'
+        let basePath
+        zip.forEach((relativePath, zipEntry) => {
+          if (relativePath.toLowerCase().endsWith(modelFile)) {
+            basePath = relativePath.substring(
+              0,
+              relativePath.length - modelFile.length
+            )
+          }
+        })
+        if (basePath !== undefined) {
+          let promises = []
+          zip.forEach((relativePath, zipEntry) => {
+            if (relativePath.startsWith(basePath)) {
+              const fileName = relativePath.substring(
+                basePath.length,
+                relativePath.length
+              )
+              if (fileName !== '/') {
+                console.log(`model_web${fileName}`)
+                const uploadPromise = zipEntry.async('blob').then(blob =>
+                  collection.cos.putObject({
+                    Bucket: collection.bucket,
+                    Key: `model_web${fileName}`,
+                    Body: blob
+                  })
+                )
+                promises = [...promises, uploadPromise]
+              }
+            }
+          })
+          Promise.all(promises).then(() => {
+            addModel('model_web')
+            decrementSaving()
+          })
+        }
+      })
+
+      modelInputRef.current.value = null
+      modelInputRef.current.blur()
+      setOptionsOpen(false)
+    },
+    [
+      addModel,
+      collection.bucket,
+      collection.cos,
+      decrementSaving,
+      incrementSaving
+    ]
   )
 
   const handleDeleteImage = useCallback(
@@ -322,11 +390,21 @@ const AppBar = ({
                   Upload media
                   <input
                     className={styles.upload}
-                    ref={fileInputRef}
+                    ref={mediaInputRef}
                     type="file"
                     accept="image/*,video/*"
-                    onChange={handleFileChosen}
+                    onChange={handleMediaChosen}
                     multiple
+                  />
+                </div>
+                <div className={styles.listItem}>
+                  Upload model zip
+                  <input
+                    className={styles.upload}
+                    ref={modelInputRef}
+                    type="file"
+                    accept=".zip"
+                    onChange={handleModelChosen}
                   />
                 </div>
                 <div className={styles.listDivider} />
@@ -469,6 +547,9 @@ const mapPropsToState = state => ({
 })
 const mapDispatchToProps = {
   syncAction,
-  setActiveImage
+  setActiveImage,
+  incrementSaving,
+  decrementSaving,
+  addModel
 }
 export default connect(mapPropsToState, mapDispatchToProps)(AppBar)
