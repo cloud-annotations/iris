@@ -2,16 +2,12 @@ import React, { useCallback } from 'react'
 import { connect } from 'react-redux'
 import { InlineLoading } from 'carbon-components-react'
 
-import {
-  setModel,
-  setActive,
-  setPredictions,
-  setActivePrediction
-} from 'redux/autoLabel'
+import { setModel, setActive, setActivePrediction } from 'redux/autoLabel'
 
 import styles from './AutoLabelPanel.module.css'
 
 import objectDetector from '@cloud-annotations/object-detection'
+import { syncAction, createBox, createLabel } from 'redux/collection'
 
 const MODEL_PATH =
   '/api/proxy/s3.us-west.cloud-object-storage.test.appdomain.cloud/funky/model_web'
@@ -45,36 +41,101 @@ const MagicIcon = () => {
 
 const Expanded = connect(
   state => ({
+    labels: state.collection.labels,
+    activeImage: state.editor.image,
     predictions: state.autoLabel.predictions,
     activePrediction: state.autoLabel.activePrediction
   }),
   {
-    setActivePrediction
+    setActivePrediction,
+    syncAction
   }
-)(({ handleClick, predictions, activePrediction, setActivePrediction }) => {
-  const handleLabel = useCallback(() => {
-    setActivePrediction((activePrediction + 1) % predictions.length)
-  }, [activePrediction, predictions.length, setActivePrediction])
-  return (
-    <div className={styles.wrapper}>
-      <div className={styles.titleBar}>
-        <div className={styles.title}>Auto label</div>
-        <div className={styles.done} onClick={handleClick}>
-          Done
+)(
+  ({
+    handleClick,
+    predictions,
+    activePrediction,
+    setActivePrediction,
+    labels,
+    activeImage,
+    syncAction
+  }) => {
+    const handleLabel = useCallback(() => {
+      if (predictions.length <= 0) {
+        return
+      }
+      const currentBox = predictions[activePrediction]
+      if (!labels.includes(currentBox.class)) {
+        syncAction(createLabel, [currentBox.class])
+      }
+      syncAction(createBox, [
+        activeImage,
+        {
+          label: currentBox.class,
+          x: currentBox.bbox[0],
+          y: currentBox.bbox[1],
+          x2: currentBox.bbox[0] + currentBox.bbox[2],
+          y2: currentBox.bbox[1] + currentBox.bbox[3]
+        }
+      ])
+
+      // set next prediction
+      setActivePrediction((activePrediction + 1) % predictions.length)
+    }, [
+      activeImage,
+      activePrediction,
+      labels,
+      predictions,
+      setActivePrediction,
+      syncAction
+    ])
+
+    const handleLabelAll = useCallback(() => {
+      predictions.forEach(currentBox => {
+        if (!labels.includes(currentBox.class)) {
+          syncAction(createLabel, [currentBox.class])
+        }
+        syncAction(createBox, [
+          activeImage,
+          {
+            label: currentBox.class,
+            x: currentBox.bbox[0],
+            y: currentBox.bbox[1],
+            x2: currentBox.bbox[0] + currentBox.bbox[2],
+            y2: currentBox.bbox[1] + currentBox.bbox[3]
+          }
+        ])
+      })
+
+      // set next prediction
+      setActivePrediction(0)
+    }, [activeImage, labels, predictions, setActivePrediction, syncAction])
+
+    const handleNext = useCallback(() => {
+      setActivePrediction((activePrediction + 1) % predictions.length)
+    }, [activePrediction, predictions.length, setActivePrediction])
+
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.titleBar}>
+          <div className={styles.title}>Auto label</div>
+          <div className={styles.done} onClick={handleClick}>
+            Done
+          </div>
+        </div>
+        <div className={styles.buttonLabel} onClick={handleLabel}>
+          <div className={styles.buttonText}>Accept label</div>
+        </div>
+        <div className={styles.buttonLabelAll} onClick={handleLabelAll}>
+          <div className={styles.buttonText}>Accept all labels</div>
+        </div>
+        <div className={styles.buttonNext} onClick={handleNext}>
+          <div className={styles.buttonText}>Next</div>
         </div>
       </div>
-      <div className={styles.buttonLabel} onClick={handleLabel}>
-        <div className={styles.buttonText}>Accept label</div>
-      </div>
-      <div className={styles.buttonLabelAll}>
-        <div className={styles.buttonText}>Accept all labels</div>
-      </div>
-      <div className={styles.buttonNext} onClick={handleLabel}>
-        <div className={styles.buttonText}>Next</div>
-      </div>
-    </div>
-  )
-})
+    )
+  }
+)
 
 const LoadingModel = ({ handleClick }) => {
   return (
