@@ -122,7 +122,7 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
       return collection.deleteBox(...action.params)
 
     case ADD_MODEL:
-      return collection.addModel(...action.model)
+      return collection.addModel(action.model)
 
     default:
       return collection
