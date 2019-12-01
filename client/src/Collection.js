@@ -65,6 +65,8 @@ const listAllObjects = async (cos, params) => {
 }
 
 const IMAGE_REGEX = /\.(jpg|jpeg|png)$/i
+const MODEL_REGEX = /\/model\.json$/i
+
 const optional = (p, alt) => p.catch(() => alt)
 
 const VERSION = '1.0'
@@ -76,6 +78,7 @@ export default class Collection {
   annotations = undefined
   cos = undefined
   bucket = undefined
+  models = undefined
 
   constructor(type, labels, images, annotations) {
     this.type = type
@@ -107,7 +110,17 @@ export default class Collection {
     ])
 
     const fileList = objectList.map(object => object.Key)
-    const images = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
+    const imageList = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
+    const modelList = objectList
+      .filter(obj => obj.Key.match(MODEL_REGEX))
+      .slice()
+      .sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified))
+      .map(obj =>
+        `/api/proxy/${cos.endpoint}/${bucket}/${obj.Key}`.replace(
+          MODEL_REGEX,
+          ''
+        )
+      )
 
     const annotations = produce(collectionJson.annotations, draft => {
       Object.keys(draft).forEach(image => {
@@ -118,11 +131,12 @@ export default class Collection {
     const collection = new Collection(
       collectionJson.type,
       collectionJson.labels,
-      images,
+      imageList,
       annotations
     )
     collection.cos = cos
     collection.bucket = bucket
+    collection.models = modelList
 
     return collection
   }
@@ -178,7 +192,10 @@ export default class Collection {
 
   deleteLabel(label, syncComplete) {
     const collection = produce(this, draft => {
-      draft.labels.splice(draft.labels.findIndex(l => l === label), 1)
+      draft.labels.splice(
+        draft.labels.findIndex(l => l === label),
+        1
+      )
       // TODO: We might have some interesting corner cases:
       // if someone deletes a label right as we label something with the label.
       Object.keys(draft.annotations).forEach(image => {
@@ -227,7 +244,10 @@ export default class Collection {
 
     const collection = produce(this, draft => {
       images.forEach(image => {
-        draft.images.splice(draft.images.findIndex(i => i === image), 1)
+        draft.images.splice(
+          draft.images.findIndex(i => i === image),
+          1
+        )
         // TODO: This could possibly cause an undefined error if someone deletes
         // an image when someone else adds a box to the image. We should check
         // if the image exists in `createBox` and `deleteBox`

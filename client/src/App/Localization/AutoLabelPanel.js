@@ -158,6 +158,17 @@ const Collapsed = ({ handleClick }) => {
   )
 }
 
+const NoModels = () => {
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.buttonNoModel}>
+        <div className={styles.buttonText}>No model available</div>
+        <MagicIcon />
+      </div>
+    </div>
+  )
+}
+
 const AutoLabelPanel = ({
   expanded,
   onExpand,
@@ -174,8 +185,7 @@ const AutoLabelPanel = ({
     } else {
       setActive(true)
       if (model === undefined) {
-        const path = `/api/proxy/${collection.cos.endpoint}/${collection.bucket}/model_web`
-        objectDetector.load(path).then(async model => {
+        objectDetector.load(collection.models[0]).then(async model => {
           // warm up the model
           const image = new ImageData(1, 1)
           await model.detect(image)
@@ -185,8 +195,7 @@ const AutoLabelPanel = ({
       onExpand()
     }
   }, [
-    collection.bucket,
-    collection.cos.endpoint,
+    collection.models,
     expanded,
     model,
     onCollapse,
@@ -200,6 +209,10 @@ const AutoLabelPanel = ({
   }
   if (expanded) {
     return <Expanded handleClick={handleClick} />
+  }
+
+  if (collection.models === undefined || collection.models.length === 0) {
+    return <NoModels />
   }
   return <Collapsed handleClick={handleClick} />
 }

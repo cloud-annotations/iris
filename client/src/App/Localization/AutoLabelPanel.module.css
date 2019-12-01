@@ -75,6 +75,16 @@
   margin: 8px 16px;
 }
 
+.buttonNoModel {
+  composes: buttonDissabled;
+  margin: 8px 16px;
+  cursor: default;
+}
+
+.buttonNoModel .buttonIcon {
+  fill: var(--dissabledButtonText);
+}
+
 .buttonLoading {
   composes: buttonDissabled;
   margin: 8px 16px;
