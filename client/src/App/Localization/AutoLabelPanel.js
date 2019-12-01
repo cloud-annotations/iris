@@ -185,6 +185,7 @@ const AutoLabelPanel = ({
     } else {
       setActive(true)
       if (model === undefined) {
+        // TODO: might need to check if it's actually mobilenet ssd model...
         objectDetector.load(collection.models[0]).then(async model => {
           // warm up the model
           const image = new ImageData(1, 1)
