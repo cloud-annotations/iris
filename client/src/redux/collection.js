@@ -95,7 +95,6 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
     case CREATE_BOX:
       {
         const [image, box, onComplete] = action.params
-        console.log(box)
         if (onComplete) {
           socket.emit('patch', {
             op: '+',
