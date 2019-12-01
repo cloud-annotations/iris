@@ -329,7 +329,7 @@ export default class Collection {
   addModel(model) {
     const collection = produce(this, draft => {
       draft.models = [
-        `/api/proxy/${draft.endpoint}/${draft.bucket}/${model}`,
+        `/api/proxy/${draft.cos.endpoint}/${draft.bucket}/${model}`,
         ...draft.models
       ]
     })
