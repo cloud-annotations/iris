@@ -173,7 +173,7 @@ const AppBar = ({
       JSZip.loadAsync(zipFile).then(zip => {
         const modelFile = '/model.json'
         let basePath
-        zip.forEach((relativePath, zipEntry) => {
+        zip.forEach(relativePath => {
           if (relativePath.toLowerCase().endsWith(modelFile)) {
             basePath = relativePath.substring(
               0,

@@ -149,7 +149,9 @@ const DrawingPanel = ({
   //////////////////////////////////
   const latestImage = useRef(image)
   useEffect(() => {
+    let didCancel = false
     latestImage.current = image
+    setPredictions([])
     if (autoLabelActive && model && image) {
       const img = new Image()
       img.onload = () => {
@@ -165,12 +167,15 @@ const DrawingPanel = ({
           const filteredPredictions = scaledPredictions.filter(
             p => !bboxes.some(b => iou(p, b) > 0.5)
           )
-          if (latestImage.current === image) {
+          if (!didCancel && latestImage.current === image) {
             setPredictions(filteredPredictions)
           }
         })
       }
       img.src = image
+      return () => {
+        didCancel = true
+      }
     }
   }, [
     annotations,
@@ -324,7 +329,6 @@ const DrawingPanel = ({
                 onBoxFinished={handleBoxFinished}
                 predictions={predictions}
                 activePrediction={activePrediction}
-                // autoLabelActive={autoLabelActive}
               />
             </div>
           }

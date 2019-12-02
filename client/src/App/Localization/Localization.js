@@ -67,7 +67,7 @@ const Localization = ({
   setActiveImage,
   shiftExpandRange,
   ctlExpandRange,
-  setPredictions,
+  // setPredictions,
   clearRange,
   range
 }) => {
@@ -106,20 +106,17 @@ const Localization = ({
       if (key.shiftKey) {
         // later...
       } else if (key.ctrlKey) {
-        setPredictions([])
         ctlExpandRange(images[selection])
       } else {
-        setPredictions([])
         setActiveImage(images[selection])
       }
     },
-    [ctlExpandRange, images, setActiveImage, setPredictions]
+    [ctlExpandRange, images, setActiveImage]
   )
 
   const handleNextImage = useCallback(() => {
-    setPredictions([])
     setActiveImage(images[images.indexOf(activeImage) + 1])
-  }, [activeImage, images, setActiveImage, setPredictions])
+  }, [activeImage, images, setActiveImage])
 
   useEffect(() => {
     if (!activeImage) {
@@ -208,7 +205,7 @@ const mapDispatchToProps = {
   setActiveImage,
   shiftExpandRange,
   ctlExpandRange,
-  clearRange,
-  setPredictions
+  clearRange
+  // setPredictions
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Localization)
