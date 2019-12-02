@@ -19,7 +19,6 @@ import {
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 import AutoLabelPanel from './AutoLabelPanel'
 import SplitLayout from './SplitLayout'
-import { setPredictions } from 'redux/autoLabel'
 
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
@@ -115,7 +114,10 @@ const Localization = ({
   )
 
   const handleNextImage = useCallback(() => {
-    setActiveImage(images[images.indexOf(activeImage) + 1])
+    const nextIndex = images.indexOf(activeImage) + 1
+    if (nextIndex < images.length) {
+      setActiveImage(images[nextIndex])
+    }
   }, [activeImage, images, setActiveImage])
 
   useEffect(() => {
