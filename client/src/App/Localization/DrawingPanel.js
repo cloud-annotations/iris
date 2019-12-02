@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 
 import Canvas, { BOX, MOVE, AUTO_LABEL } from 'common/Canvas/Canvas'
@@ -147,7 +147,9 @@ const DrawingPanel = ({
   }
 
   //////////////////////////////////
+  const latestImage = useRef(image)
   useEffect(() => {
+    latestImage.current = image
     if (autoLabelActive && model && image) {
       const img = new Image()
       img.onload = () => {
@@ -163,7 +165,9 @@ const DrawingPanel = ({
           const filteredPredictions = scaledPredictions.filter(
             p => !bboxes.some(b => iou(p, b) > 0.5)
           )
-          setPredictions(filteredPredictions)
+          if (latestImage.current === image) {
+            setPredictions(filteredPredictions)
+          }
         })
       }
       img.src = image

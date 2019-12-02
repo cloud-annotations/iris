@@ -55,7 +55,8 @@ const Expanded = connect(
     setActivePrediction,
     labels,
     activeImage,
-    syncAction
+    syncAction,
+    onNextImage
   }) => {
     const handleLabel = useCallback(() => {
       if (predictions.length <= 0) {
@@ -109,8 +110,15 @@ const Expanded = connect(
     }, [activeImage, labels, predictions, setActivePrediction, syncAction])
 
     const handleNext = useCallback(() => {
+      if (predictions.length <= activePrediction + 1) {
+        setActivePrediction(0)
+        onNextImage()
+        return
+      }
       setActivePrediction((activePrediction + 1) % predictions.length)
-    }, [activePrediction, predictions.length, setActivePrediction])
+    }, [activePrediction, onNextImage, predictions.length, setActivePrediction])
+
+    const dissable = predictions.length === 0
 
     return (
       <div className={styles.wrapper}>
@@ -120,10 +128,20 @@ const Expanded = connect(
             Done
           </div>
         </div>
-        <div className={styles.buttonLabel} onClick={handleLabel}>
+        <div
+          className={
+            dissable ? styles.buttonLabelDissabled : styles.buttonLabel
+          }
+          onClick={handleLabel}
+        >
           <div className={styles.buttonText}>Accept label</div>
         </div>
-        <div className={styles.buttonLabelAll} onClick={handleLabelAll}>
+        <div
+          className={
+            dissable ? styles.buttonLabelAllDissabled : styles.buttonLabelAll
+          }
+          onClick={handleLabelAll}
+        >
           <div className={styles.buttonText}>Accept all labels</div>
         </div>
         <div className={styles.buttonNext} onClick={handleNext}>
@@ -173,6 +191,7 @@ const AutoLabelPanel = ({
   expanded,
   onExpand,
   onCollapse,
+  onNextImage,
   model,
   setModel,
   setActive,
@@ -209,7 +228,7 @@ const AutoLabelPanel = ({
     return <LoadingModel handleClick={handleClick} />
   }
   if (expanded) {
-    return <Expanded handleClick={handleClick} />
+    return <Expanded handleClick={handleClick} onNextImage={onNextImage} />
   }
 
   if (collection.models === undefined || collection.models.length === 0) {

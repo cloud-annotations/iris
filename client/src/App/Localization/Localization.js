@@ -19,6 +19,7 @@ import {
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 import AutoLabelPanel from './AutoLabelPanel'
 import SplitLayout from './SplitLayout'
+import { setPredictions } from 'redux/autoLabel'
 
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
@@ -66,6 +67,7 @@ const Localization = ({
   setActiveImage,
   shiftExpandRange,
   ctlExpandRange,
+  setPredictions,
   clearRange,
   range
 }) => {
@@ -104,13 +106,20 @@ const Localization = ({
       if (key.shiftKey) {
         // later...
       } else if (key.ctrlKey) {
+        setPredictions([])
         ctlExpandRange(images[selection])
       } else {
+        setPredictions([])
         setActiveImage(images[selection])
       }
     },
-    [ctlExpandRange, images, setActiveImage]
+    [ctlExpandRange, images, setActiveImage, setPredictions]
   )
+
+  const handleNextImage = useCallback(() => {
+    setPredictions([])
+    setActiveImage(images[images.indexOf(activeImage) + 1])
+  }, [activeImage, images, setActiveImage, setPredictions])
 
   useEffect(() => {
     if (!activeImage) {
@@ -169,6 +178,7 @@ const Localization = ({
               expanded={autoLabelMode}
               onExpand={handleExpandAutoLabel}
               onCollapse={handleCollapseAutoLabel}
+              onNextImage={handleNextImage}
             />
           }
         />
@@ -198,6 +208,7 @@ const mapDispatchToProps = {
   setActiveImage,
   shiftExpandRange,
   ctlExpandRange,
-  clearRange
+  clearRange,
+  setPredictions
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Localization)
