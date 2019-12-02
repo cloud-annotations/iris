@@ -1,14 +1,33 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 
-import Canvas, { BOX, MOVE } from 'common/Canvas/Canvas'
+import Canvas, { BOX, MOVE, AUTO_LABEL } from 'common/Canvas/Canvas'
 import EmptySet from 'common/EmptySet/EmptySet'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, deleteBox, createLabel, syncAction } from 'redux/collection'
 import { setActiveBox, setActiveLabel, setActiveTool } from 'redux/editor'
+import { setPredictions } from 'redux/autoLabel'
 import { uniqueColor } from './color-utils'
 
 import styles from './DrawingPanel.module.css'
+
+const iou = (boxA, boxB) => {
+  const xA = Math.max(boxA.bbox[0], boxB.x)
+  const yA = Math.max(boxA.bbox[1], boxB.y)
+  const xB = Math.min(boxA.bbox[0] + boxA.bbox[2], boxB.x2)
+  const yB = Math.min(boxA.bbox[1] + boxA.bbox[3], boxB.y2)
+
+  const interArea = (xB - xA) * (yB - yA)
+
+  const boxAArea =
+    (boxA.bbox[0] + boxA.bbox[2] - boxA.bbox[0]) *
+    (boxA.bbox[1] + boxA.bbox[3] - boxA.bbox[1])
+  const boxBArea = (boxB.x2 - boxB.x) * (boxB.y2 - boxB.y)
+
+  const iou = interArea / (boxAArea + boxBArea - interArea)
+
+  return iou
+}
 
 const useIsControlPressed = onCtrlChange => {
   const [isPressed, setIsPressed] = useState(false)
@@ -116,8 +135,58 @@ const DrawingPanel = ({
   activeLabel,
   activeBox,
   hoveredBox,
-  headCount
+  headCount,
+  model,
+  autoLabelActive,
+  predictions,
+  setPredictions,
+  activePrediction
 }) => {
+  if (autoLabelActive) {
+    tool = AUTO_LABEL
+  }
+
+  //////////////////////////////////
+  const latestImage = useRef(image)
+  useEffect(() => {
+    let didCancel = false
+    latestImage.current = image
+    setPredictions([])
+    if (autoLabelActive && model && image) {
+      const img = new Image()
+      img.onload = () => {
+        model.detect(img).then(predictions => {
+          const scaledPredictions = predictions.map(prediction => {
+            prediction.bbox[0] /= img.width
+            prediction.bbox[1] /= img.height
+            prediction.bbox[2] /= img.width
+            prediction.bbox[3] /= img.height
+            return prediction
+          })
+          const bboxes = annotations[selectedImage] || []
+          const filteredPredictions = scaledPredictions.filter(
+            p => !bboxes.some(b => iou(p, b) > 0.5)
+          )
+          if (!didCancel && latestImage.current === image) {
+            setPredictions(filteredPredictions)
+          }
+        })
+      }
+      img.src = image
+      return () => {
+        didCancel = true
+      }
+    }
+  }, [
+    annotations,
+    autoLabelActive,
+    image,
+    model,
+    selectedImage,
+    setPredictions
+  ])
+  //////////////////////////////////
+
   const rawAnnotationsForImage = annotations[selectedImage] || []
 
   const [bboxes, onlyLabels] = partition(
@@ -258,6 +327,8 @@ const DrawingPanel = ({
                 onBoxStarted={handleBoxStarted}
                 onBoxChanged={handleBoxChanged}
                 onBoxFinished={handleBoxFinished}
+                predictions={predictions}
+                activePrediction={activePrediction}
               />
             </div>
           }
@@ -276,15 +347,17 @@ const mapStateToProps = state => ({
   activeLabel: state.editor.label,
   hoveredBox: state.editor.hoveredBox,
   tool: state.editor.tool,
-  headCount: state.editor.headCount
+  headCount: state.editor.headCount,
+  model: state.autoLabel.model,
+  autoLabelActive: state.autoLabel.active,
+  predictions: state.autoLabel.predictions,
+  activePrediction: state.autoLabel.activePrediction
 })
 const mapDispatchToProps = {
   syncAction,
   setActiveBox,
   setActiveLabel,
-  setActiveTool
+  setActiveTool,
+  setPredictions
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(DrawingPanel)
+export default connect(mapStateToProps, mapDispatchToProps)(DrawingPanel)

@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import Prediction from './Prediction'
+import PredictionOutline from './PredictionOutline'
 import Box from './Box'
 import Nobs from './Nobs'
 import TouchTargets from './TouchTargets'
@@ -8,6 +10,7 @@ import { generateUUID } from 'Utils'
 
 export const MOVE = 'move'
 export const BOX = 'box'
+export const AUTO_LABEL = 'auto'
 
 export default class App extends Component {
   state = {
@@ -211,7 +214,15 @@ export default class App extends Component {
   }
 
   render() {
-    const { hovered, bboxes, mode, image, cmap } = this.props
+    const {
+      mode,
+      hovered,
+      bboxes,
+      image,
+      cmap,
+      predictions,
+      activePrediction
+    } = this.props
     const { size } = this.state
 
     return (
@@ -237,7 +248,8 @@ export default class App extends Component {
           className={styles.blendMode}
           style={{
             width: size.imageWidth,
-            height: size.imageHeight
+            height: size.imageHeight,
+            opacity: mode === AUTO_LABEL ? '0.2' : '1.0'
           }}
         >
           {bboxes.map(bbox => (
@@ -249,6 +261,21 @@ export default class App extends Component {
         </div>
 
         <div
+          className={styles.blendMode}
+          style={{
+            width: size.imageWidth,
+            height: size.imageHeight
+          }}
+        >
+          {/* Draw predictions */}
+          {predictions
+            .filter((_, i) => activePrediction !== i)
+            .map(prediction => (
+              <PredictionOutline prediction={prediction} imageSize={size} />
+            ))}
+        </div>
+
+        <div
           style={{
             position: 'absolute',
             top: '50%',
@@ -256,6 +283,27 @@ export default class App extends Component {
             transform: 'translate(-50%, -50%)',
             width: size.imageWidth,
             height: size.imageHeight
+          }}
+        >
+          {/* Draw predictions */}
+          {predictions.map((prediction, i) => (
+            <Prediction
+              prediction={prediction}
+              activePrediction={activePrediction === i}
+              imageSize={size}
+            />
+          ))}
+        </div>
+
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: size.imageWidth,
+            height: size.imageHeight,
+            opacity: mode === AUTO_LABEL ? '0.4' : '1.0'
           }}
         >
           {mode === BOX &&

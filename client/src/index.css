@@ -14,6 +14,9 @@ body {
 }
 
 body.dark {
+  --dissabledButton: rgba(255, 255, 255, 0.12);
+  --dissabledButtonText: rgba(255, 255, 255, 0.2);
+
   --secondaryButton: #6f6f6f;
   --secondaryButtonHover: #606060;
 
@@ -49,6 +52,9 @@ body.dark {
 }
 
 body.light {
+  --dissabledButton: rgba(0, 0, 0, 0.12);
+  --dissabledButtonText: rgba(0, 0, 0, 0.2);
+
   --secondaryButton: #3d3d3d;
   --secondaryButtonHover: #4c4c4c;
 

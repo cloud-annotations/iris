@@ -33,9 +33,45 @@ window.IMAGE_SCALE_MODE = 'ASPECT_FIT' // || 'SCALE_FILL' || false
 
 GoogleAnalytics.initialize('UA-130502274-1')
 
-// Setup theme.
-const darkMode = localStorage.getItem('darkMode') === 'true'
-document.body.className = darkMode ? 'dark' : 'light'
+// Setup theme - should I even do light mode?
+const activateDarkMode = () => {
+  document.body.className = 'dark'
+}
+const activateLightMode = () => {
+  document.body.className = 'light'
+}
+if (
+  localStorage.getItem('darkMode') === 'true' ||
+  localStorage.getItem('darkMode') === 'false'
+) {
+  // If the user specified using the switch we obey.
+  const isDarkMode = localStorage.getItem('darkMode') === 'true'
+  if (isDarkMode) {
+    activateDarkMode()
+  } else {
+    activateLightMode()
+  }
+} else {
+  // if the user did nothing we try system preference.
+  const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  window
+    .matchMedia('(prefers-color-scheme: dark)')
+    .addListener(e => e.matches && activateDarkMode())
+  window
+    .matchMedia('(prefers-color-scheme: light)')
+    .addListener(e => e.matches && activateLightMode())
+
+  if (isDarkMode) {
+    activateDarkMode()
+  }
+  if (isLightMode) {
+    activateLightMode()
+  }
+  if (!isDarkMode && !isLightMode) {
+    activateDarkMode()
+  }
+}
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
