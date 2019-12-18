@@ -113,13 +113,13 @@ const Expanded = connect(
     }, [activeImage, labels, predictions, setActivePrediction, syncAction])
 
     const handleNext = useCallback(() => {
-      if (predictions.length <= activePrediction + 1) {
-        setActivePrediction(0)
-        onNextImage()
-        return
-      }
+      // if (predictions.length <= activePrediction + 1) {
+      //   setActivePrediction(0)
+      //   onNextImage()
+      //   return
+      // }
       setActivePrediction((activePrediction + 1) % predictions.length)
-    }, [activePrediction, onNextImage, predictions.length, setActivePrediction])
+    }, [activePrediction, predictions.length, setActivePrediction])
 
     const dissable = predictions.length === 0
 
