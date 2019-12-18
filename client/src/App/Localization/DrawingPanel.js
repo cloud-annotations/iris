@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 
-import Canvas, { BOX, MOVE, AUTO_LABEL } from 'common/Canvas/Canvas'
+import Canvas, { BOX, MOVE } from 'common/Canvas/Canvas'
 import EmptySet from 'common/EmptySet/EmptySet'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, deleteBox, createLabel, syncAction } from 'redux/collection'
@@ -249,6 +249,7 @@ const DrawingPanel = ({
     [syncAction, selectedImage]
   )
 
+  // Remove the currently drawn box from the list of boxes
   let mergedBoxes = [...bboxes]
   if (activeBox) {
     mergedBoxes = mergedBoxes.filter(box => box.id !== activeBox.id)

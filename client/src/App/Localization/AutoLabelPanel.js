@@ -8,6 +8,7 @@ import styles from './AutoLabelPanel.module.css'
 
 import objectDetector from '@cloud-annotations/object-detection'
 import { syncAction, createBox, createLabel } from 'redux/collection'
+import { generateUUID } from 'Utils'
 
 const MagicIcon = () => {
   return (
@@ -69,6 +70,7 @@ const Expanded = connect(
       syncAction(createBox, [
         activeImage,
         {
+          id: generateUUID(),
           label: currentBox.class,
           x: currentBox.bbox[0],
           y: currentBox.bbox[1],
@@ -96,6 +98,7 @@ const Expanded = connect(
         syncAction(createBox, [
           activeImage,
           {
+            id: generateUUID(),
             label: currentBox.class,
             x: currentBox.bbox[0],
             y: currentBox.bbox[1],
