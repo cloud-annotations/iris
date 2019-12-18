@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
+import Box2 from './Box2'
 
 import styles from './Prediction.module.css'
 
 export default class Rect extends Component {
   render() {
-    const { prediction, activePrediction, imageSize } = this.props
+    const { prediction, activePrediction, imageSize, cmap } = this.props
     const { bbox } = prediction
     const [x, y, width, height] = bbox
     const { imageWidth, imageHeight } = imageSize
@@ -16,23 +17,28 @@ export default class Rect extends Component {
       height: height * imageHeight
     }
 
-    if (activePrediction) {
-      return (
-        <div className={styles.wrapper} style={dimensions}>
-          <div className={styles.label}>{prediction.class}</div>
-          <div className={styles.inline} />
-          <div
-            className={styles.outline}
-            style={{ borderColor: 'var(--blue)' }}
-          />
-          <div className={styles.fill} />
-        </div>
-      )
-    }
+    const boxColor = (cmap && cmap[prediction.class]) || 'white'
+
     return (
-      <div className={styles.wrapper} style={dimensions}>
-        <div className={styles.label2}>{prediction.class}</div>
-      </div>
+      <>
+        <div className={styles.wrapper} style={dimensions}>
+          <div className={styles.label} style={{ background: boxColor }}>
+            {prediction.class}
+          </div>
+        </div>
+        <Box2
+          bbox={{
+            x: x,
+            y: y,
+            x2: x + width,
+            y2: y + height,
+            label: prediction.class
+          }}
+          cmap={cmap}
+          hovered={activePrediction}
+          imageSize={imageSize}
+        />
+      </>
     )
   }
 }
