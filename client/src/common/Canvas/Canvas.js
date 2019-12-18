@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Prediction from './Prediction'
-import PredictionOutline from './PredictionOutline'
-import Box from './Box'
+import Box2 from './Box2'
+import Move from './Move'
 import Nobs from './Nobs'
 import TouchTargets from './TouchTargets'
 
@@ -216,6 +216,7 @@ export default class App extends Component {
   render() {
     const {
       mode,
+      autoLabelActive,
       hovered,
       bboxes,
       image,
@@ -244,22 +245,7 @@ export default class App extends Component {
           }}
         />
 
-        <div
-          className={styles.blendMode}
-          style={{
-            width: size.imageWidth,
-            height: size.imageHeight,
-            opacity: mode === AUTO_LABEL ? '0.2' : '1.0'
-          }}
-        >
-          {bboxes.map(bbox => (
-            <div key={bbox.id}>
-              <Box bbox={bbox} cmap={cmap} imageSize={size} />
-              {mode === MOVE && <Nobs bbox={bbox} imageSize={size} />}
-            </div>
-          ))}
-        </div>
-
+        {/* Move tool */}
         <div
           className={styles.blendMode}
           style={{
@@ -267,15 +253,56 @@ export default class App extends Component {
             height: size.imageHeight
           }}
         >
-          {/* Draw predictions */}
+          {bboxes.map(bbox => (
+            <div key={bbox.id}>
+              {mode === MOVE && (
+                <>
+                  <Move bbox={bbox} imageSize={size} />
+                  <Nobs bbox={bbox} imageSize={size} />
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* <div
+          className={styles.blendMode}
+          style={{
+            width: size.imageWidth,
+            height: size.imageHeight
+          }}
+        >
           {predictions
             .filter((_, i) => activePrediction !== i)
             .map(prediction => (
               <PredictionOutline prediction={prediction} imageSize={size} />
             ))}
+        </div> */}
+
+        {/* Draw Tool */}
+        <div
+          className={styles.normalMode}
+          style={{
+            width: size.imageWidth,
+            height: size.imageHeight,
+            opacity: autoLabelActive ? '0.4' : '1.0'
+          }}
+        >
+          {mode === BOX &&
+            bboxes.map(bbox => (
+              <Box2
+                key={bbox.id}
+                bbox={bbox}
+                cmap={cmap}
+                hovered={hovered && hovered.id === bbox.id}
+                imageSize={size}
+              />
+            ))}
         </div>
 
+        {/* Predictions */}
         <div
+          className={styles.normalMode}
           style={{
             position: 'absolute',
             top: '50%',
@@ -285,38 +312,25 @@ export default class App extends Component {
             height: size.imageHeight
           }}
         >
-          {/* Draw predictions */}
           {predictions.map((prediction, i) => (
             <Prediction
               prediction={prediction}
+              cmap={cmap}
               activePrediction={activePrediction === i}
+              // activePrediction={true}
               imageSize={size}
             />
           ))}
         </div>
 
+        {/* Touch Targets - must be drawn on top */}
         <div
+          className={styles.normalMode}
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
             width: size.imageWidth,
-            height: size.imageHeight,
-            opacity: mode === AUTO_LABEL ? '0.4' : '1.0'
+            height: size.imageHeight
           }}
         >
-          {mode === BOX &&
-            bboxes.map(bbox => (
-              <Box
-                key={bbox.id}
-                bbox={bbox}
-                cmap={cmap}
-                hovered={hovered && hovered.id === bbox.id}
-                mode={BOX}
-                imageSize={size}
-              />
-            ))}
           {mode === MOVE &&
             bboxes.map(bbox => (
               <TouchTargets

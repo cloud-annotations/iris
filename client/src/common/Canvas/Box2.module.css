@@ -1,0 +1,49 @@
+.wrapper {
+  position: absolute;
+  user-select: none;
+}
+
+.fill {
+  position: absolute;
+  background-color: white;
+  opacity: 0.1;
+  left: 1px;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+}
+
+.wrapperHover {
+  composes: wrapper;
+}
+
+.wrapperHover .fill {
+  opacity: 0.6;
+}
+
+.draw {
+  position: absolute;
+  border: 2px solid white;
+  left: -2px;
+  top: -2px;
+  right: -2px;
+  bottom: -2px;
+}
+
+.inline {
+  position: absolute;
+  border: 1px solid #000000;
+  left: 0px;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+}
+
+.outline {
+  position: absolute;
+  border: 1px solid #000000;
+  left: -3px;
+  top: -3px;
+  right: -3px;
+  bottom: -3px;
+}

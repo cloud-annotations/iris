@@ -1,12 +1,10 @@
 import React, { Component } from 'react'
 
-import { BOX } from './Canvas'
-
-import styles from './Box.module.css'
+import styles from './Box2.module.css'
 
 export default class Rect extends Component {
   render() {
-    const { mode, bbox, cmap, imageSize, hovered } = this.props
+    const { bbox, cmap, imageSize, hovered } = this.props
     const { x, y, x2, y2, label } = bbox
     const { imageWidth, imageHeight } = imageSize
 
@@ -17,20 +15,17 @@ export default class Rect extends Component {
       height: Math.abs(Math.round((y2 - y) * imageHeight))
     }
 
-    const boxColor = mode === BOX ? cmap[label] || 'white' : 'white'
+    const boxColor = (cmap && cmap[label]) || 'white'
 
     return (
       <div
         className={hovered ? styles.wrapperHover : styles.wrapper}
         style={dimensions}
       >
-        <div
-          className={this.props.mode === BOX ? styles.draw : styles.move}
-          style={{ borderColor: boxColor }}
-        />
-        {this.props.mode === BOX && (
-          <div className={styles.fill} style={{ backgroundColor: boxColor }} />
-        )}
+        <div className={styles.draw} style={{ borderColor: boxColor }} />
+        <div className={styles.inline} />
+        <div className={styles.outline} />
+        <div className={styles.fill} style={{ backgroundColor: boxColor }} />
       </div>
     )
   }

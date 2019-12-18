@@ -68,6 +68,7 @@ const Localization = ({
   ctlExpandRange,
   // setPredictions,
   clearRange,
+  model,
   range
 }) => {
   const [imageFilter, setImageFilter] = useState(undefined)
@@ -164,7 +165,7 @@ const Localization = ({
       content={<DrawingPanel selectedImage={activeImage} image={imageData} />}
       right={
         <SplitLayout
-          expandBottom={autoLabelMode}
+          expandBottom={autoLabelMode && model !== undefined}
           top={
             <LayersPanel
               imageName={activeImage}
@@ -200,7 +201,8 @@ const Localization = ({
 const mapStateToProps = state => ({
   collection: state.collection,
   activeImage: state.editor.image,
-  range: state.editor.range
+  range: state.editor.range,
+  model: state.autoLabel.model
 })
 
 const mapDispatchToProps = {

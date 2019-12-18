@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
 
-import Canvas, { BOX, MOVE, AUTO_LABEL } from 'common/Canvas/Canvas'
+import Canvas, { BOX, MOVE } from 'common/Canvas/Canvas'
 import EmptySet from 'common/EmptySet/EmptySet'
 import CrossHair from 'common/CrossHair/CrossHair'
 import { createBox, deleteBox, createLabel, syncAction } from 'redux/collection'
@@ -142,9 +142,9 @@ const DrawingPanel = ({
   setPredictions,
   activePrediction
 }) => {
-  if (autoLabelActive) {
-    tool = AUTO_LABEL
-  }
+  // if (autoLabelActive) {
+  //   tool = AUTO_LABEL
+  // }
 
   //////////////////////////////////
   const latestImage = useRef(image)
@@ -249,6 +249,7 @@ const DrawingPanel = ({
     [syncAction, selectedImage]
   )
 
+  // Remove the currently drawn box from the list of boxes
   let mergedBoxes = [...bboxes]
   if (activeBox) {
     mergedBoxes = mergedBoxes.filter(box => box.id !== activeBox.id)
@@ -319,6 +320,7 @@ const DrawingPanel = ({
             <div className={styles.canvasWrapper}>
               <Canvas
                 mode={tool}
+                autoLabelActive={autoLabelActive}
                 activeLabel={activeLabel}
                 cmap={cmap}
                 bboxes={mergedBoxes}
