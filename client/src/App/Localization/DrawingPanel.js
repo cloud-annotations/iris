@@ -142,9 +142,9 @@ const DrawingPanel = ({
   setPredictions,
   activePrediction
 }) => {
-  if (autoLabelActive) {
-    tool = AUTO_LABEL
-  }
+  // if (autoLabelActive) {
+  //   tool = AUTO_LABEL
+  // }
 
   //////////////////////////////////
   const latestImage = useRef(image)
@@ -319,6 +319,7 @@ const DrawingPanel = ({
             <div className={styles.canvasWrapper}>
               <Canvas
                 mode={tool}
+                autoLabelActive={autoLabelActive}
                 activeLabel={activeLabel}
                 cmap={cmap}
                 bboxes={mergedBoxes}

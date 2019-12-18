@@ -6,6 +6,7 @@
   left: 0;
   background-color: var(--secondaryBg);
   overflow: auto;
+  border-top: 1px solid var(--toolBarSpacer);
 }
 
 .buttonBase {

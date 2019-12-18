@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import Prediction from './Prediction'
 import PredictionOutline from './PredictionOutline'
-import Box from './Box'
+import Box2 from './Box2'
 import Nobs from './Nobs'
 import TouchTargets from './TouchTargets'
 
@@ -216,6 +216,7 @@ export default class App extends Component {
   render() {
     const {
       mode,
+      autoLabelActive,
       hovered,
       bboxes,
       image,
@@ -244,7 +245,7 @@ export default class App extends Component {
           }}
         />
 
-        <div
+        {/* <div
           className={styles.blendMode}
           style={{
             width: size.imageWidth,
@@ -258,7 +259,7 @@ export default class App extends Component {
               {mode === MOVE && <Nobs bbox={bbox} imageSize={size} />}
             </div>
           ))}
-        </div>
+        </div> */}
 
         <div
           className={styles.blendMode}
@@ -275,6 +276,40 @@ export default class App extends Component {
             ))}
         </div>
 
+        {/* Box and Move should be on bottom */}
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: size.imageWidth,
+            height: size.imageHeight,
+            opacity: autoLabelActive ? '0.4' : '1.0'
+          }}
+        >
+          {mode === BOX &&
+            bboxes.map(bbox => (
+              <Box2
+                key={bbox.id}
+                bbox={bbox}
+                cmap={cmap}
+                hovered={hovered && hovered.id === bbox.id}
+                imageSize={size}
+              />
+            ))}
+
+          {mode === MOVE &&
+            bboxes.map(bbox => (
+              <Box2 // TODO Move component
+                key={bbox.id}
+                bbox={bbox}
+                imageSize={size}
+              />
+            ))}
+        </div>
+
+        {/* Predictions should be on top */}
         <div
           style={{
             position: 'absolute',
@@ -285,7 +320,6 @@ export default class App extends Component {
             height: size.imageHeight
           }}
         >
-          {/* Draw predictions */}
           {predictions.map((prediction, i) => (
             <Prediction
               prediction={prediction}
@@ -295,6 +329,7 @@ export default class App extends Component {
           ))}
         </div>
 
+        {/* Must draw touch targets last */}
         <div
           style={{
             position: 'absolute',
@@ -302,21 +337,9 @@ export default class App extends Component {
             left: '50%',
             transform: 'translate(-50%, -50%)',
             width: size.imageWidth,
-            height: size.imageHeight,
-            opacity: mode === AUTO_LABEL ? '0.4' : '1.0'
+            height: size.imageHeight
           }}
         >
-          {mode === BOX &&
-            bboxes.map(bbox => (
-              <Box
-                key={bbox.id}
-                bbox={bbox}
-                cmap={cmap}
-                hovered={hovered && hovered.id === bbox.id}
-                mode={BOX}
-                imageSize={size}
-              />
-            ))}
           {mode === MOVE &&
             bboxes.map(bbox => (
               <TouchTargets

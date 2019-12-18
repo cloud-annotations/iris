@@ -2,6 +2,8 @@ import React from 'react'
 
 const BOTTOM_HEIGHT = '64px'
 
+const EXPANDED_HEIGHT = '241px'
+
 const SplitLayout = ({ expandBottom, top, bottom }) => {
   return (
     <>
@@ -11,8 +13,8 @@ const SplitLayout = ({ expandBottom, top, bottom }) => {
           top: '0',
           left: '0',
           right: '0',
-          height: expandBottom ? 0 : undefined,
-          bottom: expandBottom ? undefined : BOTTOM_HEIGHT
+          // height: expandBottom ? undefined : undefined,
+          bottom: expandBottom ? EXPANDED_HEIGHT : BOTTOM_HEIGHT
         }}
       >
         {top}
@@ -23,8 +25,8 @@ const SplitLayout = ({ expandBottom, top, bottom }) => {
           right: '0',
           left: '0',
           bottom: '0',
-          height: expandBottom ? undefined : BOTTOM_HEIGHT,
-          top: expandBottom ? 0 : undefined
+          height: expandBottom ? EXPANDED_HEIGHT : BOTTOM_HEIGHT
+          // top: expandBottom ? undefined : undefined
         }}
       >
         {bottom}
