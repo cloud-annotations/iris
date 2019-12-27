@@ -4,12 +4,12 @@
 # Changable content
 ################################################################################
 
-export VERIFY_CHECKSUM=0
-export ALIAS_NAME="cacli"
-export OWNER="cloud-annotations"
-export REPO="training"
-export SUCCESS_CMD="$ALIAS_NAME --version"
-export BINLOCATION="/usr/local/bin"
+VERIFY_CHECKSUM=1
+ALIAS_NAME="cacli"
+OWNER="cloud-annotations"
+REPO="training"
+SUCCESS_CMD="$ALIAS_NAME --version"
+BINLOCATION="/usr/local/bin"
 
 ################################################################################
 # Content common across repos
@@ -26,94 +26,115 @@ if [ ! $version ]; then
     exit 1
 fi
 
-hasCli() {
+is_command() {
+    command -v "$1" >/dev/null
+}
 
-    hasCurl=$(which curl)
-    if [ "$?" = "1" ]; then
-        echo "You need curl to use this script."
+hash_sha256() {
+    TARGET=${1:-/dev/stdin}
+    if is_command gsha256sum; then
+        hash=$(gsha256sum "$TARGET") || return 1
+        echo "$hash" | cut -d ' ' -f 1
+    elif is_command sha256sum; then
+        hash=$(sha256sum "$TARGET") || return 1
+        echo "$hash" | cut -d ' ' -f 1
+    elif is_command shasum; then
+        hash=$(shasum -a 256 "$TARGET" 2>/dev/null) || return 1
+        echo "$hash" | cut -d ' ' -f 1
+    elif is_command openssl; then
+        hash=$(openssl -dst openssl dgst -sha256 "$TARGET") || return 1
+        echo "$hash" | cut -d ' ' -f a
+    else
+        echo "hash_sha256 unable to find command to compute sha-256 hash"
         exit 1
     fi
 }
 
-checkHash(){
-
-    sha_cmd="sha256sum"
-
-    if [ ! -x "$(command -v $sha_cmd)" ]; then
-    sha_cmd="shasum -a 256"
+hash_sha256_verify() {
+    TARGET=$1
+    checksums=$2
+    if [ -z "$checksums" ]; then
+        echo "hash_sha256_verify checksum file not specified in arg2"
+        exit 1
     fi
-
-    if [ -x "$(command -v $sha_cmd)" ]; then
-
-    targetFileDir=${targetFile%/*}
-
-    (cd $targetFileDir && curl -sSL $url.sha256|$sha_cmd -c >/dev/null)
-   
-        if [ "$?" != "0" ]; then
-            rm $targetFile
-            echo "Binary checksum didn't match. Exiting"
-            exit 1
-        fi   
+    BASENAME=${TARGET##*/}
+    want=$(grep "${BASENAME}" "${checksums}" 2>/dev/null | tr '\t' ' ' | cut -d ' ' -f 1)
+    if [ -z "$want" ]; then
+        echo "hash_sha256_verify unable to find checksum for '${TARGET}' in '${checksums}'"
+        exit 1
+    fi
+    got=$(hash_sha256 "$TARGET")
+    if [ "$want" != "$got" ]; then
+        echo "hash_sha256_verify checksum for '$TARGET' did not verify ${want} vs $got"
+        exit 1
     fi
 }
 
-getPackage() {
+get_package() {
     uname=$(uname)
     userid=$(id -u)
 
     suffix=""
     case $uname in
     "Darwin")
-    suffix="-darwin"
-    ;;
+        suffix="_darwin_x86_64"
+        ;;
     "MINGW"*)
-    suffix=".exe"
-    BINLOCATION="$HOME/bin"
-    mkdir -p $BINLOCATION
-
-    ;;
+        suffix="_windows_x86_64.exe"
+        BINLOCATION="$HOME/bin"
+        mkdir -p $BINLOCATION
+        ;;
     "Linux")
         arch=$(uname -m)
         echo $arch
         case $arch in
         "aarch64")
-        suffix="-arm64"
-        ;;
+            suffix="_linux_arm64"
+            ;;
         esac
         case $arch in
         "armv6l" | "armv7l")
-        suffix="-armhf"
-        ;;
+            suffix="_linux_armv6"
+            ;;
         esac
-    ;;
+        ;;
     esac
 
-    targetFile="/tmp/$ALIAS_NAME$suffix"
-    
+    tmp_dir="/tmp/"
+
     if [ "$userid" != "0" ]; then
-        targetFile="$(pwd)/$ALIAS_NAME$suffix"
+        tmp_dir="$(pwd)/"
     fi
 
-    if [ -e $targetFile ]; then
-        rm $targetFile
+    binary_file="$tmp_dir$ALIAS_NAME$suffix"
+
+    if [ -e $binary_file ]; then
+        rm $binary_file
     fi
 
     url=https://github.com/$OWNER/$REPO/releases/download/$version/$ALIAS_NAME$suffix
-    echo "Downloading package $url as $targetFile"
+    echo "Downloading package $url as $binary_file"
 
-    curl -sSL $url --output $targetFile
+    curl -sSL $url --output $binary_file
 
     if [ "$?" = "0" ]; then
 
         if [ "$VERIFY_CHECKSUM" = "1" ]; then
-            checkHash
+            checksum_name="cacli_checksums.txt"
+            checksum_file="$tmp_dir$checksum_name"
+            if [ -e $checksum_file ]; then
+                rm $checksum_file
+            fi
+            checksum_url=https://github.com/$OWNER/$REPO/releases/download/$version/$checksum_name
+            curl -sSL $checksum_url --output $checksum_file
+            hash_sha256_verify "$binary_file" "$checksum_file"
         fi
 
-    chmod +x $targetFile
+        chmod +x $binary_file
 
-    echo "Download complete."
-       
-    if [ ! -w "$BINLOCATION" ]; then
+        echo "Download complete."
+
+        if [ ! -w "$BINLOCATION" ]; then
 
             echo
             echo "============================================================"
@@ -122,7 +143,7 @@ getPackage() {
             echo "  following commands may need to be run manually."
             echo "============================================================"
             echo
-            echo "  sudo cp $ALIAS_NAME$suffix $BINLOCATION/$ALIAS_NAME"       
+            echo "  sudo cp $ALIAS_NAME$suffix $BINLOCATION/$ALIAS_NAME"
             echo
 
         else
@@ -132,25 +153,25 @@ getPackage() {
 
             if [ ! -w "$BINLOCATION/$ALIAS_NAME" ] && [ -f "$BINLOCATION/$ALIAS_NAME" ]; then
 
-            echo
-            echo "================================================================"
-            echo "  $BINLOCATION/$ALIAS_NAME already exists and is not writeable"
-            echo "  by the current user.  Please adjust the binary ownership"
-            echo "  or run sh/bash with sudo." 
-            echo "================================================================"
-            echo
-            exit 1
+                echo
+                echo "================================================================"
+                echo "  $BINLOCATION/$ALIAS_NAME already exists and is not writeable"
+                echo "  by the current user.  Please adjust the binary ownership"
+                echo "  or run sh/bash with sudo."
+                echo "================================================================"
+                echo
+                exit 1
 
             fi
 
-            mv $targetFile $BINLOCATION/$ALIAS_NAME
-        
+            mv $binary_file $BINLOCATION/$ALIAS_NAME
+
             if [ "$?" = "0" ]; then
                 echo "New version of $ALIAS_NAME installed to $BINLOCATION"
             fi
 
-            if [ -e $targetFile ]; then
-                rm $targetFile
+            if [ -e $binary_file ]; then
+                rm $binary_file
             fi
 
             ${SUCCESS_CMD}
@@ -158,5 +179,9 @@ getPackage() {
     fi
 }
 
-hasCli
-getPackage
+if ! is_command curl; then
+    echo "You need curl to use this script."
+    exit 1
+fi
+
+get_package
