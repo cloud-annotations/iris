@@ -517,6 +517,9 @@ const AppBar = ({
           </div>
         </div>
       </div>
+      <div className={styles.train}>
+        <div className={styles.trainText}>Train model</div>
+      </div>
       <div className={styles.notification}>
         <div className={styles.notificationTitle}>
           Bucket not bound to training service
