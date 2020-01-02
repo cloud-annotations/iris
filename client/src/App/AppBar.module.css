@@ -175,8 +175,38 @@
 }
 
 .toggle {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.notification {
   margin-left: auto;
   margin-right: 20px;
+  display: flex;
+  height: 48px;
+  background-color: #393939;
+  border-left: 3px solid #f1c21b;
+  align-items: center;
+
+  font-size: 14px;
+}
+
+.notificationTitle {
+  font-weight: 600;
+  letter-spacing: 0.16px;
+  color: white;
+  margin: 0 16px;
+}
+
+.notificationAction {
+  color: #78a9ff;
+  padding: 6px 19px;
+  cursor: pointer;
+  margin-left: 25px;
+}
+
+.notificationAction:hover {
+  text-decoration: underline;
 }
 
 .profile {

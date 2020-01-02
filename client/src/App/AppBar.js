@@ -517,6 +517,12 @@ const AppBar = ({
           </div>
         </div>
       </div>
+      <div className={styles.notification}>
+        <div className={styles.notificationTitle}>
+          Bucket not bound to training service
+        </div>
+        <div className={styles.notificationAction}>Bind</div>
+      </div>
       <Toggle
         className={styles.toggle}
         checked={darkModeToggle}
