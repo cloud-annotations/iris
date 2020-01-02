@@ -3,9 +3,11 @@
 # nslookup -type=TXT _acme-challenge.annotations.ai
 
 # run this script, then:
+# ./generate-secret.sh 
 
+# ibmcloud api https://cloud.ibm.com
 # ibmcloud login -sso
-# ibmcloud ks cluster-config annotations
+# ibmcloud ks cluster config annotations
 # export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/annotations/kube-config-wdc04-annotations.yml"
 # kl apply -f secret.yaml
 
