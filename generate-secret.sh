@@ -11,7 +11,7 @@
 # export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/annotations/kube-config-wdc04-annotations.yml"
 # kl apply -f secret.yaml
 
-cert=$(sudo openssl base64 -in /etc/letsencrypt/live/annotations.ai/cert.pem)
+cert=$(sudo openssl base64 -in /etc/letsencrypt/live/annotations.ai/fullchain.pem)
 key=$(sudo openssl base64 -in /etc/letsencrypt/live/annotations.ai/privkey.pem)
 
 stripped_cert=$(tr -d '\n' <<< "$cert")
