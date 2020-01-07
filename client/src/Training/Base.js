@@ -101,15 +101,17 @@ const Base = ({ resources, activeResource }) => {
       const options = {
         method: 'GET',
         headers: {
-          'ML-Instance-ID': activeResource
+          'ML-Instance-ID': activeResourceInfo.guid
         }
       }
 
       fetch(url, options)
         .then(res => res.json())
-        .then(json => console.log(json))
-      // setModelList(theList)
-      // setActiveModel(theList[0].theID)
+        .then(json => {
+          console.log(json)
+          setModelList(json.resources)
+          setActiveModel(json.resources[0].metadata.guid)
+        })
     }
   }, [activeResource, resources])
 
@@ -135,15 +137,15 @@ const Base = ({ resources, activeResource }) => {
       >
         {modelList.map(item => (
           <div
-            key={item.theID}
-            onClick={handleModelChosen(item.theID)}
+            key={item.metadata.guid}
+            onClick={handleModelChosen(item.metadata.guid)}
             className={
-              item.theID === activeModel
+              item.metadata.guid === activeModel
                 ? styles.listItemActive
                 : styles.listItem
             }
           >
-            <div className={styles.listItemText}>{item.theID}</div>
+            <div className={styles.listItemText}>{item.metadata.guid}</div>
           </div>
         ))}
       </div>
