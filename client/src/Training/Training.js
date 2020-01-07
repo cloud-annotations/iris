@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react'
 
-import logs from './training-log.txt'
 import COS from 'api/COSv2'
 import { endpointForLocationConstraint } from 'endpoints'
 
@@ -174,7 +173,6 @@ const Training = ({ model }) => {
             Key: `${model_location}/training-log.txt`
           })
           .then(txt => {
-            console.log(txt)
             const lossRegex = /^INFO:tensorflow:loss = ([0-9]+[.][0-9]+), step = ([0-9]*)/gm
             const matches = getMatches(txt, lossRegex)
             const loss = matches[1].map(Number.parseFloat)
@@ -186,32 +184,20 @@ const Training = ({ model }) => {
         // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       }
     }
-
-    // parse regex
-    // eventually open a socket for live updates
-    fetch(logs)
-      .then(res => res.text())
-      .then(txt => {
-        const lossRegex = /^INFO:tensorflow:loss = ([0-9]+[.][0-9]+), step = ([0-9]*)/gm
-        const matches = getMatches(txt, lossRegex)
-        const filtered = matches[1].map(Number.parseFloat)
-        // .filter((_, i) => !(i % 0))
-        const filteredLabels = matches[2].map(m => Number.parseInt(m, 10))
-        // .filter((_, i) => !(i % 0))
-        setData(filtered)
-        setSmoothData(smoothDataset(filtered))
-        setLabels(filteredLabels)
-      })
   }, [model])
 
   const totalStepsRegex = /\.\/start\.sh (\d*)$/
   const trainingCommand =
     model && model.entity.model_definition.execution.command
-  const currentStep = labels[labels.length - 1] + 1
+  const currentStep = labels.length > 0 ? labels[labels.length - 1] + 1 : 0
   const matches = totalStepsRegex.exec(trainingCommand)
   const totalSteps = Number.parseInt(matches && matches[1], 10)
   const percentComplete =
     totalSteps > 0 ? Number.parseInt((currentStep / totalSteps) * 100, 10) : 100
+
+  const projectName = model ? model.entity.model_definition.name : 'loading...'
+  const modelID = model ? model.metadata.guid : 'loading...'
+  const modelStatus = model ? model.entity.status.state : 'loading...'
 
   return (
     <>
@@ -230,7 +216,7 @@ const Training = ({ model }) => {
                 marginBottom: '8px'
               }}
             >
-              TODO thumbs-up-down
+              {projectName}
             </div>
             <div
               style={{
@@ -239,67 +225,6 @@ const Training = ({ model }) => {
                 color: 'var(--detailText)'
               }}
             >
-              {/* <span
-              style={{
-                fontSize: '12px',
-                fontWeight: '400',
-                lineHeight: '1rem',
-                letterSpacing: '.32px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                padding: '0 8px',
-                height: '24px',
-                maxWidth: '100%',
-                margin: '0 8px 0 0',
-                borderRadius: '15px',
-                backgroundColor: '#fc5b57',
-                color: '#97040c'
-                // backgroundColor: 'hsl(357, 100%, 15%)',
-                // color: 'hsl(357, 75%, 67%)'
-              }}
-            >
-              failed
-            </span>
-            <span
-              style={{
-                fontSize: '12px',
-                fontWeight: '400',
-                lineHeight: '1rem',
-                letterSpacing: '.32px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                padding: '0 8px',
-                height: '24px',
-                maxWidth: '100%',
-                margin: '0 8px 0 0',
-                borderRadius: '15px',
-                backgroundColor: 'hsl(0, 0%, 10%)',
-                color: 'hsl(0, 0%, 67%)'
-              }}
-            >
-              pending
-            </span>
-            <span
-              style={{
-                fontSize: '12px',
-                fontWeight: '400',
-                lineHeight: '1rem',
-                letterSpacing: '.32px',
-                display: 'inline-flex',
-                alignItems: 'center',
-                padding: '0 8px',
-                height: '24px',
-                maxWidth: '100%',
-                margin: '0 8px 0 0',
-                borderRadius: '15px',
-                // backgroundColor: 'hsl(0, 0%, 10%)',
-                // color: 'hsl(0, 0%, 67%)'
-                backgroundColor: '#c0c0c0',
-                color: '#434343'
-              }}
-            >
-              running
-            </span> */}
               <span
                 style={{
                   fontSize: '12px',
@@ -318,11 +243,19 @@ const Training = ({ model }) => {
                   userSelect: 'none'
                   // backgroundColor: 'hsl(136, 100%, 10%)',
                   // color: 'hsl(138, 75%, 67%)'
+                  // backgroundColor: 'hsl(0, 0%, 10%)',
+                  // color: 'hsl(0, 0%, 67%)'
+                  // backgroundColor: '#c0c0c0',
+                  // color: '#434343'
+                  // backgroundColor: '#fc5b57',
+                  // color: '#97040c'
+                  // backgroundColor: 'hsl(357, 100%, 15%)',
+                  // color: 'hsl(357, 75%, 67%)'
                 }}
               >
-                TODO success
+                {modelStatus}
               </span>
-              TODO model-l438jxim
+              {modelID}
             </div>
           </div>
           <div
