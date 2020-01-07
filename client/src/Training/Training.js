@@ -3,6 +3,18 @@ import React, { useRef, useState, useEffect } from 'react'
 import COS from 'api/COSv2'
 import { endpointForLocationConstraint } from 'endpoints'
 
+import styles from './Training.module.css'
+
+const StatusTag = ({ status }) => {
+  if (status === 'completed') {
+    return <span className={styles.tagSuccess}>{status}</span>
+  }
+  if (status === 'error' || status === 'failed' || status === 'canceled') {
+    return <span className={styles.tagError}>{status}</span>
+  }
+  return <span className={styles.tagNeutral}>{status}</span>
+}
+
 const smoothDataset = (data, smoothingWeight = 0.6) => {
   // 1st-order IIR low-pass filter to attenuate the higher-
   // frequency components of the time-series.
@@ -53,8 +65,6 @@ const getMatches = (string, regex) => {
 }
 
 const Training = ({ model }) => {
-  console.log(model)
-
   const [data, setData] = useState([])
   const [smoothData, setSmoothData] = useState([])
   const [labels, setLabels] = useState([])
@@ -181,9 +191,14 @@ const Training = ({ model }) => {
             setSmoothData(smoothDataset(loss))
             setLabels(steps)
           })
+        return
         // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       }
     }
+
+    setData([])
+    setSmoothData([])
+    setLabels([])
   }, [model])
 
   const totalStepsRegex = /\.\/start\.sh (\d*)$/
@@ -225,36 +240,7 @@ const Training = ({ model }) => {
                 color: 'var(--detailText)'
               }}
             >
-              <span
-                style={{
-                  fontSize: '12px',
-                  fontWeight: '400',
-                  lineHeight: '1rem',
-                  letterSpacing: '.32px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  padding: '0 8px',
-                  height: '24px',
-                  maxWidth: '100%',
-                  margin: '0 8px 0 0',
-                  borderRadius: '15px',
-                  backgroundColor: '#57c038',
-                  color: '#085a0a',
-                  userSelect: 'none'
-                  // backgroundColor: 'hsl(136, 100%, 10%)',
-                  // color: 'hsl(138, 75%, 67%)'
-                  // backgroundColor: 'hsl(0, 0%, 10%)',
-                  // color: 'hsl(0, 0%, 67%)'
-                  // backgroundColor: '#c0c0c0',
-                  // color: '#434343'
-                  // backgroundColor: '#fc5b57',
-                  // color: '#97040c'
-                  // backgroundColor: 'hsl(357, 100%, 15%)',
-                  // color: 'hsl(357, 75%, 67%)'
-                }}
-              >
-                {modelStatus}
-              </span>
+              <StatusTag status={modelStatus} />
               {modelID}
             </div>
           </div>

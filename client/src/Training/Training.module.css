@@ -1,0 +1,32 @@
+.tag {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1rem;
+  letter-spacing: 0.32px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 24px;
+  max-width: 100%;
+  margin: 0 8px 0 0;
+  border-radius: 15px;
+  user-select: none;
+}
+
+.tagSuccess {
+  composes: tag;
+  background-color: #57c038;
+  color: #085a0a;
+}
+
+.tagNeutral {
+  composes: tag;
+  background-color: #c0c0c0;
+  color: #434343;
+}
+
+.tagError {
+  composes: tag;
+  background-color: #fc5b57;
+  color: #97040c;
+}
