@@ -89,21 +89,23 @@ const TitleBar = connect(mapStateToProps)(
 
 const Base = ({ resources, activeResource }) => {
   useEffect(() => {
-    const activeResourceInfo = resources.find(r => r.id === activeResource)
+    if (activeResource && resources.length > 0) {
+      const activeResourceInfo = resources.find(r => r.id === activeResource)
 
-    console.log(activeResourceInfo)
+      console.log(activeResourceInfo)
 
-    const url = `/api/proxy/${activeResourceInfo.RegionID}.ml.cloud.ibm.com/v3/models`
-    const options = {
-      method: 'GET',
-      headers: {
-        'ML-Instance-ID': activeResource
+      const url = `/api/proxy/${activeResourceInfo.RegionID}.ml.cloud.ibm.com/v3/models`
+      const options = {
+        method: 'GET',
+        headers: {
+          'ML-Instance-ID': activeResource
+        }
       }
-    }
 
-    fetch(url, options)
-      .then(res => res.json())
-      .then(json => console.log(json))
+      fetch(url, options)
+        .then(res => res.json())
+        .then(json => console.log(json))
+    }
   }, [activeResource, resources])
 
   return (
