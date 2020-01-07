@@ -49,6 +49,7 @@
   border-top: 1px solid var(--highlight);
   display: flex;
   align-items: center;
+  border-left: 4px solid transparent;
 }
 
 .listItem {
@@ -62,7 +63,7 @@
 }
 
 .listItemText {
-  padding-left: 24px;
+  padding-left: 20px;
   color: var(--secondaryText);
   font-size: 14px;
 }

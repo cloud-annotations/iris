@@ -51,7 +51,9 @@ const getMatches = (string, regex) => {
   return matches
 }
 
-const Training = () => {
+const Training = ({ model }) => {
+  console.log(model)
+
   const [data, setData] = useState([])
   const [smoothData, setSmoothData] = useState([])
   const [labels, setLabels] = useState([])

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import Training from './Training'
 import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
@@ -88,13 +88,16 @@ const TitleBar = connect(mapStateToProps)(
 )
 
 const Base = ({ resources, activeResource }) => {
+  const [modelList, setModelList] = useState([])
+  const [activeModel, setActiveModel] = useState(undefined)
+
   useEffect(() => {
     if (activeResource && resources.length > 0) {
       const activeResourceInfo = resources.find(r => r.id === activeResource)
 
       console.log(activeResourceInfo)
 
-      const url = `/api/proxy/${activeResourceInfo.RegionID}.ml.cloud.ibm.com/v3/models`
+      const url = `/api/proxy/${activeResourceInfo.region_id}.ml.cloud.ibm.com/v3/models`
       const options = {
         method: 'GET',
         headers: {
@@ -105,8 +108,17 @@ const Base = ({ resources, activeResource }) => {
       fetch(url, options)
         .then(res => res.json())
         .then(json => console.log(json))
+      // setModelList(theList)
+      // setActiveModel(theList[0].theID)
     }
   }, [activeResource, resources])
+
+  const handleModelChosen = useCallback(
+    modelID => () => {
+      setActiveModel(modelID)
+    },
+    []
+  )
 
   return (
     <div className={styles.wrapper}>
@@ -121,21 +133,19 @@ const Base = ({ resources, activeResource }) => {
           borderRight: '1px solid var(--border)'
         }}
       >
-        <div className={styles.listItem}>
-          <div className={styles.listItemText}>model-id</div>
-        </div>
-        <div className={styles.listItemActive}>
-          <div className={styles.listItemText}>model-id</div>
-        </div>
-        <div className={styles.listItem}>
-          <div className={styles.listItemText}>model-id</div>
-        </div>
-        <div className={styles.listItem}>
-          <div className={styles.listItemText}>model-id</div>
-        </div>
-        <div className={styles.listItem}>
-          <div className={styles.listItemText}>model-id</div>
-        </div>
+        {modelList.map(item => (
+          <div
+            key={item.theID}
+            onClick={handleModelChosen(item.theID)}
+            className={
+              item.theID === activeModel
+                ? styles.listItemActive
+                : styles.listItem
+            }
+          >
+            <div className={styles.listItemText}>{item.theID}</div>
+          </div>
+        ))}
       </div>
       <div
         style={{
@@ -144,7 +154,7 @@ const Base = ({ resources, activeResource }) => {
           width: `calc(100% - ${PANEL_WIDTH})`
         }}
       >
-        <Training />
+        <Training model={activeModel} />
       </div>
     </div>
   )
