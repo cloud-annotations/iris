@@ -95,8 +95,6 @@ const Base = ({ resources, activeResource }) => {
     if (activeResource && resources.length > 0) {
       const activeResourceInfo = resources.find(r => r.id === activeResource)
 
-      console.log(activeResourceInfo)
-
       const url = `/api/proxy/${activeResourceInfo.region_id}.ml.cloud.ibm.com/v3/models`
       const options = {
         method: 'GET',
@@ -110,14 +108,14 @@ const Base = ({ resources, activeResource }) => {
         .then(json => {
           console.log(json)
           setModelList(json.resources)
-          setActiveModel(json.resources[0].metadata.guid)
+          setActiveModel(json.resources[0])
         })
     }
   }, [activeResource, resources])
 
   const handleModelChosen = useCallback(
-    modelID => () => {
-      setActiveModel(modelID)
+    model => () => {
+      setActiveModel(model)
     },
     []
   )
@@ -138,9 +136,9 @@ const Base = ({ resources, activeResource }) => {
         {modelList.map(item => (
           <div
             key={item.metadata.guid}
-            onClick={handleModelChosen(item.metadata.guid)}
+            onClick={handleModelChosen(item)}
             className={
-              item.metadata.guid === activeModel
+              item.metadata.guid === activeModel.metadata.guid
                 ? styles.listItemActive
                 : styles.listItem
             }

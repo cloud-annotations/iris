@@ -22,6 +22,9 @@ const blobFetch = async (url, options) => {
   if (url.endsWith('.json')) {
     return res.json()
   }
+  if (url.endsWith('.txt')) {
+    return res.text()
+  }
   return res.blob()
 }
 

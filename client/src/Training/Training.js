@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react'
 
 import logs from './training-log.txt'
+import COS from 'api/COSv2'
+import { endpointForLocationConstraint } from 'endpoints'
 
 const smoothDataset = (data, smoothingWeight = 0.6) => {
   // 1st-order IIR low-pass filter to attenuate the higher-
@@ -161,6 +163,25 @@ const Training = ({ model }) => {
   }, [data, labels, smoothData])
 
   useEffect(() => {
+    const {
+      bucket,
+      model_location
+    } = model.entity.training_results_reference.location
+    if (model_location) {
+      // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      new COS({ endpoint: endpointForLocationConstraint('us-standard') })
+        .getObject({
+          Bucket: bucket,
+          Key: `${model_location}/training-log.txt`
+        })
+        .then(txt => {
+          console.log(txt)
+        })
+      // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    }
+
+    // parse regex
+    // eventually open a socket for live updates
     fetch(logs)
       .then(res => res.text())
       .then(txt => {
