@@ -42,3 +42,31 @@
   font-weight: 400;
   margin: 0 8px 0 8px;
 }
+
+.listItemBase {
+  height: 48px;
+  color: var(--secondaryText);
+  border-top: 1px solid var(--highlight);
+  display: flex;
+  align-items: center;
+}
+
+.listItem {
+  composes: listItemBase;
+}
+
+.listItemActive {
+  composes: listItemBase;
+  background-color: var(--highlight);
+  border-left: 4px solid var(--blue);
+}
+
+.listItemText {
+  padding-left: 24px;
+  color: var(--secondaryText);
+  font-size: 14px;
+}
+
+.listItem:hover {
+  background-color: var(--highlight);
+}

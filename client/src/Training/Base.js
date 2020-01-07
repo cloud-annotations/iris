@@ -95,12 +95,27 @@ const Base = () => {
         style={{
           position: 'absolute',
           width: PANEL_WIDTH,
-          top: '0',
+          top: '64px',
           bottom: '0',
-          background: 'var(--secondaryBg)'
+          background: 'var(--secondaryBg)',
+          borderRight: '1px solid var(--border)'
         }}
       >
-        <div>model-id</div>
+        <div className={styles.listItem}>
+          <div className={styles.listItemText}>model-id</div>
+        </div>
+        <div className={styles.listItemActive}>
+          <div className={styles.listItemText}>model-id</div>
+        </div>
+        <div className={styles.listItem}>
+          <div className={styles.listItemText}>model-id</div>
+        </div>
+        <div className={styles.listItem}>
+          <div className={styles.listItemText}>model-id</div>
+        </div>
+        <div className={styles.listItem}>
+          <div className={styles.listItemText}>model-id</div>
+        </div>
       </div>
       <div
         style={{

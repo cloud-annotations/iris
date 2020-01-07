@@ -48,7 +48,10 @@ body.dark {
   --secondaryText: rgba(255, 255, 255, 0.87);
   --detailText: rgba(255, 255, 255, 0.53);
   --disabledText: rgba(255, 255, 255, 0.2);
+  --ultraDim: rgba(255, 255, 255, 0.08);
   --highlight: #26292a;
+
+  --progressBg: rgba(255, 255, 255, 0.53);
 }
 
 body.light {
@@ -89,7 +92,10 @@ body.light {
   --secondaryText: rgba(0, 0, 0, 0.87);
   --detailText: rgba(0, 0, 0, 0.53);
   --disabledText: rgba(0, 0, 0, 0.2);
+  --ultraDim: rgba(0, 0, 0, 0.08);
   --highlight: #eef4fc;
+
+  --progressBg: rgb(224, 224, 224);
 }
 
 * {

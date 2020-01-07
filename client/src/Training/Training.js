@@ -2,9 +2,6 @@ import React, { useRef, useState, useEffect } from 'react'
 
 import logs from './training-log.txt'
 
-const brightWhite = 'rgba(255,255,255,0.57)'
-const dimWhite = 'rgba(255,255,255,0.08)'
-
 const smoothDataset = (data, smoothingWeight = 0.6) => {
   // 1st-order IIR low-pass filter to attenuate the higher-
   // frequency components of the time-series.
@@ -61,6 +58,23 @@ const Training = () => {
   const lossGraphCanvas = useRef()
 
   useEffect(() => {
+    //'rgba(255,255,255,0.57)'
+    const brightWhite = getComputedStyle(document.body).getPropertyValue(
+      '--detailText'
+    )
+    //'rgba(255,255,255,0.08)'
+    const dimWhite = getComputedStyle(document.body).getPropertyValue(
+      '--ultraDim'
+    )
+
+    const unSmoothedColor = getComputedStyle(document.body).getPropertyValue(
+      '--disabledText'
+    )
+
+    const smoothedColor = getComputedStyle(document.body).getPropertyValue(
+      '--blue'
+    )
+
     if (lossGraphCanvas.current) {
       window.Chart.defaults.fontFamily =
         "'ibm-plex-sans', Helvetica Neue, Arial, sans-serif"
@@ -83,8 +97,8 @@ const Training = () => {
             },
             {
               label: 'Smoothed',
-              backgroundColor: '#0062ff',
-              borderColor: '#0062ff',
+              backgroundColor: smoothedColor,
+              borderColor: smoothedColor,
               pointRadius: 0,
               data: smoothData,
               fill: false
@@ -183,7 +197,7 @@ const Training = () => {
               style={{
                 fontSize: '14px',
                 fontWeight: 500,
-                color: brightWhite
+                color: 'var(--detailText)'
               }}
             >
               {/* <span
@@ -321,7 +335,7 @@ const Training = () => {
             style={{
               fontSize: '14px',
               fontWeight: 500,
-              color: '#dddddd',
+              color: 'var(--secondaryText)',
               margin: '8px 0',
               display: 'flex'
             }}
@@ -340,7 +354,7 @@ const Training = () => {
               position: 'relative',
               width: '100%',
               height: '2px',
-              background: brightWhite
+              background: 'var(--progressBg)'
             }}
           >
             <div
@@ -348,7 +362,7 @@ const Training = () => {
                 position: 'absolute',
                 width: '10%',
                 height: '100%',
-                background: '#0062ff'
+                background: 'var(--blue)'
               }}
             />
           </div>
