@@ -1,0 +1,44 @@
+.wrapper {
+  position: fixed;
+  /* top: 64px; */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: 64px;
+  /* z-index: -1; */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.titleBar {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  /* box-shadow: 0 20px 20px 0 var(--bg); */
+  box-shadow: 0 1px 0px 0 var(--appBarShadow);
+  background-color: var(--bg);
+  background-color: var(--appBar);
+}
+
+.titlePrefix {
+  font-weight: 400;
+}
+
+.title {
+  margin-left: 32px;
+  margin-right: auto;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.breadCrumb {
+  color: var(--detailText);
+  font-weight: 400;
+  margin: 0 8px 0 8px;
+}

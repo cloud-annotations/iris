@@ -522,9 +522,9 @@ const AppBar = ({
       </div>
       <div className={styles.notification}>
         <div className={styles.notificationTitle}>
-          Bucket not bound to training service
+          No Watson Machine Learning instance available
         </div>
-        <div className={styles.notificationAction}>Bind</div>
+        <div className={styles.notificationAction}>Create</div>
       </div>
       <Toggle
         className={styles.toggle}
