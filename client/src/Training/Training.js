@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useCallback } from 'react'
 
 import COS from 'api/COSv2'
 import { endpointForLocationConstraint } from 'endpoints'
@@ -65,6 +65,7 @@ const getMatches = (string, regex) => {
 }
 
 const Training = ({ model }) => {
+  const [useLogarithmicScale, setUseLogarithmicScale] = useState(false)
   const [data, setData] = useState([])
   const [smoothData, setSmoothData] = useState([])
   const [labels, setLabels] = useState([])
@@ -141,7 +142,7 @@ const Training = ({ model }) => {
             },
             y: {
               axis: 'y',
-              // type: 'logarithmic',
+              type: useLogarithmicScale ? 'logarithmic' : 'linear',
               gridLines: {
                 drawBorder: true,
                 borderColor: brightWhite,
@@ -162,7 +163,7 @@ const Training = ({ model }) => {
         }
       })
     }
-  }, [data, labels, smoothData])
+  }, [data, labels, smoothData, useLogarithmicScale])
 
   useEffect(() => {
     if (
@@ -185,11 +186,17 @@ const Training = ({ model }) => {
           .then(txt => {
             const lossRegex = /^INFO:tensorflow:loss = ([0-9]+[.][0-9]+), step = ([0-9]*)/gm
             const matches = getMatches(txt, lossRegex)
-            const loss = matches[1].map(Number.parseFloat)
-            const steps = matches[2].map(m => Number.parseInt(m, 10))
-            setData(loss)
-            setSmoothData(smoothDataset(loss))
-            setLabels(steps)
+            if (matches.length >= 3) {
+              const loss = matches[1].map(Number.parseFloat)
+              const steps = matches[2].map(m => Number.parseInt(m, 10))
+              setData(loss)
+              setSmoothData(smoothDataset(loss))
+              setLabels(steps)
+            } else {
+              setData([])
+              setSmoothData([])
+              setLabels([])
+            }
           })
         return
         // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -200,6 +207,10 @@ const Training = ({ model }) => {
     setSmoothData([])
     setLabels([])
   }, [model])
+
+  const handleToggleScale = useCallback(() => {
+    setUseLogarithmicScale(previous => !previous)
+  }, [])
 
   const totalStepsRegex = /\.\/start\.sh (\d*)$/
   const trainingCommand =
@@ -287,7 +298,12 @@ const Training = ({ model }) => {
             </svg>
           </div>
         </div>
-        <canvas ref={lossGraphCanvas} width="100" height="30" />
+        <canvas
+          onClick={handleToggleScale}
+          ref={lossGraphCanvas}
+          width="100"
+          height="30"
+        />
         <div style={{ margin: '48px 16px 0 16px' }}>
           <div
             style={{
