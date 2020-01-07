@@ -141,6 +141,7 @@ const Base = ({ resources, activeResource }) => {
             key={item.metadata.guid}
             onClick={handleModelChosen(item)}
             className={
+              activeModel !== undefined &&
               item.metadata.guid === activeModel.metadata.guid
                 ? styles.listItemActive
                 : styles.listItem
