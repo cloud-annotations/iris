@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import Training from './Training'
 import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
 import { setActiveAccount } from 'redux/accounts'
-import { setActiveResource } from 'redux/resources'
+import { setActiveWMLResource } from 'redux/wmlResources'
 
 import styles from './TitleBar.module.css'
 
@@ -44,7 +44,7 @@ const TitleBar = connect(mapStateToProps)(
 
     const handleResourceChosen = useCallback(
       item => {
-        dispatch(setActiveResource(item))
+        dispatch(setActiveWMLResource(item))
       },
       [dispatch]
     )
