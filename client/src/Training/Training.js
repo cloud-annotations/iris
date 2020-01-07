@@ -163,21 +163,28 @@ const Training = ({ model }) => {
   }, [data, labels, smoothData])
 
   useEffect(() => {
-    const {
-      bucket,
-      model_location
-    } = model.entity.training_results_reference.location
-    if (model_location) {
-      // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      new COS({ endpoint: endpointForLocationConstraint('us-standard') })
-        .getObject({
-          Bucket: bucket,
-          Key: `${model_location}/training-log.txt`
-        })
-        .then(txt => {
-          console.log(txt)
-        })
-      // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if (
+      model &&
+      model.entity &&
+      model.entity.training_results_reference &&
+      model.entity.training_results_reference.location
+    ) {
+      const {
+        bucket,
+        model_location
+      } = model.entity.training_results_reference.location
+      if (model_location && bucket) {
+        // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        new COS({ endpoint: endpointForLocationConstraint('us-standard') })
+          .getObject({
+            Bucket: bucket,
+            Key: `${model_location}/training-log.txt`
+          })
+          .then(txt => {
+            console.log(txt)
+          })
+        // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      }
     }
 
     // parse regex
