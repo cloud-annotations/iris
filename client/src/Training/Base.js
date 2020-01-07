@@ -129,6 +129,7 @@ const Base = ({ resources, activeResource }) => {
           width: PANEL_WIDTH,
           top: '64px',
           bottom: '0',
+          overflow: 'scroll',
           background: 'var(--secondaryBg)',
           borderRight: '1px solid var(--border)'
         }}
