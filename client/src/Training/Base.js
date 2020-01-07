@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect } from 'react'
 import { connect } from 'react-redux'
 import Training from './Training'
 import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
@@ -18,8 +18,8 @@ const accountNameForAccount = account => {
 }
 
 const mapStateToProps = state => ({
-  resources: state.resources.resources,
-  activeResource: state.resources.activeResource,
+  resources: state.wmlResources.resources,
+  activeResource: state.wmlResources.activeResource,
   accounts: state.accounts.accounts,
   activeAccount: state.accounts.activeAccount,
   buckets: state.buckets,
@@ -87,7 +87,25 @@ const TitleBar = connect(mapStateToProps)(
   }
 )
 
-const Base = () => {
+const Base = ({ resources, activeResource }) => {
+  useEffect(() => {
+    const activeResourceInfo = resources.find(r => r.id === activeResource)
+
+    console.log(activeResourceInfo)
+
+    const url = `/api/proxy/${activeResourceInfo.RegionID}.ml.cloud.ibm.com/v3/models`
+    const options = {
+      method: 'GET',
+      headers: {
+        'ML-Instance-ID': activeResource
+      }
+    }
+
+    fetch(url, options)
+      .then(res => res.json())
+      .then(json => console.log(json))
+  }, [activeResource, resources])
+
   return (
     <div className={styles.wrapper}>
       <TitleBar />
@@ -130,4 +148,7 @@ const Base = () => {
   )
 }
 
-export default Base
+export default connect(state => ({
+  resources: state.wmlResources.resources,
+  activeResource: state.wmlResources.activeResource
+}))(Base)

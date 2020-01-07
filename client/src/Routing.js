@@ -14,6 +14,11 @@ import {
   setLoadingResources,
   invalidateResources
 } from 'redux/resources'
+import {
+  setWMLResources,
+  setLoadingWMLResources,
+  invalidateWMLResources
+} from 'redux/wmlResources'
 import { setProfile } from 'redux/profile'
 
 const useCookieCheck = interval => {
@@ -124,6 +129,56 @@ const useResourceList = (dispatch, tokenUpgraded) => {
   }, [dispatch, loadResources, tokenUpgraded])
 }
 
+const recursivelyFetchWMLResources = async (url, oldResources) => {
+  if (url) {
+    const trimmed = url.replace(/^\/v2\/resource_instances/, '')
+    const json = await fetch(`/api/wml-instances${trimmed}`).then(r => r.json())
+    const { next_url, resources } = json
+    return recursivelyFetchWMLResources(next_url, [
+      ...oldResources,
+      ...resources
+    ])
+  }
+  return oldResources
+}
+
+const useWMLResourceList = (dispatch, tokenUpgraded) => {
+  const loadWMLResources = useCallback(
+    (tries = 0) => {
+      fetch('/api/wml-instances')
+        .then(res => res.json())
+        .then(json =>
+          recursivelyFetchWMLResources(json.next_url, json.resources)
+        )
+        .then(allResources => {
+          // Alphabetize the list by name.
+          allResources.sort((a, b) =>
+            a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
+          )
+
+          dispatch(setWMLResources(allResources))
+          dispatch(setLoadingWMLResources(false))
+          if (allResources.length === 0 && tries < 300) {
+            setTimeout(() => {
+              loadWMLResources(tries + 1)
+            }, 10000)
+          }
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    },
+    [dispatch]
+  )
+
+  useEffect(() => {
+    if (tokenUpgraded) {
+      dispatch(invalidateWMLResources(true))
+      loadWMLResources()
+    }
+  }, [dispatch, loadWMLResources, tokenUpgraded])
+}
+
 const useProfile = (dispatch, account) => {
   useEffect(() => {
     if (account) {
@@ -146,6 +201,7 @@ const Routing = ({ dispatch, activeAccount }) => {
   useAccount(dispatch)
   const tokenUpgraded = useUpgradeToken(activeAccount)
   useResourceList(dispatch, tokenUpgraded)
+  useWMLResourceList(dispatch, tokenUpgraded)
   useProfile(dispatch, activeAccount)
 
   return (

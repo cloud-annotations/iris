@@ -336,6 +336,38 @@ app.get('/api/cos-instances', (req, res) => {
   })
 })
 
+app.get('/api/wml-instances', (req, res) => {
+  let url = `https://resource-controller.${baseEndpoint}/v2/resource_instances?resource_id=51c53b72-918f-4869-b834-2d99eb28422a`
+  const { access_token } = req.cookies
+
+  const { next_docid, account_id } = req.query
+
+  if (next_docid) {
+    url += `&next_docid=${next_docid}`
+  }
+
+  if (account_id) {
+    url += `&account_id=${account_id}`
+  }
+
+  const options = {
+    url: url,
+    method: 'GET',
+    headers: {
+      Authorization: 'bearer ' + access_token
+    },
+    json: true
+  }
+
+  request(options, function(error, response, body) {
+    if (isSuccess(error, response)) {
+      res.send(body)
+    } else {
+      res.end()
+    }
+  })
+})
+
 // Proxy any other request.
 app.all('/api/proxy/*', (req, res) => {
   const token = req.cookies.access_token
