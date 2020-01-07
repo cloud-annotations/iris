@@ -62,19 +62,12 @@ const Training = ({ model }) => {
   const lossGraphCanvas = useRef()
 
   useEffect(() => {
-    //'rgba(255,255,255,0.57)'
     const brightWhite = getComputedStyle(document.body).getPropertyValue(
       '--detailText'
     )
-    //'rgba(255,255,255,0.08)'
     const dimWhite = getComputedStyle(document.body).getPropertyValue(
       '--ultraDim'
     )
-
-    const unSmoothedColor = getComputedStyle(document.body).getPropertyValue(
-      '--disabledText'
-    )
-
     const smoothedColor = getComputedStyle(document.body).getPropertyValue(
       '--blue'
     )
@@ -182,6 +175,13 @@ const Training = ({ model }) => {
           })
           .then(txt => {
             console.log(txt)
+            const lossRegex = /^INFO:tensorflow:loss = ([0-9]+[.][0-9]+), step = ([0-9]*)/gm
+            const matches = getMatches(txt, lossRegex)
+            const loss = matches[1].map(Number.parseFloat)
+            const steps = matches[2].map(m => Number.parseInt(m, 10))
+            setData(loss)
+            setSmoothData(smoothDataset(loss))
+            setLabels(steps)
           })
         // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       }
@@ -202,7 +202,16 @@ const Training = ({ model }) => {
         setSmoothData(smoothDataset(filtered))
         setLabels(filteredLabels)
       })
-  }, [])
+  }, [model])
+
+  const totalStepsRegex = /\.\/start\.sh (\d*)$/
+  const trainingCommand =
+    model && model.entity.model_definition.execution.command
+  const currentStep = labels[labels.length - 1] + 1
+  const matches = totalStepsRegex.exec(trainingCommand)
+  const totalSteps = Number.parseInt(matches && matches[1], 10)
+  const percentComplete =
+    totalSteps > 0 ? Number.parseInt((currentStep / totalSteps) * 100, 10) : 100
 
   return (
     <>
@@ -221,7 +230,7 @@ const Training = ({ model }) => {
                 marginBottom: '8px'
               }}
             >
-              thumbs-up-down
+              TODO thumbs-up-down
             </div>
             <div
               style={{
@@ -311,9 +320,9 @@ const Training = ({ model }) => {
                   // color: 'hsl(138, 75%, 67%)'
                 }}
               >
-                success
+                TODO success
               </span>
-              model-l438jxim
+              TODO model-l438jxim
             </div>
           </div>
           <div
@@ -370,13 +379,15 @@ const Training = ({ model }) => {
               display: 'flex'
             }}
           >
-            <div>Step 100 of 1000</div>
+            <div>
+              Step {currentStep} of {totalSteps}
+            </div>
             <div
               style={{
                 marginLeft: 'auto'
               }}
             >
-              ETA 38min
+              TODO ETA 38min
             </div>
           </div>
           <div
@@ -390,7 +401,7 @@ const Training = ({ model }) => {
             <div
               style={{
                 position: 'absolute',
-                width: '10%',
+                width: `${percentComplete}%`,
                 height: '100%',
                 background: 'var(--blue)'
               }}

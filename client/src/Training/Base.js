@@ -108,7 +108,9 @@ const Base = ({ resources, activeResource }) => {
         .then(json => {
           console.log(json)
           setModelList(json.resources)
-          setActiveModel(json.resources[0])
+          if (json.resources.length > 0) {
+            setActiveModel(json.resources[0])
+          }
         })
     }
   }, [activeResource, resources])
