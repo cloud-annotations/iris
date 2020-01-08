@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react'
+import savitzkyGolay from 'ml-savitzky-golay'
 
 import COS from 'api/COSv2'
 import { endpointForLocationConstraint } from 'endpoints'
@@ -19,6 +20,23 @@ const StatusTag = ({ status }) => {
     return <span className={styles.tagTraining}>{status}</span>
   }
   return <span className={styles.tagCanceled}>{status}</span>
+}
+
+const smoothDataset2 = data => {
+  let windowSize = Number.parseInt(data.length / 23)
+  if (windowSize % 2 === 0) {
+    windowSize += 1
+  }
+  windowSize = Math.max(windowSize, 5)
+  windowSize = Math.min(windowSize, 21)
+  const options = {
+    windowSize: windowSize,
+    derivative: 0,
+    polynomial: 1,
+    pad: 'pre'
+  }
+  const smoothed = savitzkyGolay(data, 1, options)
+  return smoothed
 }
 
 const smoothDataset = (data, smoothingWeight = 0.6) => {
@@ -204,7 +222,7 @@ const Training = ({ model }) => {
             setIsLoadingData(false)
             setNoDataAvailable(false)
             setData(loss)
-            setSmoothData(smoothDataset(loss))
+            setSmoothData(smoothDataset2(loss))
             setLabels(steps)
             return
           }
@@ -273,6 +291,40 @@ const Training = ({ model }) => {
           </svg>
         </div>
       </div>
+
+      <div
+        style={{
+          margin: '16px 16px 0 16px',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+      >
+        <div
+          style={{
+            marginLeft: 'auto',
+            width: '14px',
+            height: '3px',
+            marginRight: '8px',
+            background: 'var(--blue)'
+          }}
+        />
+        <div
+          style={{
+            fontSize: '14px',
+            fontWeight: 500,
+            color: 'var(--secondaryText)',
+            margin: '8px 0',
+            display: 'flex'
+          }}
+        >
+          {`loss (${
+            smoothData.length > 0
+              ? smoothData[smoothData.length - 1].toFixed(2)
+              : '?'
+          })`}
+        </div>
+      </div>
+
       {noDataAvailable || isLoadingData ? (
         <div className={styles.graphPlaceholder}>
           <div>{isLoadingData ? 'loading...' : 'No Data Available'}</div>

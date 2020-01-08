@@ -20,6 +20,7 @@
     "intersection-observer": "^0.5.1",
     "jszip": "^3.2.2",
     "localforage": "^1.7.2",
+    "ml-savitzky-golay": "^4.1.0",
     "moment": "^2.24.0",
     "query-string": "^6.8.1",
     "react": "^16.8.6",
