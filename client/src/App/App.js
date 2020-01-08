@@ -135,7 +135,9 @@ const App = ({
         <LegacyApp location={location} bucket={bucket} />
       ) : (
         <AppBarLayout
-          appBar={<AppBar bucket={bucket} profile={profile} />}
+          appBar={
+            <AppBar bucket={bucket} location={location} profile={profile} />
+          }
           content={
             <Dropzone
               disableClick
@@ -175,7 +177,4 @@ const mapDispatchToProps = {
   clearCollection,
   syncAction
 }
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(App)
+export default connect(mapStateToProps, mapDispatchToProps)(App)

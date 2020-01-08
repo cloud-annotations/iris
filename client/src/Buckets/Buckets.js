@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 import { loadBuckets } from 'redux/buckets'
 
 import Table from './TableV2'
@@ -262,9 +263,14 @@ const Buckets = ({
     <div className={styles.wrapper}>
       <div className={styles.titleBar}>
         <div className={styles.title}>
-          <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
-          Annotations
+          <Link to="/" className={styles.linkOverride}>
+            <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
+            Annotations
+          </Link>
         </div>
+        <Link to="/training" className={styles.trainingLink}>
+          Training
+        </Link>
         <DropDown
           active={activeResourceObject && activeResourceObject.name}
           list={resources.map(resource => ({

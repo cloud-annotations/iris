@@ -231,3 +231,29 @@
   color: var(--brightText);
   box-shadow: 0 3px var(--brightText);
 }
+
+.linkOverride {
+  color: var(--brightText);
+  text-decoration: none;
+}
+
+.trainingLink,
+.trainingLink:visited {
+  font-size: 14px;
+  color: var(--brightText);
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+.trainingLink:hover {
+  box-shadow: 0 1px var(--blue);
+}
+
+.trainingLink:active {
+  color: var(--brightText);
+}
+
+.trainingLink:focus {
+  color: var(--brightText);
+  box-shadow: 0 3px var(--brightText);
+}

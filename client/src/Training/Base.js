@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import Training from './Training'
 import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
@@ -28,6 +29,19 @@ const mapStateToProps = state => ({
   buckets: state.buckets,
   profile: state.profile
 })
+
+const StatusListItem = ({ children, status }) => {
+  if (status === 'completed') {
+    return <div className={styles.listItemSuccess}>{children}</div>
+  }
+  if (status === 'error' || status === 'failed') {
+    return <div className={styles.listItemError}>{children}</div>
+  }
+  if (status === 'canceled') {
+    return <div className={styles.listItemCanceled}>{children}</div>
+  }
+  return <div className={styles.listItemTraining}>{children}</div>
+}
 
 const TitleBar = connect(mapStateToProps)(
   ({
@@ -63,11 +77,14 @@ const TitleBar = connect(mapStateToProps)(
     return (
       <div className={styles.titleBar}>
         <div className={styles.title}>
-          <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
-          Annotations
+          <Link to="/" className={styles.linkOverride}>
+            <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
+            Annotations
+          </Link>
           <span className={styles.breadCrumb}>|</span>
           Training
         </div>
+
         <DropDown
           active={activeResourceObject && activeResourceObject.name}
           list={resources.map(resource => ({
@@ -90,47 +107,59 @@ const TitleBar = connect(mapStateToProps)(
   }
 )
 
+const getTrainingRunList = async activeResourceInfo => {
+  const url = `/api/proxy/${activeResourceInfo.region_id}.ml.cloud.ibm.com/v3/models`
+  const options = {
+    method: 'GET',
+    headers: {
+      'ML-Instance-ID': activeResourceInfo.guid
+    }
+  }
+
+  const json = await fetch(url, options).then(res => res.json())
+  const resources = [...json.resources]
+  resources.sort(
+    (a, b) =>
+      new Date(b.entity.status.submitted_at) -
+      new Date(a.entity.status.submitted_at)
+  )
+  return resources
+}
+
 const Base = ({ location: { search }, resources, activeResource }) => {
   const [modelList, setModelList] = useState([])
   const [activeModel, setActiveModel] = useState(undefined)
 
   useEffect(() => {
     const modelId = queryString.parse(search).model
-    const daModel = modelList.find(model => model.metadata.guid === modelId)
-    if (daModel) {
-      setActiveModel(daModel)
-      return
+    if (activeModel === undefined || activeModel.metadata.guid !== modelId) {
+      const daModel = modelList.find(model => model.metadata.guid === modelId)
+      if (daModel) {
+        setActiveModel(daModel)
+        return
+      }
+      if (modelList.length > 0) {
+        globalHistory.push(`/training?model=${modelList[0].metadata.guid}`)
+        return
+      }
+      setActiveModel(undefined)
     }
-    if (modelList.length > 0) {
-      globalHistory.push(`/training?model=${modelList[0].metadata.guid}`)
-      return
-    }
-    setActiveModel(undefined)
-  }, [modelList, search])
+  }, [activeModel, modelList, search])
 
   useEffect(() => {
     if (activeResource && resources.length > 0) {
       const activeResourceInfo = resources.find(r => r.id === activeResource)
 
-      const url = `/api/proxy/${activeResourceInfo.region_id}.ml.cloud.ibm.com/v3/models`
-      const options = {
-        method: 'GET',
-        headers: {
-          'ML-Instance-ID': activeResourceInfo.guid
-        }
-      }
-
-      fetch(url, options)
-        .then(res => res.json())
-        .then(json => {
-          const resources = [...json.resources]
-          resources.sort(
-            (a, b) =>
-              new Date(b.entity.status.submitted_at) -
-              new Date(a.entity.status.submitted_at)
-          )
+      const listRefresh = () => {
+        getTrainingRunList(activeResourceInfo).then(resources => {
           setModelList(resources)
         })
+      }
+
+      listRefresh()
+      // refetch list every 10 seconds.
+      const id = setInterval(listRefresh, 10 * 1000)
+      return () => clearInterval(id)
     }
   }, [activeResource, resources])
 
@@ -166,9 +195,9 @@ const Base = ({ location: { search }, resources, activeResource }) => {
                 : styles.listItem
             }
           >
-            <div className={styles.listItemText}>
+            <StatusListItem status={item.entity.status.state}>
               {item.entity.model_definition.name}
-            </div>
+            </StatusListItem>
           </div>
         ))}
       </div>

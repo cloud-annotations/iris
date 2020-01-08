@@ -248,9 +248,7 @@
   opacity: 0;
 }
 
-.popupWrapper {
-  z-index: 10000;
-
+.popupWrapperBase {
   position: fixed;
   top: 0;
   right: 0;
@@ -259,7 +257,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
 
+.popupWrapperHidden {
+  composes: popupWrapperBase;
+  z-index: -1;
+  visibility: hidden;
+  opacity: 0;
+  background-color: transparent;
+}
+
+.popupWrapper {
+  composes: popupWrapperBase;
+  z-index: 10000;
   visibility: visible;
   opacity: 1;
   background-color: var(--popup-overlay);
@@ -328,6 +338,13 @@
   cursor: pointer;
 }
 
+.popupButtonPrimaryDissabled {
+  composes: popupButtonPrimary;
+  color: var(--dissabledButtonText);
+  background-color: var(--dissabledButton);
+  pointer-events: none;
+}
+
 .popupButtonPrimary:hover {
   background-color: var(--blue-hover);
 }
@@ -339,15 +356,15 @@
 
 .popupFormItem {
   margin-top: 16px;
-  font-size: 0.875rem;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 1.125rem;
+  line-height: 18px;
   letter-spacing: 0.16px;
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
+  margin-bottom: 24px;
 }
 
 .popupSelectLabelWrapper {
@@ -368,14 +385,14 @@
   padding: 0;
   border: 0;
   font-family: inherit;
-  font-size: 0.75rem;
+  font-size: 12px;
   letter-spacing: 0.32px;
-  color: #f4f4f4;
+  color: var(--form-text);
   font-weight: 400;
   display: inline-block;
   vertical-align: initial;
-  margin: 0 0 0.5rem;
-  line-height: 1rem;
+  margin: 0 0 8px;
+  line-height: 16px;
 }
 
 .popupSelectWrapper {
@@ -386,9 +403,9 @@
 }
 
 .popupSelect {
-  font-size: 0.875rem;
+  font-size: 14px;
   font-weight: 400;
-  line-height: 1.125rem;
+  line-height: 18px;
   letter-spacing: 0.16px;
   outline: 2px solid transparent;
   outline-offset: -2px;
@@ -398,8 +415,8 @@
   appearance: none;
   width: 100%;
   padding: 0 16px 0 16px;
-  color: #f4f4f4;
-  background-color: #393939;
+  color: var(--form-text);
+  background-color: var(--form-bg);
   border: none;
   border-bottom: 1px solid #8d8d8d;
   border-radius: 0;
@@ -409,6 +426,6 @@
 .popupSelectIcon {
   fill: var(--select-icon);
   position: absolute;
-  right: 1rem;
+  right: 16px;
   pointer-events: none;
 }

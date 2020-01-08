@@ -85,7 +85,13 @@
   color: #085a0a;
 }
 
-.tagNeutral {
+.tagTraining {
+  composes: tag;
+  background-color: #e5bf3c;
+  color: #7f5910;
+}
+
+.tagCanceled {
   composes: tag;
   background-color: #c0c0c0;
   color: #434343;

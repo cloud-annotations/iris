@@ -14,6 +14,14 @@ body {
 }
 
 body.dark {
+  --success: #42be65;
+  --training: #f1c21b;
+  --canceled: #6f6f6f;
+  --failed: #fa4d56;
+
+  --form-bg: #393939;
+  --form-text: #f4f4f4;
+
   --select-icon: #f4f4f4;
   --popup-bg: #262626;
   --popup-overlay: rgba(38, 38, 38, 0.7);
@@ -59,6 +67,14 @@ body.dark {
 }
 
 body.light {
+  --success: #24a148;
+  --training: #f1c21b;
+  --canceled: #8d8d8d;
+  --failed: #da1e28;
+
+  --form-bg: #ffffff;
+  --form-text: #161616;
+
   --select-icon: #161616;
   --popup-bg: #f4f4f4;
   --popup-overlay: rgba(22, 22, 22, 0.5);

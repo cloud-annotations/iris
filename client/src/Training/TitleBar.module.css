@@ -62,12 +62,37 @@
   border-left: 4px solid var(--blue);
 }
 
-.listItemText {
+.listItemTextBase {
   padding-left: 20px;
-  color: var(--secondaryText);
   font-size: 14px;
+  font-weight: 600;
+}
+
+.listItemSuccess {
+  composes: listItemTextBase;
+  color: var(--success);
+}
+
+.listItemError {
+  composes: listItemTextBase;
+  color: var(--failed);
+}
+
+.listItemCanceled {
+  composes: listItemTextBase;
+  color: var(--canceled);
+}
+
+.listItemTraining {
+  composes: listItemTextBase;
+  color: var(--training);
 }
 
 .listItem:hover {
   background-color: var(--highlight);
+}
+
+.linkOverride {
+  color: var(--brightText);
+  text-decoration: none;
 }

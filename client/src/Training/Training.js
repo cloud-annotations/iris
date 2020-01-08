@@ -9,10 +9,16 @@ const StatusTag = ({ status }) => {
   if (status === 'completed') {
     return <span className={styles.tagSuccess}>{status}</span>
   }
-  if (status === 'error' || status === 'failed' || status === 'canceled') {
+  if (status === 'error' || status === 'failed') {
     return <span className={styles.tagError}>{status}</span>
   }
-  return <span className={styles.tagNeutral}>{status}</span>
+  if (status === 'canceled') {
+    return <span className={styles.tagCanceled}>{status}</span>
+  }
+  if (status === 'running' || status === 'pending') {
+    return <span className={styles.tagTraining}>{status}</span>
+  }
+  return <span className={styles.tagCanceled}>{status}</span>
 }
 
 const smoothDataset = (data, smoothingWeight = 0.6) => {
