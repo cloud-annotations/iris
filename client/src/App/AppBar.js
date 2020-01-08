@@ -741,6 +741,35 @@ const AppBar = ({
                 </div>
               </div>
             </div>
+
+            <div
+              id="trainingruns"
+              className={
+                optionsOpen && lastHoveredOption === 'trainingruns'
+                  ? styles.optionOpen
+                  : styles.option
+              }
+              onClick={handleOptionClick}
+              onMouseEnter={handleOptionHover}
+            >
+              Training runs
+              <div
+                className={
+                  optionsOpen && lastHoveredOption === 'trainingruns'
+                    ? styles.optionCardOpen
+                    : styles.optionCard
+                }
+              >
+                <div
+                  className={styles.listItem}
+                  onClick={() => {
+                    history.push('/training')
+                  }}
+                >
+                  View all
+                </div>
+              </div>
+            </div>
           </div>
           <div className={styles.saved}>
             {saving > 0 ? 'Saving...' : 'Saved'}

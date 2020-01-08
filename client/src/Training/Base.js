@@ -139,7 +139,7 @@ const Base = ({ location: { search }, resources, activeResource }) => {
         return
       }
       if (modelList.length > 0) {
-        globalHistory.push(`/training?model=${modelList[0].metadata.guid}`)
+        globalHistory.replace(`/training?model=${modelList[0].metadata.guid}`)
         return
       }
       setActiveModel(undefined)
@@ -165,7 +165,7 @@ const Base = ({ location: { search }, resources, activeResource }) => {
 
   const handleModelChosen = useCallback(
     model => () => {
-      globalHistory.push(`/training?model=${model.metadata.guid}`)
+      globalHistory.replace(`/training?model=${model.metadata.guid}`)
     },
     []
   )

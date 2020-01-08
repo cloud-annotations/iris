@@ -268,9 +268,9 @@ const Buckets = ({
             Annotations
           </Link>
         </div>
-        <Link to="/training" className={styles.trainingLink}>
+        {/* <Link to="/training" className={styles.trainingLink}>
           Training
-        </Link>
+        </Link> */}
         <DropDown
           active={activeResourceObject && activeResourceObject.name}
           list={resources.map(resource => ({
