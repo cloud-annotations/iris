@@ -247,8 +247,6 @@ const AppBar = ({
   const handleTrainModalPrimary = useCallback(
     async instance => {
       // find or create a binding.
-      console.log(cosResources)
-      console.log(activeCOSResource)
       const cosResourceInfo = cosResources.find(r => r.id === activeCOSResource)
       const credentialsEndpoint =
         '/api/proxy/resource-controller.cloud.ibm.com/v2/resource_keys'
@@ -256,8 +254,6 @@ const AppBar = ({
       const credentialsList = await fetch(listCredentialsEndpoint).then(res =>
         res.json()
       )
-
-      console.log(credentialsList.resources)
 
       let creds
       // create binding if none exists.
@@ -366,8 +362,6 @@ const AppBar = ({
           body: JSON.stringify(trainingRun)
         }
       ).then(res => res.json())
-
-      console.log(resTrainingRun.metadata.guid)
 
       setShowModal(false)
       history.push(`/training?model=${resTrainingRun.metadata.guid}`)
@@ -756,12 +750,12 @@ const AppBar = ({
       <div className={styles.train} onClick={handleClickTrain}>
         <div className={styles.trainText}>Train model</div>
       </div>
-      <div className={styles.notification}>
+      {/* <div className={styles.notification}>
         <div className={styles.notificationTitle}>
           No Watson Machine Learning instance available
         </div>
         <div className={styles.notificationAction}>Create</div>
-      </div>
+      </div> */}
       <Toggle
         className={styles.toggle}
         checked={darkModeToggle}
