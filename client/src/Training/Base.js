@@ -5,7 +5,10 @@ import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
 import { setActiveAccount } from 'redux/accounts'
 import { setActiveWMLResource } from 'redux/wmlResources'
 
+import queryString from 'query-string'
+
 import styles from './TitleBar.module.css'
+import globalHistory from 'globalHistory'
 
 const PANEL_WIDTH = '270px'
 
@@ -87,9 +90,23 @@ const TitleBar = connect(mapStateToProps)(
   }
 )
 
-const Base = ({ resources, activeResource }) => {
+const Base = ({ location: { search }, resources, activeResource }) => {
   const [modelList, setModelList] = useState([])
   const [activeModel, setActiveModel] = useState(undefined)
+
+  useEffect(() => {
+    const modelId = queryString.parse(search).model
+    const daModel = modelList.find(model => model.metadata.guid === modelId)
+    if (daModel) {
+      setActiveModel(daModel)
+      return
+    }
+    if (modelList.length > 0) {
+      setActiveModel(modelList[0])
+      return
+    }
+    setActiveModel(undefined)
+  }, [modelList, search])
 
   useEffect(() => {
     if (activeResource && resources.length > 0) {
@@ -113,16 +130,13 @@ const Base = ({ resources, activeResource }) => {
               new Date(a.entity.status.submitted_at)
           )
           setModelList(resources)
-          if (resources.length > 0) {
-            setActiveModel(resources[0])
-          }
         })
     }
   }, [activeResource, resources])
 
   const handleModelChosen = useCallback(
     model => () => {
-      setActiveModel(model)
+      globalHistory.push(`/training?model=${model.metadata.guid}`)
     },
     []
   )
