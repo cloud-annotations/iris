@@ -107,9 +107,15 @@ const Base = ({ resources, activeResource }) => {
         .then(res => res.json())
         .then(json => {
           console.log(json)
-          setModelList(json.resources)
-          if (json.resources.length > 0) {
-            setActiveModel(json.resources[0])
+          const resources = [...json.resources]
+          resources.sort(
+            (a, b) =>
+              new Date(b.entity.status.submitted_at) -
+              new Date(a.entity.status.submitted_at)
+          )
+          setModelList(resources)
+          if (resources.length > 0) {
+            setActiveModel(resources[0])
           }
         })
     }

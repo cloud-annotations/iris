@@ -66,9 +66,14 @@ const getMatches = (string, regex) => {
 
 const Training = ({ model }) => {
   const [useLogarithmicScale, setUseLogarithmicScale] = useState(false)
+
   const [data, setData] = useState([])
   const [smoothData, setSmoothData] = useState([])
   const [labels, setLabels] = useState([])
+
+  const [noDataAvailable, setNoDataAvailable] = useState(false)
+  const [isLoadingData, setIsLoadingData] = useState(true)
+
   const lossGraphCanvas = useRef()
 
   useEffect(() => {
@@ -166,17 +171,23 @@ const Training = ({ model }) => {
   }, [data, labels, smoothData, useLogarithmicScale])
 
   useEffect(() => {
+    setIsLoadingData(true)
+    setData([])
+    setSmoothData([])
+    setLabels([])
     if (
       model &&
       model.entity &&
       model.entity.training_results_reference &&
       model.entity.training_results_reference.location
     ) {
+      setNoDataAvailable(false)
       const {
         bucket,
         model_location
       } = model.entity.training_results_reference.location
       if (model_location && bucket) {
+        setNoDataAvailable(false)
         // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         new COS({ endpoint: endpointForLocationConstraint('us-standard') })
           .getObject({
@@ -184,28 +195,38 @@ const Training = ({ model }) => {
             Key: `${model_location}/training-log.txt`
           })
           .then(txt => {
+            // : Step 40: Cross entropy = 0.464557
             const lossRegex = /^INFO:tensorflow:loss = ([0-9]+[.][0-9]+), step = ([0-9]*)/gm
             const matches = getMatches(txt, lossRegex)
-            if (matches.length >= 3) {
+
+            setIsLoadingData(false)
+            if (Object.keys(matches).length >= 3) {
               const loss = matches[1].map(Number.parseFloat)
               const steps = matches[2].map(m => Number.parseInt(m, 10))
+              setNoDataAvailable(false)
               setData(loss)
               setSmoothData(smoothDataset(loss))
               setLabels(steps)
             } else {
+              setNoDataAvailable(true)
               setData([])
               setSmoothData([])
               setLabels([])
             }
           })
-        return
         // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      } else {
+        setNoDataAvailable(true)
+        setData([])
+        setSmoothData([])
+        setLabels([])
       }
+    } else {
+      setNoDataAvailable(true)
+      setData([])
+      setSmoothData([])
+      setLabels([])
     }
-
-    setData([])
-    setSmoothData([])
-    setLabels([])
   }, [model])
 
   const handleToggleScale = useCallback(() => {
@@ -298,12 +319,27 @@ const Training = ({ model }) => {
             </svg>
           </div>
         </div>
-        <canvas
-          onClick={handleToggleScale}
-          ref={lossGraphCanvas}
-          width="100"
-          height="30"
-        />
+        {noDataAvailable ? (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '223.5px',
+              width: '745px'
+            }}
+          >
+            <div>No Data Available</div>
+          </div>
+        ) : (
+          <canvas
+            onClick={handleToggleScale}
+            ref={lossGraphCanvas}
+            width="100"
+            height="30"
+          />
+        )}
+
         <div style={{ margin: '48px 16px 0 16px' }}>
           <div
             style={{
@@ -315,14 +351,30 @@ const Training = ({ model }) => {
             }}
           >
             <div>
-              Step {currentStep} of {totalSteps}
+              {isLoadingData
+                ? 'loading...'
+                : `Step ${currentStep} of ${totalSteps}`}
             </div>
             <div
               style={{
                 marginLeft: 'auto'
               }}
             >
-              TODO ETA 38min
+              {(() => {
+                switch (modelStatus) {
+                  case 'completed':
+                    return 'Done'
+                  case 'failed':
+                  case 'error':
+                    return 'Failed'
+                  case 'canceled':
+                    return 'Canceled'
+                  case 'loading...':
+                    return 'loading...'
+                  default:
+                    return 'ETA ?min'
+                }
+              })()}
             </div>
           </div>
           <div

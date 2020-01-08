@@ -14,7 +14,7 @@ require('dotenv').config()
 
 app.use(express.static(__dirname + '/public'))
 
-let baseEndpoint = 'test.cloud.ibm.com'
+let baseEndpoint = 'cloud.ibm.com'
 let secure = false
 if (process.env.NODE_ENV === 'production') {
   baseEndpoint = 'cloud.ibm.com'
@@ -169,6 +169,7 @@ const tokenPoking = (
           done(body)
         } else {
           console.error(error)
+          console.error(body)
           res.end()
         }
       })
