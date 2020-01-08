@@ -172,61 +172,52 @@ const Training = ({ model }) => {
 
   useEffect(() => {
     setIsLoadingData(true)
-    setData([])
-    setSmoothData([])
-    setLabels([])
-    if (
-      model &&
-      model.entity &&
-      model.entity.training_results_reference &&
-      model.entity.training_results_reference.location
-    ) {
-      setNoDataAvailable(false)
-      const {
-        bucket,
-        model_location
-      } = model.entity.training_results_reference.location
-      if (model_location && bucket) {
-        setNoDataAvailable(false)
-        // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        new COS({ endpoint: endpointForLocationConstraint('us-standard') })
-          .getObject({
+    const loadData = async () => {
+      try {
+        const {
+          bucket,
+          model_location
+        } = model.entity.training_results_reference.location
+
+        if (model_location && bucket) {
+          // TODO: GET THE REAL ENDPOINT SOMEHOW!
+          const txt = await new COS({
+            endpoint: endpointForLocationConstraint('us-standard')
+          }).getObject({
             Bucket: bucket,
             Key: `${model_location}/training-log.txt`
           })
-          .then(txt => {
-            // : Step 40: Cross entropy = 0.464557
-            const lossRegex = /^INFO:tensorflow:loss = ([0-9]+[.][0-9]+), step = ([0-9]*)/gm
-            const matches = getMatches(txt, lossRegex)
 
+          // : Step 40: Cross entropy = 0.464557
+          const lossRegex = /^INFO:tensorflow:loss = ([0-9]+[.][0-9]+), step = ([0-9]*)/gm
+          const matches = getMatches(txt, lossRegex)
+
+          if (Object.keys(matches).length >= 3) {
+            const loss = matches[1].map(Number.parseFloat)
+            const steps = matches[2].map(m => Number.parseInt(m, 10))
             setIsLoadingData(false)
-            if (Object.keys(matches).length >= 3) {
-              const loss = matches[1].map(Number.parseFloat)
-              const steps = matches[2].map(m => Number.parseInt(m, 10))
-              setNoDataAvailable(false)
-              setData(loss)
-              setSmoothData(smoothDataset(loss))
-              setLabels(steps)
-            } else {
-              setNoDataAvailable(true)
-              setData([])
-              setSmoothData([])
-              setLabels([])
-            }
-          })
-        // TODO: GET THE REAL ENDPOINT SOMEHOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-      } else {
+            setNoDataAvailable(false)
+            setData(loss)
+            setSmoothData(smoothDataset(loss))
+            setLabels(steps)
+            return
+          }
+        }
+
+        setIsLoadingData(false)
+        setNoDataAvailable(true)
+        setData([])
+        setSmoothData([])
+        setLabels([])
+      } catch {
+        // setIsLoadingData(false)
         setNoDataAvailable(true)
         setData([])
         setSmoothData([])
         setLabels([])
       }
-    } else {
-      setNoDataAvailable(true)
-      setData([])
-      setSmoothData([])
-      setLabels([])
     }
+    loadData()
   }, [model])
 
   const handleToggleScale = useCallback(() => {
@@ -236,9 +227,13 @@ const Training = ({ model }) => {
   const totalStepsRegex = /\.\/start\.sh (\d*)$/
   const trainingCommand =
     model && model.entity.model_definition.execution.command
-  const currentStep = labels.length > 0 ? labels[labels.length - 1] + 1 : 0
+  let currentStep = labels.length > 0 ? labels[labels.length - 1] + 1 : 0
+
   const matches = totalStepsRegex.exec(trainingCommand)
   const totalSteps = Number.parseInt(matches && matches[1], 10)
+  if (model && model.entity.status.state === 'completed') {
+    currentStep = totalSteps
+  }
   const percentComplete =
     totalSteps > 0 ? Number.parseInt((currentStep / totalSteps) * 100, 10) : 100
 
@@ -319,7 +314,7 @@ const Training = ({ model }) => {
             </svg>
           </div>
         </div>
-        {noDataAvailable ? (
+        {noDataAvailable || isLoadingData ? (
           <div
             style={{
               display: 'flex',
@@ -329,7 +324,7 @@ const Training = ({ model }) => {
               width: '745px'
             }}
           >
-            <div>No Data Available</div>
+            <div>{isLoadingData ? 'loading...' : 'No Data Available'}</div>
           </div>
         ) : (
           <canvas
@@ -388,7 +383,7 @@ const Training = ({ model }) => {
             <div
               style={{
                 position: 'absolute',
-                width: `${percentComplete}%`,
+                width: `${isLoadingData ? 0 : percentComplete}%`,
                 height: '100%',
                 background: 'var(--blue)'
               }}
