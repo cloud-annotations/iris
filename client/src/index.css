@@ -14,6 +14,10 @@ body {
 }
 
 body.dark {
+  --select-icon: #f4f4f4;
+  --popup-bg: #262626;
+  --popup-overlay: rgba(38, 38, 38, 0.7);
+
   --dissabledButton: rgba(255, 255, 255, 0.12);
   --dissabledButtonText: rgba(255, 255, 255, 0.2);
 
@@ -55,6 +59,10 @@ body.dark {
 }
 
 body.light {
+  --select-icon: #161616;
+  --popup-bg: #f4f4f4;
+  --popup-overlay: rgba(22, 22, 22, 0.5);
+
   --dissabledButton: rgba(0, 0, 0, 0.12);
   --dissabledButtonText: rgba(0, 0, 0, 0.2);
 

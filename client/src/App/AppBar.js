@@ -73,6 +73,57 @@ const zipImages = async (bucket, collection, folder) => {
   )
 }
 
+const PoopUp = connect(state => ({
+  resources: state.wmlResources.resources,
+  activeResource: state.wmlResources.activeResource
+}))(({ resources, activeResource }) => {
+  return (
+    <div className={styles.popupWrapper}>
+      <div className={styles.popup}>
+        <div className={styles.contentWrapper}>
+          <div className={styles.popupTitle}>Start a training run</div>
+          <div className={styles.popupBody}>
+            Training will temporarily connect this bucket to the Watson Machine
+            Learning service. Your images and annotations will be used to create
+            your own personal object detection model.
+          </div>
+          <div className={styles.popupFormItem}>
+            <div className={styles.popupSelectLabelWrapper}>
+              <label for="wml-select" className={styles.popupSelectLabel}>
+                Watson Machine Learning instance
+              </label>
+              <div className={styles.popupSelectWrapper}>
+                <select className={styles.popupSelect} id="wml-select">
+                  {resources.map(r => (
+                    <option value={r.id} selected={r.id === activeResource}>
+                      {r.name}
+                    </option>
+                  ))}
+                </select>
+                <svg
+                  className={styles.popupSelectIcon}
+                  focusable="false"
+                  preserveAspectRatio="xMidYMid meet"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  aria-hidden="true"
+                >
+                  <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className={styles.popupButtons}>
+          <div className={styles.popupButtonSecondary}>Cancel</div>
+          <div className={styles.popupButtonPrimary}>Train</div>
+        </div>
+      </div>
+    </div>
+  )
+})
+
 const AppBar = ({
   bucket,
   profile,
@@ -550,6 +601,7 @@ const AppBar = ({
         onChange={handleToggleDarkMode}
       />
       <ProfileDropDown profile={profile} />
+      <PoopUp />
     </div>
   )
 }
