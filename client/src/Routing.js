@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import { Router, Route, Switch } from 'react-router-dom'
+import { Router, Route, Switch, Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 
 import App from './App/App'
@@ -209,9 +209,21 @@ const Routing = ({ dispatch, activeAccount }) => {
       <Switch>
         {/* With `Switch` there will only ever be one child here */}
         <Route exact path="/" component={Buckets} />
-        <Route path="/training" component={Training} />
-        <Route path="/login" component={Home} />
-        <Route path="/:bucket" component={App} />
+        <Route exact path="/buckets">
+          <Redirect to="/" />
+        </Route>
+        <Route exact path="/training" component={Training} />
+        <Route exact path="/login" component={Home} />
+        <Route exact path="/buckets/:bucket" component={App} />
+        <Route
+          path="/:bucket"
+          component={({
+            match: {
+              params: { bucket }
+            },
+            location: { search }
+          }) => <Redirect to={`/buckets/${bucket}${search}`} />}
+        ></Route>
       </Switch>
     </Router>
   )

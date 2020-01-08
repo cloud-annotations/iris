@@ -167,7 +167,7 @@ const Buckets = ({
   const handleRowSelected = useCallback(
     id => {
       const bucket = buckets.filter(bucket => bucket.id === id)[0]
-      history.push(`/${bucket.name}?location=${bucket.location}`)
+      history.push(`/buckets/${bucket.name}?location=${bucket.location}`)
     },
     [buckets]
   )
@@ -184,7 +184,7 @@ const Buckets = ({
     bucketName => {
       dispatchLoadBuckets(activeResource)
       setIsCreateBucketModalOpen(false)
-      history.push(`/${bucketName}?location=us`)
+      history.push(`/buckets/${bucketName}?location=us`)
     },
     [activeResource, dispatchLoadBuckets]
   )

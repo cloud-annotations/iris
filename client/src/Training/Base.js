@@ -102,7 +102,7 @@ const Base = ({ location: { search }, resources, activeResource }) => {
       return
     }
     if (modelList.length > 0) {
-      setActiveModel(modelList[0])
+      globalHistory.push(`/training?model=${modelList[0].metadata.guid}`)
       return
     }
     setActiveModel(undefined)
