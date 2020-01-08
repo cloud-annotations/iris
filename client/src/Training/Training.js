@@ -242,156 +242,100 @@ const Training = ({ model }) => {
   const modelStatus = model ? model.entity.status.state : 'loading...'
 
   return (
-    <>
-      <div style={{ width: '745px', margin: '80px auto 0 auto' }}>
+    <div className={styles.wrapper}>
+      <div className={styles.topInfoWrapper}>
+        <div>
+          <div className={styles.title}>{projectName}</div>
+          <div className={styles.sub}>
+            <StatusTag status={modelStatus} />
+            {modelID}
+          </div>
+        </div>
+        <div className={styles.button}>
+          <div className={styles.buttonText}>Download model</div>
+          <svg
+            className={styles.buttonIcon}
+            focusable="false"
+            preserveAspectRatio="xMidYMid meet"
+            width="32"
+            height="32"
+            viewBox="0 0 32 32"
+            aria-hidden="true"
+          >
+            <path d="M26 15L24.59 13.59 17 21.17 17 2 15 2 15 21.17 7.41 13.59 6 15 16 25 26 15z"></path>
+            <path d="M26,24v4H6V24H4v4H4a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2h0V24Z"></path>
+          </svg>
+        </div>
+      </div>
+      {noDataAvailable || isLoadingData ? (
+        <div className={styles.graphPlaceholder}>
+          <div>{isLoadingData ? 'loading...' : 'No Data Available'}</div>
+        </div>
+      ) : (
+        <canvas
+          onClick={handleToggleScale}
+          ref={lossGraphCanvas}
+          width="100"
+          height="30"
+        />
+      )}
+
+      <div style={{ margin: '48px 16px 0 16px' }}>
         <div
           style={{
-            margin: '0 16px 64px 16px',
+            fontSize: '14px',
+            fontWeight: 500,
+            color: 'var(--secondaryText)',
+            margin: '8px 0',
             display: 'flex'
           }}
         >
           <div>
-            <div
-              style={{
-                fontSize: '28px',
-                fontWeight: '300',
-                marginBottom: '8px'
-              }}
-            >
-              {projectName}
-            </div>
-            <div
-              style={{
-                fontSize: '14px',
-                fontWeight: 500,
-                color: 'var(--detailText)'
-              }}
-            >
-              <StatusTag status={modelStatus} />
-              {modelID}
-            </div>
+            {isLoadingData
+              ? 'loading...'
+              : `Step ${currentStep} of ${totalSteps}`}
           </div>
           <div
             style={{
-              marginLeft: 'auto',
-              height: '48px',
-              backgroundColor: 'var(--blue)',
-              color: '#fff',
-              fontWeight: 400,
-              fontSize: '14px',
-              padding: '0 18px',
-              minWidth: '220px',
-              cursor: 'pointer',
-              alignItems: 'center',
-              display: 'flex'
+              marginLeft: 'auto'
             }}
           >
-            <div
-              style={{
-                paddingRight: '12px'
-              }}
-            >
-              Download model
-            </div>
-
-            <svg
-              style={{
-                height: '16px',
-                width: '16px',
-                fill: '#ffffff',
-                marginLeft: 'auto'
-              }}
-              focusable="false"
-              preserveAspectRatio="xMidYMid meet"
-              width="32"
-              height="32"
-              viewBox="0 0 32 32"
-              aria-hidden="true"
-            >
-              <path d="M26 15L24.59 13.59 17 21.17 17 2 15 2 15 21.17 7.41 13.59 6 15 16 25 26 15z"></path>
-              <path d="M26,24v4H6V24H4v4H4a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2h0V24Z"></path>
-              <title>Download</title>
-            </svg>
+            {(() => {
+              switch (modelStatus) {
+                case 'completed':
+                  return 'Done'
+                case 'failed':
+                case 'error':
+                  return 'Failed'
+                case 'canceled':
+                  return 'Canceled'
+                case 'loading...':
+                  return 'loading...'
+                default:
+                  return 'ETA ?min'
+              }
+            })()}
           </div>
         </div>
-        {noDataAvailable || isLoadingData ? (
+        <div
+          style={{
+            position: 'relative',
+            width: '100%',
+            height: '2px',
+            background: 'var(--progressBg)'
+          }}
+        >
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '223.5px',
-              width: '745px'
+              position: 'absolute',
+              width: `${isLoadingData ? 0 : percentComplete}%`,
+              height: '100%',
+              background: 'var(--blue)'
             }}
-          >
-            <div>{isLoadingData ? 'loading...' : 'No Data Available'}</div>
-          </div>
-        ) : (
-          <canvas
-            onClick={handleToggleScale}
-            ref={lossGraphCanvas}
-            width="100"
-            height="30"
           />
-        )}
-
-        <div style={{ margin: '48px 16px 0 16px' }}>
-          <div
-            style={{
-              fontSize: '14px',
-              fontWeight: 500,
-              color: 'var(--secondaryText)',
-              margin: '8px 0',
-              display: 'flex'
-            }}
-          >
-            <div>
-              {isLoadingData
-                ? 'loading...'
-                : `Step ${currentStep} of ${totalSteps}`}
-            </div>
-            <div
-              style={{
-                marginLeft: 'auto'
-              }}
-            >
-              {(() => {
-                switch (modelStatus) {
-                  case 'completed':
-                    return 'Done'
-                  case 'failed':
-                  case 'error':
-                    return 'Failed'
-                  case 'canceled':
-                    return 'Canceled'
-                  case 'loading...':
-                    return 'loading...'
-                  default:
-                    return 'ETA ?min'
-                }
-              })()}
-            </div>
-          </div>
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              height: '2px',
-              background: 'var(--progressBg)'
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                width: `${isLoadingData ? 0 : percentComplete}%`,
-                height: '100%',
-                background: 'var(--blue)'
-              }}
-            />
-          </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

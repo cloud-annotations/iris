@@ -106,7 +106,6 @@ const Base = ({ resources, activeResource }) => {
       fetch(url, options)
         .then(res => res.json())
         .then(json => {
-          console.log(json)
           const resources = [...json.resources]
           resources.sort(
             (a, b) =>
@@ -153,7 +152,9 @@ const Base = ({ resources, activeResource }) => {
                 : styles.listItem
             }
           >
-            <div className={styles.listItemText}>{item.metadata.guid}</div>
+            <div className={styles.listItemText}>
+              {item.entity.model_definition.name}
+            </div>
           </div>
         ))}
       </div>
