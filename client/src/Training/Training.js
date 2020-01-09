@@ -90,7 +90,7 @@ const getMatches = (string, regex) => {
   return matches
 }
 
-const zipModel = async model => {
+const zipModel = async (model, setCurrent, setTotal) => {
   const {
     bucket,
     model_location
@@ -110,6 +110,9 @@ const zipModel = async model => {
     name => !name.endsWith('/')
   )
 
+  setTotal(files.length)
+
+  let current = 0
   const promises = files.map(async file => {
     const data = await cos.getObject(
       {
@@ -121,11 +124,63 @@ const zipModel = async model => {
     const name = file.replace(`${model_location}/`, '')
     console.log(`zipping: ${name}`)
     folder.file(name, data, { binary: true })
+    current++
+    setCurrent(current)
   })
   await Promise.all(promises)
 
   const zipBlob = await zip.generateAsync({ type: 'blob' })
-  saveAs(zipBlob, `${bucket}.zip`)
+  saveAs(zipBlob, `${model.metadata.guid}.zip`)
+  setTotal(0)
+  setCurrent(0)
+}
+
+const Downloader = ({ current, total }) => {
+  const amount = Number.parseInt((1 - current / total) * 169, 10)
+  return (
+    <div className={total === 0 ? styles.downloaderHidden : styles.downloader}>
+      <div className={styles.downloaderContentWrapper}>
+        <svg
+          style={{
+            width: '20px',
+            height: '20px',
+            fill: 'transparent',
+            margin: '0 16px',
+            transform: 'rotate(-90deg)'
+          }}
+          viewBox="-29.8125 -29.8125 59.625 59.625"
+        >
+          <circle
+            style={{
+              strokeWidth: 6,
+              stroke: '#e0e0e0',
+              strokeDashoffset: 0,
+              strokeLinecap: 'butt',
+              strokeDasharray: 169
+            }}
+            cx="0"
+            cy="0"
+            r="26.8125"
+          ></circle>
+          <circle
+            style={{
+              strokeWidth: 6,
+              stroke: '#0f62fe',
+              strokeDashoffset: amount,
+              strokeLinecap: 'butt',
+              strokeDasharray: 169
+            }}
+            cx="0"
+            cy="0"
+            r="26.8125"
+          ></circle>
+        </svg>
+        <div
+          className={styles.downloaderText}
+        >{`Zipping ${current}/${total} files`}</div>
+      </div>
+    </div>
+  )
 }
 
 const Training = ({ model }) => {
@@ -137,6 +192,9 @@ const Training = ({ model }) => {
 
   const [noDataAvailable, setNoDataAvailable] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(true)
+
+  const [filesToZip, setFilesToZip] = useState(0)
+  const [filesZipped, setFilesZipped] = useState(0)
 
   const lossGraphCanvas = useRef()
 
@@ -288,6 +346,17 @@ const Training = ({ model }) => {
     setUseLogarithmicScale(previous => !previous)
   }, [])
 
+  const updateFilesZippedCount = useCallback(current => {
+    setFilesZipped(current)
+  }, [])
+  const updateFilesToZipCount = useCallback(total => {
+    setFilesToZip(total)
+  }, [])
+
+  const handleZipFiles = useCallback(() => {
+    zipModel(model, updateFilesZippedCount, updateFilesToZipCount)
+  }, [model, updateFilesToZipCount, updateFilesZippedCount])
+
   const totalStepsRegex = /\.\/start\.sh (\d*)$/
   const trainingCommand =
     model && model.entity.model_definition.execution.command
@@ -307,6 +376,7 @@ const Training = ({ model }) => {
 
   return (
     <div className={styles.wrapper}>
+      <Downloader current={filesZipped} total={filesToZip} />
       <div className={styles.topInfoWrapper}>
         <div>
           <div className={styles.title}>{projectName}</div>
@@ -316,10 +386,8 @@ const Training = ({ model }) => {
           </div>
         </div>
         <div
-          className={styles.button}
-          onClick={() => {
-            zipModel(model)
-          }}
+          className={model ? styles.button : styles.buttonDisabled}
+          onClick={handleZipFiles}
         >
           <div className={styles.buttonText}>Download model</div>
           <svg

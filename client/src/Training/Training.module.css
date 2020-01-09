@@ -20,11 +20,8 @@
   color: var(--detailText);
 }
 
-.button {
-  background-color: var(--blue);
-  /* border: 2px solid transparent; */
+.buttonBase {
   height: 48px;
-  color: #fff;
   font-weight: 400;
   font-size: 14px;
   padding: 0 18px;
@@ -32,8 +29,22 @@
   margin-left: auto;
   display: flex;
   align-items: center;
-  cursor: pointer;
   text-decoration: none;
+}
+
+.button {
+  composes: buttonBase;
+  background-color: var(--blue);
+  color: #fff;
+  cursor: pointer;
+}
+
+.buttonDisabled {
+  composes: buttonBase;
+  background-color: var(--dissabledButton);
+  color: var(--dissabledButtonText);
+  cursor: default;
+  pointer-events: none;
 }
 
 .button:hover {
@@ -54,6 +65,10 @@
   width: 16px;
   fill: #ffffff;
   margin-left: auto;
+}
+
+.buttonDisabled .buttonIcon {
+  fill: var(--dissabledButtonText);
 }
 
 .graphPlaceholder {
@@ -101,4 +116,38 @@
   composes: tag;
   background-color: #fc5b57;
   color: #97040c;
+}
+
+.downloaderHidden {
+  z-index: -1;
+  visibility: hidden;
+  opacity: 0;
+  background-color: transparent;
+}
+
+.downloader {
+  z-index: 10000;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 245px;
+  height: 48px;
+
+  background-color: var(--secondaryBg);
+
+  border-radius: 4px;
+  overflow: auto;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
+  border: 1px solid var(--dropDownBorder);
+}
+
+.downloaderContentWrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.downloaderText {
+  font-size: 14px;
+  color: var(--secondaryText);
 }
