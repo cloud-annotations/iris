@@ -99,7 +99,10 @@ const zipModel = async (model, setCurrent, setTotal) => {
   const folder = zip.folder(model.metadata.guid)
 
   const cos = new COS({
-    endpoint: model.entity.training_results_reference.connection.endpoint_url
+    endpoint: model.entity.training_results_reference.connection.endpoint_url.replace(
+      /^https:\/\//,
+      ''
+    )
   })
   // TODO: this might not download all files.
   const data = await cos.listObjectsV2({
@@ -306,8 +309,10 @@ const Training = ({ model }) => {
 
         if (model_location && bucket) {
           const txt = await new COS({
-            endpoint:
-              model.entity.training_results_reference.connection.endpoint_url
+            endpoint: model.entity.training_results_reference.connection.endpoint_url.replace(
+              /^https:\/\//,
+              ''
+            )
           }).getObject({
             Bucket: bucket,
             Key: `${model_location}/training-log.txt`
