@@ -134,6 +134,16 @@ if (process.env.NODE_ENV === 'development') {
   // }
 }
 
+export const regionFromEndpoint = endpoint => {
+  const re = /s3\.(?:private\.)?(.*)\.cloud-object-storage\.appdomain\.cloud/
+  const m = re.exec(endpoint)
+  return m[1]
+}
+
+export const endpointFromRegion = region => {
+  return _endpoints[region]
+}
+
 export const endpointForLocationConstraint = location => {
   location = location.replace(/-standard$/, '')
   location = location.replace(/-vault$/, '')

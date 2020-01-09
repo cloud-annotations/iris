@@ -6,6 +6,7 @@ import { saveAs } from 'file-saver'
 import COS from 'api/COSv2'
 
 import styles from './Training.module.css'
+import { regionFromEndpoint, endpointFromRegion } from 'endpoints'
 
 const StatusTag = ({ status }) => {
   if (status === 'completed') {
@@ -99,9 +100,10 @@ const zipModel = async (model, setCurrent, setTotal) => {
   const folder = zip.folder(model.metadata.guid)
 
   const cos = new COS({
-    endpoint: model.entity.training_results_reference.connection.endpoint_url.replace(
-      /^https:\/\//,
-      ''
+    endpoint: endpointFromRegion(
+      regionFromEndpoint(
+        model.entity.training_results_reference.connection.endpoint_url
+      )
     )
   })
   // TODO: this might not download all files.
@@ -309,9 +311,10 @@ const Training = ({ model }) => {
 
         if (model_location && bucket) {
           const txt = await new COS({
-            endpoint: model.entity.training_results_reference.connection.endpoint_url.replace(
-              /^https:\/\//,
-              ''
+            endpoint: endpointFromRegion(
+              regionFromEndpoint(
+                model.entity.training_results_reference.connection.endpoint_url
+              )
             )
           }).getObject({
             Bucket: bucket,
