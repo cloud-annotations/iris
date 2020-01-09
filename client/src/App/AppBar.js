@@ -180,7 +180,9 @@ const AppBar = ({
   decrementSaving,
   addModel,
   cosResources,
-  activeCOSResource
+  activeCOSResource,
+  wmlResourcesLoading,
+  wmlResources
 }) => {
   const optionsRef = useRef(undefined)
   const mediaInputRef = useRef(undefined)
@@ -777,15 +779,28 @@ const AppBar = ({
           </div>
         </div>
       </div>
-      <div className={styles.train} onClick={handleClickTrain}>
-        <div className={styles.trainText}>Train model</div>
-      </div>
-      {/* <div className={styles.notification}>
-        <div className={styles.notificationTitle}>
-          No Watson Machine Learning instance available
+      {!wmlResourcesLoading && wmlResources.length === 0 ? (
+        <div className={styles.notification}>
+          <div className={styles.notificationTitle}>
+            No Watson Machine Learning instance available
+          </div>
+          <a
+            className={styles.notificationAction}
+            href="https://cloud.ibm.com/catalog/services/machine-learning?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Create
+          </a>
         </div>
-        <div className={styles.notificationAction}>Create</div>
-      </div> */}
+      ) : (
+        <div
+          className={wmlResourcesLoading ? styles.trainDisabled : styles.train}
+          onClick={handleClickTrain}
+        >
+          <div className={styles.trainText}>Train model</div>
+        </div>
+      )}
       <Toggle
         className={styles.toggle}
         checked={darkModeToggle}
@@ -817,6 +832,8 @@ const AppBar = ({
 const mapPropsToState = state => ({
   cosResources: state.resources.resources,
   activeCOSResource: state.resources.activeResource,
+  wmlResourcesLoading: state.wmlResources.loading,
+  wmlResources: state.wmlResources.resources,
   saving: state.editor.saving,
   imageRange: state.editor.range,
   collection: state.collection

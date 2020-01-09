@@ -179,15 +179,29 @@
   margin-right: 20px;
 }
 
-.train {
+.trainBase {
   cursor: pointer;
   margin-left: auto;
   margin-right: 20px;
   display: flex;
   height: 48px;
-  background-color: #24a148;
   align-items: center;
   font-size: 14px;
+}
+
+.train {
+  composes: trainBase;
+  cursor: pointer;
+  background-color: #24a148;
+  color: white;
+}
+
+.trainDisabled {
+  composes: trainBase;
+  cursor: default;
+  background-color: var(--dissabledButton);
+  color: var(--dissabledButtonText);
+  pointer-events: none;
 }
 
 .train:hover {
@@ -195,7 +209,6 @@
 }
 
 .trainText {
-  color: white;
   margin: 0 60px 0 18px;
 }
 
@@ -222,6 +235,7 @@
   padding: 6px 19px;
   cursor: pointer;
   margin-left: 25px;
+  text-decoration: none;
 }
 
 .notificationAction:hover {
@@ -265,6 +279,11 @@
   visibility: hidden;
   opacity: 0;
   background-color: transparent;
+
+  transition: background-color 0.72s cubic-bezier(0.4, 0.14, 1, 1),
+    opacity 0.24s cubic-bezier(0.4, 0.14, 1, 1),
+    z-index 0.72s cubic-bezier(0.4, 0.14, 1, 1),
+    visibility 0.24s cubic-bezier(0.4, 0.14, 1, 1);
 }
 
 .popupWrapper {
@@ -273,6 +292,11 @@
   visibility: visible;
   opacity: 1;
   background-color: var(--popup-overlay);
+
+  transition: background-color 0.72s cubic-bezier(0, 0, 0.3, 1),
+    opacity 0.24s cubic-bezier(0, 0, 0.3, 1),
+    z-index 0.72s cubic-bezier(0, 0, 0.3, 1),
+    visibility 0.24s cubic-bezier(0, 0, 0.3, 1);
 }
 
 .popup {
@@ -286,6 +310,18 @@
   /* for small modal */
   width: 42%;
   max-height: 72%;
+}
+
+.popupWrapper .popup {
+  transition: transform 0.24s cubic-bezier(0, 0, 0.3, 1);
+  transform: translateZ(0);
+  transform-origin: top center;
+}
+
+.popupWrapperHidden .popup {
+  transform-origin: top center;
+  transform: translate3d(0, -24px, 0);
+  transition: transform 0.24s cubic-bezier(0.4, 0.14, 1, 1);
 }
 
 .contentWrapper {
