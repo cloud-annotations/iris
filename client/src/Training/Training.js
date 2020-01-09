@@ -4,7 +4,6 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 
 import COS from 'api/COSv2'
-import { defaultEndpoint } from 'endpoints'
 
 import styles from './Training.module.css'
 
@@ -99,7 +98,9 @@ const zipModel = async (model, setCurrent, setTotal) => {
   const zip = new JSZip()
   const folder = zip.folder(model.metadata.guid)
 
-  const cos = new COS({ endpoint: defaultEndpoint })
+  const cos = new COS({
+    endpoint: model.entity.training_results_reference.connection.endpoint_url
+  })
   // TODO: this might not download all files.
   const data = await cos.listObjectsV2({
     Bucket: bucket,
@@ -292,6 +293,8 @@ const Training = ({ model }) => {
     }
   }, [data, labels, smoothData, useLogarithmicScale])
 
+  console.log(model)
+
   useEffect(() => {
     setIsLoadingData(true)
     const loadData = async () => {
@@ -302,9 +305,9 @@ const Training = ({ model }) => {
         } = model.entity.training_results_reference.location
 
         if (model_location && bucket) {
-          // TODO: GET THE REAL ENDPOINT SOMEHOW!
           const txt = await new COS({
-            endpoint: defaultEndpoint
+            endpoint:
+              model.entity.training_results_reference.connection.endpoint_url
           }).getObject({
             Bucket: bucket,
             Key: `${model_location}/training-log.txt`
