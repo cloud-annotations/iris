@@ -17,10 +17,18 @@ const xmlAsJsonFetch = async (url, options) => {
   return json
 }
 
-const blobFetch = async (url, options) => {
+const blobFetch = async (url, options, forceBinary) => {
   const res = await fetch(url, options)
+
+  if (forceBinary) {
+    return res.blob()
+  }
+
   if (url.endsWith('.json')) {
     return res.json()
+  }
+  if (url.endsWith('.txt')) {
+    return res.text()
   }
   return res.blob()
 }
@@ -130,12 +138,12 @@ export default class COS {
    * @param {string} Bucket
    * @param {string} Key
    */
-  getObject = async ({ Bucket, Key }) => {
+  getObject = async ({ Bucket, Key }, forceBinary) => {
     const url = `/api/proxy/${this.endpoint}/${Bucket}/${Key}`
     const options = {
       method: 'GET'
     }
-    return await blobFetch(url, options)
+    return await blobFetch(url, options, forceBinary)
   }
 
   /**
@@ -177,14 +185,20 @@ export default class COS {
    * Returns some or all (up to 1000) of the objects in a bucket.
    *
    * @param {string} Bucket Name of the bucket to list.
+   * @param {string} [Prefix] Limits the response to keys that begin with the
+   * specified prefix.
    * @param {string} [ContinuationToken] ContinuationToken indicates Amazon S3
    * that the list is being continued on this bucket with a token.
    * ContinuationToken is obfuscated and is not a real key
    */
-  listObjectsV2 = async ({ Bucket, ContinuationToken }) => {
+  listObjectsV2 = async ({ Bucket, Prefix, ContinuationToken }) => {
     const params = { 'list-type': 2 }
     if (ContinuationToken) {
       params['continuation-token'] = ContinuationToken
+    }
+
+    if (Prefix) {
+      params['prefix'] = Prefix
     }
 
     const search = new URLSearchParams(params)

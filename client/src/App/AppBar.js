@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import Toggle from 'react-toggle'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
+import { Loading } from 'carbon-components-react'
 
 import 'react-toggle/style.css'
 import './react-toggle-overrides.css'
@@ -26,7 +27,22 @@ import useOnClickOutside from 'hooks/useOnClickOutside'
 import { getDataTransferItems, convertToJpeg, videoToJpegs } from 'Utils'
 import { setActiveImage } from 'redux/editor'
 import COS from 'api/COSv2'
-import { defaultEndpoint } from 'endpoints'
+import { defaultEndpoint, endpointForLocationConstraint } from 'endpoints'
+
+const DEFAULT_GPU = 'k80'
+const DEFAULT_STEPS = '500'
+const DEFAULT_TRAINING_DEFINITION = {
+  framework: {
+    name: 'tensorflow',
+    version: '1.12',
+    runtimes: [
+      {
+        name: 'python',
+        version: '3.6'
+      }
+    ]
+  }
+}
 
 const generateFiles = async (images, videos) => {
   const imageFiles = images.map(
@@ -53,6 +69,7 @@ const zipImages = async (bucket, collection, folder) => {
   const labeledImageNames = Object.keys(collection.annotations)
   return await Promise.all(
     labeledImageNames.map(async name => {
+      // TODO: This should be a bug!
       const imgData = await new COS({ endpoint: defaultEndpoint }).getObject({
         Bucket: bucket,
         Key: name
@@ -73,8 +90,87 @@ const zipImages = async (bucket, collection, folder) => {
   )
 }
 
+const PoopUp = connect(state => ({
+  cosResources: state.resources.resources,
+  resources: state.wmlResources.resources,
+  activeResource: state.wmlResources.activeResource
+}))(
+  ({
+    cosResources,
+    resources,
+    activeResource,
+    show,
+    onPrimary,
+    onSecondary
+  }) => {
+    const handlePrimary = useCallback(() => {
+      const resourceID = document.getElementById('wml-select').value
+      const resourceInfo = resources.find(r => r.id === resourceID)
+      onPrimary(resourceInfo)
+    }, [onPrimary, resources])
+
+    return (
+      <div className={show ? styles.popupWrapper : styles.popupWrapperHidden}>
+        <div className={styles.popup}>
+          <div className={styles.contentWrapper}>
+            <div className={styles.popupTitle}>Start a training run</div>
+            <div className={styles.popupBody}>
+              Training will temporarily connect this bucket to the Watson
+              Machine Learning service. Your images and annotations will be used
+              to create your own personal object detection model.
+            </div>
+            <div className={styles.popupFormItem}>
+              <div className={styles.popupSelectLabelWrapper}>
+                <label for="wml-select" className={styles.popupSelectLabel}>
+                  Machine Learning instance
+                </label>
+                <div className={styles.popupSelectWrapper}>
+                  <select className={styles.popupSelect} id="wml-select">
+                    {resources.map(r => (
+                      <option value={r.id} selected={r.id === activeResource}>
+                        {r.name}
+                      </option>
+                    ))}
+                  </select>
+                  <svg
+                    className={styles.popupSelectIcon}
+                    focusable="false"
+                    preserveAspectRatio="xMidYMid meet"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                  >
+                    <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className={styles.popupButtons}>
+            <div className={styles.popupButtonSecondary} onClick={onSecondary}>
+              Cancel
+            </div>
+            <div
+              className={
+                cosResources.length > 0 && resources.length > 0
+                  ? styles.popupButtonPrimary
+                  : styles.popupButtonPrimaryDissabled
+              }
+              onClick={handlePrimary}
+            >
+              Train
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+)
+
 const AppBar = ({
   bucket,
+  location,
   profile,
   saving,
   syncAction,
@@ -83,11 +179,17 @@ const AppBar = ({
   collection,
   incrementSaving,
   decrementSaving,
-  addModel
+  addModel,
+  cosResources,
+  activeCOSResource,
+  wmlResourcesLoading,
+  wmlResources
 }) => {
   const optionsRef = useRef(undefined)
   const mediaInputRef = useRef(undefined)
   const modelInputRef = useRef(undefined)
+  const [preparingToTrain, setPreparingToTrain] = useState(false)
+  const [showModal, setShowModal] = useState(false)
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [lastHoveredOption, setLastHoveredOption] = useState(undefined)
   const [lastHoveredSubOption, setLastHoveredSubOption] = useState(undefined)
@@ -141,6 +243,142 @@ const AppBar = ({
 
   const handleSubOptionHover = useCallback(e => {
     setLastHoveredSubOption(e.currentTarget.id)
+  }, [])
+
+  const handleClickTrain = useCallback(() => {
+    setShowModal(true)
+  }, [])
+
+  const handleTrainModalPrimary = useCallback(
+    async instance => {
+      setPreparingToTrain(true)
+      setShowModal(false)
+      // find or create a binding.
+      const cosResourceInfo = cosResources.find(r => r.id === activeCOSResource)
+      const credentialsEndpoint =
+        '/api/proxy/resource-controller.cloud.ibm.com/v2/resource_keys'
+      const listCredentialsEndpoint = `${credentialsEndpoint}?name=cloud-annotations-binding&source_crn=${cosResourceInfo.crn}`
+      const credentialsList = await fetch(listCredentialsEndpoint).then(res =>
+        res.json()
+      )
+
+      let creds
+      // create binding if none exists.
+      if (credentialsList.resources.length > 0) {
+        creds = credentialsList.resources[0]
+      } else {
+        const resCreate = await fetch(credentialsEndpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: 'cloud-annotations-binding',
+            source: cosResourceInfo.guid,
+            role: 'writer',
+            parameters: {
+              HMAC: true
+            }
+          })
+        }).then(res => res.json())
+        creds = resCreate
+      }
+
+      const {
+        access_key_id,
+        secret_access_key
+      } = creds.credentials.cos_hmac_keys
+
+      const instanceID = instance.guid
+
+      const trainingDefinition = JSON.parse(
+        JSON.stringify(DEFAULT_TRAINING_DEFINITION)
+      )
+      trainingDefinition.name = bucket
+
+      const resTrainingDefinition = await fetch(
+        `/api/proxy/${instance.region_id}.ml.cloud.ibm.com/v3/ml_assets/training_definitions`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'ML-Instance-ID': instanceID
+          },
+          body: JSON.stringify(trainingDefinition)
+        }
+      ).then(res => res.json())
+
+      await fetch(
+        `/api/proxy/${resTrainingDefinition.entity.training_definition_version.content_url.replace(
+          /^https:\/\//,
+          ''
+        )}`,
+        {
+          method: 'PUT',
+          headers: {
+            'ML-Instance-ID': instanceID,
+            'Content-Type': 'application/octet-stream'
+          },
+          body: await fetch(
+            '/api/proxy/github.com/cloud-annotations/training/releases/latest/download/training.zip'
+          ).then(res => res.blob())
+        }
+      )
+
+      // Try to find the start command (could be `start.sh` or `zipname/start.sh`)
+      const command = `cd "$(dirname "$(find . -name "start.sh" -maxdepth 2 | head -1)")" && chmod 777 ./start.sh && ./start.sh ${DEFAULT_STEPS}`
+      const connection = {
+        endpoint_url: endpointForLocationConstraint(location),
+        access_key_id: access_key_id,
+        secret_access_key: secret_access_key
+      }
+      const trainingRun = {
+        model_definition: {
+          framework: {
+            name: resTrainingDefinition.entity.framework.name,
+            version: resTrainingDefinition.entity.framework.version
+          },
+          name: resTrainingDefinition.entity.name,
+          author: {},
+          definition_href: resTrainingDefinition.metadata.url,
+          execution: {
+            command: command,
+            compute_configuration: { name: DEFAULT_GPU }
+          }
+        },
+        training_data_reference: {
+          connection: connection,
+          source: { bucket: bucket },
+          type: 's3'
+        },
+        training_results_reference: {
+          connection: connection,
+          target: { bucket: bucket },
+          type: 's3'
+        }
+      }
+
+      const resTrainingRun = await fetch(
+        `/api/proxy/${instance.region_id}.ml.cloud.ibm.com/v3/models`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'ML-Instance-ID': instanceID
+          },
+          body: JSON.stringify(trainingRun)
+        }
+      ).then(res => res.json())
+
+      setPreparingToTrain(false)
+
+      history.push(`/training?model=${resTrainingRun.metadata.guid}`)
+    },
+    [activeCOSResource, bucket, cosResources, location]
+  )
+
+  const handleTrainModalSecondary = useCallback(() => {
+    setShowModal(false)
   }, [])
 
   useOnClickOutside(optionsRef, handleClickOutside, true)
@@ -511,12 +749,63 @@ const AppBar = ({
                 </div>
               </div>
             </div>
+
+            <div
+              id="trainingruns"
+              className={
+                optionsOpen && lastHoveredOption === 'trainingruns'
+                  ? styles.optionOpen
+                  : styles.option
+              }
+              onClick={handleOptionClick}
+              onMouseEnter={handleOptionHover}
+            >
+              Training runs
+              <div
+                className={
+                  optionsOpen && lastHoveredOption === 'trainingruns'
+                    ? styles.optionCardOpen
+                    : styles.optionCard
+                }
+              >
+                <div
+                  className={styles.listItem}
+                  onClick={() => {
+                    history.push('/training')
+                  }}
+                >
+                  View all
+                </div>
+              </div>
+            </div>
           </div>
           <div className={styles.saved}>
             {saving > 0 ? 'Saving...' : 'Saved'}
           </div>
         </div>
       </div>
+      {!wmlResourcesLoading && wmlResources.length === 0 ? (
+        <div className={styles.notification}>
+          <div className={styles.notificationTitle}>
+            No Machine Learning instance available
+          </div>
+          <a
+            className={styles.notificationAction}
+            href="https://cloud.ibm.com/catalog/services/machine-learning?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Create
+          </a>
+        </div>
+      ) : (
+        <div
+          className={wmlResourcesLoading ? styles.trainDisabled : styles.train}
+          onClick={handleClickTrain}
+        >
+          <div className={styles.trainText}>Train model</div>
+        </div>
+      )}
       <Toggle
         className={styles.toggle}
         checked={darkModeToggle}
@@ -536,11 +825,21 @@ const AppBar = ({
         onChange={handleToggleDarkMode}
       />
       <ProfileDropDown profile={profile} />
+      <Loading active={preparingToTrain} />
+      <PoopUp
+        show={showModal}
+        onPrimary={handleTrainModalPrimary}
+        onSecondary={handleTrainModalSecondary}
+      />
     </div>
   )
 }
 
 const mapPropsToState = state => ({
+  cosResources: state.resources.resources,
+  activeCOSResource: state.resources.activeResource,
+  wmlResourcesLoading: state.wmlResources.loading,
+  wmlResources: state.wmlResources.resources,
   saving: state.editor.saving,
   imageRange: state.editor.range,
   collection: state.collection

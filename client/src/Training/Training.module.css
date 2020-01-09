@@ -1,0 +1,188 @@
+.wrapper {
+  width: 745px;
+  margin: 80px auto 0 auto;
+}
+
+.topInfoWrapper {
+  margin: 0 16px 64px 16px;
+  display: flex;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 300;
+  margin-bottom: 8px;
+}
+
+.sub {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--detailText);
+}
+
+.buttonBase {
+  height: 48px;
+  font-weight: 400;
+  font-size: 14px;
+  padding: 0 18px;
+  min-width: 220px;
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.button {
+  composes: buttonBase;
+  background-color: var(--blue);
+  color: #fff;
+  cursor: pointer;
+}
+
+.buttonDisabled {
+  composes: buttonBase;
+  background-color: var(--dissabledButton);
+  color: var(--dissabledButtonText);
+  cursor: default;
+  pointer-events: none;
+}
+
+.button:hover {
+  background-color: var(--blue-hover);
+}
+
+.button:active {
+  box-shadow: inset 0 0 0 2px #fff;
+  transition: all 0.2s cubic-bezier(0.2, 0.2, 0.38, 0.9);
+}
+
+.buttonText {
+  padding-right: 12px;
+}
+
+.buttonIcon {
+  height: 16px;
+  width: 16px;
+  fill: #ffffff;
+  margin-left: auto;
+}
+
+.buttonDisabled .buttonIcon {
+  fill: var(--dissabledButtonText);
+}
+
+.graphPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 223.5px;
+  width: 745px;
+}
+
+.graphSkeleton {
+  background: repeating-linear-gradient(
+    0deg,
+    var(--ultraDim),
+    var(--ultraDim) 1px,
+    transparent 1px,
+    transparent 36.8px
+  );
+  margin: 8px 16px 0 28px;
+  /* position: absolute; */
+  /* top: 262px;
+  left: 242px; */
+  height: 186px;
+  width: 701px;
+  border-left: 1px solid var(--detailText);
+  border-bottom: 1px solid var(--detailText);
+}
+
+.tag {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1rem;
+  letter-spacing: 0.32px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  height: 24px;
+  max-width: 100%;
+  margin: 0 8px 0 0;
+  border-radius: 15px;
+  user-select: none;
+}
+
+.tagSuccess {
+  composes: tag;
+  background-color: #57c038;
+  color: #085a0a;
+}
+
+.tagTraining {
+  composes: tag;
+  background-color: #e5bf3c;
+  color: #7f5910;
+}
+
+.tagCanceled {
+  composes: tag;
+  background-color: #c0c0c0;
+  color: #434343;
+}
+
+.tagError {
+  composes: tag;
+  background-color: #fc5b57;
+  color: #97040c;
+}
+
+.downloaderHidden {
+  z-index: -1;
+  visibility: hidden;
+  opacity: 0;
+  background-color: transparent;
+}
+
+.downloader {
+  z-index: 10000;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 245px;
+  height: 48px;
+
+  background-color: var(--secondaryBg);
+
+  border-radius: 4px;
+  overflow: auto;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
+  border: 1px solid var(--dropDownBorder);
+}
+
+.downloaderContentWrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.downloaderText {
+  font-size: 14px;
+  color: var(--secondaryText);
+}
+
+.skeleton {
+  position: relative;
+  pointer-events: none;
+  background: var(--skeleton1);
+}
+
+.skeleton:before :global {
+  content: '';
+  width: 0%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--skeleton2);
+  animation: 3000ms ease-in-out skeleton infinite;
+}
