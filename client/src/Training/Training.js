@@ -1,8 +1,10 @@
 import React, { useRef, useState, useEffect, useCallback } from 'react'
 import savitzkyGolay from 'ml-savitzky-golay'
+import JSZip from 'jszip'
+import { saveAs } from 'file-saver'
 
 import COS from 'api/COSv2'
-import { endpointForLocationConstraint } from 'endpoints'
+import { defaultEndpoint } from 'endpoints'
 
 import styles from './Training.module.css'
 
@@ -86,6 +88,44 @@ const getMatches = (string, regex) => {
     })
   }
   return matches
+}
+
+const zipModel = async model => {
+  const {
+    bucket,
+    model_location
+  } = model.entity.training_results_reference.location
+
+  const zip = new JSZip()
+  const folder = zip.folder(model.metadata.guid)
+
+  const cos = new COS({ endpoint: defaultEndpoint })
+  // TODO: this might not download all files.
+  const data = await cos.listObjectsV2({
+    Bucket: bucket,
+    Prefix: model_location
+  })
+
+  const files = data.ListBucketResult.Contents.map(o => o.Key).filter(
+    name => !name.endsWith('/')
+  )
+
+  const promises = files.map(async file => {
+    const data = await cos.getObject(
+      {
+        Bucket: bucket,
+        Key: file
+      },
+      true
+    )
+    const name = file.replace(`${model_location}/`, '')
+    console.log(`zipping: ${name}`)
+    folder.file(name, data, { binary: true })
+  })
+  await Promise.all(promises)
+
+  const zipBlob = await zip.generateAsync({ type: 'blob' })
+  saveAs(zipBlob, `${bucket}.zip`)
 }
 
 const Training = ({ model }) => {
@@ -206,7 +246,7 @@ const Training = ({ model }) => {
         if (model_location && bucket) {
           // TODO: GET THE REAL ENDPOINT SOMEHOW!
           const txt = await new COS({
-            endpoint: endpointForLocationConstraint('us-standard')
+            endpoint: defaultEndpoint
           }).getObject({
             Bucket: bucket,
             Key: `${model_location}/training-log.txt`
@@ -275,7 +315,12 @@ const Training = ({ model }) => {
             {modelID}
           </div>
         </div>
-        <div className={styles.button}>
+        <div
+          className={styles.button}
+          onClick={() => {
+            zipModel(model)
+          }}
+        >
           <div className={styles.buttonText}>Download model</div>
           <svg
             className={styles.buttonIcon}

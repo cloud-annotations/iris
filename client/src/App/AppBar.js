@@ -68,6 +68,7 @@ const zipImages = async (bucket, collection, folder) => {
   const labeledImageNames = Object.keys(collection.annotations)
   return await Promise.all(
     labeledImageNames.map(async name => {
+      // TODO: This should be a bug!
       const imgData = await new COS({ endpoint: defaultEndpoint }).getObject({
         Bucket: bucket,
         Key: name
