@@ -126,7 +126,12 @@ const getTrainingRunList = async activeResourceInfo => {
   return resources
 }
 
-const Base = ({ location: { search }, resources, activeResource }) => {
+const Base = ({
+  location: { search },
+  loadingResources,
+  resources,
+  activeResource
+}) => {
   const [modelList, setModelList] = useState([])
   const [activeModel, setActiveModel] = useState(undefined)
 
@@ -173,48 +178,81 @@ const Base = ({ location: { search }, resources, activeResource }) => {
   return (
     <div className={styles.wrapper}>
       <TitleBar />
-      <div
-        style={{
-          position: 'absolute',
-          width: PANEL_WIDTH,
-          top: '64px',
-          bottom: '0',
-          overflow: 'scroll',
-          background: 'var(--secondaryBg)',
-          borderRight: '1px solid var(--border)'
-        }}
-      >
-        {modelList.map(item => (
-          <div
-            key={item.metadata.guid}
-            onClick={handleModelChosen(item)}
-            className={
-              activeModel !== undefined &&
-              item.metadata.guid === activeModel.metadata.guid
-                ? styles.listItemActive
-                : styles.listItem
-            }
-          >
-            <StatusListItem status={item.entity.status.state}>
-              {item.entity.model_definition.name}
-            </StatusListItem>
+      {!loadingResources && resources.length === 0 ? (
+        <div className={styles.noObjectStorage}>
+          <div className={styles.noBucketsTitle} style={{ marginTop: '60px' }}>
+            No Machine Learning instance
           </div>
-        ))}
-      </div>
-      <div
-        style={{
-          position: 'absolute',
-          left: PANEL_WIDTH,
-          width: `calc(100% - ${PANEL_WIDTH})`
-        }}
-      >
-        <Training model={activeModel} />
-      </div>
+          <div className={styles.noBucketsSub}>
+            We use Watson Machine Learning to train your models. You can create
+            a Machine Learning instance for free on{' '}
+            <a
+              className={styles.getStartedLink}
+              href="https://cloud.ibm.com/catalog/services/machine-learning?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              IBM Cloud
+            </a>
+            . Once created, refresh this page.
+          </div>
+          <a
+            href="https://cloud.ibm.com/catalog/services/machine-learning?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.createBucket}
+            style={{ height: '48px', marginTop: '40px' }}
+          >
+            <div className={styles.createBucketText}>Get started</div>
+          </a>
+        </div>
+      ) : (
+        <>
+          <div
+            style={{
+              position: 'absolute',
+              width: PANEL_WIDTH,
+              top: '64px',
+              bottom: '0',
+              overflow: 'scroll',
+              background: 'var(--secondaryBg)',
+              borderRight: '1px solid var(--border)'
+            }}
+          >
+            {modelList.map(item => (
+              <div
+                key={item.metadata.guid}
+                onClick={handleModelChosen(item)}
+                className={
+                  activeModel !== undefined &&
+                  item.metadata.guid === activeModel.metadata.guid
+                    ? styles.listItemActive
+                    : styles.listItem
+                }
+              >
+                <StatusListItem status={item.entity.status.state}>
+                  {item.entity.model_definition.name}
+                </StatusListItem>
+              </div>
+            ))}
+          </div>
+          <div
+            style={{
+              position: 'absolute',
+              left: PANEL_WIDTH,
+              width: `calc(100% - ${PANEL_WIDTH})`
+            }}
+          >
+            <Training model={activeModel} />
+          </div>
+        </>
+      )}
     </div>
   )
 }
 
 export default connect(state => ({
   resources: state.wmlResources.resources,
-  activeResource: state.wmlResources.activeResource
+  activeResource: state.wmlResources.activeResource,
+  loadingResources: state.wmlResources.loading
 }))(Base)

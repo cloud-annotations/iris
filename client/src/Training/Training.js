@@ -377,21 +377,171 @@ const Training = ({ model }) => {
   const modelID = model ? model.metadata.guid : 'loading...'
   const modelStatus = model ? model.entity.status.state : 'loading...'
 
+  if (model) {
+    return (
+      <div className={styles.wrapper}>
+        <Downloader current={filesZipped} total={filesToZip} />
+        <div className={styles.topInfoWrapper}>
+          <div>
+            <div className={styles.title}>{projectName}</div>
+            <div className={styles.sub}>
+              <StatusTag status={modelStatus} />
+              {modelID}
+            </div>
+          </div>
+          <div
+            className={model ? styles.button : styles.buttonDisabled}
+            onClick={handleZipFiles}
+          >
+            <div className={styles.buttonText}>Download model</div>
+            <svg
+              className={styles.buttonIcon}
+              focusable="false"
+              preserveAspectRatio="xMidYMid meet"
+              width="32"
+              height="32"
+              viewBox="0 0 32 32"
+              aria-hidden="true"
+            >
+              <path d="M26 15L24.59 13.59 17 21.17 17 2 15 2 15 21.17 7.41 13.59 6 15 16 25 26 15z"></path>
+              <path d="M26,24v4H6V24H4v4H4a2,2,0,0,0,2,2H26a2,2,0,0,0,2-2h0V24Z"></path>
+            </svg>
+          </div>
+        </div>
+
+        <div
+          style={{
+            margin: '16px 16px 0 16px',
+            display: 'flex',
+            alignItems: 'center'
+          }}
+        >
+          <div
+            style={{
+              marginLeft: 'auto',
+              width: '14px',
+              height: '3px',
+              marginRight: '8px',
+              background: 'var(--blue)'
+            }}
+          />
+          <div
+            style={{
+              fontSize: '14px',
+              fontWeight: 500,
+              color: 'var(--secondaryText)',
+              margin: '8px 0',
+              display: 'flex'
+            }}
+          >
+            {`loss (${
+              smoothData.length > 0
+                ? smoothData[smoothData.length - 1].toFixed(2)
+                : '?'
+            })`}
+          </div>
+        </div>
+
+        {noDataAvailable || isLoadingData ? (
+          <div className={styles.graphPlaceholder}>
+            <div>{isLoadingData ? 'loading...' : 'No Data Available'}</div>
+          </div>
+        ) : (
+          <canvas
+            onClick={handleToggleScale}
+            ref={lossGraphCanvas}
+            width="100"
+            height="30"
+          />
+        )}
+
+        <div style={{ margin: '48px 16px 0 16px' }}>
+          <div
+            style={{
+              fontSize: '14px',
+              fontWeight: 500,
+              color: 'var(--secondaryText)',
+              margin: '8px 0',
+              display: 'flex'
+            }}
+          >
+            <div>
+              {isLoadingData
+                ? 'loading...'
+                : `Step ${currentStep} of ${totalSteps}`}
+            </div>
+            <div
+              style={{
+                marginLeft: 'auto'
+              }}
+            >
+              {(() => {
+                switch (modelStatus) {
+                  case 'completed':
+                    return 'Done'
+                  case 'failed':
+                  case 'error':
+                    return 'Failed'
+                  case 'canceled':
+                    return 'Canceled'
+                  case 'loading...':
+                    return 'loading...'
+                  default:
+                    return 'ETA ?min'
+                }
+              })()}
+            </div>
+          </div>
+          <div
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '2px',
+              background: 'var(--progressBg)'
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute',
+                width: `${isLoadingData ? 0 : percentComplete}%`,
+                height: '100%',
+                background: 'var(--blue)'
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.wrapper}>
       <Downloader current={filesZipped} total={filesToZip} />
       <div className={styles.topInfoWrapper}>
         <div>
-          <div className={styles.title}>{projectName}</div>
-          <div className={styles.sub}>
-            <StatusTag status={modelStatus} />
-            {modelID}
-          </div>
+          <div
+            className={styles.skeleton}
+            style={{
+              width: '220px',
+              height: '28px',
+              marginBottom: '8px'
+            }}
+          />
+          <div
+            className={styles.skeleton}
+            style={{
+              width: '180px',
+              height: '14px'
+            }}
+          />
+          <div
+            style={{
+              width: '180px',
+              height: '10px'
+            }}
+          />
         </div>
-        <div
-          className={model ? styles.button : styles.buttonDisabled}
-          onClick={handleZipFiles}
-        >
+        <div className={styles.buttonDisabled}>
           <div className={styles.buttonText}>Download model</div>
           <svg
             className={styles.buttonIcon}
@@ -416,43 +566,42 @@ const Training = ({ model }) => {
         }}
       >
         <div
+          className={styles.skeleton}
           style={{
             marginLeft: 'auto',
-            width: '14px',
-            height: '3px',
-            marginRight: '8px',
-            background: 'var(--blue)'
+            width: '80px',
+            height: '14px'
           }}
         />
-        <div
-          style={{
-            fontSize: '14px',
-            fontWeight: 500,
-            color: 'var(--secondaryText)',
-            margin: '8px 0',
-            display: 'flex'
-          }}
-        >
-          {`loss (${
-            smoothData.length > 0
-              ? smoothData[smoothData.length - 1].toFixed(2)
-              : '?'
-          })`}
-        </div>
       </div>
+      <div
+        style={{
+          width: '180px',
+          height: '16px'
+        }}
+      />
 
-      {noDataAvailable || isLoadingData ? (
-        <div className={styles.graphPlaceholder}>
-          <div>{isLoadingData ? 'loading...' : 'No Data Available'}</div>
-        </div>
-      ) : (
-        <canvas
-          onClick={handleToggleScale}
-          ref={lossGraphCanvas}
-          width="100"
-          height="30"
-        />
-      )}
+      {/* <div className={styles.graphPlaceholder}>
+        <div>loading...</div>
+      </div> */}
+
+      <div className={styles.graphSkeleton} />
+
+      <div
+        style={{
+          width: '180px',
+          height: '29px'
+        }}
+      />
+
+      {/* <div
+        className={styles.skeleton}
+        style={{
+          margin: '8px 16px 0 16px',
+          width: '713px',
+          height: '223.5px'
+        }}
+      /> */}
 
       <div style={{ margin: '48px 16px 0 16px' }}>
         <div
@@ -465,30 +614,26 @@ const Training = ({ model }) => {
           }}
         >
           <div>
-            {isLoadingData
-              ? 'loading...'
-              : `Step ${currentStep} of ${totalSteps}`}
+            <div
+              className={styles.skeleton}
+              style={{
+                width: '100px',
+                height: '14px'
+              }}
+            />
           </div>
           <div
             style={{
               marginLeft: 'auto'
             }}
           >
-            {(() => {
-              switch (modelStatus) {
-                case 'completed':
-                  return 'Done'
-                case 'failed':
-                case 'error':
-                  return 'Failed'
-                case 'canceled':
-                  return 'Canceled'
-                case 'loading...':
-                  return 'loading...'
-                default:
-                  return 'ETA ?min'
-              }
-            })()}
+            <div
+              className={styles.skeleton}
+              style={{
+                width: '40px',
+                height: '14px'
+              }}
+            />
           </div>
         </div>
         <div
@@ -502,7 +647,7 @@ const Training = ({ model }) => {
           <div
             style={{
               position: 'absolute',
-              width: `${isLoadingData ? 0 : percentComplete}%`,
+              width: '0%',
               height: '100%',
               background: 'var(--blue)'
             }}

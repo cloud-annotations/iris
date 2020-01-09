@@ -121,7 +121,7 @@ const PoopUp = connect(state => ({
             <div className={styles.popupFormItem}>
               <div className={styles.popupSelectLabelWrapper}>
                 <label for="wml-select" className={styles.popupSelectLabel}>
-                  Watson Machine Learning instance
+                  Machine Learning instance
                 </label>
                 <div className={styles.popupSelectWrapper}>
                   <select className={styles.popupSelect} id="wml-select">
@@ -782,7 +782,7 @@ const AppBar = ({
       {!wmlResourcesLoading && wmlResources.length === 0 ? (
         <div className={styles.notification}>
           <div className={styles.notificationTitle}>
-            No Watson Machine Learning instance available
+            No Machine Learning instance available
           </div>
           <a
             className={styles.notificationAction}

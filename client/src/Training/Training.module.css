@@ -79,6 +79,24 @@
   width: 745px;
 }
 
+.graphSkeleton {
+  background: repeating-linear-gradient(
+    0deg,
+    var(--ultraDim),
+    var(--ultraDim) 1px,
+    transparent 1px,
+    transparent 36.8px
+  );
+  margin: 8px 16px 0 28px;
+  /* position: absolute; */
+  /* top: 262px;
+  left: 242px; */
+  height: 186px;
+  width: 701px;
+  border-left: 1px solid var(--detailText);
+  border-bottom: 1px solid var(--detailText);
+}
+
 .tag {
   font-size: 12px;
   font-weight: 400;
@@ -150,4 +168,21 @@
 .downloaderText {
   font-size: 14px;
   color: var(--secondaryText);
+}
+
+.skeleton {
+  position: relative;
+  pointer-events: none;
+  background: var(--skeleton1);
+}
+
+.skeleton:before :global {
+  content: '';
+  width: 0%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--skeleton2);
+  animation: 3000ms ease-in-out skeleton infinite;
 }
