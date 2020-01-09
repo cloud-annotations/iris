@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import Toggle from 'react-toggle'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
+import { Loading } from 'carbon-components-react'
 
 import 'react-toggle/style.css'
 import './react-toggle-overrides.css'
@@ -187,6 +188,7 @@ const AppBar = ({
   const optionsRef = useRef(undefined)
   const mediaInputRef = useRef(undefined)
   const modelInputRef = useRef(undefined)
+  const [preparingToTrain, setPreparingToTrain] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [optionsOpen, setOptionsOpen] = useState(false)
   const [lastHoveredOption, setLastHoveredOption] = useState(undefined)
@@ -249,6 +251,8 @@ const AppBar = ({
 
   const handleTrainModalPrimary = useCallback(
     async instance => {
+      setPreparingToTrain(true)
+      setShowModal(false)
       // find or create a binding.
       const cosResourceInfo = cosResources.find(r => r.id === activeCOSResource)
       const credentialsEndpoint =
@@ -366,7 +370,8 @@ const AppBar = ({
         }
       ).then(res => res.json())
 
-      setShowModal(false)
+      setPreparingToTrain(false)
+
       history.push(`/training?model=${resTrainingRun.metadata.guid}`)
     },
     [activeCOSResource, bucket, cosResources, location]
@@ -820,6 +825,7 @@ const AppBar = ({
         onChange={handleToggleDarkMode}
       />
       <ProfileDropDown profile={profile} />
+      <Loading active={preparingToTrain} />
       <PoopUp
         show={showModal}
         onPrimary={handleTrainModalPrimary}
