@@ -253,6 +253,96 @@ const AppBar = ({
     async instance => {
       setPreparingToTrain(true)
       setShowModal(false)
+
+      // const createCollection = await fetch(
+      //   '/api/proxy/gateway.watsonplatform.net/visual-recognition/api/v4/collections?version=2019-02-11',
+      //   {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //       Authorization:
+      //         'Basic ' +
+      //         btoa('apikey:XXXX')
+      //     },
+      //     body: JSON.stringify({
+      //       name: 'cacli-test',
+      //       description: 'A test for Cloud Annotations'
+      //     })
+      //   }
+      // ).then(res => res.json())
+
+      // console.log(createCollection)
+
+      // const listOfImages = Object.keys(collection.annotations)
+
+      // const imagesPromise = listOfImages.map(async theFirstImage => {
+      //   const imgData = await new COS({ endpoint: defaultEndpoint }).getObject({
+      //     Bucket: bucket,
+      //     Key: theFirstImage
+      //   })
+
+      //   const im = new Image()
+      //   im.src = URL.createObjectURL(imgData)
+      //   const image = await new Promise(resolve => {
+      //     im.onload = () => {
+      //       resolve({
+      //         name: theFirstImage,
+      //         blob: imgData,
+      //         dimensions: { width: im.width, height: im.height }
+      //       })
+      //     }
+      //   })
+
+      //   const formData = new FormData()
+      //   formData.append('images_file', image.blob)
+      //   formData.append(
+      //     'training_data',
+      //     JSON.stringify({
+      //       objects: collection.annotations[image.name].map(a => ({
+      //         object: a.label,
+      //         location: {
+      //           left: Math.round(a.x * image.dimensions.width),
+      //           top: Math.round(a.y * image.dimensions.height),
+      //           width: Math.round((a.x2 - a.x) * image.dimensions.width),
+      //           height: Math.round((a.y2 - a.y) * image.dimensions.height)
+      //         }
+      //       }))
+      //     })
+      //   )
+
+      //   console.log(formData)
+      //   const addImages = await fetch(
+      //     '/api/proxy/gateway.watsonplatform.net/visual-recognition/api/v4/collections/bf965749-1f78-49a4-9212-a779a09d27b1/images?version=2019-02-11',
+      //     {
+      //       method: 'POST',
+      //       headers: {
+      //         Authorization:
+      //           'Basic ' +
+      //           btoa('apikey:XXXX')
+      //       },
+      //       body: formData
+      //     }
+      //   ).then(res => res.json())
+
+      //   console.log(addImages)
+      // })
+
+      // await Promise.all(imagesPromise)
+
+      const trainCollection = await fetch(
+        '/api/proxy/gateway.watsonplatform.net/visual-recognition/api/v4/collections/bf965749-1f78-49a4-9212-a779a09d27b1/train?version=2019-02-11',
+        {
+          method: 'POST',
+          headers: {
+            Authorization: 'Basic ' + btoa('apikey:XXXX')
+          }
+        }
+      ).then(res => res.json())
+
+      console.log(trainCollection)
+
+      return
+
       // find or create a binding.
       const cosResourceInfo = cosResources.find(r => r.id === activeCOSResource)
       const credentialsEndpoint =
@@ -374,7 +464,7 @@ const AppBar = ({
 
       history.push(`/training?model=${resTrainingRun.metadata.guid}`)
     },
-    [activeCOSResource, bucket, cosResources, location]
+    [activeCOSResource, bucket, collection, cosResources, location]
   )
 
   const handleTrainModalSecondary = useCallback(() => {

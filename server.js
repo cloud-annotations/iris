@@ -376,7 +376,9 @@ app.all('/api/proxy/*', (req, res) => {
 
   const headers = {}
   if (token) {
-    headers['Authorization'] = `bearer ${token}`
+    if (req.header('Authorization') === undefined) {
+      headers['Authorization'] = `bearer ${token}`
+    }
   }
 
   req
