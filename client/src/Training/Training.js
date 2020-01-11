@@ -321,11 +321,19 @@ const Training = ({ model }) => {
             Key: `${model_location}/training-log.txt`
           })
 
-          // : Step 40: Cross entropy = 0.464557
+          // Examples:
+          // ... Step 40: Cross entropy = 0.464557
+          // INFO:tensorflow:loss = 0.1023123, step = 105
+          const legacyLossRegex = /Step ([0-9]*): Cross entropy = ([0-9]+[.][0-9]+)/gm
           const lossRegex = /^INFO:tensorflow:loss = ([0-9]+[.][0-9]+), step = ([0-9]*)/gm
-          const matches = getMatches(txt, lossRegex)
+          let matches = getMatches(txt, lossRegex)
+          if (matches[1] === undefined && matches[2] === undefined) {
+            const xMatches = getMatches(txt, legacyLossRegex)
+            matches[1] = xMatches[2]
+            matches[2] = xMatches[1]
+          }
 
-          if (Object.keys(matches).length >= 3) {
+          if (matches[1] !== undefined && matches[2] !== undefined) {
             const loss = matches[1].map(Number.parseFloat)
             const steps = matches[2].map(m => Number.parseInt(m, 10))
             setIsLoadingData(false)

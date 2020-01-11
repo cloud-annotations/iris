@@ -99,45 +99,64 @@ if (process.env.NODE_ENV === 'development') {
     mil01: 's3.mil01.cloud-object-storage.appdomain.cloud',
     hkg02: 's3.hkg02.cloud-object-storage.appdomain.cloud'
   }
-  // _defaultEndpoint = 's3.us-west.cloud-object-storage.test.appdomain.cloud'
-  // _endpoints = {
-  //   us: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'dal.us': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'wdc.us': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'sjc.us': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   eu: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'ams.eu': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'fra.eu': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'mil.eu': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   ap: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'tok.ap': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'seo.ap': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'hkg.ap': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'us-south': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'us-east': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'eu-gb': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'eu-de': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'jp-tok': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   'au-syd': 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   ams03: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   che01: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   mel01: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   osl01: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   tor01: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   sao01: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   seo01: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   mon01: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   mex01: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   sjc04: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   mil01: 's3.us-west.cloud-object-storage.test.appdomain.cloud',
-  //   hkg02: 's3.us-west.cloud-object-storage.test.appdomain.cloud'
-  // }
 }
 
+const _regionMap = {
+  us: 'us',
+  'us-geo': 'us',
+  'dal.us': 'dal.us',
+  'dal-us-geo': 'dal.us',
+  'wdc.us': 'wdc.us',
+  'wdc-us-geo': 'wdc.us',
+  'sjc.us': 'sjc.us',
+  'sjc-us-geo': 'sjc.us',
+  eu: 'eu',
+  'eu-geo': 'eu',
+  'ams.eu': 'ams.eu',
+  'ams-eu-geo': 'ams.eu',
+  'fra.eu': 'fra.eu',
+  'fra-eu-geo': 'fra.eu',
+  'mil.eu': 'mil.eu',
+  'mil-eu-geo': 'mil.eu',
+  ap: 'ap',
+  'ap-geo': 'ap',
+  'tok.ap': 'tok.ap',
+  'tok-ap-geo': 'tok.ap',
+  'seo.ap': 'seo.ap',
+  'seo-ap-geo': 'seo.ap',
+  'hkg.ap': 'hkg.ap',
+  'hkg-ap-geo': 'hkg.ap',
+  'us-south': 'us-south',
+  'us-east': 'us-east',
+  'eu-gb': 'eu-gb',
+  'eu-de': 'eu-de',
+  'jp-tok': 'jp-tok',
+  'au-syd': 'au-syd',
+  ams03: 'ams03',
+  che01: 'che01',
+  mel01: 'mel01',
+  osl01: 'osl01',
+  tor01: 'tor01',
+  sao01: 'sao01',
+  seo01: 'seo01',
+  mon01: 'mon01',
+  mex01: 'mex01',
+  sjc04: 'sjc04',
+  mil01: 'mil01',
+  hkg02: 'hkg02'
+}
+
+// Endpoints that should work.
+// s3.us.cloud-object-storage.appdomain.cloud
+// s3.private.us.cloud-object-storage.appdomain.cloud
+// s3-api.us-geo.objectstorage.service.networklayer.com
+// s3.us-south.objectstorage.service.networklayer.com
+// s3-api.us-geo.objectstorage.softlayer.net
+// s3.us-south.objectstorage.softlayer.net
 export const regionFromEndpoint = endpoint => {
-  const re = /s3\.(?:private\.)?(.*)\.cloud-object-storage\.appdomain\.cloud/
+  const re = /s3(?:-api)?\.(?:private\.)?(.*)\.(?:cloud-object-storage\.appdomain\.cloud|objectstorage\.(?:service\.networklayer\.com|softlayer\.net))/
   const m = re.exec(endpoint)
-  return m[1]
+  return _regionMap[m[1]]
 }
 
 export const endpointFromRegion = region => {
