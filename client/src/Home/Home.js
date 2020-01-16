@@ -41,12 +41,7 @@ const Home = () => {
           <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
           Annotations
         </div>
-        <a
-          className={styles.link}
-          href="https://cloud-annotations.github.io/training/object-detection/cli/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a className={styles.link} href="https://docs.annotations.ai">
           Docs
         </a>
         <a

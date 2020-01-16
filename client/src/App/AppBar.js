@@ -27,7 +27,7 @@ import useOnClickOutside from 'hooks/useOnClickOutside'
 import { getDataTransferItems, convertToJpeg, videoToJpegs } from 'Utils'
 import { setActiveImage } from 'redux/editor'
 import COS from 'api/COSv2'
-import { defaultEndpoint, endpointForLocationConstraint } from 'endpoints'
+import { endpointForLocationConstraint } from 'endpoints'
 
 const DEFAULT_GPU = 'k80'
 const DEFAULT_STEPS = '500'
@@ -65,12 +65,11 @@ const generateFiles = async (images, videos) => {
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
 }
 
-const zipImages = async (bucket, collection, folder) => {
+const zipImages = async (endpoint, bucket, collection, folder) => {
   const labeledImageNames = Object.keys(collection.annotations)
   return await Promise.all(
     labeledImageNames.map(async name => {
-      // TODO: This should be a bug!
-      const imgData = await new COS({ endpoint: defaultEndpoint }).getObject({
+      const imgData = await new COS({ endpoint: endpoint }).getObject({
         Bucket: bucket,
         Key: name
       })
@@ -476,7 +475,12 @@ const AppBar = ({
       setOptionsOpen(false)
       const zip = new JSZip()
       const folder = zip.folder(bucket)
-      const images = await zipImages(bucket, collection, folder)
+      const images = await zipImages(
+        endpointForLocationConstraint(location),
+        bucket,
+        collection,
+        folder
+      )
 
       images.forEach(({ name }) => {
         const annotationTxt = collection.annotations[name]
@@ -498,7 +502,7 @@ const AppBar = ({
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
     },
-    [bucket, collection]
+    [bucket, collection, location]
   )
 
   const handleExportCreateML = useCallback(
@@ -507,7 +511,12 @@ const AppBar = ({
       setOptionsOpen(false)
       const zip = new JSZip()
       const folder = zip.folder(bucket)
-      const images = await zipImages(bucket, collection, folder)
+      const images = await zipImages(
+        endpointForLocationConstraint(location),
+        bucket,
+        collection,
+        folder
+      )
 
       const createMLAnnotations = images.map(({ name, dimensions }) => ({
         image: name,
@@ -534,7 +543,7 @@ const AppBar = ({
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
     },
-    [bucket, collection]
+    [bucket, collection, location]
   )
 
   const handleExportVOC = useCallback(
@@ -543,7 +552,12 @@ const AppBar = ({
       setOptionsOpen(false)
       const zip = new JSZip()
       const folder = zip.folder(bucket)
-      const images = await zipImages(bucket, collection, folder)
+      const images = await zipImages(
+        endpointForLocationConstraint(location),
+        bucket,
+        collection,
+        folder
+      )
       images.forEach(({ name, dimensions }) => {
         const annotation = (
           <annotation>
@@ -579,7 +593,7 @@ const AppBar = ({
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
     },
-    [bucket, collection]
+    [bucket, collection, location]
   )
 
   const handleEmptyLabelImage = useCallback(
