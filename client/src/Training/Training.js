@@ -1,7 +1,14 @@
-import React, { useRef, useState, useEffect, useCallback } from 'react'
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  useCallback,
+  useLayoutEffect
+} from 'react'
 import savitzkyGolay from 'ml-savitzky-golay'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
+import socket from 'globalSocket'
 
 import COS from 'api/COSv2'
 
@@ -189,12 +196,18 @@ const Downloader = ({ current, total }) => {
   )
 }
 
-const Training = ({ model }) => {
-  const [useLogarithmicScale, setUseLogarithmicScale] = useState(false)
+let chart
+let dataMap = {}
 
-  const [data, setData] = useState([])
-  const [smoothData, setSmoothData] = useState([])
-  const [labels, setLabels] = useState([])
+const getStepsAndLoss = () => {
+  const steps = Object.keys(dataMap).map(m => Number.parseInt(m, 10))
+  steps.sort((a, b) => a - b)
+  const loss = steps.map(step => dataMap[step])
+  return [steps, loss]
+}
+
+const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
+  const [useLogarithmicScale, setUseLogarithmicScale] = useState(false)
 
   const [noDataAvailable, setNoDataAvailable] = useState(false)
   const [isLoadingData, setIsLoadingData] = useState(true)
@@ -202,7 +215,11 @@ const Training = ({ model }) => {
   const [filesToZip, setFilesToZip] = useState(0)
   const [filesZipped, setFilesZipped] = useState(0)
 
-  const lossGraphCanvas = useRef()
+  const [lossOveride, setLossOveride] = useState(undefined)
+  const [stepOveride, setStepOveride] = useState(undefined)
+
+  // const lossGraphCanvas = useRef()
+  const [lossGraphCanvas, setLossGraphCanvas] = useState(undefined)
 
   useEffect(() => {
     const brightWhite = getComputedStyle(document.body).getPropertyValue(
@@ -215,24 +232,25 @@ const Training = ({ model }) => {
       '--blue'
     )
 
-    if (lossGraphCanvas.current) {
+    if (lossGraphCanvas) {
+      const [steps, loss] = getStepsAndLoss()
       window.Chart.defaults.fontFamily =
         "'ibm-plex-sans', Helvetica Neue, Arial, sans-serif"
       window.Chart.defaults.fontColor = brightWhite
       window.Chart.defaults.fontSize = 14
       window.Chart.defaults.fontStyle = 500
-      const ctx = lossGraphCanvas.current.getContext('2d')
-      new window.Chart(ctx, {
+      const ctx = lossGraphCanvas.getContext('2d')
+      chart = new window.Chart(ctx, {
         type: 'line',
         data: {
-          labels: labels.map(x => (x === 0 ? '' : x)),
+          labels: steps.map(x => (x === 0 ? '' : x)),
           datasets: [
             {
               label: 'Data',
               backgroundColor: 'rgba(255,255,255,0.2)',
               borderColor: 'rgba(255,255,255,0.2)',
               pointRadius: 0,
-              data: data,
+              data: loss,
               fill: false
             },
             {
@@ -240,7 +258,7 @@ const Training = ({ model }) => {
               backgroundColor: smoothedColor,
               borderColor: smoothedColor,
               pointRadius: 0,
-              data: smoothData,
+              data: smoothDataset2(loss),
               fill: false
             }
           ]
@@ -296,7 +314,7 @@ const Training = ({ model }) => {
         }
       })
     }
-  }, [data, labels, smoothData, useLogarithmicScale])
+  }, [lossGraphCanvas, useLogarithmicScale])
 
   console.log(model)
 
@@ -336,26 +354,34 @@ const Training = ({ model }) => {
           if (matches[1] !== undefined && matches[2] !== undefined) {
             const loss = matches[1].map(Number.parseFloat)
             const steps = matches[2].map(m => Number.parseInt(m, 10))
+            steps.forEach((step, i) => {
+              dataMap[step] = loss[i]
+            })
             setIsLoadingData(false)
             setNoDataAvailable(false)
-            setData(loss)
-            setSmoothData(smoothDataset2(loss))
-            setLabels(steps)
+
+            const [stepsX, lossX] = getStepsAndLoss()
+            const smoothLossX = smoothDataset2(lossX)
+            if (chart && chart.data) {
+              chart.data.labels = stepsX
+              chart.data.datasets[0].data = lossX
+              chart.data.datasets[1].data = smoothLossX
+
+              setStepOveride(stepsX[stepsX.length - 1] + 1)
+              setLossOveride(smoothLossX[smoothLossX.length - 1])
+              setIsLoadingData(false)
+              setNoDataAvailable(false)
+              chart.update()
+            }
             return
           }
         }
 
         setIsLoadingData(false)
         setNoDataAvailable(true)
-        setData([])
-        setSmoothData([])
-        setLabels([])
       } catch {
         // setIsLoadingData(false)
         setNoDataAvailable(true)
-        setData([])
-        setSmoothData([])
-        setLabels([])
       }
     }
     loadData()
@@ -379,7 +405,7 @@ const Training = ({ model }) => {
   const totalStepsRegex = /\.\/start\.sh (\d*)$/
   const trainingCommand =
     model && model.entity.model_definition.execution.command
-  let currentStep = labels.length > 0 ? labels[labels.length - 1] + 1 : 0
+  let currentStep = stepOveride !== undefined ? stepOveride : 0
 
   const matches = totalStepsRegex.exec(trainingCommand)
   const totalSteps = Number.parseInt(matches && matches[1], 10)
@@ -392,6 +418,82 @@ const Training = ({ model }) => {
   const projectName = model ? model.entity.model_definition.name : 'loading...'
   const modelID = model ? model.metadata.guid : 'loading...'
   const modelStatus = model ? model.entity.status.state : 'loading...'
+
+  let daLoss = '?'
+  if (lossOveride !== undefined) {
+    daLoss = lossOveride.toFixed(2)
+  }
+
+  useEffect(() => {
+    if (
+      model &&
+      wmlEndpoint &&
+      wmlInstanceId &&
+      (model.entity.status.state === 'pending' ||
+        model.entity.status.state === 'running')
+    ) {
+      socket.emit('connectToTrainingSocket', {
+        url: wmlEndpoint,
+        modelId: modelID,
+        instanceId: wmlInstanceId
+      })
+    }
+  }, [model, modelID, wmlEndpoint, wmlInstanceId])
+
+  useEffect(() => {
+    dataMap = {}
+    setStepOveride(undefined)
+    setLossOveride(undefined)
+    const statusListener = res => {
+      console.log(res)
+      const resJson = JSON.parse(res)
+
+      if (resJson && resJson.status && resJson.status.message) {
+        const legacyLossRegex = /Step ([0-9]*): Cross entropy = ([0-9]+[.][0-9]+)/gm
+        const lossRegex = /INFO:tensorflow:loss = ([0-9]+[.][0-9]+), step = ([0-9]*)/gm
+        let matches = getMatches(resJson.status.message, lossRegex)
+
+        if (matches[1] === undefined && matches[2] === undefined) {
+          const xMatches = getMatches(resJson.status.message, legacyLossRegex)
+          matches[1] = xMatches[2]
+          matches[2] = xMatches[1]
+        }
+
+        if (matches[1] !== undefined && matches[2] !== undefined) {
+          const loss = matches[1].map(Number.parseFloat)
+          const steps = matches[2].map(m => Number.parseInt(m, 10))
+
+          steps.forEach((step, i) => {
+            dataMap[step] = loss[i]
+          })
+
+          const [stepsX, lossX] = getStepsAndLoss()
+          const smoothLossX = smoothDataset2(lossX)
+
+          if (steps.length > 0 && loss.length > 0) {
+            if (chart && chart.data) {
+              chart.data.labels = stepsX
+              chart.data.datasets[0].data = lossX
+              chart.data.datasets[1].data = smoothLossX
+
+              setStepOveride(stepsX[stepsX.length - 1] + 1)
+              setLossOveride(smoothLossX[smoothLossX.length - 1])
+              setIsLoadingData(false)
+              setNoDataAvailable(false)
+              chart.update()
+            }
+          }
+          return
+        }
+      }
+    }
+
+    socket.on(`trainingStatus-${modelID}`, statusListener)
+
+    return () => {
+      socket.removeListener(`trainingStatus-${modelID}`, statusListener)
+    }
+  }, [modelID])
 
   if (model) {
     return (
@@ -450,11 +552,7 @@ const Training = ({ model }) => {
               display: 'flex'
             }}
           >
-            {`loss (${
-              smoothData.length > 0
-                ? smoothData[smoothData.length - 1].toFixed(2)
-                : '?'
-            })`}
+            {`loss (${daLoss})`}
           </div>
         </div>
 
@@ -465,7 +563,7 @@ const Training = ({ model }) => {
         ) : (
           <canvas
             onClick={handleToggleScale}
-            ref={lossGraphCanvas}
+            ref={setLossGraphCanvas}
             width="100"
             height="30"
           />

@@ -175,6 +175,8 @@ const Base = ({
     []
   )
 
+  const activeResourceInfo = resources.find(r => r.id === activeResource)
+
   return (
     <div className={styles.wrapper}>
       <TitleBar />
@@ -243,7 +245,14 @@ const Base = ({
               width: `calc(100% - ${PANEL_WIDTH})`
             }}
           >
-            <Training model={activeModel} />
+            <Training
+              model={activeModel}
+              wmlEndpoint={
+                activeResourceInfo &&
+                `wss://${activeResourceInfo.region_id}.ml.cloud.ibm.com/v3/models`
+              }
+              wmlInstanceId={activeResourceInfo && activeResourceInfo.guid}
+            />
           </div>
         </>
       )}
