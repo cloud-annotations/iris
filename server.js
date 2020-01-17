@@ -3,6 +3,7 @@ const path = require('path')
 const request = require('request')
 const cookieParser = require('cookie-parser')
 const frameguard = require('frameguard')
+const WebSocket = require('ws')
 
 const app = express()
 const http = require('http').Server(app)
@@ -35,6 +36,42 @@ io.on('connection', socket => {
   socket.on('patch', res => {
     if (socket.bucket) {
       socket.to(socket.bucket).emit('patch', res)
+    }
+  })
+
+  socket.on('connectToTrainingSocket', ({ url, modelId, instanceId }) => {
+    console.log('connected to training socket')
+
+    function parseCookie(cookie) {
+      var name = 'access_token='
+      var decodedCookie = cookie
+      var ca = decodedCookie.split(';')
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i]
+        while (c.charAt(0) === ' ') {
+          c = c.substring(1)
+        }
+        if (c.indexOf(name) === 0) {
+          return c.substring(name.length, c.length)
+        }
+      }
+      return ''
+    }
+
+    const token = parseCookie(socket.handshake.headers.cookie)
+
+    try {
+      const ws = new WebSocket(`${url}/${modelId}/monitor`, {
+        headers: {
+          'ML-Instance-ID': instanceId,
+          Authorization: `bearer ${token}`
+        }
+      })
+      ws.on('message', json => {
+        socket.emit(`trainingStatus-${modelId}`, json)
+      })
+    } catch (error) {
+      console.log(error)
     }
   })
 
