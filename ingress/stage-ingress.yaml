@@ -19,3 +19,23 @@ spec:
         backend:
           serviceName: frontend
           servicePort: 80
+      - path: /docs
+        backend:
+          serviceName: docs
+          servicePort: 80
+      - path: /workshops
+        backend:
+          serviceName: docs
+          servicePort: 80
+      - path: /demos
+        backend:
+          serviceName: docs
+          servicePort: 80
+      - path: /sdks
+        backend:
+          serviceName: docs
+          servicePort: 80
+      - path: /docs-assets
+        backend:
+          serviceName: docs
+          servicePort: 80
