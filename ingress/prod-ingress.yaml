@@ -17,6 +17,22 @@ spec:
     - annotations.us-east.containers.appdomain.cloud
     secretName: annotations
   rules:
+  - host: annotations.ai
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: frontend
+          servicePort: 80
+
+  - host: www.annotations.ai
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: frontend
+          servicePort: 80
+
   - host: cloud.annotations.ai
     http:
       paths:
