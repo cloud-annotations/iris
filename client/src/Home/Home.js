@@ -39,12 +39,12 @@ const Home = ({ attemptedPage }) => {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.titleBar}>
+      <header className={styles.titleBar}>
         <a href="/" className={styles.title}>
           <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
           Annotations
         </a>
-        <div className={styles.mainLinks}>
+        <nav className={styles.mainLinks}>
           <a className={styles.link} href="https://cloud.annotations.ai/docs">
             Guides
           </a>
@@ -60,7 +60,7 @@ const Home = ({ attemptedPage }) => {
           <a className={styles.link} href="https://cloud.annotations.ai/sdks">
             SDKs
           </a>
-        </div>
+        </nav>
 
         <a
           className={styles.outlink}
@@ -117,8 +117,8 @@ const Home = ({ attemptedPage }) => {
             Log in
           </div>
         )}
-      </div>
-      <div className={styles.contentWrapper}>
+      </header>
+      <main className={styles.contentWrapper}>
         <div className={styles.leftWrapper}>
           <div className={styles.bigText}>Cloud Annotations</div>
           <div className={styles.subText}>
@@ -158,7 +158,7 @@ const Home = ({ attemptedPage }) => {
             <source src={video2} type="video/mp4" />
           </video>
         </div>
-      </div>
+      </main>
     </div>
   )
 }
