@@ -14,6 +14,10 @@ body {
 }
 
 body.dark {
+  --primaryLink: #78a9ff;
+  --primaryLinkHover: #a6c8ff;
+  --primaryLinkHoverBG: #353535;
+
   --skeleton1: #353535;
   --skeleton2: #525252;
 
@@ -70,6 +74,10 @@ body.dark {
 }
 
 body.light {
+  --primaryLink: #0f62fe;
+  --primaryLinkHover: #0043ce;
+  --primaryLinkHoverBG: #e5e5e5;
+
   --skeleton1: #e5e5e5;
   --skeleton2: #c6c6c6;
 

@@ -22,6 +22,7 @@ import {
 import { setProfile } from 'redux/profile'
 
 const useCookieCheck = interval => {
+  const [attemptedPage, setAttemptedPage] = useState(undefined)
   useEffect(() => {
     const cookieCheck = () => {
       try {
@@ -29,7 +30,8 @@ const useCookieCheck = interval => {
         checkLoginStatus()
       } catch {
         if (history.location.pathname !== '/login') {
-          history.push('/login')
+          setAttemptedPage(history.location.pathname + history.location.search)
+          history.replace('/login')
         }
       }
     }
@@ -37,6 +39,8 @@ const useCookieCheck = interval => {
     const id = setInterval(cookieCheck, interval)
     return () => clearInterval(id)
   }, [interval])
+
+  return attemptedPage
 }
 
 const useAccount = dispatch => {
@@ -197,7 +201,7 @@ const useProfile = (dispatch, account) => {
 }
 
 const Routing = ({ dispatch, activeAccount }) => {
-  useCookieCheck(10 * 1000)
+  const attemptedPage = useCookieCheck(10 * 1000)
   useAccount(dispatch)
   const tokenUpgraded = useUpgradeToken(activeAccount)
   useResourceList(dispatch, tokenUpgraded)
@@ -213,7 +217,11 @@ const Routing = ({ dispatch, activeAccount }) => {
           <Redirect to="/" />
         </Route>
         <Route exact path="/training" component={Training} />
-        <Route exact path="/login" component={Home} />
+        <Route
+          exact
+          path="/login"
+          render={props => <Home {...props} attemptedPage={attemptedPage} />}
+        />
         <Route exact path="/buckets/:bucket" component={App} />
         <Route
           path="/:bucket"

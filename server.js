@@ -224,7 +224,9 @@ app.put('/api/proxy/*', (req, res, next) => {
 })
 
 app.get('/auth/login', (req, res) => {
-  const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`
+  const redirectUri = `${req.protocol}://${req.get(
+    'host'
+  )}/auth/callback?state=${encodeURIComponent(req.query.state)}`
 
   const options = {
     url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
@@ -245,11 +247,17 @@ app.get('/auth/login', (req, res) => {
 })
 
 app.get('/auth/callback', (req, res) => {
-  const redirectUri = `${req.protocol}://${req.get('host')}/auth/callback`
-  const { code } = req.query
+  const { code, state } = req.query
+  const redirectUri = `${req.protocol}://${req.get(
+    'host'
+  )}/auth/callback?state=${state}`
 
   tokenPoking(res, { code: code, redirectUri: redirectUri }, () => {
-    res.redirect('/')
+    if (!state.startsWith('/')) {
+      res.redirect('/')
+    } else {
+      res.redirect(state)
+    }
   })
 })
 

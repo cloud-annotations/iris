@@ -21,7 +21,7 @@ import AppBar from './AppBar'
 import AppBarLayout from './AppBarLayout'
 
 import styles from './App.module.css'
-import { convertToJpeg, videoToJpegs } from 'Utils'
+import { convertToJpeg, videoToJpegs, checkLoginStatus } from 'Utils'
 
 const generateFiles = async (images, videos) => {
   const imageFiles = images.map(
@@ -78,11 +78,13 @@ const App = ({
         setCollection(await loadCollection(bucket, location))
       } catch (error) {
         console.error(error)
-        if (error.message === 'Forbidden') {
-          history.push('/login')
+        try {
+          // See if we are logged in.
+          checkLoginStatus()
+          await locationFinder(bucket)
+        } catch {
           return
         }
-        await locationFinder(bucket)
       }
       setLoading(false)
     }
