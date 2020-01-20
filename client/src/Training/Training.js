@@ -1,10 +1,4 @@
-import React, {
-  useRef,
-  useState,
-  useEffect,
-  useCallback,
-  useLayoutEffect
-} from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import savitzkyGolay from 'ml-savitzky-golay'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
