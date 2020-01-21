@@ -32,7 +32,7 @@ const _regions = {
 
 let _defaultEndpoint = 's3.private.us.cloud-object-storage.appdomain.cloud'
 
-let _endpoints = {
+let _privateEndpoints = {
   us: 's3.private.us.cloud-object-storage.appdomain.cloud',
   'dal.us': 's3.private.dal.us.cloud-object-storage.appdomain.cloud',
   'wdc.us': 's3.private.wdc.us.cloud-object-storage.appdomain.cloud',
@@ -64,6 +64,8 @@ let _endpoints = {
   mil01: 's3.private.mil01.cloud-object-storage.appdomain.cloud',
   hkg02: 's3.private.hkg02.cloud-object-storage.appdomain.cloud'
 }
+
+let _endpoints = _privateEndpoints
 
 if (process.env.NODE_ENV === 'development') {
   _defaultEndpoint = 's3.us.cloud-object-storage.appdomain.cloud'
@@ -161,6 +163,14 @@ export const regionFromEndpoint = endpoint => {
 
 export const endpointFromRegion = region => {
   return _endpoints[region]
+}
+
+export const fullPrivateEndpointForLocationConstraint = location => {
+  location = location.replace(/-standard$/, '')
+  location = location.replace(/-vault$/, '')
+  location = location.replace(/-cold$/, '')
+  location = location.replace(/-flex$/, '')
+  return `https://${_privateEndpoints[location]}`
 }
 
 export const endpointForLocationConstraint = location => {
