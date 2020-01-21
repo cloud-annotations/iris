@@ -27,7 +27,10 @@ import useOnClickOutside from 'hooks/useOnClickOutside'
 import { getDataTransferItems, convertToJpeg, videoToJpegs } from 'Utils'
 import { setActiveImage } from 'redux/editor'
 import COS from 'api/COSv2'
-import { endpointForLocationConstraint } from 'endpoints'
+import {
+  fullPrivateEndpointForLocationConstraint,
+  endpointForLocationConstraint
+} from 'endpoints'
 
 const DEFAULT_GPU = 'k80'
 const DEFAULT_STEPS = '500'
@@ -327,7 +330,7 @@ const AppBar = ({
       // Try to find the start command (could be `start.sh` or `zipname/start.sh`)
       const command = `cd "$(dirname "$(find . -name "start.sh" -maxdepth 2 | head -1)")" && chmod 777 ./start.sh && ./start.sh ${DEFAULT_STEPS}`
       const connection = {
-        endpoint_url: endpointForLocationConstraint(location),
+        endpoint_url: fullPrivateEndpointForLocationConstraint(location),
         access_key_id: access_key_id,
         secret_access_key: secret_access_key
       }
