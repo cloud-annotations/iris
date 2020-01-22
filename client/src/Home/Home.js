@@ -46,7 +46,7 @@ const Home = ({ attemptedPage }) => {
         </a>
         <nav className={styles.mainLinks}>
           <a className={styles.link} href="https://cloud.annotations.ai/docs">
-            Guides
+            Docs
           </a>
           <a
             className={styles.link}
