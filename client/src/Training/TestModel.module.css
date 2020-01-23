@@ -1,0 +1,52 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin: 48px 16px 32px 16px;
+}
+
+.dropzoneBase {
+  position: relative;
+  padding: 12px;
+  color: var(--detailText);
+  border: 2px var(--textInputUnderline) dashed;
+  border-radius: 5px;
+  width: 100%;
+  min-height: 144px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropzone {
+  composes: dropzoneBase;
+  cursor: pointer;
+}
+
+.dropzone:hover {
+  background: var(--highlight);
+}
+
+.dropzoneDissabled {
+  composes: dropzoneBase;
+  pointer-events: none;
+  color: var(--disabledText);
+  border: 2px var(--textInput) dashed;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  border: thin solid rgba(64, 64, 64, 0.15);
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.canvas {
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+}

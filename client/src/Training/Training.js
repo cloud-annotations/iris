@@ -4,6 +4,8 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import socket from 'globalSocket'
 
+import TestModel from './TestModel'
+
 import objectDetector from '@cloud-annotations/object-detection'
 
 import COS from 'api/COSv2'
@@ -220,6 +222,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
   const [lossGraphCanvas, setLossGraphCanvas] = useState(undefined)
 
   useEffect(() => {
+    setTfjsModel(undefined)
     if (model !== undefined) {
       try {
         const {
@@ -385,20 +388,18 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
             steps.forEach((step, i) => {
               dataMap[step] = loss[i]
             })
-            setIsLoadingData(false)
-            setNoDataAvailable(false)
 
             const [stepsX, lossX] = getStepsAndLoss()
             const smoothLossX = smoothDataset2(lossX)
+
+            setStepOveride(stepsX[stepsX.length - 1] + 1)
+            setLossOveride(smoothLossX[smoothLossX.length - 1])
+            setIsLoadingData(false)
+            setNoDataAvailable(false)
             if (chart && chart.data) {
               chart.data.labels = stepsX
               chart.data.datasets[0].data = lossX
               chart.data.datasets[1].data = smoothLossX
-
-              setStepOveride(stepsX[stepsX.length - 1] + 1)
-              setLossOveride(smoothLossX[smoothLossX.length - 1])
-              setIsLoadingData(false)
-              setNoDataAvailable(false)
               chart.update()
             }
             return
@@ -555,6 +556,8 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
           </div>
         </div>
 
+        <TestModel show={modelStatus === 'completed'} model={tfjsModel} />
+
         <div
           style={{
             margin: '16px 16px 0 16px',
@@ -597,7 +600,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
           />
         )}
 
-        <div style={{ margin: '48px 16px 0 16px' }}>
+        <div style={{ margin: '48px 16px 48px 16px' }}>
           <div
             style={{
               fontSize: '14px',
@@ -652,7 +655,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
             />
           </div>
         </div>
-        {/* <div>Upload image</div> */}
+        {/* <TestModel model={tfjsModel} /> */}
       </div>
     )
   }
