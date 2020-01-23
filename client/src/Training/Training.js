@@ -4,6 +4,8 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import socket from 'globalSocket'
 
+import objectDetector from '@cloud-annotations/object-detection'
+
 import COS from 'api/COSv2'
 
 import styles from './Training.module.css'
@@ -212,8 +214,40 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
   const [lossOveride, setLossOveride] = useState(undefined)
   const [stepOveride, setStepOveride] = useState(undefined)
 
+  const [tfjsModel, setTfjsModel] = useState(undefined)
+
   // const lossGraphCanvas = useRef()
   const [lossGraphCanvas, setLossGraphCanvas] = useState(undefined)
+
+  useEffect(() => {
+    if (model !== undefined) {
+      try {
+        const {
+          bucket,
+          model_location
+        } = model.entity.training_results_reference.location
+        if (model_location && bucket) {
+          const safeEndpoint = endpointFromRegion(
+            regionFromEndpoint(
+              model.entity.training_results_reference.connection.endpoint_url
+            )
+          )
+          objectDetector
+            .load(
+              `/api/proxy/${safeEndpoint}/${bucket}/${model_location}/model_web`
+            )
+            .then(async tfjsModel => {
+              // warm up the model
+              const image = new ImageData(1, 1)
+              await tfjsModel.detect(image)
+              setTfjsModel(tfjsModel)
+            })
+        }
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }, [model])
 
   useEffect(() => {
     const brightWhite = getComputedStyle(document.body).getPropertyValue(
@@ -618,6 +652,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
             />
           </div>
         </div>
+        {/* <div>Upload image</div> */}
       </div>
     )
   }
