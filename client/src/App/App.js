@@ -13,6 +13,7 @@ import {
   uploadImages,
   syncAction
 } from 'redux/collection'
+import { setBucket } from 'redux/editor'
 import Localization from './Localization/Localization'
 import LegacyApp from './Classification/App'
 import { locationFinder } from './endpointFinder'
@@ -65,7 +66,8 @@ const App = ({
   clearCollection,
   syncAction,
   profile,
-  collection
+  collection,
+  setBucket
 }) => {
   const [loading, setLoading] = useState(true)
   const [dropActive, setDropActive] = useState(false)
@@ -76,6 +78,7 @@ const App = ({
     const asyncEffect = async () => {
       try {
         setCollection(await loadCollection(bucket, location))
+        setBucket(bucket)
       } catch (error) {
         console.error(error)
         try {
@@ -90,7 +93,7 @@ const App = ({
     }
     asyncEffect()
     return () => clearCollection()
-  }, [bucket, clearCollection, location, setCollection])
+  }, [bucket, clearCollection, location, setBucket, setCollection])
 
   const handleClose = useCallback(() => {
     history.push('/')
@@ -175,6 +178,7 @@ const mapStateToProps = state => ({
   profile: state.profile
 })
 const mapDispatchToProps = {
+  setBucket,
   setCollection,
   clearCollection,
   syncAction

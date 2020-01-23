@@ -1,6 +1,5 @@
 import { BOX } from 'common/Canvas/Canvas'
 import socket from 'globalSocket'
-import history from 'globalHistory'
 
 // Actions
 const SET_ACTIVE_BOX = 'cloud-annotations/editor/SET_ACTIVE_BOX'
@@ -15,6 +14,7 @@ const RESET_EDITOR = 'cloud-annotations/editor/RESET_EDITOR'
 const INCREMENT_SAVING = 'cloud-annotations/editor/INCREMENT_SAVING'
 const DECREMENT_SAVING = 'cloud-annotations/editor/DECREMENT_SAVING'
 const UPDATE_HEAD_COUNT = 'cloud-annotations/editor/UPDATE_HEAD_COUNT'
+const SET_BUCKET = 'cloud-annotations/editor/SET_BUCKET'
 
 // Reducer
 const defaultEditor = {
@@ -29,6 +29,8 @@ const defaultEditor = {
 }
 export default function reducer(editor = defaultEditor, action = {}) {
   switch (action.type) {
+    case SET_BUCKET:
+      return { ...editor, bucket: action.bucket }
     case RESET_EDITOR:
       return defaultEditor
     case INCREMENT_SAVING:
@@ -38,8 +40,7 @@ export default function reducer(editor = defaultEditor, action = {}) {
     case SET_ACTIVE_BOX:
       return { ...editor, box: action.box }
     case SET_ACTIVE_IMAGE:
-      const bucket = history.location.pathname.split('/')[1]
-      socket.emit('join', { bucket: bucket, image: action.image })
+      socket.emit('join', { bucket: editor.bucket, image: action.image })
       return { ...editor, image: action.image, range: [action.image] }
     case CTRL_EXPAND_RANGE:
       const rangeHasImage = editor.range.includes(action.image)
@@ -141,4 +142,9 @@ export const decrementSaving = () => ({
 export const updateHeadCount = count => ({
   type: UPDATE_HEAD_COUNT,
   count: count
+})
+
+export const setBucket = bucket => ({
+  type: SET_BUCKET,
+  bucket: bucket
 })
