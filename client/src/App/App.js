@@ -75,10 +75,14 @@ const App = ({
   const location = queryString.parse(search).location
 
   useEffect(() => {
+    setBucket(bucket, location)
+    return () => setBucket(undefined, undefined)
+  }, [bucket, location, setBucket])
+
+  useEffect(() => {
     const asyncEffect = async () => {
       try {
         setCollection(await loadCollection(bucket, location))
-        setBucket(bucket)
       } catch (error) {
         console.error(error)
         try {
@@ -93,7 +97,7 @@ const App = ({
     }
     asyncEffect()
     return () => clearCollection()
-  }, [bucket, clearCollection, location, setBucket, setCollection])
+  }, [bucket, clearCollection, location, setCollection])
 
   const handleClose = useCallback(() => {
     history.push('/')

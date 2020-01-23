@@ -1,5 +1,6 @@
 import { BOX } from 'common/Canvas/Canvas'
 import socket from 'globalSocket'
+import { endpointForLocationConstraint } from 'endpoints'
 
 // Actions
 const SET_ACTIVE_BOX = 'cloud-annotations/editor/SET_ACTIVE_BOX'
@@ -25,12 +26,14 @@ const defaultEditor = {
   tool: BOX,
   label: undefined,
   hoveredBox: undefined,
-  headCount: 0
+  headCount: 0,
+  bucket: undefined,
+  location: undefined
 }
 export default function reducer(editor = defaultEditor, action = {}) {
   switch (action.type) {
     case SET_BUCKET:
-      return { ...editor, bucket: action.bucket }
+      return { ...editor, bucket: action.bucket, location: action.location }
     case RESET_EDITOR:
       return defaultEditor
     case INCREMENT_SAVING:
@@ -40,7 +43,11 @@ export default function reducer(editor = defaultEditor, action = {}) {
     case SET_ACTIVE_BOX:
       return { ...editor, box: action.box }
     case SET_ACTIVE_IMAGE:
-      socket.emit('join', { bucket: editor.bucket, image: action.image })
+      socket.emit('join', {
+        endpoint: endpointForLocationConstraint(editor.location),
+        bucket: editor.bucket,
+        image: action.image
+      })
       return { ...editor, image: action.image, range: [action.image] }
     case CTRL_EXPAND_RANGE:
       const rangeHasImage = editor.range.includes(action.image)
@@ -144,7 +151,8 @@ export const updateHeadCount = count => ({
   count: count
 })
 
-export const setBucket = bucket => ({
+export const setBucket = (bucket, location) => ({
   type: SET_BUCKET,
-  bucket: bucket
+  bucket: bucket,
+  location: location
 })

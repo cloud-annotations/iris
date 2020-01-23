@@ -31,6 +31,22 @@ const broadcastRoomCount = room => {
   } catch {}
 }
 
+const parseCookie = cookie => {
+  var name = 'access_token='
+  var decodedCookie = cookie
+  var ca = decodedCookie.split(';')
+  for (var i = 0; i < ca.length; i++) {
+    var c = ca[i]
+    while (c.charAt(0) === ' ') {
+      c = c.substring(1)
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length)
+    }
+  }
+  return ''
+}
+
 //// socket playground
 io.on('connection', socket => {
   socket.on('patch', res => {
@@ -40,25 +56,7 @@ io.on('connection', socket => {
   })
 
   socket.on('connectToTrainingSocket', ({ url, modelId, instanceId }) => {
-    console.log('connected to training socket')
-
-    function parseCookie(cookie) {
-      var name = 'access_token='
-      var decodedCookie = cookie
-      var ca = decodedCookie.split(';')
-      for (var i = 0; i < ca.length; i++) {
-        var c = ca[i]
-        while (c.charAt(0) === ' ') {
-          c = c.substring(1)
-        }
-        if (c.indexOf(name) === 0) {
-          return c.substring(name.length, c.length)
-        }
-      }
-      return ''
-    }
-
-    const token = parseCookie(socket.handshake.headers.cookie)
+    const token = parseCookie(socket.request.headers.cookie)
 
     try {
       const ws = new WebSocket(`${url}/${modelId}/monitor`, {
@@ -75,29 +73,61 @@ io.on('connection', socket => {
     }
   })
 
-  socket.on('join', ({ bucket, image }) => {
-    if (!socket.bucket) {
-      socket.bucket = bucket
-      socket.join(bucket)
-    } else if (socket.bucket !== bucket) {
-      socket.leave(socket.bucket)
-      socket.bucket = bucket
-      socket.join(bucket)
+  socket.on('join', async ({ endpoint, bucket, image }) => {
+    // TODO any socket.join() must verify they can actually access the bucket...
+    if (bucket === undefined) {
+      console.error('No Bucket.')
+      return
+    }
+    if (endpoint === undefined) {
+      console.error('No Endpoint.')
+      return
     }
 
-    const imageRoom = `${bucket}:${image}`
-    if (!socket.image) {
-      socket.image = imageRoom
-      socket.join(socket.image)
-    } else if (socket.image !== imageRoom) {
-      socket.leave(socket.image)
-      // let the room know that it left.
-      broadcastRoomCount(socket.image)
-      socket.image = imageRoom
-      socket.join(socket.image)
-    }
+    const url = `https://${endpoint}/${bucket}`
+    const token = parseCookie(socket.request.headers.cookie)
 
-    broadcastRoomCount(socket.image)
+    request(
+      {
+        method: 'GET',
+        url: url,
+        qs: {
+          'list-type': 2,
+          'max-keys': 1
+        },
+        headers: {
+          Authorization: `bearer ${token}`
+        }
+      },
+      (error, response, body) => {
+        if (isSuccess(error, response)) {
+          if (!socket.bucket) {
+            socket.bucket = bucket
+            socket.join(bucket)
+          } else if (socket.bucket !== bucket) {
+            socket.leave(socket.bucket)
+            socket.bucket = bucket
+            socket.join(bucket)
+          }
+
+          const imageRoom = `${bucket}:${image}`
+          if (!socket.image) {
+            socket.image = imageRoom
+            socket.join(socket.image)
+          } else if (socket.image !== imageRoom) {
+            socket.leave(socket.image)
+            // let the room know that it left.
+            broadcastRoomCount(socket.image)
+            socket.image = imageRoom
+            socket.join(socket.image)
+          }
+
+          broadcastRoomCount(socket.image)
+        } else {
+          console.error(body)
+        }
+      }
+    )
   })
 
   socket.on('disconnect', () => {
