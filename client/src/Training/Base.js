@@ -242,6 +242,9 @@ const Base = ({
             style={{
               position: 'absolute',
               left: PANEL_WIDTH,
+              top: '64px',
+              bottom: '0',
+              overflow: 'scroll',
               width: `calc(100% - ${PANEL_WIDTH})`
             }}
           >
