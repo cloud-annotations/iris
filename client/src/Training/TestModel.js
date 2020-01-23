@@ -17,7 +17,13 @@ const TestModel = ({ show, model }) => {
 
   useEffect(() => {
     setPreview(undefined)
-  }, [model]) // if model changes kill preview.
+    if (resultsCanvas) {
+      resultsCanvas.style.width = 0
+      resultsCanvas.style.height = 0
+      const ctx = resultsCanvas.getContext('2d')
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    }
+  }, [model, resultsCanvas]) // if model changes kill preview.
 
   const onDrop = useCallback((accepted, _, links) => {
     setPreview(accepted[0].preview || links[0])
