@@ -15,6 +15,8 @@ BINLOCATION="/usr/local/bin"
 # Content common across repos
 ################################################################################
 
+[ "$(id -u)" -ne 0 ] && SUDO=sudo || SUDO=""
+
 version=$(curl -sI https://github.com/$OWNER/$REPO/releases/latest | grep Location | awk -F"/" '{ printf "%s", $NF }' | tr -d '\r')
 if [ ! $version ]; then
     echo "Failed while attempting to install $ALIAS_NAME. Please manually install:"
@@ -93,6 +95,11 @@ get_package() {
             ;;
         esac
         case $arch in
+        "x86_64")
+            suffix="_linux_x86_64"
+            ;;
+        esac
+        case $arch in
         "armv6l" | "armv7l")
             suffix="_linux_armv6"
             ;;
@@ -134,48 +141,17 @@ get_package() {
 
         echo "Download complete."
 
-        if [ ! -w "$BINLOCATION" ]; then
+        $SUDO mv $binary_file $BINLOCATION/$ALIAS_NAME
 
-            echo
-            echo "============================================================"
-            echo "  The script was run as a user who is unable to write"
-            echo "  to $BINLOCATION. To complete the installation the"
-            echo "  following commands may need to be run manually."
-            echo "============================================================"
-            echo
-            echo "  sudo cp $ALIAS_NAME$suffix $BINLOCATION/$ALIAS_NAME"
-            echo
-
-        else
-
-            echo
-            echo "Running with sufficient permissions to attempt to move $ALIAS_NAME to $BINLOCATION"
-
-            if [ ! -w "$BINLOCATION/$ALIAS_NAME" ] && [ -f "$BINLOCATION/$ALIAS_NAME" ]; then
-
-                echo
-                echo "================================================================"
-                echo "  $BINLOCATION/$ALIAS_NAME already exists and is not writeable"
-                echo "  by the current user.  Please adjust the binary ownership"
-                echo "  or run sh/bash with sudo."
-                echo "================================================================"
-                echo
-                exit 1
-
-            fi
-
-            mv $binary_file $BINLOCATION/$ALIAS_NAME
-
-            if [ "$?" = "0" ]; then
-                echo "New version of $ALIAS_NAME installed to $BINLOCATION"
-            fi
-
-            if [ -e $binary_file ]; then
-                rm $binary_file
-            fi
-
-            ${SUCCESS_CMD}
+        if [ "$?" = "0" ]; then
+            echo "New version of $ALIAS_NAME installed to $BINLOCATION"
         fi
+
+        if [ -e $binary_file ]; then
+            rm $binary_file
+        fi
+
+        ${SUCCESS_CMD}
     fi
 }
 
