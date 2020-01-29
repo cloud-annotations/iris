@@ -474,8 +474,18 @@ app.all('/api/proxy/*', (req, res) => {
 })
 
 if (process.env.NODE_ENV === 'production') {
+  app.get('/install.sh', (_, res) => {
+    res
+      .set({
+        'Content-Type': 'text/plain; charset=utf-8',
+        'X-Content-Type-Options': 'nosniff'
+      })
+      .sendFile(path.join(__dirname, 'client', 'install.sh'))
+  })
+
   app.use(express.static(path.join(__dirname, 'client')))
 
+  // give all the routes to react
   app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, 'client', 'index.html'))
   })
