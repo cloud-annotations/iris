@@ -2,7 +2,13 @@
 
 <h1 align="center">Cloud Annotations</h1>
 
-### [Try it now](https://cloud.annotations.ai)
+<p align="center">
+  <img width="700" src="./demo.png" alt="Logo">
+</p>
+
+<h3 align="center">
+  <a href="https://cloud.annotations.ai">Launch Cloud Annotations</a>
+</h3>
 
 ## Project setup
 `git clone` the repo and `cd` into it by running the following command:
