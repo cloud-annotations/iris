@@ -7,7 +7,7 @@
 </p>
 
 <h3 align="center">
-  <a href="https://cloud.annotations.ai">Launch Cloud Annotations</a>
+  <a href="https://cloud.annotations.ai" target="_blank">Launch Cloud Annotations</a> 🚀
 </h3>
 
 ## Project setup
