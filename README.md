@@ -1,5 +1,6 @@
-# Cloud Annotations Client
-This is the setup and usage information for a local development environment for the Cloud Annotations tool.
+[![Build Status](https://travis-ci.org/cloud-annotations/cloud-annotations-client.svg?branch=master)](https://travis-ci.org/cloud-annotations/cloud-annotations-client)
+
+<h1 align="center">Cloud Annotations</h1>
 
 ### [Try it now](https://cloud.annotations.ai)
 
