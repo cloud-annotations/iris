@@ -1,7 +1,7 @@
 # Cloud Annotations Client
 This is the setup and usage information for a local development environment for the Cloud Annotations tool.
 
-## [Try it now](https://cloud.annotations.ai)
+### [Try it now](https://cloud.annotations.ai)
 
 ## Project setup
 `git clone` the repo and `cd` into it by running the following command:
