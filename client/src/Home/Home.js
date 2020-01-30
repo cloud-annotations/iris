@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { InlineLoading } from 'carbon-components-react'
 
 import styles from './Home.module.css'
-import windowDark from './window-dark.png'
+import windowDark from './window-dark-compressed.png'
 import video from './trim.webm'
 import video2 from './trim.mp4'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'

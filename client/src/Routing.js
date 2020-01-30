@@ -1,11 +1,12 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, Suspense, lazy } from 'react'
 import { Router, Route, Switch, Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 
-import App from './App/App'
-import Home from './Home/Home'
-import Buckets from './Buckets/Buckets'
-import Training from './Training/Base'
+// import App from './App/App'
+// import Home from './Home/Home'
+// import Buckets from './Buckets/Buckets'
+// import Training from './Training/Base'
+
 import history from 'globalHistory'
 import { checkLoginStatus } from './Utils'
 import { setAccounts, setLoadingAccounts } from 'redux/accounts'
@@ -20,6 +21,11 @@ import {
   invalidateWMLResources
 } from 'redux/wmlResources'
 import { setProfile } from 'redux/profile'
+
+const App = lazy(() => import('./App/App'))
+const Home = lazy(() => import('./Home/Home'))
+const Buckets = lazy(() => import('./Buckets/Buckets'))
+const Training = lazy(() => import('./Training/Base'))
 
 const useCookieCheck = interval => {
   const [attemptedPage, setAttemptedPage] = useState(undefined)
@@ -210,29 +216,31 @@ const Routing = ({ dispatch, activeAccount }) => {
 
   return (
     <Router history={history}>
-      <Switch>
-        {/* With `Switch` there will only ever be one child here */}
-        <Route exact path="/" component={Buckets} />
-        <Route exact path="/buckets">
-          <Redirect to="/" />
-        </Route>
-        <Route exact path="/training" component={Training} />
-        <Route
-          exact
-          path="/login"
-          render={props => <Home {...props} attemptedPage={attemptedPage} />}
-        />
-        <Route exact path="/buckets/:bucket" component={App} />
-        <Route
-          path="/:bucket"
-          component={({
-            match: {
-              params: { bucket }
-            },
-            location: { search }
-          }) => <Redirect to={`/buckets/${bucket}${search}`} />}
-        ></Route>
-      </Switch>
+      <Suspense fallback={<div>Loading...</div>}>
+        <Switch>
+          {/* With `Switch` there will only ever be one child here */}
+          <Route exact path="/" component={Buckets} />
+          <Route exact path="/buckets">
+            <Redirect to="/" />
+          </Route>
+          <Route exact path="/training" component={Training} />
+          <Route
+            exact
+            path="/login"
+            render={props => <Home {...props} attemptedPage={attemptedPage} />}
+          />
+          <Route exact path="/buckets/:bucket" component={App} />
+          <Route
+            path="/:bucket"
+            component={({
+              match: {
+                params: { bucket }
+              },
+              location: { search }
+            }) => <Redirect to={`/buckets/${bucket}${search}`} />}
+          ></Route>
+        </Switch>
+      </Suspense>
     </Router>
   )
 }
