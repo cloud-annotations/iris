@@ -18,7 +18,7 @@ spec:
       - path: /
         backend:
           serviceName: frontend
-          servicePort: 80
+          servicePort: 443
       - path: /docs
         backend:
           serviceName: docs

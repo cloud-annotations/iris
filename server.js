@@ -17,15 +17,12 @@ if (
   process.env.NODE_ENV === 'localbuild'
 ) {
   console.log('Using http/2')
+  console.log(process.env.TLS_KEY)
   console.log(process.env.TLS_CRT)
   server = spdy.createServer(
     {
-      key:
-        process.env.TLS_KEY ||
-        fs.readFileSync(path.join(__dirname, 'local_keys', 'server.key')),
-      cert:
-        process.env.TLS_CRT ||
-        fs.readFileSync(path.join(__dirname, 'local_keys', 'server.crt'))
+      key: process.env.TLS_KEY,
+      cert: process.env.TLS_CRT
     },
     app
   )
