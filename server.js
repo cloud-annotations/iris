@@ -5,15 +5,60 @@ const cookieParser = require('cookie-parser')
 const frameguard = require('frameguard')
 const WebSocket = require('ws')
 
+const fs = require('fs')
+const spdy = require('spdy')
+const compression = require('compression')
+
 const app = express()
-const http = require('http').Server(app)
-const io = require('socket.io')(http)
+
+let server
+if (
+  process.env.NODE_ENV === 'production' ||
+  process.env.NODE_ENV === 'localbuild'
+) {
+  console.log('Using http/2')
+  server = spdy.createServer(
+    {
+      // key: fs.readFileSync(path.join(__dirname, 'local_keys', 'server.key')),
+      // cert: fs.readFileSync(path.join(__dirname, 'local_keys', 'server.crt'))
+    },
+    app
+  )
+} else {
+  console.log('Using http/1.1')
+  server = require('http').Server(app)
+}
+
+const io = require('socket.io')(server)
+
+// const http2 = spdy.createServer(
+//   {
+//     key: fs.readFileSync(path.join(__dirname, 'local_keys', 'server.key')),
+//     cert: fs.readFileSync(path.join(__dirname, 'local_keys', 'server.crt'))
+//   },
+//   app
+// )
+// const io = require('socket.io')(http2)
+// const http = require('http').Server(app)
+// const io = require('socket.io')(http)
 const redis = require('socket.io-redis')
 const port = process.env.PORT || 9000
 
 require('dotenv').config()
 
-app.use(express.static(__dirname + '/public'))
+const shouldCompress = (req, res) => {
+  // don't compress responses asking explicitly not
+  if (req.headers['x-no-compression']) {
+    return false
+  }
+
+  // use compression filter function
+  return compression.filter(req, res)
+}
+
+app.use(compression({ filter: shouldCompress }))
+
+// app.use(express.static(path.join(__dirname, 'client', 'public')))
 
 let baseEndpoint = 'cloud.ibm.com'
 let secure = false
@@ -491,4 +536,24 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-http.listen(port, () => console.log('listening on port ' + port))
+if (process.env.NODE_ENV === 'localbuild') {
+  console.log('welcome to your local build')
+
+  app.get('/install.sh', (_, res) => {
+    res
+      .set({
+        'Content-Type': 'text/plain; charset=utf-8',
+        'X-Content-Type-Options': 'nosniff'
+      })
+      .sendFile(path.join(__dirname, 'client', 'build', 'install.sh'))
+  })
+
+  app.use(express.static(path.join(__dirname, 'client', 'build')))
+
+  // give all the routes to react
+  app.get('*', (_, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'))
+  })
+}
+
+server.listen(port, () => console.log('listening on port ' + port))

@@ -2,7 +2,19 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { InlineLoading } from 'carbon-components-react'
 
 import styles from './Home.module.css'
-import windowDark from './window-dark-compressed.png'
+
+import windowDarkSmall from './window-dark-small.png'
+import windowDarkSmall2x from './window-dark-small@2x.png'
+
+import windowDark from './window-dark.png'
+import windowDark2x from './window-dark@2x.png'
+
+import windowDarkSmallP from './window-dark-small.webp'
+import windowDarkSmallP2x from './window-dark-small@2x.webp'
+
+import windowDarkP from './window-dark.webp'
+import windowDarkP2x from './window-dark@2x.webp'
+
 import video from './trim.webm'
 import video2 from './trim.mp4'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
@@ -144,7 +156,30 @@ const Home = ({ attemptedPage }) => {
           </div>
         </div>
         <div className={styles.videoWrapper}>
-          <img className={styles.image} src={windowDark} alt="" />
+          <picture>
+            <source
+              className={styles.image}
+              media="(max-width: 700px)"
+              type="image/webp"
+              srcset={`${windowDarkSmallP}, ${windowDarkSmallP2x} 2x`}
+            />
+            <source
+              className={styles.image}
+              type="image/webp"
+              srcset={`${windowDarkP}, ${windowDarkP2x} 2x`}
+            />
+            <source
+              className={styles.image}
+              media="(max-width: 700px)"
+              srcset={`${windowDarkSmall}, ${windowDarkSmall2x} 2x`}
+            />
+            <img
+              className={styles.image}
+              src={windowDark}
+              alt="Dog on the beach"
+              srcset={`${windowDark2x} 2x`}
+            />
+          </picture>
           <video
             ref={videoRef}
             className={styles.video}
