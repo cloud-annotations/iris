@@ -13,8 +13,9 @@ const app = express()
 
 let server
 if (
-  process.env.NODE_ENV === 'production' ||
-  process.env.NODE_ENV === 'localbuild'
+  false &&
+  (process.env.NODE_ENV === 'production' ||
+    process.env.NODE_ENV === 'localbuild')
 ) {
   console.log('Using http/2')
   console.log(process.env.TLS_KEY)
