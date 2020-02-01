@@ -13,17 +13,18 @@ const app = express()
 
 let server
 if (
-  false &&
-  (process.env.NODE_ENV === 'production' ||
-    process.env.NODE_ENV === 'localbuild')
+  process.env.NODE_ENV === 'production' ||
+  process.env.NODE_ENV === 'localbuild'
 ) {
   console.log('Using http/2')
-  console.log(process.env.TLS_KEY)
-  console.log(process.env.TLS_CRT)
   server = spdy.createServer(
     {
-      key: process.env.TLS_KEY,
-      cert: process.env.TLS_CRT
+      key:
+        process.env.TLS_KEY ||
+        fs.readFileSync(path.join(__dirname, 'local_keys', 'server.key')),
+      cert:
+        process.env.TLS_CRT ||
+        fs.readFileSync(path.join(__dirname, 'local_keys', 'server.crt'))
     },
     app
   )
@@ -33,17 +34,6 @@ if (
 }
 
 const io = require('socket.io')(server)
-
-// const http2 = spdy.createServer(
-//   {
-//     key: fs.readFileSync(path.join(__dirname, 'local_keys', 'server.key')),
-//     cert: fs.readFileSync(path.join(__dirname, 'local_keys', 'server.crt'))
-//   },
-//   app
-// )
-// const io = require('socket.io')(http2)
-// const http = require('http').Server(app)
-// const io = require('socket.io')(http)
 const redis = require('socket.io-redis')
 const port = process.env.PORT || 9000
 
@@ -60,8 +50,6 @@ const shouldCompress = (req, res) => {
 }
 
 app.use(compression({ filter: shouldCompress }))
-
-// app.use(express.static(path.join(__dirname, 'client', 'public')))
 
 let baseEndpoint = 'cloud.ibm.com'
 let secure = false
@@ -122,7 +110,6 @@ io.on('connection', socket => {
   })
 
   socket.on('join', async ({ endpoint, bucket, image }) => {
-    // TODO any socket.join() must verify they can actually access the bucket...
     if (bucket === undefined) {
       console.error('No Bucket.')
       return
@@ -536,7 +523,6 @@ if (process.env.NODE_ENV === 'production') {
 
   // give all the routes to react
   app.get('*', (_, res) => {
-    console.log('index route')
     res.sendFile(path.join(__dirname, 'client', 'index.html'))
   })
 }
