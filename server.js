@@ -521,6 +521,7 @@ app.all('/api/proxy/*', (req, res) => {
 })
 
 if (process.env.NODE_ENV === 'production') {
+  console.log('production build')
   app.get('/install.sh', (_, res) => {
     res
       .set({
@@ -534,6 +535,7 @@ if (process.env.NODE_ENV === 'production') {
 
   // give all the routes to react
   app.get('*', (_, res) => {
+    console.log('index route')
     res.sendFile(path.join(__dirname, 'client', 'index.html'))
   })
 }
