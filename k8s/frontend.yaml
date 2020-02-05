@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: us.icr.io/bourdakos1/annotate:b5437d151225b149c9cd1c3bed34f9dd8723f21d
+        image: us.icr.io/bourdakos1/annotate:20755b0b76f58665b99da7742b871644720814c7
         env:
         - name: TLS_CRT
           valueFrom:
