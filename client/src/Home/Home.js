@@ -15,7 +15,7 @@ import windowDarkSmallP2x from './window-dark-small@2x.webp'
 import windowDarkP from './window-dark.webp'
 import windowDarkP2x from './window-dark@2x.webp'
 
-import video from './trim.webm'
+// import video from './trim.webm'
 import video2 from './trim.mp4'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
@@ -29,7 +29,6 @@ const Home = ({ attemptedPage }) => {
 
   useGoogleAnalytics('home')
 
-  console.log(attemptedPage)
   const encodedState = encodeURIComponent(attemptedPage)
 
   const handleClick1 = useCallback(() => {
@@ -161,23 +160,23 @@ const Home = ({ attemptedPage }) => {
               className={styles.image}
               media="(max-width: 700px)"
               type="image/webp"
-              srcset={`${windowDarkSmallP}, ${windowDarkSmallP2x} 2x`}
+              srcSet={`${windowDarkSmallP}, ${windowDarkSmallP2x} 2x`}
             />
             <source
               className={styles.image}
               type="image/webp"
-              srcset={`${windowDarkP}, ${windowDarkP2x} 2x`}
+              srcSet={`${windowDarkP}, ${windowDarkP2x} 2x`}
             />
             <source
               className={styles.image}
               media="(max-width: 700px)"
-              srcset={`${windowDarkSmall}, ${windowDarkSmall2x} 2x`}
+              srcSet={`${windowDarkSmall}, ${windowDarkSmall2x} 2x`}
             />
             <img
               className={styles.image}
               src={windowDark}
               alt="Dog on the beach"
-              srcset={`${windowDark2x} 2x`}
+              srcSet={`${windowDark2x} 2x`}
             />
           </picture>
           <video
@@ -189,7 +188,7 @@ const Home = ({ attemptedPage }) => {
             playsInline
             preload="auto"
           >
-            <source src={video} type="video/webm" />
+            {/* <source src={video} type="video/webm" /> */}
             <source src={video2} type="video/mp4" />
           </video>
         </div>
