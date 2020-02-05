@@ -67,7 +67,7 @@ let _privateEndpoints = {
 
 let _endpoints = _privateEndpoints
 
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV !== 'production') {
   _defaultEndpoint = 's3.us.cloud-object-storage.appdomain.cloud'
   _endpoints = {
     us: 's3.us.cloud-object-storage.appdomain.cloud',

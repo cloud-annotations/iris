@@ -882,9 +882,9 @@
     regenerator-runtime "^0.13.2"
 
 "@babel/runtime@^7.6.0":
-  version "7.7.4"
-  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.7.4.tgz#b23a856751e4bf099262f867767889c0e3fe175b"
-  integrity sha512-r24eVUUr0QqNZa+qrImUk8fn5SPhHq+IfYvIoIMg0do3GdK9sMdiLKP3GYVVaxpPKORgm8KRKaNTEhAjgIpLMw==
+  version "7.8.4"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.4.tgz#d79f5a2040f7caa24d53e563aad49cbc05581308"
+  integrity sha512-neAp3zt80trRVBI1x0azq6c57aNBqYZH8KhMm3TaB7wEI5Q4A2SHfBHE8w9gOhI/lrqxtEbXZgQIrHP+wvSGwQ==
   dependencies:
     regenerator-runtime "^0.13.2"
 
@@ -934,10 +934,10 @@
     "@carbon/icon-helpers" "0.0.1-beta.5"
     prop-types "^15.6.2"
 
-"@cloud-annotations/object-detection@^0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@cloud-annotations/object-detection/-/object-detection-0.0.8.tgz#7135ae2e738e97a624a54a7ad2cda35916bf420d"
-  integrity sha512-8MN950LE9gg44+QaW7wLPW/2relQI/WNohTWVtcXC6LCgscLjyoShjVNYVoYSKMCD9MF5ojPD99C3uqfPXyIPQ==
+"@cloud-annotations/models@^0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@cloud-annotations/models/-/models-0.0.9.tgz#95dd9bd8e79a61cc3be11b64c79ad8dadc42236d"
+  integrity sha512-7RdnMGTqwBVZtgdDiEo9zjJofxTrQfozzFB5Zu1rGtr6gc9VV29pgllv+m1gK15eEQ+xOVzDVnGu6HGAt3wpeQ==
   dependencies:
     "@babel/runtime" "^7.6.0"
     "@tensorflow/tfjs" "1.0.0"
@@ -1379,9 +1379,9 @@
     "@types/node" "*"
 
 "@types/node@*":
-  version "12.12.14"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.12.14.tgz#1c1d6e3c75dba466e0326948d56e8bd72a1903d2"
-  integrity sha512-u/SJDyXwuihpwjXy7hOOghagLEV1KdAST6syfnOk6QZAMzZuWZqXy5aYYZbh8Jdpd4escVFP0MvftHNDb9pruA==
+  version "13.7.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.7.0.tgz#b417deda18cf8400f278733499ad5547ed1abec4"
+  integrity sha512-GnZbirvmqZUzMgkFn70c74OQpTTUcCzlhQliTzYjQMqg+hVKcDnxdL19Ne3UdYzdMA/+W3eb646FWn/ZaT1NfQ==
 
 "@types/node@^10.12.18":
   version "10.14.12"

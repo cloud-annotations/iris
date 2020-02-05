@@ -4,11 +4,156 @@ import MagicDropzone from 'react-magic-dropzone'
 
 import styles from './TestModel.module.css'
 
-// const SCORE_DIGITS = 4
+const getRetinaContext = canvas => {
+  const ctx = canvas.getContext('2d')
+  const scale = window.devicePixelRatio
+  let width = canvas.width / scale
+  let height = canvas.height / scale
+  return {
+    setWidth: w => {
+      width = w
+      canvas.style.width = w + 'px'
+      canvas.width = w * scale
+    },
+    setHeight: h => {
+      height = h
+      canvas.style.height = h + 'px'
+      canvas.height = h * scale
+    },
+    width: width,
+    height: height,
+    clearAll: () => {
+      return ctx.clearRect(0, 0, width * scale, height * scale)
+    },
+    clearRect: (x, y, width, height) => {
+      return ctx.clearRect(x * scale, y * scale, width * scale, height * scale)
+    },
+    setFont: font => {
+      const size = parseInt(font, 10) * scale
+      const retinaFont = font.replace(/^\d+px/, size + 'px')
+      ctx.font = retinaFont
+    },
+    setTextBaseLine: textBaseline => {
+      ctx.textBaseline = textBaseline
+    },
+    setStrokeStyle: strokeStyle => {
+      ctx.strokeStyle = strokeStyle
+    },
+    setLineWidth: lineWidth => {
+      ctx.lineWidth = lineWidth * scale
+    },
+    strokeRect: (x, y, width, height) => {
+      return ctx.strokeRect(x * scale, y * scale, width * scale, height * scale)
+    },
+    setFillStyle: fillStyle => {
+      ctx.fillStyle = fillStyle
+    },
+    measureText: text => {
+      const metrics = ctx.measureText(text)
+      return {
+        width: metrics.width / scale,
+        actualBoundingBoxLeft: metrics.actualBoundingBoxLeft / scale,
+        actualBoundingBoxRight: metrics.actualBoundingBoxRight / scale,
+        actualBoundingBoxAscent: metrics.actualBoundingBoxAscent / scale,
+        actualBoundingBoxDescent: metrics.actualBoundingBoxDescent / scale
+      }
+    },
+    fillRect: (x, y, width, height) => {
+      return ctx.fillRect(x * scale, y * scale, width * scale, height * scale)
+    },
+    fillText: (text, x, y) => {
+      return ctx.fillText(text, x * scale, y * scale)
+    }
+  }
+}
 
-const getLabelText = prediction => {
-  // const scoreText = prediction.score.toFixed(SCORE_DIGITS)
-  return prediction.class //+ scoreText
+const renderObjectDetection = (ctx, predictions) => {
+  ctx.clearAll()
+  // Font options.
+  const font = `${14}px 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif`
+  ctx.setFont(font)
+  ctx.setTextBaseLine('top')
+  const border = 2
+  const xPadding = 8
+  const yPadding = 4
+  const offset = 2
+  const textHeight = parseInt(font, 10) // base 10
+
+  predictions.forEach(prediction => {
+    const x = prediction.bbox[0]
+    const y = prediction.bbox[1]
+    const width = prediction.bbox[2]
+    const height = prediction.bbox[3]
+    // Draw the bounding box.
+    ctx.setStrokeStyle('#0062ff')
+    ctx.setLineWidth(border)
+
+    ctx.strokeRect(
+      Math.round(x),
+      Math.round(y),
+      Math.round(width),
+      Math.round(height)
+    )
+    // Draw the label background.
+    ctx.setFillStyle('#0062ff')
+    const textWidth = ctx.measureText(prediction.label).width
+    ctx.fillRect(
+      Math.round(x - border / 2),
+      Math.round(y - (textHeight + yPadding) - offset),
+      Math.round(textWidth + xPadding),
+      Math.round(textHeight + yPadding)
+    )
+  })
+
+  predictions.forEach(prediction => {
+    const x = prediction.bbox[0]
+    const y = prediction.bbox[1]
+    // Draw the text last to ensure it's on top.
+    ctx.setFillStyle('#ffffff')
+    ctx.fillText(
+      prediction.label,
+      Math.round(x - border / 2 + xPadding / 2),
+      Math.round(y - (textHeight + yPadding) - offset + yPadding / 2)
+    )
+  })
+}
+
+const renderClassification = (ctx, predictions) => {
+  ctx.clearAll()
+
+  const font = `${14}px 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif`
+  const textHeight = parseInt(font, 10) // base 10
+  const xPadding = 8
+  const yPadding = 4
+  const offset = 2
+  ctx.setFont(font)
+  ctx.setTextBaseLine('top')
+
+  predictions
+    .filter(prediction => prediction.score > 0.5)
+    .forEach((prediction, i) => {
+      const label = `${prediction.label} ${(prediction.score * 100).toFixed(
+        1
+      )}%`
+      // Draw the label background.
+      ctx.setFillStyle('#0062ff')
+      const textWidth = ctx.measureText(label).width
+      ctx.fillRect(
+        Math.round(xPadding),
+        Math.round(xPadding + i * (textHeight + yPadding + offset)),
+        Math.round(textWidth + xPadding),
+        Math.round(textHeight + yPadding)
+      )
+      // Draw the text last to ensure it's on top.
+      ctx.setFillStyle('#ffffff')
+      ctx.fillText(
+        label,
+        Math.round(xPadding + 0 + xPadding / 2),
+        Math.round(
+          xPadding + i * (textHeight + yPadding + offset) + yPadding / 2
+        )
+      )
+    })
 }
 
 const TestModel = ({ show, model }) => {
@@ -18,10 +163,10 @@ const TestModel = ({ show, model }) => {
   useEffect(() => {
     setPreview(undefined)
     if (resultsCanvas) {
-      resultsCanvas.style.width = 0
-      resultsCanvas.style.height = 0
-      const ctx = resultsCanvas.getContext('2d')
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+      const ctx = getRetinaContext(resultsCanvas)
+      ctx.clearAll()
+      ctx.setWidth(0)
+      ctx.setHeight(0)
     }
   }, [model, resultsCanvas]) // if model changes kill preview.
 
@@ -34,65 +179,17 @@ const TestModel = ({ show, model }) => {
       const imgWidth = e.target.clientWidth
       const imgHeight = e.target.clientHeight
 
-      resultsCanvas.style.width = imgWidth + 'px'
-      resultsCanvas.style.height = imgHeight + 'px'
+      const ctx = getRetinaContext(resultsCanvas)
+      ctx.setWidth(imgWidth)
+      ctx.setHeight(imgHeight)
 
-      // Set actual size in memory (scaled to account for extra pixel density).
-      const scale = window.devicePixelRatio // Change to 1 on retina screens to see blurry canvas.
-      resultsCanvas.width = imgWidth * scale
-      resultsCanvas.height = imgHeight * scale
-
-      const predictions = await model.detect(e.target)
-      console.log(predictions)
-
-      const ctx = resultsCanvas.getContext('2d')
-      // ctx.canvas.width = Math.round(imgWidth)
-      // ctx.canvas.height = Math.round(imgHeight)
-      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-      // Font options.
-      const font =
-        14 * scale + "px 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif"
-      ctx.font = font
-      ctx.textBaseline = 'top'
-      const border = 2 * scale
-      const xPadding = 8 * scale
-      const yPadding = 4 * scale
-      const offset = 2 * scale
-      const textHeight = parseInt(font, 10) // base 10
-
-      predictions.forEach(prediction => {
-        const x = Math.round(prediction.bbox[0] * scale)
-        const y = Math.round(prediction.bbox[1] * scale)
-        const width = Math.round(prediction.bbox[2] * scale)
-        const height = Math.round(prediction.bbox[3] * scale)
-        // Draw the bounding box.
-        ctx.strokeStyle = '#0062ff'
-        ctx.lineWidth = border
-
-        ctx.strokeRect(x, y, width, height)
-        // Draw the label background.
-        ctx.fillStyle = '#0062ff'
-        const textWidth = ctx.measureText(getLabelText(prediction)).width
-        // const textHeight = parseInt(font, 10) // base 10
-        ctx.fillRect(
-          Math.round(x - border / 2),
-          Math.round(y - (textHeight + yPadding) - offset),
-          Math.round(textWidth + xPadding),
-          Math.round(textHeight + yPadding)
-        )
-      })
-
-      predictions.forEach(prediction => {
-        const x = Math.round(prediction.bbox[0] * scale)
-        const y = Math.round(prediction.bbox[1] * scale)
-        // Draw the text last to ensure it's on top.
-        ctx.fillStyle = '#ffffff'
-        ctx.fillText(
-          getLabelText(prediction),
-          Math.round(x - border / 2 + xPadding / 2),
-          Math.round(y - (textHeight + yPadding) - offset + yPadding / 2)
-        )
-      })
+      if (model.type === 'detection') {
+        const predictions = await model.detect(e.target)
+        renderObjectDetection(ctx, predictions)
+      } else {
+        const predictions = await model.classify(e.target)
+        renderClassification(ctx, predictions)
+      }
     },
     [model, resultsCanvas]
   )

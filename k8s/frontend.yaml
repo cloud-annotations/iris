@@ -7,7 +7,7 @@ metadata:
     tier: frontend
 spec:
   ports:
-  - port: 80
+  - port: 443
     targetPort: 8080
     protocol: TCP
   selector:
@@ -32,6 +32,17 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: us.icr.io/bourdakos1/annotate:32ed17fc1a02c5e30366fffac24a411a731d82e2
+        image: us.icr.io/bourdakos1/annotate:20755b0b76f58665b99da7742b871644720814c7
+        env:
+        - name: TLS_CRT
+          valueFrom:
+            secretKeyRef:
+              name: stagingannotations
+              key: tls.crt
+        - name: TLS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: stagingannotations
+              key: tls.key
         ports:
         - containerPort: 8080
