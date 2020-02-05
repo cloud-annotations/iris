@@ -6,7 +6,7 @@ import socket from 'globalSocket'
 
 import TestModel from './TestModel'
 
-import objectDetector from '@cloud-annotations/object-detection'
+import models from '@cloud-annotations/models'
 
 import COS from 'api/COSv2'
 
@@ -235,14 +235,18 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
               model.entity.training_results_reference.connection.endpoint_url
             )
           )
-          objectDetector
+          models
             .load(
               `/api/proxy/${safeEndpoint}/${bucket}/${model_location}/model_web`
             )
             .then(async tfjsModel => {
               // warm up the model
               const image = new ImageData(1, 1)
-              await tfjsModel.detect(image)
+              if (tfjsModel.type === 'detection') {
+                await tfjsModel.detect(image)
+              } else {
+                await tfjsModel.classify(image)
+              }
               setTfjsModel(tfjsModel)
             })
         }

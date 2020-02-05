@@ -6,7 +6,7 @@ import { setModel, setActive, setActivePrediction } from 'redux/autoLabel'
 
 import styles from './AutoLabelPanel.module.css'
 
-import objectDetector from '@cloud-annotations/object-detection'
+import models from '@cloud-annotations/models'
 import { syncAction, createBox, createLabel } from 'redux/collection'
 import { generateUUID } from 'Utils'
 
@@ -64,14 +64,14 @@ const Expanded = connect(
         return
       }
       const currentBox = predictions[activePrediction]
-      if (!labels.includes(currentBox.class)) {
-        syncAction(createLabel, [currentBox.class])
+      if (!labels.includes(currentBox.label)) {
+        syncAction(createLabel, [currentBox.label])
       }
       syncAction(createBox, [
         activeImage,
         {
           id: generateUUID(),
-          label: currentBox.class,
+          label: currentBox.label,
           x: currentBox.bbox[0],
           y: currentBox.bbox[1],
           x2: currentBox.bbox[0] + currentBox.bbox[2],
@@ -92,14 +92,14 @@ const Expanded = connect(
 
     const handleLabelAll = useCallback(() => {
       predictions.forEach(currentBox => {
-        if (!labels.includes(currentBox.class)) {
-          syncAction(createLabel, [currentBox.class])
+        if (!labels.includes(currentBox.label)) {
+          syncAction(createLabel, [currentBox.label])
         }
         syncAction(createBox, [
           activeImage,
           {
             id: generateUUID(),
-            label: currentBox.class,
+            label: currentBox.label,
             x: currentBox.bbox[0],
             y: currentBox.bbox[1],
             x2: currentBox.bbox[0] + currentBox.bbox[2],
@@ -208,7 +208,7 @@ const AutoLabelPanel = ({
       setActive(true)
       if (model === undefined) {
         // TODO: might need to check if it's actually mobilenet ssd model...
-        objectDetector.load(collection.models[0]).then(async model => {
+        models.load(collection.models[0]).then(async model => {
           // warm up the model
           const image = new ImageData(1, 1)
           await model.detect(image)
