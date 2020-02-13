@@ -37,12 +37,12 @@ spec:
         - name: TLS_CRT
           valueFrom:
             secretKeyRef:
-              name: annotations
+              name: stagingannotations
               key: tls.crt
         - name: TLS_KEY
           valueFrom:
             secretKeyRef:
-              name: annotations
+              name: stagingannotations
               key: tls.key
         ports:
         - containerPort: 8080

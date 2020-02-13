@@ -336,6 +336,12 @@ export default class Collection {
     return collection
   }
 
+  noOP(...params) {
+    const syncComplete = params[params.length - 1]
+    syncBucket(this.cos, this.bucket, this, syncComplete)
+    return this
+  }
+
   toJSON() {
     return {
       version: VERSION,
