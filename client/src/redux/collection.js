@@ -21,9 +21,15 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
     case SET:
       return action.collection
     case SET_TYPE:
+      if (collection.sandboxMode) {
+        return collection.noOP(...action.params)
+      }
       return collection.setType(...action.params)
 
     case CREATE_LABEL:
+      if (collection.sandboxMode) {
+        return collection.noOP(...action.params)
+      }
       {
         const [label, onComplete] = action.params
         if (onComplete) {
@@ -38,6 +44,9 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
       return collection.createLabel(...action.params)
 
     case DELETE_LABEL:
+      if (collection.sandboxMode) {
+        return collection.noOP(...action.params)
+      }
       {
         const [label, onComplete] = action.params
         if (onComplete) {
@@ -66,6 +75,9 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
       return collection.uploadImages(...action.params)
 
     case DELETE_IMAGES:
+      if (collection.sandboxMode) {
+        return collection.noOP(...action.params)
+      }
       {
         const [images, onComplete] = action.params
         if (onComplete) {
@@ -122,6 +134,9 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
       return collection.deleteBox(...action.params)
 
     case ADD_MODEL:
+      if (collection.sandboxMode) {
+        return collection.noOP(...action.params)
+      }
       return collection.addModel(action.model)
 
     default:

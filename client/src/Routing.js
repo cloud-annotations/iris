@@ -22,6 +22,7 @@ import {
 } from 'redux/wmlResources'
 import { setProfile } from 'redux/profile'
 
+const AppSandbox = lazy(() => import('./App/AppSandbox'))
 const App = lazy(() => import('./App/App'))
 const Home = lazy(() => import('./Home/Home'))
 const Buckets = lazy(() => import('./Buckets/Buckets'))
@@ -223,6 +224,7 @@ const Routing = ({ dispatch, activeAccount }) => {
           <Route exact path="/buckets">
             <Redirect to="/" />
           </Route>
+          <Route exact path="/sandbox" component={AppSandbox} />
           <Route exact path="/training" component={Training} />
           <Route
             exact

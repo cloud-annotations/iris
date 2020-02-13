@@ -185,7 +185,8 @@ const AppBar = ({
   cosResources,
   activeCOSResource,
   wmlResourcesLoading,
-  wmlResources
+  wmlResources,
+  sandbox
 }) => {
   const optionsRef = useRef(undefined)
   const mediaInputRef = useRef(undefined)
@@ -620,7 +621,7 @@ const AppBar = ({
         </svg>
       </div>
       <div className={styles.headerWrapper}>
-        <div className={styles.bucketName}>{bucket}</div>
+        <div className={styles.bucketName}>{sandbox ? 'sandbox' : bucket}</div>
         <div className={styles.options}>
           <div ref={optionsRef} className={styles.options}>
             <div
@@ -652,7 +653,7 @@ const AppBar = ({
                     multiple
                   />
                 </div>
-                <div className={styles.listItem}>
+                <div className={sandbox ? styles.disabled : styles.listItem}>
                   Upload model zip
                   <input
                     className={styles.upload}
@@ -663,13 +664,22 @@ const AppBar = ({
                   />
                 </div>
                 <div className={styles.listDivider} />
-                <div className={styles.listItem} onClick={handleExportYOLO}>
+                <div
+                  className={sandbox ? styles.disabled : styles.listItem}
+                  onClick={handleExportYOLO}
+                >
                   Export as YOLO
                 </div>
-                <div className={styles.listItem} onClick={handleExportCreateML}>
+                <div
+                  className={sandbox ? styles.disabled : styles.listItem}
+                  onClick={handleExportCreateML}
+                >
                   Export as Create ML
                 </div>
-                <div className={styles.listItem} onClick={handleExportVOC}>
+                <div
+                  className={sandbox ? styles.disabled : styles.listItem}
+                  onClick={handleExportVOC}
+                >
                   Export as Pascal VOC
                 </div>
               </div>
@@ -696,7 +706,7 @@ const AppBar = ({
                 }
               >
                 <div
-                  className={styles.listItem}
+                  className={sandbox ? styles.disabled : styles.listItem}
                   onClick={handleDeleteImage}
                   onMouseEnter={handleSubOptionHover}
                 >
@@ -706,7 +716,7 @@ const AppBar = ({
                 <div className={styles.listDivider} />
 
                 <div
-                  className={styles.listItem}
+                  className={sandbox ? styles.disabled : styles.listItem}
                   onClick={handleEmptyLabelImage('Negative')}
                   onMouseEnter={handleSubOptionHover}
                 >
@@ -716,9 +726,11 @@ const AppBar = ({
                 <div
                   id="mark-as"
                   className={
-                    collection.labels.length > 0 &&
-                    optionsOpen &&
-                    lastHoveredSubOption === 'mark-as'
+                    sandbox
+                      ? styles.popwrapper
+                      : collection.labels.length > 0 &&
+                        optionsOpen &&
+                        lastHoveredSubOption === 'mark-as'
                       ? styles.popwrapperOpen
                       : styles.popwrapper
                   }
@@ -726,7 +738,9 @@ const AppBar = ({
                 >
                   <div
                     className={
-                      collection.labels.length > 0
+                      sandbox
+                        ? styles.disabled
+                        : collection.labels.length > 0
                         ? styles.listItem
                         : styles.disabled
                     }
@@ -747,9 +761,11 @@ const AppBar = ({
 
                   <div
                     className={
-                      collection.labels.length > 0 &&
-                      optionsOpen &&
-                      lastHoveredSubOption === 'mark-as'
+                      sandbox
+                        ? styles.popout
+                        : collection.labels.length > 0 &&
+                          optionsOpen &&
+                          lastHoveredSubOption === 'mark-as'
                         ? styles.popoutOpen
                         : styles.popout
                     }
@@ -801,7 +817,7 @@ const AppBar = ({
           </div>
         </div>
       </div>
-      {!wmlResourcesLoading && wmlResources.length === 0 ? (
+      {sandbox ? null : !wmlResourcesLoading && wmlResources.length === 0 ? (
         <div className={styles.notification}>
           <div className={styles.notificationTitle}>
             No Machine Learning instance available

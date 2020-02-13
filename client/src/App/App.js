@@ -67,7 +67,8 @@ const App = ({
   syncAction,
   profile,
   collection,
-  setBucket
+  setBucket,
+  sandbox
 }) => {
   const [loading, setLoading] = useState(true)
   const [dropActive, setDropActive] = useState(false)
@@ -82,7 +83,9 @@ const App = ({
   useEffect(() => {
     const asyncEffect = async () => {
       try {
-        setCollection(await loadCollection(bucket, location))
+        const collection = await loadCollection(bucket, location)
+        collection.sandboxMode = sandbox
+        setCollection(collection)
       } catch (error) {
         console.error(error)
         try {
@@ -97,7 +100,7 @@ const App = ({
     }
     asyncEffect()
     return () => clearCollection()
-  }, [bucket, clearCollection, location, setCollection])
+  }, [bucket, clearCollection, location, sandbox, setCollection])
 
   const handleClose = useCallback(() => {
     history.push('/')
@@ -145,7 +148,12 @@ const App = ({
       ) : (
         <AppBarLayout
           appBar={
-            <AppBar bucket={bucket} location={location} profile={profile} />
+            <AppBar
+              bucket={bucket}
+              location={location}
+              profile={profile}
+              sandbox={sandbox}
+            />
           }
           content={
             <Dropzone
