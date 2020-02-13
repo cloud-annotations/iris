@@ -664,22 +664,13 @@ const AppBar = ({
                   />
                 </div>
                 <div className={styles.listDivider} />
-                <div
-                  className={sandbox ? styles.disabled : styles.listItem}
-                  onClick={handleExportYOLO}
-                >
+                <div className={styles.listItem} onClick={handleExportYOLO}>
                   Export as YOLO
                 </div>
-                <div
-                  className={sandbox ? styles.disabled : styles.listItem}
-                  onClick={handleExportCreateML}
-                >
+                <div className={styles.listItem} onClick={handleExportCreateML}>
                   Export as Create ML
                 </div>
-                <div
-                  className={sandbox ? styles.disabled : styles.listItem}
-                  onClick={handleExportVOC}
-                >
+                <div className={styles.listItem} onClick={handleExportVOC}>
                   Export as Pascal VOC
                 </div>
               </div>
