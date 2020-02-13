@@ -26,6 +26,7 @@
     "ws": "^7.2.1"
   },
   "devDependencies": {
-    "concurrently": "^3.6.0"
+    "concurrently": "^3.6.0",
+    "nodemon": "^2.0.2"
   }
 }
