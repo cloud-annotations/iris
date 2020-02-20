@@ -172,6 +172,17 @@ export default class Collection {
     )
   }
 
+  getGroupedImages() {
+    const all = this.images
+    const labeled = this.getLabeledImages(true)
+    const unlabeled = this.getLabeledImages(false)
+    const otherLabels = this.labels.reduce((acc, label) => {
+      acc[label] = this.getLabeledImages(label)
+      return acc
+    }, {})
+    return { all: all, labeled: labeled, unlabeled: unlabeled, ...otherLabels }
+  }
+
   setType(type, syncComplete) {
     const collection = produce(this, draft => {
       draft.type = type
@@ -260,8 +271,16 @@ export default class Collection {
   }
 
   labelImages(images, label, syncComplete) {
+    return this.labelImages(images, label, false, syncComplete)
+  }
+
+  labelImagesV2(images, label, onlyOne, syncComplete) {
     const collection = produce(this, draft => {
       images.forEach(image => {
+        if (onlyOne) {
+          draft.annotations[image] = [] // only allow one label
+        }
+
         if (!draft.annotations[image]) {
           draft.annotations[image] = []
         }
@@ -278,6 +297,17 @@ export default class Collection {
         ) {
           draft.annotations[image].unshift({ label: label })
         }
+      })
+    })
+
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
+    return collection
+  }
+
+  clearLabels(images, syncComplete) {
+    const collection = produce(this, draft => {
+      images.forEach(image => {
+        delete draft.annotations[image]
       })
     })
 

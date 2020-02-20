@@ -465,3 +465,38 @@
   right: 16px;
   pointer-events: none;
 }
+
+.downloaderHidden {
+  position: fixed;
+  z-index: -1;
+  visibility: hidden;
+  opacity: 0;
+  background-color: transparent;
+}
+
+.downloader {
+  z-index: 10000;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 245px;
+  height: 48px;
+
+  background-color: var(--secondaryBg);
+
+  border-radius: 4px;
+  overflow: auto;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
+  border: 1px solid var(--dropDownBorder);
+}
+
+.downloaderContentWrapper {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.downloaderText {
+  font-size: 14px;
+  color: var(--secondaryText);
+}

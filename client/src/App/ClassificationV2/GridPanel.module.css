@@ -1,0 +1,13 @@
+.wrapper {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.grid {
+  margin-top: 75px;
+}

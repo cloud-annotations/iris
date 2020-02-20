@@ -1,0 +1,152 @@
+.wrapper {
+  position: absolute;
+  border-right: 1px solid var(--border);
+  width: 100%;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  background-color: var(--secondaryBg);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.fixedItems {
+  cursor: pointer;
+  border-bottom: 1px solid var(--highlight);
+  padding: 8px 0 2px 0;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.itemBase {
+  cursor: pointer;
+  display: flex;
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--brightText);
+  padding: 9px 20px;
+
+  line-height: 23px;
+
+  border-left: 4px solid transparent;
+  position: relative;
+}
+
+.itemBase:hover {
+  background-color: var(--highlight);
+}
+
+.item {
+  composes: itemBase;
+}
+
+.itemActive {
+  composes: itemBase;
+  background-color: var(--highlight);
+  font-weight: 700;
+  border-left: 4px solid var(--blue);
+}
+
+.itemTitle {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-right: 20px;
+}
+
+.itemCount {
+  margin-left: auto;
+}
+
+.overflow {
+  fill: var(--detailText);
+  visibility: collapse;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overflow:hover {
+  /* opacity: 1; */
+  fill: var(--brightText);
+}
+
+.itemBase:hover .overflow {
+  visibility: visible;
+  width: 20px;
+}
+
+.addLabelButtonBase {
+  padding: 9px 0;
+  margin: 16px 10px 8px 10px;
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+
+  color: var(--blue);
+  font-size: 14px;
+  font-weight: 600;
+
+  text-align: center;
+  border: 2px solid var(--blue);
+}
+
+.addLabelButtonBase:hover {
+  background-color: var(--blue);
+  color: #ffffff;
+}
+
+.addLabelButton {
+  composes: addLabelButtonBase;
+}
+
+.addLabelButtonHidden {
+  composes: addLabelButtonBase;
+  visibility: hidden;
+}
+
+.addLabelFieldWrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.addLabelField {
+  outline: none;
+  border: none;
+  margin: 0; /* Safari layout fix */
+  padding: 14px 43px 14px 25px;
+  width: 100%;
+  border-top: 1px solid #dfe3e6;
+
+  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
+    Helvetica, Arial, Roboto, sans-serif;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.addLabelField::placeholder {
+  font-style: italic;
+}
+
+.thinAddIconWrapper {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+
+  padding: 16px 15px 0px 15px;
+}
+
+.thinAddIcon {
+  fill: var(--blue);
+}

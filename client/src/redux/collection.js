@@ -11,6 +11,8 @@ const DELETE_LABEL = 'cloud-annotations/collection/DELETE_LABEL'
 const UPLOAD_IMAGES = 'cloud-annotations/collection/UPLOAD_IMAGES'
 const DELETE_IMAGES = 'cloud-annotations/collection/DELETE_IMAGES'
 const LABEL_IMAGES = 'cloud-annotations/collection/LABEL_IMAGES'
+const LABEL_IMAGES_V2 = 'cloud-annotations/collection/LABEL_IMAGES_V2'
+const CLEAR_LABELS = 'cloud-annotations/collection/CLEAR_LABELS'
 const CREATE_BOX = 'cloud-annotations/collection/CREATE_BOX'
 const DELETE_BOX = 'cloud-annotations/collection/DELETE_BOX'
 const ADD_MODEL = 'cloud-annotations/collection/ADD_MODEL'
@@ -105,6 +107,34 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
       }
       return collection.labelImages(...action.params)
 
+    case LABEL_IMAGES_V2:
+      {
+        const [images, label, onlyOne, onComplete] = action.params
+        if (onComplete) {
+          socket.emit('patch', {
+            op: '',
+            value: {
+              bulkLabelV2: { images: images, label: label, onlyOne: onlyOne }
+            }
+          })
+        }
+      }
+      return collection.labelImagesV2(...action.params)
+
+    case CLEAR_LABELS:
+      {
+        const [images, onComplete] = action.params
+        if (onComplete) {
+          socket.emit('patch', {
+            op: '',
+            value: {
+              clearAllLabels: { images: images }
+            }
+          })
+        }
+      }
+      return collection.clearLabels(...action.params)
+
     case CREATE_BOX:
       {
         const [image, box, onComplete] = action.params
@@ -176,6 +206,16 @@ export const deleteImages = (images, onComplete) => ({
 export const labelImages = (images, label, onComplete) => ({
   type: LABEL_IMAGES,
   params: [images, label, onComplete]
+})
+
+export const labelImagesV2 = (images, label, onlyOne, onComplete) => ({
+  type: LABEL_IMAGES_V2,
+  params: [images, label, onlyOne, onComplete]
+})
+
+export const clearLabels = (images, onComplete) => ({
+  type: CLEAR_LABELS,
+  params: [images, onComplete]
 })
 
 export const createBox = (image, box, onComplete) => ({

@@ -15,7 +15,6 @@ import {
 } from 'redux/collection'
 import { setBucket } from 'redux/editor'
 import Localization from './Localization/Localization'
-import LegacyApp from './Classification/App'
 import { locationFinder } from './endpointFinder'
 import ChooseBucketModal from './ChooseBucketModal'
 import AppBar from './AppBar'
@@ -23,6 +22,7 @@ import AppBarLayout from './AppBarLayout'
 
 import styles from './App.module.css'
 import { convertToJpeg, videoToJpegs, checkLoginStatus } from 'Utils'
+import ClassificationV2 from './ClassificationV2/Classification'
 
 const generateFiles = async (images, videos) => {
   const imageFiles = images.map(
@@ -49,7 +49,7 @@ const AnnotationPanel = ({ bucket, location, type }) => {
   switch (type) {
     case 'classification':
       // Using legacy app.
-      return <div />
+      return <ClassificationV2 location={location} bucket={bucket} />
     case 'localization':
       return <Localization location={location} bucket={bucket} />
     default:
@@ -134,6 +134,31 @@ const App = ({
 
   const type = collection.type
 
+  let dissabled = {}
+  if (sandbox) {
+    dissabled.uploadZip = true
+    dissabled.delete = true
+    dissabled.markAsNegative = true
+    dissabled.markAs = true
+  }
+
+  if (type === 'classification') {
+    dissabled.uploadZip = true
+    dissabled.delete = true
+    dissabled.markAsNegative = true
+    dissabled.markAs = true
+    dissabled.exportYOLO = true
+    dissabled.exportCreateML = true
+    dissabled.exportPascalVOC = true
+    window.MAX_IMAGE_WIDTH = 224
+    window.MAX_IMAGE_HEIGHT = 224
+    window.IMAGE_SCALE_MODE = 'SCALE_FILL'
+  } else {
+    window.MAX_IMAGE_WIDTH = 1500
+    window.MAX_IMAGE_HEIGHT = 1500
+    window.IMAGE_SCALE_MODE = 'ASPECT_FIT'
+  }
+
   return (
     <>
       <ChooseBucketModal
@@ -143,44 +168,37 @@ const App = ({
       />
       <Loading active={loading} />
 
-      {type === 'classification' ? (
-        <LegacyApp location={location} bucket={bucket} />
-      ) : (
-        <AppBarLayout
-          appBar={
-            <AppBar
-              bucket={bucket}
-              location={location}
-              profile={profile}
-              sandbox={sandbox}
-            />
-          }
-          content={
-            <Dropzone
-              disableClick
-              style={{ position: 'absolute' }} /* must override from here */
-              className={styles.dropzone}
-              accept="image/*,video/*"
-              onDrop={handleDrop}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-            >
-              <div className={dropActive ? styles.dropActive : styles.drop}>
-                <div className={styles.dropOutline}>
-                  <div className={styles.dropText}>
-                    Drop to upload your images
-                  </div>
+      <AppBarLayout
+        appBar={
+          <AppBar
+            bucket={bucket}
+            location={location}
+            profile={profile}
+            sandbox={sandbox}
+            dissabled={dissabled}
+          />
+        }
+        content={
+          <Dropzone
+            disableClick
+            style={{ position: 'absolute' }} /* must override from here */
+            className={styles.dropzone}
+            accept="image/*,video/*"
+            onDrop={handleDrop}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+          >
+            <div className={dropActive ? styles.dropActive : styles.drop}>
+              <div className={styles.dropOutline}>
+                <div className={styles.dropText}>
+                  Drop to upload your images
                 </div>
               </div>
-              <AnnotationPanel
-                location={location}
-                bucket={bucket}
-                type={type}
-              />
-            </Dropzone>
-          }
-        />
-      )}
+            </div>
+            <AnnotationPanel location={location} bucket={bucket} type={type} />
+          </Dropzone>
+        }
+      />
     </>
   )
 }
