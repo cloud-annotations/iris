@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import GridControllerV2 from 'common/Grid/GridControllerV2'
 import EmptySet from 'common/EmptySet/EmptySet'
 import SelectionBar from './SelectionBar'
-import { UNLABELED, LABELED } from './Sidebar'
+import { ALL_IMAGES, UNLABELED, LABELED } from './Sidebar'
 import ImageTile from './ImageTile'
 import {
   syncAction,
@@ -15,7 +15,6 @@ import {
 } from 'redux/collection'
 
 import styles from './GridPanel.module.css'
-import { ALL_IMAGES } from 'App/Classification/Sidebar'
 
 const GridControllerDelegate = (labels, images, bucket, endpoint) => {
   return {

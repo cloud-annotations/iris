@@ -68,26 +68,50 @@ const generateFiles = async (images, videos) => {
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
 }
 
-const zipImages = async (endpoint, bucket, collection, folder) => {
+const zipImages = async (
+  endpoint,
+  bucket,
+  collection,
+  folder,
+  setFilesZipped
+) => {
   const labeledImageNames = Object.keys(collection.annotations)
   return await Promise.all(
     labeledImageNames.map(async name => {
-      const imgData = await new COS({ endpoint: endpoint }).getObject({
-        Bucket: bucket,
-        Key: name
-      })
-      folder.file(name, imgData, { binary: true })
+      try {
+        const imgData = await new COS({ endpoint: endpoint }).getObject({
+          Bucket: bucket,
+          Key: name
+        })
+        folder.file(name, imgData, { binary: true })
 
-      const image = new Image()
-      image.src = URL.createObjectURL(imgData)
-      return await new Promise(resolve => {
-        image.onload = () => {
+        const image = new Image()
+        image.src = URL.createObjectURL(imgData)
+        return await new Promise(resolve => {
+          image.onload = () => {
+            if (setFilesZipped) {
+              setFilesZipped(zipped => (zipped += 1))
+            }
+
+            resolve({
+              name: name,
+              dimensions: { width: image.width, height: image.height }
+            })
+          }
+        })
+      } catch {
+        return await new Promise(resolve => {
+          console.error(`failed to download: skipping ${name}`)
+          if (setFilesZipped) {
+            setFilesZipped(zipped => (zipped += 1))
+          }
+
           resolve({
             name: name,
-            dimensions: { width: image.width, height: image.height }
+            dimensions: { width: 0, height: 0 }
           })
-        }
-      })
+        })
+      }
     })
   )
 }
@@ -170,6 +194,56 @@ const PoopUp = connect(state => ({
   }
 )
 
+const Downloader = ({ current, total }) => {
+  const amount = Number.parseInt((1 - current / total) * 169, 10)
+  return (
+    <div className={total === 0 ? styles.downloaderHidden : styles.downloader}>
+      <div className={styles.downloaderContentWrapper}>
+        <svg
+          style={{
+            width: '20px',
+            height: '20px',
+            fill: 'transparent',
+            margin: '0 16px',
+            transform: 'rotate(-90deg)'
+          }}
+          viewBox="-29.8125 -29.8125 59.625 59.625"
+        >
+          <circle
+            style={{
+              strokeWidth: 6,
+              stroke: '#e0e0e0',
+              strokeDashoffset: 0,
+              strokeLinecap: 'butt',
+              strokeDasharray: 169
+            }}
+            cx="0"
+            cy="0"
+            r="26.8125"
+          ></circle>
+          <circle
+            style={{
+              strokeWidth: 6,
+              stroke: '#0f62fe',
+              strokeDashoffset: amount,
+              strokeLinecap: 'butt',
+              strokeDasharray: 169
+            }}
+            cx="0"
+            cy="0"
+            r="26.8125"
+          ></circle>
+        </svg>
+        <div
+          className={styles.downloaderText}
+        >{`Zipping ${current.toLocaleString('en')}/${total.toLocaleString(
+          'en'
+        )} files`}</div>
+      </div>
+    </div>
+  )
+}
+
 const AppBar = ({
   bucket,
   location,
@@ -192,6 +266,9 @@ const AppBar = ({
   const optionsRef = useRef(undefined)
   const mediaInputRef = useRef(undefined)
   const modelInputRef = useRef(undefined)
+  const [filesZipped, setFilesZipped] = useState(0)
+  const [filesToZip, setFilesToZip] = useState(0)
+
   const [preparingToTrain, setPreparingToTrain] = useState(false)
   const [showModal, setShowModal] = useState(false)
   const [optionsOpen, setOptionsOpen] = useState(false)
@@ -474,17 +551,51 @@ const AppBar = ({
     [imageRange, syncAction, setActiveImage]
   )
 
+  const handleExportZip = useCallback(
+    async e => {
+      e.stopPropagation()
+      setOptionsOpen(false)
+
+      // all the labeled images + the annotations.json
+      setFilesToZip(Object.keys(collection.annotations).length + 1)
+
+      const zip = new JSZip()
+      const folder = zip.folder(bucket)
+      await zipImages(
+        endpointForLocationConstraint(location),
+        bucket,
+        collection,
+        folder,
+        setFilesZipped
+      )
+
+      folder.file('annotations.json', JSON.stringify(collection.toJSON()))
+
+      setFilesZipped(zipped => (zipped += 1))
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' })
+      saveAs(zipBlob, `${bucket}.zip`)
+      setFilesToZip(0)
+    },
+    [bucket, collection, location]
+  )
+
   const handleExportYOLO = useCallback(
     async e => {
       e.stopPropagation()
       setOptionsOpen(false)
+
+      // all the labeled images + the annotations.json
+      setFilesToZip(Object.keys(collection.annotations).length + 1)
+
       const zip = new JSZip()
       const folder = zip.folder(bucket)
       const images = await zipImages(
         endpointForLocationConstraint(location),
         bucket,
         collection,
-        folder
+        folder,
+        setFilesZipped
       )
 
       images.forEach(({ name }) => {
@@ -504,8 +615,11 @@ const AppBar = ({
         )
       })
 
+      setFilesZipped(zipped => (zipped += 1))
+
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
+      setFilesToZip(0)
     },
     [bucket, collection, location]
   )
@@ -514,13 +628,18 @@ const AppBar = ({
     async e => {
       e.stopPropagation()
       setOptionsOpen(false)
+
+      // all the labeled images + the annotations.json
+      setFilesToZip(Object.keys(collection.annotations).length + 1)
+
       const zip = new JSZip()
       const folder = zip.folder(bucket)
       const images = await zipImages(
         endpointForLocationConstraint(location),
         bucket,
         collection,
-        folder
+        folder,
+        setFilesZipped
       )
 
       const createMLAnnotations = images.map(({ name, dimensions }) => ({
@@ -545,8 +664,11 @@ const AppBar = ({
       }))
       folder.file('annotations.json', JSON.stringify(createMLAnnotations))
 
+      setFilesZipped(zipped => (zipped += 1))
+
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
+      setFilesToZip(0)
     },
     [bucket, collection, location]
   )
@@ -555,13 +677,18 @@ const AppBar = ({
     async e => {
       e.stopPropagation()
       setOptionsOpen(false)
+
+      // all the labeled images + the annotations.json
+      setFilesToZip(Object.keys(collection.annotations).length + 1)
+
       const zip = new JSZip()
       const folder = zip.folder(bucket)
       const images = await zipImages(
         endpointForLocationConstraint(location),
         bucket,
         collection,
-        folder
+        folder,
+        setFilesZipped
       )
       images.forEach(({ name, dimensions }) => {
         const annotation = (
@@ -595,8 +722,11 @@ const AppBar = ({
         )
       })
 
+      setFilesZipped(zipped => (zipped += 1))
+
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
+      setFilesToZip(0)
     },
     [bucket, collection, location]
   )
@@ -616,6 +746,7 @@ const AppBar = ({
 
   return (
     <div className={styles.wrapper}>
+      <Downloader current={filesZipped} total={filesToZip} />
       <div onClick={handleClick} className={styles.home}>
         <svg className={styles.homeIcon} viewBox="0 0 32 32">
           <path d="M11.17 6l3.42 3.41.58.59H28v16H4V6h7.17m0-2H4a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2H16l-3.41-3.41A2 2 0 0 0 11.17 4z" />
@@ -694,6 +825,14 @@ const AppBar = ({
                   onClick={handleExportVOC}
                 >
                   Export as Pascal VOC
+                </div>
+                <div
+                  className={
+                    dissabled.exportZip ? styles.disabled : styles.listItem
+                  }
+                  onClick={handleExportZip}
+                >
+                  Export as zip
                 </div>
               </div>
             </div>
