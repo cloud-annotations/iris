@@ -53,14 +53,15 @@ function attempt_build {
 
 function set_image {
   echo Container build completed, updating $DEPLOYMENT ...
-  sed -i '' "s,\(^.*image: \)\(.*$\),\1"$IMAGE_NAME"," k8s/frontend.yaml
   
   if [ "$DEPLOY_TO" = "production" ]
   then
     # PRODUCTION:
+    sed -i '' "s,\(^.*image: \)\(.*$\),\1"$IMAGE_NAME"," k8s/frontend.yaml
     kubectl apply -f k8s
   else
     # STAGING:
+    sed -i '' "s,\(^.*image: \)\(.*$\),\1"$IMAGE_NAME"," k8s-stage/frontend.yaml
     kubectl apply -f k8s-stage
   fi
 }
