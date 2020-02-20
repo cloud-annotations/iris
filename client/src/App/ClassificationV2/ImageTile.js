@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
-import fetchImage from 'api/fetchImage'
-import history from './history'
+// import fetchImage from 'api/fetchImage'
+// import history from './history'
 import styles from './ImageTile.module.css'
+
+import 'intersection-observer'
+import fetchImage from 'api/fetchImage'
 
 export default class ImageTile extends Component {
   state = {
@@ -34,9 +37,6 @@ export default class ImageTile extends Component {
           })
           .catch(error => {
             console.error(error)
-            if (error.message === 'Forbidden') {
-              history.push('/login')
-            }
           })
       }
     })

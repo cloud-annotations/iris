@@ -22,7 +22,9 @@ import {
   createLabel,
   deleteImages,
   uploadImages,
-  labelImages
+  labelImages,
+  labelImagesV2,
+  clearLabels
 } from 'redux/collection'
 
 // Global Settings:
@@ -80,7 +82,14 @@ const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
 history.listen(() => store.dispatch(reset()))
 socket.on('patch', res => {
   const { op, value } = res
-  const { bulkLabel, annotations, images, labels } = value
+  const {
+    clearAllLabels,
+    bulkLabelV2,
+    bulkLabel,
+    annotations,
+    images,
+    labels
+  } = value
 
   if (labels) {
     if (op === '+') {
@@ -120,6 +129,18 @@ socket.on('patch', res => {
       store.dispatch(labelImages(bulkLabel.images, bulkLabel.label, false))
       return
     }
+  }
+
+  if (bulkLabelV2) {
+    store.dispatch(
+      labelImagesV2(bulkLabel.images, bulkLabel.label, bulkLabel.onlyOne, false)
+    )
+    return
+  }
+
+  if (clearAllLabels) {
+    store.dispatch(clearLabels(bulkLabel.images, false))
+    return
   }
 })
 

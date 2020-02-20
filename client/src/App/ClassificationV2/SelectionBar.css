@@ -1,9 +1,9 @@
 .SelectionBar {
   z-index: 2;
   position: fixed;
-  top: 50px;
-  left: 209px;
-  right: 0px;
+  top: 65px;
+  left: 210px;
+  right: 0;
   height: 50px;
   background-color: var(--blue);
   align-items: stretch;

@@ -54,7 +54,15 @@ function attempt_build {
 function set_image {
   echo Container build completed, updating $DEPLOYMENT ...
   sed -i '' "s,\(^.*image: \)\(.*$\),\1"$IMAGE_NAME"," k8s/frontend.yaml
-  kubectl apply -f k8s
+  
+  if [ "$DEPLOY_TO" = "production" ]
+  then
+    # PRODUCTION:
+    kubectl apply -f k8s
+  else
+    # STAGING:
+    kubectl apply -f k8s-stage
+  fi
 }
 
 configure

@@ -186,7 +186,8 @@ const AppBar = ({
   activeCOSResource,
   wmlResourcesLoading,
   wmlResources,
-  sandbox
+  sandbox,
+  dissabled
 }) => {
   const optionsRef = useRef(undefined)
   const mediaInputRef = useRef(undefined)
@@ -653,7 +654,11 @@ const AppBar = ({
                     multiple
                   />
                 </div>
-                <div className={sandbox ? styles.disabled : styles.listItem}>
+                <div
+                  className={
+                    dissabled.uploadZip ? styles.disabled : styles.listItem
+                  }
+                >
                   Upload model zip
                   <input
                     className={styles.upload}
@@ -664,13 +669,30 @@ const AppBar = ({
                   />
                 </div>
                 <div className={styles.listDivider} />
-                <div className={styles.listItem} onClick={handleExportYOLO}>
+                <div
+                  className={
+                    dissabled.exportYOLO ? styles.disabled : styles.listItem
+                  }
+                  onClick={handleExportYOLO}
+                >
                   Export as YOLO
                 </div>
-                <div className={styles.listItem} onClick={handleExportCreateML}>
+                <div
+                  className={
+                    dissabled.exportCreateML ? styles.disabled : styles.listItem
+                  }
+                  onClick={handleExportCreateML}
+                >
                   Export as Create ML
                 </div>
-                <div className={styles.listItem} onClick={handleExportVOC}>
+                <div
+                  className={
+                    dissabled.exportPascalVOC
+                      ? styles.disabled
+                      : styles.listItem
+                  }
+                  onClick={handleExportVOC}
+                >
                   Export as Pascal VOC
                 </div>
               </div>
@@ -697,7 +719,9 @@ const AppBar = ({
                 }
               >
                 <div
-                  className={sandbox ? styles.disabled : styles.listItem}
+                  className={
+                    dissabled.delete ? styles.disabled : styles.listItem
+                  }
                   onClick={handleDeleteImage}
                   onMouseEnter={handleSubOptionHover}
                 >
@@ -707,7 +731,9 @@ const AppBar = ({
                 <div className={styles.listDivider} />
 
                 <div
-                  className={sandbox ? styles.disabled : styles.listItem}
+                  className={
+                    dissabled.markAsNegative ? styles.disabled : styles.listItem
+                  }
                   onClick={handleEmptyLabelImage('Negative')}
                   onMouseEnter={handleSubOptionHover}
                 >
@@ -717,7 +743,7 @@ const AppBar = ({
                 <div
                   id="mark-as"
                   className={
-                    sandbox
+                    dissabled.markAs
                       ? styles.popwrapper
                       : collection.labels.length > 0 &&
                         optionsOpen &&
@@ -729,7 +755,7 @@ const AppBar = ({
                 >
                   <div
                     className={
-                      sandbox
+                      dissabled.markAs
                         ? styles.disabled
                         : collection.labels.length > 0
                         ? styles.listItem
@@ -752,7 +778,7 @@ const AppBar = ({
 
                   <div
                     className={
-                      sandbox
+                      dissabled.markAs
                         ? styles.popout
                         : collection.labels.length > 0 &&
                           optionsOpen &&
