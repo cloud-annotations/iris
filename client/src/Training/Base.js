@@ -134,6 +134,7 @@ const Base = ({
 }) => {
   const [modelList, setModelList] = useState([])
   const [activeModel, setActiveModel] = useState(undefined)
+  const [activeModelState, setActiveModelState] = useState(undefined)
 
   useEffect(() => {
     const modelId = queryString.parse(search).model
@@ -141,6 +142,7 @@ const Base = ({
       const daModel = modelList.find(model => model.metadata.guid === modelId)
       if (daModel) {
         setActiveModel(daModel)
+        setActiveModelState(daModel.entity.status.state)
         return
       }
       if (modelList.length > 0) {
@@ -148,6 +150,7 @@ const Base = ({
         return
       }
       setActiveModel(undefined)
+      setActiveModelState(undefined)
     }
   }, [activeModel, modelList, search])
 
@@ -158,6 +161,15 @@ const Base = ({
       const listRefresh = () => {
         getTrainingRunList(activeResourceInfo).then(resources => {
           setModelList(resources)
+          if (activeModel) {
+            const modelId = activeModel.metadata.guid
+            const freshActiveModel = resources.find(
+              r => r.metadata.guid === modelId
+            )
+            setActiveModelState(
+              freshActiveModel && freshActiveModel.entity.status.state
+            )
+          }
         })
       }
 
@@ -166,7 +178,7 @@ const Base = ({
       const id = setInterval(listRefresh, 10 * 1000)
       return () => clearInterval(id)
     }
-  }, [activeResource, resources])
+  }, [activeModel, activeResource, resources])
 
   const handleModelChosen = useCallback(
     model => () => {
@@ -255,6 +267,7 @@ const Base = ({
                 `wss://${activeResourceInfo.region_id}.ml.cloud.ibm.com/v3/models`
               }
               wmlInstanceId={activeResourceInfo && activeResourceInfo.guid}
+              status={activeModelState}
             />
           </div>
         </>
