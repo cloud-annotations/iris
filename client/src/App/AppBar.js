@@ -458,7 +458,7 @@ const AppBar = ({
 
       history.push(`/training?model=${resTrainingRun.metadata.guid}`)
     },
-    [activeCOSResource, bucket, cosResources, location]
+    [activeCOSResource, bucket, cosResources, location, setActiveWMLResource]
   )
 
   const handleTrainModalSecondary = useCallback(() => {
