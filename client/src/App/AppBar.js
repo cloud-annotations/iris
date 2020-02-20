@@ -31,6 +31,7 @@ import {
   fullPrivateEndpointForLocationConstraint,
   endpointForLocationConstraint
 } from 'endpoints'
+import { setActiveWMLResource } from 'redux/wmlResources'
 
 const DEFAULT_GPU = 'k80'
 const DEFAULT_STEPS = '500'
@@ -261,7 +262,8 @@ const AppBar = ({
   wmlResourcesLoading,
   wmlResources,
   sandbox,
-  dissabled
+  dissabled,
+  setActiveWMLResource
 }) => {
   const optionsRef = useRef(undefined)
   const mediaInputRef = useRef(undefined)
@@ -332,6 +334,7 @@ const AppBar = ({
 
   const handleTrainModalPrimary = useCallback(
     async instance => {
+      setActiveWMLResource(instance.id)
       setPreparingToTrain(true)
       setShowModal(false)
       // find or create a binding.
@@ -455,7 +458,7 @@ const AppBar = ({
 
       history.push(`/training?model=${resTrainingRun.metadata.guid}`)
     },
-    [activeCOSResource, bucket, cosResources, location]
+    [activeCOSResource, bucket, cosResources, location, setActiveWMLResource]
   )
 
   const handleTrainModalSecondary = useCallback(() => {
@@ -1038,6 +1041,7 @@ const mapDispatchToProps = {
   setActiveImage,
   incrementSaving,
   decrementSaving,
+  setActiveWMLResource,
   addModel
 }
 export default connect(mapPropsToState, mapDispatchToProps)(AppBar)

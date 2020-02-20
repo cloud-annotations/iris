@@ -168,7 +168,9 @@ const getStepsAndLoss = () => {
   return [steps, loss]
 }
 
-const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
+const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
+  const [socketIsOpen, setSocketIsOpen] = useState(false)
+
   const [useLogarithmicScale, setUseLogarithmicScale] = useState(false)
 
   const [noDataAvailable, setNoDataAvailable] = useState(false)
@@ -406,7 +408,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
 
   const matches = totalStepsRegex.exec(trainingCommand)
   const totalSteps = Number.parseInt(matches && matches[1], 10)
-  if (model && model.entity.status.state === 'completed') {
+  if (status === 'completed') {
     currentStep = totalSteps
   }
   const percentComplete =
@@ -414,7 +416,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
 
   const projectName = model ? model.entity.model_definition.name : 'loading...'
   const modelID = model ? model.metadata.guid : 'loading...'
-  const modelStatus = model ? model.entity.status.state : 'loading...'
+  const modelStatus = status || 'loading...'
 
   let daLoss = '?'
   if (lossOveride !== undefined) {
@@ -426,16 +428,18 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
       model &&
       wmlEndpoint &&
       wmlInstanceId &&
-      (model.entity.status.state === 'pending' ||
-        model.entity.status.state === 'running')
+      (status === 'pending' || status === 'running') &&
+      socketIsOpen
     ) {
+      console.log('connecting to training socket')
+      setSocketIsOpen(true)
       socket.emit('connectToTrainingSocket', {
         url: wmlEndpoint,
         modelId: modelID,
         instanceId: wmlInstanceId
       })
     }
-  }, [model, modelID, wmlEndpoint, wmlInstanceId])
+  }, [model, modelID, socketIsOpen, status, wmlEndpoint, wmlInstanceId])
 
   useEffect(() => {
     dataMap = {}
@@ -772,4 +776,4 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint }) => {
   )
 }
 
-export default Training
+export default React.memo(Training)
