@@ -77,11 +77,23 @@ if (process.env.NODE_ENV === 'production') {
   baseEndpoint = 'cloud.ibm.com'
 }
 
-const IMAGE_REGEX = /\.(jpg|jpeg|png)$/i
-const Image = ({ photo }) => {
+const ProfileImage = ({ photo }) => {
+  const [validImage, setValidImage] = useState(false)
+
+  useEffect(() => {
+    const img = new Image()
+    img.onload = function() {
+      setValidImage(true)
+    }
+    img.onerror = function() {
+      setValidImage(false)
+    }
+    img.src = photo
+  }, [photo])
+
   return (
     <>
-      {photo && photo.match(IMAGE_REGEX) ? (
+      {validImage ? (
         <img alt="" className={styles.profile} src={photo} />
       ) : (
         <svg
@@ -133,14 +145,14 @@ export const ProfileDropDown = ({ profile }) => {
       onClick={handleClick}
       ref={dropDownRef}
     >
-      <Image photo={profile.photo} />
+      <ProfileImage photo={profile.photo} />
       {open && (
         <div className={styles.profileCard}>
           <div className={styles.detailWrapper}>
             <div className={styles.name}>
               {profile.firstname} {profile.lastname}
             </div>
-            <Image photo={profile.photo} />
+            <ProfileImage photo={profile.photo} />
           </div>
           <div className={styles.userId}>{profile.user_id}</div>
           <div className={styles.logout} onClick={handleLogout}>
