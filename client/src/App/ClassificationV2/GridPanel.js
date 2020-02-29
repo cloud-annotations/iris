@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useCallback } from 'react'
 import { connect } from 'react-redux'
 
 import GridControllerV2 from 'common/Grid/GridControllerV2'
@@ -56,10 +56,10 @@ const GridPanel = ({
   section,
   labels,
   groupedImages,
-  syncAction
+  syncAction,
+  selection,
+  onSelectionChange
 }) => {
-  const [selection, setSelection] = useState([])
-
   const selectionCount = selection.filter(Boolean).length
 
   const loading = false
@@ -97,9 +97,16 @@ const GridPanel = ({
         syncAction(labelImagesV2, [selectedImages, newActiveLabel, true])
       }
 
-      setSelection([])
+      onSelectionChange([])
     },
-    [groupedImages, labels, selection, syncAction, visibleLabels]
+    [
+      groupedImages,
+      labels,
+      onSelectionChange,
+      selection,
+      syncAction,
+      visibleLabels
+    ]
   )
 
   const handleUnlabelImages = useCallback(() => {
@@ -109,8 +116,8 @@ const GridPanel = ({
       visibleLabels
     )
     syncAction(clearLabels, [selectedImages])
-    setSelection([])
-  }, [groupedImages, selection, syncAction, visibleLabels])
+    onSelectionChange([])
+  }, [groupedImages, onSelectionChange, selection, syncAction, visibleLabels])
 
   const handleDeleteImages = useCallback(() => {
     const selectedImages = getSelectedImages(
@@ -119,16 +126,19 @@ const GridPanel = ({
       visibleLabels
     )
     syncAction(deleteImages, [selectedImages])
-    setSelection([])
-  }, [groupedImages, selection, syncAction, visibleLabels])
+    onSelectionChange([])
+  }, [groupedImages, onSelectionChange, selection, syncAction, visibleLabels])
 
   const handleClearSelection = useCallback(() => {
-    setSelection([])
-  }, [])
+    onSelectionChange([])
+  }, [onSelectionChange])
 
-  const handleChangeSelection = useCallback(selection => {
-    setSelection(selection)
-  }, [])
+  const handleChangeSelection = useCallback(
+    selection => {
+      onSelectionChange(selection)
+    },
+    [onSelectionChange]
+  )
 
   return (
     <div className={styles.wrapper}>

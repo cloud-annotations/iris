@@ -22,8 +22,7 @@
   cursor: pointer;
   display: flex;
 
-  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
-    Helvetica, Arial, Roboto, sans-serif;
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
   font-size: 14px;
   font-weight: 500;
   color: var(--brightText);
@@ -88,8 +87,7 @@
   padding: 9px 0;
   margin: 16px 10px 8px 10px;
 
-  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
-    Helvetica, Arial, Roboto, sans-serif;
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
 
   color: var(--blue);
   font-size: 14px;
@@ -128,8 +126,7 @@
   width: 100%;
   border-top: 1px solid #dfe3e6;
 
-  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
-    Helvetica, Arial, Roboto, sans-serif;
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
 
   font-size: 14px;
   font-weight: 500;

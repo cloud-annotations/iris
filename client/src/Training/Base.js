@@ -10,6 +10,7 @@ import queryString from 'query-string'
 
 import styles from './TitleBar.module.css'
 import globalHistory from 'globalHistory'
+import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 const PANEL_WIDTH = '270px'
 
@@ -135,6 +136,8 @@ const Base = ({
   const [modelList, setModelList] = useState([])
   const [activeModel, setActiveModel] = useState(undefined)
   const [activeModelState, setActiveModelState] = useState(undefined)
+
+  useGoogleAnalytics('training')
 
   useEffect(() => {
     const modelId = queryString.parse(search).model

@@ -21,8 +21,7 @@
   grid-gap: 4px;
   margin: 36px 50px 0 50px;
 
-  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
-    Helvetica, Arial, Roboto, sans-serif;
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
 
   font-size: 16px;
   color: var(--brightText);

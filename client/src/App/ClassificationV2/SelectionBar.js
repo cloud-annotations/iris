@@ -1,57 +1,55 @@
-import React, { Component } from 'react'
-import './SelectionBar.css'
+import React from 'react'
+
 import DropDown from './DropDown'
 
-class SelectionBar extends Component {
-  render() {
-    const {
-      selectionCount,
-      sections,
-      onItemChosen,
-      unlabelImages,
-      deleteImages,
-      deselectAll
-    } = this.props
+import styles from './SelectionBar.module.css'
 
-    const onlyLabels = sections.filter(label => {
-      return label.toLowerCase() !== 'unlabeled'
-    })
-    return (
-      <div className={`SelectionBar ${selectionCount > 0 ? '--Active' : ''}`}>
-        <div className="SelectionBar-Wrapper SelectionBar-count-Wrapper">
-          <div className="SelectionBar-count">{`${selectionCount} selected`}</div>
-        </div>
-        <div className="">
-          <DropDown
-            label="Label"
-            labels={onlyLabels}
-            onItemChosen={onItemChosen}
-            bar
-          />
-        </div>
-        <div
-          className="SelectionBar-Wrapper SelectionBar-Button"
-          onClick={unlabelImages}
-        >
-          <div>Unlabel</div>
-        </div>
-        <div
-          className="SelectionBar-Wrapper SelectionBar-Button"
-          onClick={deleteImages}
-        >
-          <div>Delete</div>
-        </div>
-        <div
-          className="SelectionBar-close-IconWrapper SelectionBar-Wrapper SelectionBar-Button"
-          onClick={deselectAll}
-        >
-          <svg className="SelectionBar-close-Icon" viewBox="5 5 10 10">
-            <path d="M10 9.293l4.146-4.147.708.708L10.707 10l4.147 4.146-.708.708L10 10.707l-4.146 4.147-.708-.708L9.293 10 5.146 5.854l.708-.708L10 9.293z" />
-          </svg>
-        </div>
+const SelectionBar = ({
+  selectionCount,
+  sections,
+  onItemChosen,
+  unlabelImages,
+  deleteImages,
+  deselectAll
+}) => {
+  const onlyLabels = sections.filter(label => {
+    return label.toLowerCase() !== 'unlabeled'
+  })
+
+  return (
+    <div className={selectionCount > 0 ? styles.barActive : styles.bar}>
+      <div className={styles.selectionCountWrapper}>
+        <div className={styles.selectionCount}>{selectionCount} selected</div>
       </div>
-    )
-  }
+      <DropDown
+        label="Label"
+        labels={onlyLabels}
+        onItemChosen={onItemChosen}
+        bar
+      />
+      <div className={styles.button} onClick={unlabelImages}>
+        Unlabel
+      </div>
+      <div className={styles.button} onClick={deleteImages}>
+        Delete
+      </div>
+      <div className={styles.lastButton} onClick={deselectAll}>
+        <svg
+          className={styles.dismissIcon}
+          focusable="false"
+          preserveAspectRatio="xMidYMid meet"
+          description="Clear selection"
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 32 32"
+          aria-hidden="true"
+        >
+          <path d="M24 9.4L22.6 8 16 14.6 9.4 8 8 9.4 14.6 16 8 22.6 9.4 24 16 17.4 22.6 24 24 22.6 17.4 16 24 9.4z"></path>
+        </svg>
+      </div>
+    </div>
+  )
 }
 
 export default SelectionBar

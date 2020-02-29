@@ -12,6 +12,9 @@ const Classification = ({ bucket, location, collection }) => {
 
   const [rawSection, setSection] = useState(ALL_IMAGES)
 
+  // TODO: This should use the editor redux.
+  const [selection, setSelection] = useState([])
+
   const mapOfLabelCount = collection.getLabelMapCount()
   const groupedImages = collection.getGroupedImages()
   const allImagesCount = groupedImages.all.length
@@ -20,7 +23,12 @@ const Classification = ({ bucket, location, collection }) => {
   const endpoint = endpointForLocationConstraint(location)
 
   const handleSectionChanged = useCallback(s => {
+    setSelection([])
     setSection(s)
+  }, [])
+
+  const handleSelectionChanged = useCallback(s => {
+    setSelection(s)
   }, [])
 
   // ensure section exists.
@@ -44,6 +52,8 @@ const Classification = ({ bucket, location, collection }) => {
       }
       content={
         <GridPanel
+          selection={selection}
+          onSelectionChange={handleSelectionChanged}
           bucket={bucket}
           endpoint={endpoint}
           section={section}
