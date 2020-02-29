@@ -64,7 +64,7 @@ const listAllObjects = async (cos, params) => {
   return await recursivelyQuery()
 }
 
-const IMAGE_REGEX = /\.(jpg|jpeg|png)$/i
+export const IMAGE_REGEX = /\.(jpg|jpeg|png)$/i
 const MODEL_REGEX = /\/model\.json$/i
 
 const optional = (p, alt) => p.catch(() => alt)
@@ -236,7 +236,7 @@ export default class Collection {
 
     const collection = produce(this, draft => {
       const imageNames = images.map(image => image.name)
-      draft.images.unshift(...imageNames)
+      draft.images = [...new Set([...imageNames, ...draft.images])]
     })
 
     syncBucket(this.cos, this.bucket, collection, syncComplete)
@@ -350,6 +350,20 @@ export default class Collection {
         // function will always be called by all clients before syncing.
         delete draft.annotations[image]
       }
+    })
+
+    syncBucket(this.cos, this.bucket, collection, syncComplete)
+    return collection
+  }
+
+  bootstrap(images, annotations, syncComplete) {
+    const _collection = this.uploadImages(images, false)
+    const collection = produce(_collection, draft => {
+      draft.labels = [...new Set([...draft.labels, ...annotations.labels])]
+      draft.annotations = Object.assign(
+        draft.annotations,
+        annotations.annotations
+      )
     })
 
     syncBucket(this.cos, this.bucket, collection, syncComplete)

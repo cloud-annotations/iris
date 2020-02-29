@@ -16,6 +16,7 @@ const CLEAR_LABELS = 'cloud-annotations/collection/CLEAR_LABELS'
 const CREATE_BOX = 'cloud-annotations/collection/CREATE_BOX'
 const DELETE_BOX = 'cloud-annotations/collection/DELETE_BOX'
 const ADD_MODEL = 'cloud-annotations/collection/ADD_MODEL'
+const BOOTSTRAP = 'cloud-annotations/collection/BOOTSTRAP'
 
 // Reducer
 export default function reducer(collection = Collection.EMPTY, action = {}) {
@@ -163,6 +164,9 @@ export default function reducer(collection = Collection.EMPTY, action = {}) {
       }
       return collection.deleteBox(...action.params)
 
+    case BOOTSTRAP:
+      return collection.bootstrap(...action.params)
+
     case ADD_MODEL:
       if (collection.sandboxMode) {
         return collection.noOP(...action.params)
@@ -226,6 +230,11 @@ export const createBox = (image, box, onComplete) => ({
 export const deleteBox = (image, box, onComplete) => ({
   type: DELETE_BOX,
   params: [image, box, onComplete]
+})
+
+export const bootstrap = (images, annotations, onComplete) => ({
+  type: BOOTSTRAP,
+  params: [images, annotations, onComplete]
 })
 
 export const addModel = model => ({
