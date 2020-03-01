@@ -11,7 +11,8 @@ import {
   setCollectionType,
   setCollection,
   uploadImages,
-  syncAction
+  syncAction,
+  bootstrap
 } from 'redux/collection'
 import { setBucket } from 'redux/editor'
 import Localization from './Localization/Localization'
@@ -23,6 +24,7 @@ import AppBarLayout from './AppBarLayout'
 import styles from './App.module.css'
 import { convertToJpeg, videoToJpegs, checkLoginStatus } from 'Utils'
 import ClassificationV2 from './ClassificationV2/Classification'
+import { importDataset } from 'dataset-utils'
 
 const generateFiles = async (images, videos) => {
   const imageFiles = images.map(
@@ -124,6 +126,14 @@ const App = ({
   const handleDrop = useCallback(
     async fileList => {
       setDropActive(false)
+      const [zipFile] = fileList.filter(file =>
+        file.name.toLowerCase().endsWith('.zip')
+      )
+      if (zipFile) {
+        const [files, annotationsJSON] = await importDataset(zipFile)
+        syncAction(bootstrap, [files, annotationsJSON])
+        return
+      }
       const images = fileList.filter(file => file.type.startsWith('image/'))
       const videos = fileList.filter(file => file.type.startsWith('video/'))
       const files = await generateFiles(images, videos)
@@ -183,7 +193,7 @@ const App = ({
             disableClick
             style={{ position: 'absolute' }} /* must override from here */
             className={styles.dropzone}
-            accept="image/*,video/*"
+            accept="image/*,video/*,.zip"
             onDrop={handleDrop}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}

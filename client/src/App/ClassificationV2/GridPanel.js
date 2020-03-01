@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { connect } from 'react-redux'
 
 import GridControllerV2 from 'common/Grid/GridControllerV2'
@@ -61,9 +61,6 @@ const GridPanel = ({
   onSelectionChange
 }) => {
   const selectionCount = selection.filter(Boolean).length
-
-  const loading = false
-  const isEmpty = false
 
   let visibleLabels
   switch (section) {
@@ -140,6 +137,15 @@ const GridPanel = ({
     [onSelectionChange]
   )
 
+  const visibleImagesCount = useMemo(() => {
+    return Object.keys(groupedImages).reduce((acc, cur) => {
+      if (visibleLabels.includes(cur)) {
+        return acc + groupedImages[cur].length
+      }
+      return acc
+    }, 0)
+  }, [groupedImages, visibleLabels])
+
   return (
     <div className={styles.wrapper}>
       <SelectionBar
@@ -150,7 +156,7 @@ const GridPanel = ({
         unlabelImages={handleUnlabelImages}
         deleteImages={handleDeleteImages}
       />
-      <EmptySet show={!loading && isEmpty} />
+      <EmptySet show={visibleImagesCount === 0} />
       <GridControllerV2
         className={styles.grid}
         delegate={GridControllerDelegate(

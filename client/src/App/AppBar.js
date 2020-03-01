@@ -35,6 +35,8 @@ import {
 import { setActiveWMLResource } from 'redux/wmlResources'
 import { IMAGE_REGEX } from 'Collection'
 
+import { importDataset } from 'dataset-utils'
+
 const DEFAULT_GPU = 'k80'
 const DEFAULT_STEPS = '500'
 const DEFAULT_TRAINING_DEFINITION = {
@@ -749,35 +751,9 @@ const AppBar = ({
         file.name.toLowerCase().endsWith('.zip')
       )
 
-      JSZip.loadAsync(zipFile).then(async zip => {
-        const cleanedFiles = zip.filter(path => !path.startsWith('__MACOSX/'))
-
-        const images = cleanedFiles.filter(file => file.name.match(IMAGE_REGEX))
-
-        const annotations = cleanedFiles.find(file =>
-          file.name.endsWith('_annotations.json')
-        )
-        const basePath = annotations.name.substring(
-          0,
-          annotations.name.length - '_annotations.json'.length
-        )
-
-        const imageUploadPromises = images.map(file => {
-          return file.async('blob').then(blob => ({
-            name: file.name.substring(basePath.length, file.name.length),
-            blob: blob
-          }))
-        })
-
-        const files = await Promise.all(imageUploadPromises)
-        const annotationsJSON = JSON.parse(await annotations.async('string'))
-        console.log(annotationsJSON)
-        // TODO: set annotations...
-
-        syncAction(bootstrap, [files, annotationsJSON])
-
-        decrementSaving()
-      })
+      const [files, annotationsJSON] = await importDataset(zipFile)
+      syncAction(bootstrap, [files, annotationsJSON])
+      decrementSaving()
 
       importInputRef.current.value = null
       importInputRef.current.blur()
