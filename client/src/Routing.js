@@ -84,7 +84,7 @@ const useUpgradeToken = account => {
     if (account) {
       fetch(`/api/upgrade-token?account=${account}`)
         .then(() => {
-          setTokenUpgraded(true)
+          setTokenUpgraded(account)
         })
         .catch(error => {
           console.error(error)
@@ -106,38 +106,41 @@ const recursivelyFetchResources = async (url, oldResources) => {
 }
 
 const useResourceList = (dispatch, tokenUpgraded) => {
-  const loadResources = useCallback(
-    (tries = 0) => {
+  useEffect(() => {
+    let isCancelled = false
+    const loadResources = (tries = 0) => {
       fetch('/api/cos-instances')
         .then(res => res.json())
         .then(json => recursivelyFetchResources(json.next_url, json.resources))
         .then(allResources => {
-          // Alphabetize the list by name.
-          allResources.sort((a, b) =>
-            a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
-          )
+          if (!isCancelled) {
+            // Alphabetize the list by name.
+            allResources.sort((a, b) =>
+              a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
+            )
 
-          dispatch(setResources(allResources))
-          dispatch(setLoadingResources(false))
-          if (allResources.length === 0 && tries < 300) {
-            setTimeout(() => {
-              loadResources(tries + 1)
-            }, 10000)
+            dispatch(setResources(allResources))
+            dispatch(setLoadingResources(false))
+            if (allResources.length === 0 && tries < 300) {
+              setTimeout(() => {
+                loadResources(tries + 1)
+              }, 10000)
+            }
           }
         })
         .catch(error => {
           console.error(error)
         })
-    },
-    [dispatch]
-  )
+    }
 
-  useEffect(() => {
     if (tokenUpgraded) {
       dispatch(invalidateResources(true))
       loadResources()
     }
-  }, [dispatch, loadResources, tokenUpgraded])
+    return () => {
+      isCancelled = true
+    }
+  }, [dispatch, tokenUpgraded])
 }
 
 const recursivelyFetchWMLResources = async (url, oldResources) => {
@@ -210,6 +213,11 @@ const useProfile = (dispatch, account) => {
 const Routing = ({ dispatch, activeAccount }) => {
   const attemptedPage = useCookieCheck(10 * 1000)
   useAccount(dispatch)
+  useEffect(() => {
+    if (activeAccount) {
+      dispatch(invalidateResources())
+    }
+  }, [activeAccount, dispatch])
   const tokenUpgraded = useUpgradeToken(activeAccount)
   useResourceList(dispatch, tokenUpgraded)
   useWMLResourceList(dispatch, tokenUpgraded)
