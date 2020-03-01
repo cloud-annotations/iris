@@ -109,8 +109,19 @@ export default class DropDown extends Component {
     return (
       <div onClick={this.showDropDown} className={style} ref={this.dropDownRef}>
         {label}
-        <svg className={styles.icon} width="10" height="5" viewBox="0 0 10 5">
-          <path d="M0 0l5 4.998L10 0z" />
+        <svg
+          className={styles.icon}
+          focusable="false"
+          preserveAspectRatio="xMidYMid meet"
+          name="chevron--down"
+          aria-label="Open menu"
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          role="img"
+        >
+          <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
         </svg>
         <input
           className={styles.filter}
@@ -128,9 +139,7 @@ export default class DropDown extends Component {
                   this.handleItemClick(e, filter)
                 }}
               >
-                <div
-                  className={styles.menuItem}
-                >{`Create label "${filter}"`}</div>
+                <div className={styles.menuItem}>Create label "{filter}"</div>
               </div>
             )}
           {this.filterList(filter, labels).map(section => {

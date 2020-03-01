@@ -12,7 +12,7 @@ import { defaultEndpoint } from 'endpoints'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
-import { setActiveResource } from 'redux/resources'
+import { setActiveResource, setLoadingResources } from 'redux/resources'
 import { setActiveAccount } from 'redux/accounts'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
@@ -127,7 +127,8 @@ const Buckets = ({
   activeResource,
   accounts,
   activeAccount,
-  dispatch
+  dispatch,
+  loadingResources
 }) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
   const [bucketToDelete, setBucketToDelete] = useState(false)
@@ -268,11 +269,32 @@ const Buckets = ({
             Annotations
           </Link>
         </div>
-        {/* <Link to="/training" className={styles.trainingLink}>
-          Training
-        </Link> */}
+        <nav className={styles.mainLinks}>
+          <a className={styles.link} href="https://cloud.annotations.ai/docs">
+            Docs
+          </a>
+          <a
+            className={styles.link}
+            href="https://cloud.annotations.ai/workshops"
+          >
+            Workshops
+          </a>
+          <a className={styles.link} href="https://cloud.annotations.ai/demos">
+            Demos
+          </a>
+          <a className={styles.link} href="https://cloud.annotations.ai/sdks">
+            SDKs
+          </a>
+          <Link to="/training" className={styles.link}>
+            Training runs
+          </Link>
+        </nav>
         <DropDown
-          active={activeResourceObject && activeResourceObject.name}
+          active={
+            !loadingResources &&
+            activeResourceObject &&
+            activeResourceObject.name
+          }
           list={resources.map(resource => ({
             display: resource.name,
             id: resource.id
@@ -313,6 +335,7 @@ const Buckets = ({
 }
 
 const mapStateToProps = state => ({
+  loadingResources: state.resources.loading,
   resources: state.resources.resources,
   activeResource: state.resources.activeResource,
   accounts: state.accounts.accounts,

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { connect } from 'react-redux'
 
 import GridControllerV2 from 'common/Grid/GridControllerV2'
@@ -56,14 +56,11 @@ const GridPanel = ({
   section,
   labels,
   groupedImages,
-  syncAction
+  syncAction,
+  selection,
+  onSelectionChange
 }) => {
-  const [selection, setSelection] = useState([])
-
   const selectionCount = selection.filter(Boolean).length
-
-  const loading = false
-  const isEmpty = false
 
   let visibleLabels
   switch (section) {
@@ -97,9 +94,16 @@ const GridPanel = ({
         syncAction(labelImagesV2, [selectedImages, newActiveLabel, true])
       }
 
-      setSelection([])
+      onSelectionChange([])
     },
-    [groupedImages, labels, selection, syncAction, visibleLabels]
+    [
+      groupedImages,
+      labels,
+      onSelectionChange,
+      selection,
+      syncAction,
+      visibleLabels
+    ]
   )
 
   const handleUnlabelImages = useCallback(() => {
@@ -109,8 +113,8 @@ const GridPanel = ({
       visibleLabels
     )
     syncAction(clearLabels, [selectedImages])
-    setSelection([])
-  }, [groupedImages, selection, syncAction, visibleLabels])
+    onSelectionChange([])
+  }, [groupedImages, onSelectionChange, selection, syncAction, visibleLabels])
 
   const handleDeleteImages = useCallback(() => {
     const selectedImages = getSelectedImages(
@@ -119,16 +123,28 @@ const GridPanel = ({
       visibleLabels
     )
     syncAction(deleteImages, [selectedImages])
-    setSelection([])
-  }, [groupedImages, selection, syncAction, visibleLabels])
+    onSelectionChange([])
+  }, [groupedImages, onSelectionChange, selection, syncAction, visibleLabels])
 
   const handleClearSelection = useCallback(() => {
-    setSelection([])
-  }, [])
+    onSelectionChange([])
+  }, [onSelectionChange])
 
-  const handleChangeSelection = useCallback(selection => {
-    setSelection(selection)
-  }, [])
+  const handleChangeSelection = useCallback(
+    selection => {
+      onSelectionChange(selection)
+    },
+    [onSelectionChange]
+  )
+
+  const visibleImagesCount = useMemo(() => {
+    return Object.keys(groupedImages).reduce((acc, cur) => {
+      if (visibleLabels.includes(cur)) {
+        return acc + groupedImages[cur].length
+      }
+      return acc
+    }, 0)
+  }, [groupedImages, visibleLabels])
 
   return (
     <div className={styles.wrapper}>
@@ -140,7 +156,7 @@ const GridPanel = ({
         unlabelImages={handleUnlabelImages}
         deleteImages={handleDeleteImages}
       />
-      <EmptySet show={!loading && isEmpty} />
+      <EmptySet show={visibleImagesCount === 0} />
       <GridControllerV2
         className={styles.grid}
         delegate={GridControllerDelegate(

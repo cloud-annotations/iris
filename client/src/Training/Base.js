@@ -10,6 +10,7 @@ import queryString from 'query-string'
 
 import styles from './TitleBar.module.css'
 import globalHistory from 'globalHistory'
+import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 const PANEL_WIDTH = '270px'
 
@@ -81,9 +82,30 @@ const TitleBar = connect(mapStateToProps)(
             <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
             Annotations
           </Link>
-          <span className={styles.breadCrumb}>|</span>
-          Training
+          {/* <span className={styles.breadCrumb}>|</span>
+          Training */}
         </div>
+
+        <nav className={styles.mainLinks}>
+          <a className={styles.link} href="https://cloud.annotations.ai/docs">
+            Docs
+          </a>
+          <a
+            className={styles.link}
+            href="https://cloud.annotations.ai/workshops"
+          >
+            Workshops
+          </a>
+          <a className={styles.link} href="https://cloud.annotations.ai/demos">
+            Demos
+          </a>
+          <a className={styles.link} href="https://cloud.annotations.ai/sdks">
+            SDKs
+          </a>
+          <Link to="/training" className={styles.activeLink}>
+            Training runs
+          </Link>
+        </nav>
 
         <DropDown
           active={activeResourceObject && activeResourceObject.name}
@@ -135,6 +157,8 @@ const Base = ({
   const [modelList, setModelList] = useState([])
   const [activeModel, setActiveModel] = useState(undefined)
   const [activeModelState, setActiveModelState] = useState(undefined)
+
+  useGoogleAnalytics('training')
 
   useEffect(() => {
     const modelId = queryString.parse(search).model

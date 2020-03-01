@@ -14,8 +14,7 @@
 }
 
 .title {
-  font-family: ibm-plex-sans, 'Helvetica Neue for IBM', 'Helvetica Neue',
-    Helvetica, Arial, Roboto, sans-serif;
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
   font-size: 16px;
   color: #152935;
   font-weight: 600;

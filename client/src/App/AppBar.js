@@ -17,7 +17,8 @@ import {
   deleteImages,
   createLabel,
   labelImages,
-  addModel
+  addModel,
+  bootstrap
 } from 'redux/collection'
 import { incrementSaving, decrementSaving } from 'redux/editor'
 
@@ -32,6 +33,9 @@ import {
   endpointForLocationConstraint
 } from 'endpoints'
 import { setActiveWMLResource } from 'redux/wmlResources'
+import { IMAGE_REGEX } from 'Collection'
+
+import { importDataset } from 'dataset-utils'
 
 const DEFAULT_GPU = 'k80'
 const DEFAULT_STEPS = '500'
@@ -263,11 +267,14 @@ const AppBar = ({
   wmlResources,
   sandbox,
   dissabled,
-  setActiveWMLResource
+  setActiveWMLResource,
+  bootstrap
 }) => {
   const optionsRef = useRef(undefined)
   const mediaInputRef = useRef(undefined)
   const modelInputRef = useRef(undefined)
+  const importInputRef = useRef(undefined)
+
   const [filesZipped, setFilesZipped] = useState(0)
   const [filesToZip, setFilesToZip] = useState(0)
 
@@ -572,7 +579,7 @@ const AppBar = ({
         setFilesZipped
       )
 
-      folder.file('annotations.json', JSON.stringify(collection.toJSON()))
+      folder.file('_annotations.json', JSON.stringify(collection.toJSON()))
 
       setFilesZipped(zipped => (zipped += 1))
 
@@ -734,6 +741,27 @@ const AppBar = ({
     [bucket, collection, location]
   )
 
+  const handleImportDataset = useCallback(
+    async e => {
+      e.stopPropagation()
+      incrementSaving()
+
+      const fileList = getDataTransferItems(e)
+      const [zipFile] = fileList.filter(file =>
+        file.name.toLowerCase().endsWith('.zip')
+      )
+
+      const [files, annotationsJSON] = await importDataset(zipFile)
+      syncAction(bootstrap, [files, annotationsJSON])
+      decrementSaving()
+
+      importInputRef.current.value = null
+      importInputRef.current.blur()
+      setOptionsOpen(false)
+    },
+    [bootstrap, decrementSaving, incrementSaving, syncAction]
+  )
+
   const handleEmptyLabelImage = useCallback(
     label => e => {
       e.stopPropagation()
@@ -800,6 +828,17 @@ const AppBar = ({
                     type="file"
                     accept=".zip"
                     onChange={handleModelChosen}
+                  />
+                </div>
+                <div className={styles.listDivider} />
+                <div className={styles.listItem}>
+                  Import dataset
+                  <input
+                    className={styles.upload}
+                    ref={importInputRef}
+                    type="file"
+                    accept=".zip"
+                    onChange={handleImportDataset}
                   />
                 </div>
                 <div className={styles.listDivider} />
@@ -1042,6 +1081,7 @@ const mapDispatchToProps = {
   incrementSaving,
   decrementSaving,
   setActiveWMLResource,
-  addModel
+  addModel,
+  bootstrap
 }
 export default connect(mapPropsToState, mapDispatchToProps)(AppBar)
