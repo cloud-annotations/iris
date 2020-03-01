@@ -269,9 +269,26 @@ const Buckets = ({
             Annotations
           </Link>
         </div>
-        {/* <Link to="/training" className={styles.trainingLink}>
-          Training
-        </Link> */}
+        <nav className={styles.mainLinks}>
+          <a className={styles.link} href="https://cloud.annotations.ai/docs">
+            Docs
+          </a>
+          <a
+            className={styles.link}
+            href="https://cloud.annotations.ai/workshops"
+          >
+            Workshops
+          </a>
+          <a className={styles.link} href="https://cloud.annotations.ai/demos">
+            Demos
+          </a>
+          <a className={styles.link} href="https://cloud.annotations.ai/sdks">
+            SDKs
+          </a>
+          <Link to="/training" className={styles.link}>
+            Training runs
+          </Link>
+        </nav>
         <DropDown
           active={
             !loadingResources &&

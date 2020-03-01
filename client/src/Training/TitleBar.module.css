@@ -32,7 +32,8 @@
 
 .title {
   margin-left: 32px;
-  margin-right: auto;
+  /* margin-right: auto; */
+  margin-right: 32px;
   font-size: 16px;
   font-weight: 600;
 }
@@ -179,4 +180,39 @@
 
 .createBucketText {
   padding-right: 12px;
+}
+
+.link,
+.link:visited {
+  color: var(--brightText);
+  text-decoration: none;
+  margin: 0 14px;
+}
+
+.link:hover {
+  box-shadow: 0 1px var(--blue);
+}
+
+.link:active {
+  color: var(--brightText);
+}
+
+.link:focus {
+  color: var(--brightText);
+  box-shadow: 0 3px var(--brightText);
+}
+
+.activeLink {
+  composes: link;
+  box-shadow: 0 1px var(--blue);
+}
+
+.mainLinks {
+  overflow: hidden;
+  line-height: 24px;
+  height: 64px;
+  margin-right: auto;
+  width: auto;
+  display: flex;
+  align-items: center;
 }
