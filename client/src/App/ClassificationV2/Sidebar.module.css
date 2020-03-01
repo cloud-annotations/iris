@@ -12,10 +12,17 @@
 
 .fixedItems {
   cursor: pointer;
-  border-bottom: 1px solid var(--highlight);
-  padding: 8px 0 2px 0;
-  margin-bottom: 8px;
+  /* border-bottom: 1px solid var(--highlight); */
+  padding: 8px 0 16px 0;
+  /* margin-bottom: 8px; */
   position: relative;
+}
+
+.dynamicItems {
+  cursor: pointer;
+  border-top: 1px solid var(--highlight);
+  padding: 8px 0 16px 0;
+  margin-top: 8px;
 }
 
 .itemBase {
@@ -84,22 +91,24 @@
 }
 
 .addLabelButtonBase {
-  padding: 9px 0;
-  margin: 16px 10px 8px 10px;
+  height: 48px;
+  /* padding: 9px 0; */
+  padding: 0 18px 0 18px;
+  /* margin: 16px 0px 8px 0px; */
 
   font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
 
-  color: var(--blue);
-  font-size: 14px;
-  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--blue);
 
-  text-align: center;
-  border: 2px solid var(--blue);
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  /* border: 2px solid var(--blue); */
 }
 
 .addLabelButtonBase:hover {
-  background-color: var(--blue);
-  color: #ffffff;
+  background-color: var(--blue-hover);
 }
 
 .addLabelButton {
@@ -109,13 +118,15 @@
 .addLabelButtonHidden {
   composes: addLabelButtonBase;
   visibility: hidden;
+  display: none;
 }
 
 .addLabelFieldWrapper {
-  position: absolute;
+  position: relative;
+  /* position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: 0; */
 }
 
 .addLabelField {
@@ -125,6 +136,8 @@
   padding: 14px 43px 14px 25px;
   width: 100%;
   border-top: 1px solid #dfe3e6;
+
+  height: 48px;
 
   font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
 
@@ -146,4 +159,90 @@
 
 .thinAddIcon {
   fill: var(--blue);
+}
+
+/*  */
+.labelDropDownBase {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: var(--secondaryText);
+  /* font-size: 12px;
+  font-weight: 500; */
+  /* padding: 3.5px 6px 3.5px 8px; */
+
+  /* width: 160px; */
+  cursor: pointer;
+
+  height: 48px;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.dropButtonText {
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: #ffffff;
+  /* width: 122px; */
+  padding: 0 18px 0 18px;
+}
+
+.labelDropDown {
+  composes: labelDropDownBase;
+  background-color: var(--blue);
+}
+
+.labelDropDown:hover {
+  background-color: var(--blue-hover);
+}
+
+.labelDropDownOpen {
+  composes: labelDropDownBase;
+}
+
+.editTextBase {
+  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  color: var(--brightText);
+  height: 48px;
+  width: 100%;
+  /* width: 122px; */
+  padding: 0 48px 0 18px;
+  border: none;
+  outline: none;
+  margin-right: auto;
+}
+
+.editTextWrapper {
+  composes: editTextBase;
+  background-color: transparent;
+}
+
+.labelDropDownOpen .editTextWrapper {
+  background-color: var(--textInput);
+  outline: 2px solid var(--blue);
+  outline-offset: -2px;
+  /* box-shadow: 0 0 0 2px var(--blue); */
+}
+
+.editTextButton {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  bottom: 2px;
+  width: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editTextButton:hover {
+  background-color: var(--selectionBarHover);
+}
+
+.editTextIcon {
+  height: 12px;
+  width: 12px;
 }
