@@ -33,7 +33,6 @@ import {
   endpointForLocationConstraint
 } from 'endpoints'
 import { setActiveWMLResource } from 'redux/wmlResources'
-import { IMAGE_REGEX } from 'Collection'
 
 import { importDataset } from 'dataset-utils'
 

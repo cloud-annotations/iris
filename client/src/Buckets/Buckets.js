@@ -12,7 +12,7 @@ import { defaultEndpoint } from 'endpoints'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
-import { setActiveResource, setLoadingResources } from 'redux/resources'
+import { setActiveResource } from 'redux/resources'
 import { setActiveAccount } from 'redux/accounts'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
