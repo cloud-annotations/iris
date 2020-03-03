@@ -271,7 +271,7 @@ export default class Collection {
   }
 
   labelImages(images, label, syncComplete) {
-    return this.labelImages(images, label, false, syncComplete)
+    return this.labelImagesV2(images, label, false, syncComplete)
   }
 
   labelImagesV2(images, label, onlyOne, syncComplete) {
