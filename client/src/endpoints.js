@@ -166,6 +166,9 @@ export const endpointFromRegion = region => {
 }
 
 export const fullPrivateEndpointForLocationConstraint = location => {
+  if (location === undefined) {
+    return undefined
+  }
   location = location.replace(/-standard$/, '')
   location = location.replace(/-vault$/, '')
   location = location.replace(/-cold$/, '')
@@ -174,6 +177,9 @@ export const fullPrivateEndpointForLocationConstraint = location => {
 }
 
 export const endpointForLocationConstraint = location => {
+  if (location === undefined) {
+    return undefined
+  }
   location = location.replace(/-standard$/, '')
   location = location.replace(/-vault$/, '')
   location = location.replace(/-cold$/, '')

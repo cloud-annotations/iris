@@ -198,14 +198,22 @@ const App = ({
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
           >
-            <div className={dropActive ? styles.dropActive : styles.drop}>
-              <div className={styles.dropOutline}>
-                <div className={styles.dropText}>
-                  Drop to upload your images
+            {({ getRootProps, getInputProps }) => (
+              <div {...getRootProps()}>
+                <div className={dropActive ? styles.dropActive : styles.drop}>
+                  <div className={styles.dropOutline}>
+                    <div className={styles.dropText}>
+                      Drop to upload your images
+                    </div>
+                  </div>
                 </div>
+                <AnnotationPanel
+                  location={location}
+                  bucket={bucket}
+                  type={type}
+                />
               </div>
-            </div>
-            <AnnotationPanel location={location} bucket={bucket} type={type} />
+            )}
           </Dropzone>
         }
       />
