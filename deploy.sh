@@ -3,7 +3,7 @@
 trap 'echo "The deployment was aborted. Message -- "; exit 1' ERR
 
 CLUSTER="bpnvi8vw0nkktonrr20g"
-IMAGE_NAME="us.icr.io/cloud-annotations/frontend:stage2"
+IMAGE_NAME="us.icr.io/cloud-annotations/frontend:$(git rev-parse HEAD)"
 
 # Log in
 echo "Logging in..."
