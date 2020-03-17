@@ -12,26 +12,26 @@ const compression = require('compression')
 const app = express()
 
 let server
-if (
-  process.env.NODE_ENV === 'production' ||
-  process.env.NODE_ENV === 'localbuild'
-) {
-  console.log('Using http/2')
-  server = spdy.createServer(
-    {
-      key:
-        process.env.TLS_KEY ||
-        fs.readFileSync(path.join(__dirname, 'local_keys', 'server.key')),
-      cert:
-        process.env.TLS_CRT ||
-        fs.readFileSync(path.join(__dirname, 'local_keys', 'server.crt'))
-    },
-    app
-  )
-} else {
-  console.log('Using http/1.1')
-  server = require('http').Server(app)
-}
+// if (
+//   process.env.NODE_ENV === 'production' ||
+//   process.env.NODE_ENV === 'localbuild'
+// ) {
+//   console.log('Using http/2')
+//   server = spdy.createServer(
+//     {
+//       key:
+//         process.env.TLS_KEY ||
+//         fs.readFileSync(path.join(__dirname, 'local_keys', 'server.key')),
+//       cert:
+//         process.env.TLS_CRT ||
+//         fs.readFileSync(path.join(__dirname, 'local_keys', 'server.crt'))
+//     },
+//     app
+//   )
+// } else {
+console.log('Using http/1.1')
+server = require('http').Server(app)
+// }
 
 const io = require('socket.io')(server)
 const redis = require('socket.io-redis')
@@ -55,7 +55,7 @@ let baseEndpoint = 'cloud.ibm.com'
 let secure = false
 if (process.env.NODE_ENV === 'production') {
   baseEndpoint = 'cloud.ibm.com'
-  io.adapter(redis({ host: 'redis.default.svc.cluster.local', port: 6379 }))
+  io.adapter(redis({ host: 'redis', port: 6379 }))
   secure = true
 }
 

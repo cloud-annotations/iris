@@ -11,16 +11,20 @@ spec:
   selector:
     run: redis
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      run: redis
   template:
     metadata:
       labels:
         run: redis
+
     spec:
       containers:
       - name: redis

@@ -32,17 +32,19 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: us.icr.io/bourdakos1/annotate:a766998a45e469393737b36b48927d5860ccc1d6
+        image: us.icr.io/cloud-annotations/frontend:stage2
+        imagePullPolicy: Always
+        # imagePullPolicy: IfNotPresent
         env:
         - name: TLS_CRT
           valueFrom:
             secretKeyRef:
-              name: annotations
+              name: annotations-328334-442dbba0442be6c8c50f31ed96b00601-0000
               key: tls.crt
         - name: TLS_KEY
           valueFrom:
             secretKeyRef:
-              name: annotations
+              name: annotations-328334-442dbba0442be6c8c50f31ed96b00601-0000
               key: tls.key
         ports:
         - containerPort: 8080
