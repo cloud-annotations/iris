@@ -5,33 +5,28 @@ const cookieParser = require('cookie-parser')
 const frameguard = require('frameguard')
 const WebSocket = require('ws')
 
-const fs = require('fs')
 const spdy = require('spdy')
 const compression = require('compression')
 
 const app = express()
 
 let server
-// if (
-//   process.env.NODE_ENV === 'production' ||
-//   process.env.NODE_ENV === 'localbuild'
-// ) {
-//   console.log('Using http/2')
-//   server = spdy.createServer(
-//     {
-//       key:
-//         process.env.TLS_KEY ||
-//         fs.readFileSync(path.join(__dirname, 'local_keys', 'server.key')),
-//       cert:
-//         process.env.TLS_CRT ||
-//         fs.readFileSync(path.join(__dirname, 'local_keys', 'server.crt'))
-//     },
-//     app
-//   )
-// } else {
-console.log('Using http/1.1')
-server = require('http').Server(app)
-// }
+if (
+  process.env.NODE_ENV === 'production' ||
+  process.env.NODE_ENV === 'localbuild'
+) {
+  console.log('Using http/2')
+  server = spdy.createServer(
+    {
+      key: process.env.TLS_KEY,
+      cert: process.env.TLS_CRT
+    },
+    app
+  )
+} else {
+  console.log('Using http/1.1')
+  server = require('http').Server(app)
+}
 
 const io = require('socket.io')(server)
 const redis = require('socket.io-redis')
