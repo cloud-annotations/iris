@@ -33,7 +33,7 @@ spec:
       containers:
       - name: frontend
         image: us.icr.io/cloud-annotations/frontend:stage2
-        imagePullPolicy: Always
+        # imagePullPolicy: Always
         # imagePullPolicy: IfNotPresent
         env:
         - name: TLS_CRT
