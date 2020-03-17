@@ -16,11 +16,11 @@ eval $(ibmcloud ks cluster config --cluster $CLUSTER | grep "export KUBECONFIG")
 
 # Build image
 echo Building $IMAGE_NAME ...
-ibmcloud cr build  --no-cache --pull --build-arg CLIENT_ID=$CLIENT_ID --build-arg CLIENT_SECRET=$CLIENT_SECRET -t $IMAGE_NAME .
+ibmcloud cr build --no-cache --pull --build-arg CLIENT_ID=$CLIENT_ID --build-arg CLIENT_SECRET=$CLIENT_SECRET -t $IMAGE_NAME .
 
 # Apply kubernetes yamls
 echo Container build completed, updating $DEPLOYMENT ...
-sed -i '' "s,\(^.*image: \)\(.*$\),\1"$IMAGE_NAME"," k8s/frontend.yaml
+sed -i "s,\(^.*image: \)\(.*$\),\1"$IMAGE_NAME"," k8s/frontend.yaml
 kubectl apply -f k8s
 
 echo "Deployment complete"
