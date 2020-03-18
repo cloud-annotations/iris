@@ -32,19 +32,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: us.icr.io/cloud-annotations/frontend:e75962359e574e1990ff700ed15244e8f0adaceb
-        # imagePullPolicy: Always
-        # imagePullPolicy: IfNotPresent
-        env:
-        - name: TLS_CRT
-          valueFrom:
-            secretKeyRef:
-              name: annotations-328334-442dbba0442be6c8c50f31ed96b00601-0000
-              key: tls.crt
-        - name: TLS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: annotations-328334-442dbba0442be6c8c50f31ed96b00601-0000
-              key: tls.key
+        image: us.icr.io/cloud-annotations/frontend:1638395e542e1efe268ef10790d802f0a9d39b2f
         ports:
         - containerPort: 8080

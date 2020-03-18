@@ -6,11 +6,11 @@ script: echo "No tests to run."
 deploy:
 - provider: script
   skip_cleanup: true
-  script: ./deploy.sh
+  script: export DEPLOY_TO=production && ./deploy.sh
   on:
     branch: master
 - provider: script
   skip_cleanup: true
-  script: ./deploy.sh
+  script: export DEPLOY_TO=staging && ./deploy.sh
   on:
     branch: niko-dev
