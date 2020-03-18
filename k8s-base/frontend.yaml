@@ -32,17 +32,6 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: us.icr.io/bourdakos1/annotate:a766998a45e469393737b36b48927d5860ccc1d6
-        env:
-        - name: TLS_CRT
-          valueFrom:
-            secretKeyRef:
-              name: annotations
-              key: tls.crt
-        - name: TLS_KEY
-          valueFrom:
-            secretKeyRef:
-              name: annotations
-              key: tls.key
+        image: us.icr.io/cloud-annotations/frontend:1638395e542e1efe268ef10790d802f0a9d39b2f
         ports:
         - containerPort: 8080

@@ -1,21 +1,16 @@
 language: node_js
-os: osx
 node_js: stable
 before_deploy: 
-- curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/darwin/amd64/kubectl
-- chmod +x ./kubectl
-- sudo mv ./kubectl /usr/local/bin/kubectl
-- curl -fsSL https://clis.cloud.ibm.com/install/osx | sh
-- ibmcloud plugin install container-registry
-- ibmcloud plugin install kubernetes-service
+- curl -sL https://ibm.biz/idt-installer | bash
+script: echo "No tests to run."
 deploy:
 - provider: script
   skip_cleanup: true
-  script: yarn deploy
+  script: export DEPLOY_TO=production && ./deploy.sh
   on:
     branch: master
 - provider: script
   skip_cleanup: true
-  script: yarn stage
+  script: export DEPLOY_TO=staging && ./deploy.sh
   on:
     branch: niko-dev
