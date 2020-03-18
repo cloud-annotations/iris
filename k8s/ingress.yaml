@@ -3,8 +3,10 @@ kind: Ingress
 metadata:
   name: ingress
   annotations:
-    nginx.ingress.kubernetes.io/affinity: cookie
-    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    # nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    # ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/affinity: "cookie"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
 spec:
   tls:
   - hosts:

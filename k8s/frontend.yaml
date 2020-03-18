@@ -32,7 +32,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: us.icr.io/cloud-annotations/frontend:stage2
+        image: us.icr.io/cloud-annotations/frontend:e75962359e574e1990ff700ed15244e8f0adaceb
         # imagePullPolicy: Always
         # imagePullPolicy: IfNotPresent
         env:

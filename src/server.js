@@ -10,23 +10,20 @@ const compression = require('compression')
 
 const app = express()
 
-let server
-if (
-  process.env.NODE_ENV === 'production' ||
-  process.env.NODE_ENV === 'localbuild'
-) {
-  console.log('Using http/2')
-  server = spdy.createServer(
-    {
-      key: process.env.TLS_KEY,
-      cert: process.env.TLS_CRT
-    },
-    app
-  )
-} else {
-  console.log('Using http/1.1')
-  server = require('http').Server(app)
-}
+// let server
+// if (process.env.NODE_ENV === 'production') {
+//   console.log('Using http/2')
+//   server = spdy.createServer(
+//     {
+//       key: process.env.TLS_KEY,
+//       cert: process.env.TLS_CRT
+//     },
+//     app
+//   )
+// } else {
+// }
+console.log('Using http/1.1')
+const server = require('http').Server(app)
 
 const io = require('socket.io')(server)
 const redis = require('socket.io-redis')
@@ -519,26 +516,6 @@ if (process.env.NODE_ENV === 'production') {
   // give all the routes to react
   app.get('*', (_, res) => {
     res.sendFile(path.join(__dirname, 'client', 'index.html'))
-  })
-}
-
-if (process.env.NODE_ENV === 'localbuild') {
-  console.log('welcome to your local build')
-
-  app.get('/install.sh', (_, res) => {
-    res
-      .set({
-        'Content-Type': 'text/plain; charset=utf-8',
-        'X-Content-Type-Options': 'nosniff'
-      })
-      .sendFile(path.join(__dirname, 'client', 'build', 'install.sh'))
-  })
-
-  app.use(express.static(path.join(__dirname, 'client', 'build')))
-
-  // give all the routes to react
-  app.get('*', (_, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'))
   })
 }
 
