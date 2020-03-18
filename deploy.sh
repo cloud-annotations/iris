@@ -20,7 +20,7 @@ ibmcloud cr build --no-cache --pull --build-arg CLIENT_ID=$CLIENT_ID --build-arg
 
 # Apply kubernetes yamls
 echo Container build completed, updating $DEPLOYMENT ...
-sed -i "s,\(^.*image: \)\(.*$\),\1"$IMAGE_NAME"," k8s/frontend.yaml
+sed -i "s,\(^.*image: \)\(.*$\),\1"$IMAGE_NAME"," k8s-base/frontend.yaml
 
 if [ "$DEPLOY_TO" = "production" ]
 then

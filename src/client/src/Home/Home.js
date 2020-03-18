@@ -143,10 +143,7 @@ const Home = ({ attemptedPage }) => {
                 Continue with IBM Cloud
               </div>
             )}
-            <a
-              className={styles.buttonSecondary}
-              href="https://cloud.annotations.ai/docs"
-            >
+            <a className={styles.buttonSecondary} href="/docs">
               Documentation
             </a>
           </div>
