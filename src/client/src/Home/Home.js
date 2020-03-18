@@ -56,19 +56,16 @@ const Home = ({ attemptedPage }) => {
           Annotations
         </a>
         <nav className={styles.mainLinks}>
-          <a className={styles.link} href="https://cloud.annotations.ai/docs">
+          <a className={styles.link} href="/docs">
             Docs
           </a>
-          <a
-            className={styles.link}
-            href="https://cloud.annotations.ai/workshops"
-          >
+          <a className={styles.link} href="/workshops">
             Workshops
           </a>
-          <a className={styles.link} href="https://cloud.annotations.ai/demos">
+          <a className={styles.link} href="/demos">
             Demos
           </a>
-          <a className={styles.link} href="https://cloud.annotations.ai/sdks">
+          <a className={styles.link} href="/sdks">
             SDKs
           </a>
         </nav>
