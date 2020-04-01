@@ -41,7 +41,7 @@ const DEFAULT_STEPS = '500'
 const DEFAULT_TRAINING_DEFINITION = {
   framework: {
     name: 'tensorflow',
-    version: '1.12',
+    version: '1.15',
     runtimes: [
       {
         name: 'python',
