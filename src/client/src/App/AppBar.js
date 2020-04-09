@@ -18,7 +18,7 @@ import {
   createLabel,
   labelImages,
   addModel,
-  bootstrap
+  bootstrap,
 } from 'redux/collection'
 import { incrementSaving, decrementSaving } from 'redux/editor'
 
@@ -30,7 +30,8 @@ import { setActiveImage } from 'redux/editor'
 import COS from 'api/COSv2'
 import {
   fullPrivateEndpointForLocationConstraint,
-  endpointForLocationConstraint
+  fullPublicEndpointForLocationConstraint,
+  endpointForLocationConstraint,
 } from 'endpoints'
 import { setActiveWMLResource } from 'redux/wmlResources'
 
@@ -45,28 +46,28 @@ const DEFAULT_TRAINING_DEFINITION = {
     runtimes: [
       {
         name: 'python',
-        version: '3.6'
-      }
-    ]
-  }
+        version: '3.6',
+      },
+    ],
+  },
 }
 
 const generateFiles = async (images, videos) => {
   const imageFiles = images.map(
-    async image =>
+    async (image) =>
       await convertToJpeg(image, {
         maxHeight: window.MAX_IMAGE_HEIGHT,
         maxWidth: window.MAX_IMAGE_WIDTH,
-        mode: window.IMAGE_SCALE_MODE
+        mode: window.IMAGE_SCALE_MODE,
       })
   )
   const videoFiles = videos.map(
-    async video =>
+    async (video) =>
       await videoToJpegs(video, {
         fps: window.FPS,
         maxHeight: window.MAX_IMAGE_HEIGHT,
         maxWidth: window.MAX_IMAGE_WIDTH,
-        mode: window.IMAGE_SCALE_MODE
+        mode: window.IMAGE_SCALE_MODE,
       })
   )
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
@@ -81,38 +82,38 @@ const zipImages = async (
 ) => {
   const labeledImageNames = Object.keys(collection.annotations)
   return await Promise.all(
-    labeledImageNames.map(async name => {
+    labeledImageNames.map(async (name) => {
       try {
         const imgData = await new COS({ endpoint: endpoint }).getObject({
           Bucket: bucket,
-          Key: name
+          Key: name,
         })
         folder.file(name, imgData, { binary: true })
 
         const image = new Image()
         image.src = URL.createObjectURL(imgData)
-        return await new Promise(resolve => {
+        return await new Promise((resolve) => {
           image.onload = () => {
             if (setFilesZipped) {
-              setFilesZipped(zipped => (zipped += 1))
+              setFilesZipped((zipped) => (zipped += 1))
             }
 
             resolve({
               name: name,
-              dimensions: { width: image.width, height: image.height }
+              dimensions: { width: image.width, height: image.height },
             })
           }
         })
       } catch {
-        return await new Promise(resolve => {
+        return await new Promise((resolve) => {
           console.error(`failed to download: skipping ${name}`)
           if (setFilesZipped) {
-            setFilesZipped(zipped => (zipped += 1))
+            setFilesZipped((zipped) => (zipped += 1))
           }
 
           resolve({
             name: name,
-            dimensions: { width: 0, height: 0 }
+            dimensions: { width: 0, height: 0 },
           })
         })
       }
@@ -120,10 +121,10 @@ const zipImages = async (
   )
 }
 
-const PoopUp = connect(state => ({
+const PoopUp = connect((state) => ({
   cosResources: state.resources.resources,
   resources: state.wmlResources.resources,
-  activeResource: state.wmlResources.activeResource
+  activeResource: state.wmlResources.activeResource,
 }))(
   ({
     cosResources,
@@ -131,11 +132,11 @@ const PoopUp = connect(state => ({
     activeResource,
     show,
     onPrimary,
-    onSecondary
+    onSecondary,
   }) => {
     const handlePrimary = useCallback(() => {
       const resourceID = document.getElementById('wml-select').value
-      const resourceInfo = resources.find(r => r.id === resourceID)
+      const resourceInfo = resources.find((r) => r.id === resourceID)
       onPrimary(resourceInfo)
     }, [onPrimary, resources])
 
@@ -156,7 +157,7 @@ const PoopUp = connect(state => ({
                 </label>
                 <div className={styles.popupSelectWrapper}>
                   <select className={styles.popupSelect} id="wml-select">
-                    {resources.map(r => (
+                    {resources.map((r) => (
                       <option value={r.id} selected={r.id === activeResource}>
                         {r.name}
                       </option>
@@ -209,7 +210,7 @@ const Downloader = ({ current, total }) => {
             height: '20px',
             fill: 'transparent',
             margin: '0 16px',
-            transform: 'rotate(-90deg)'
+            transform: 'rotate(-90deg)',
           }}
           viewBox="-29.8125 -29.8125 59.625 59.625"
         >
@@ -219,7 +220,7 @@ const Downloader = ({ current, total }) => {
               stroke: '#e0e0e0',
               strokeDashoffset: 0,
               strokeLinecap: 'butt',
-              strokeDasharray: 169
+              strokeDasharray: 169,
             }}
             cx="0"
             cy="0"
@@ -231,7 +232,7 @@ const Downloader = ({ current, total }) => {
               stroke: '#0f62fe',
               strokeDashoffset: amount,
               strokeLinecap: 'butt',
-              strokeDasharray: 169
+              strokeDasharray: 169,
             }}
             cx="0"
             cy="0"
@@ -246,6 +247,40 @@ const Downloader = ({ current, total }) => {
       </div>
     </div>
   )
+}
+
+const getOrCreateBinding = async (cosResources, activeCOSResource) => {
+  // find or create a binding.
+  const cosResourceInfo = cosResources.find((r) => r.id === activeCOSResource)
+  const credentialsEndpoint =
+    '/api/proxy/resource-controller.cloud.ibm.com/v2/resource_keys'
+  const listCredentialsEndpoint = `${credentialsEndpoint}?name=cloud-annotations-binding&source_crn=${cosResourceInfo.crn}`
+  const credentialsList = await fetch(listCredentialsEndpoint).then((res) =>
+    res.json()
+  )
+
+  let creds
+  // create binding if none exists.
+  if (credentialsList.resources.length > 0) {
+    creds = credentialsList.resources[0]
+  } else {
+    const resCreate = await fetch(credentialsEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: 'cloud-annotations-binding',
+        source: cosResourceInfo.guid,
+        role: 'writer',
+        parameters: {
+          HMAC: true,
+        },
+      }),
+    }).then((res) => res.json())
+    creds = resCreate
+  }
+  return creds.credentials
 }
 
 const AppBar = ({
@@ -267,7 +302,7 @@ const AppBar = ({
   sandbox,
   dissabled,
   setActiveWMLResource,
-  bootstrap
+  bootstrap,
 }) => {
   const optionsRef = useRef(undefined)
   const mediaInputRef = useRef(undefined)
@@ -287,7 +322,7 @@ const AppBar = ({
   )
 
   useEffect(() => {
-    const observer = new MutationObserver(mutationsList => {
+    const observer = new MutationObserver((mutationsList) => {
       for (let mutation of mutationsList) {
         if (
           mutation.type === 'attributes' &&
@@ -303,9 +338,9 @@ const AppBar = ({
     }
   }, [])
 
-  const handleToggleDarkMode = useCallback(e => {
+  const handleToggleDarkMode = useCallback((e) => {
     e.target.blur() // give up focus so other inputs work properly.
-    setDarkModeToggle(mode => {
+    setDarkModeToggle((mode) => {
       const nextMode = !mode
       localStorage.setItem('darkMode', nextMode)
       document.body.className = nextMode ? 'dark' : 'light'
@@ -326,11 +361,11 @@ const AppBar = ({
     setOptionsOpen(false)
   }, [])
 
-  const handleOptionHover = useCallback(e => {
+  const handleOptionHover = useCallback((e) => {
     setLastHoveredOption(e.currentTarget.id)
   }, [])
 
-  const handleSubOptionHover = useCallback(e => {
+  const handleSubOptionHover = useCallback((e) => {
     setLastHoveredSubOption(e.currentTarget.id)
   }, [])
 
@@ -339,16 +374,18 @@ const AppBar = ({
   }, [])
 
   const handleTrainModalPrimary = useCallback(
-    async instance => {
+    async (instance) => {
       setActiveWMLResource(instance.id)
       setPreparingToTrain(true)
       setShowModal(false)
       // find or create a binding.
-      const cosResourceInfo = cosResources.find(r => r.id === activeCOSResource)
+      const cosResourceInfo = cosResources.find(
+        (r) => r.id === activeCOSResource
+      )
       const credentialsEndpoint =
         '/api/proxy/resource-controller.cloud.ibm.com/v2/resource_keys'
       const listCredentialsEndpoint = `${credentialsEndpoint}?name=cloud-annotations-binding&source_crn=${cosResourceInfo.crn}`
-      const credentialsList = await fetch(listCredentialsEndpoint).then(res =>
+      const credentialsList = await fetch(listCredentialsEndpoint).then((res) =>
         res.json()
       )
 
@@ -360,23 +397,23 @@ const AppBar = ({
         const resCreate = await fetch(credentialsEndpoint, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             name: 'cloud-annotations-binding',
             source: cosResourceInfo.guid,
             role: 'writer',
             parameters: {
-              HMAC: true
-            }
-          })
-        }).then(res => res.json())
+              HMAC: true,
+            },
+          }),
+        }).then((res) => res.json())
         creds = resCreate
       }
 
       const {
         access_key_id,
-        secret_access_key
+        secret_access_key,
       } = creds.credentials.cos_hmac_keys
 
       const instanceID = instance.guid
@@ -392,11 +429,11 @@ const AppBar = ({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'ML-Instance-ID': instanceID
+            'ML-Instance-ID': instanceID,
           },
-          body: JSON.stringify(trainingDefinition)
+          body: JSON.stringify(trainingDefinition),
         }
-      ).then(res => res.json())
+      ).then((res) => res.json())
 
       await fetch(
         `/api/proxy/${resTrainingDefinition.entity.training_definition_version.content_url.replace(
@@ -407,11 +444,11 @@ const AppBar = ({
           method: 'PUT',
           headers: {
             'ML-Instance-ID': instanceID,
-            'Content-Type': 'application/octet-stream'
+            'Content-Type': 'application/octet-stream',
           },
           body: await fetch(
             '/api/proxy/github.com/cloud-annotations/training/releases/latest/download/training.zip'
-          ).then(res => res.blob())
+          ).then((res) => res.blob()),
         }
       )
 
@@ -420,32 +457,32 @@ const AppBar = ({
       const connection = {
         endpoint_url: fullPrivateEndpointForLocationConstraint(location),
         access_key_id: access_key_id,
-        secret_access_key: secret_access_key
+        secret_access_key: secret_access_key,
       }
       const trainingRun = {
         model_definition: {
           framework: {
             name: resTrainingDefinition.entity.framework.name,
-            version: resTrainingDefinition.entity.framework.version
+            version: resTrainingDefinition.entity.framework.version,
           },
           name: resTrainingDefinition.entity.name,
           author: {},
           definition_href: resTrainingDefinition.metadata.url,
           execution: {
             command: command,
-            compute_configuration: { name: DEFAULT_GPU }
-          }
+            compute_configuration: { name: DEFAULT_GPU },
+          },
         },
         training_data_reference: {
           connection: connection,
           source: { bucket: bucket },
-          type: 's3'
+          type: 's3',
         },
         training_results_reference: {
           connection: connection,
           target: { bucket: bucket },
-          type: 's3'
-        }
+          type: 's3',
+        },
       }
 
       const resTrainingRun = await fetch(
@@ -454,11 +491,11 @@ const AppBar = ({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'ML-Instance-ID': instanceID
+            'ML-Instance-ID': instanceID,
           },
-          body: JSON.stringify(trainingRun)
+          body: JSON.stringify(trainingRun),
         }
-      ).then(res => res.json())
+      ).then((res) => res.json())
 
       setPreparingToTrain(false)
 
@@ -474,11 +511,11 @@ const AppBar = ({
   useOnClickOutside(optionsRef, handleClickOutside, true)
 
   const handleMediaChosen = useCallback(
-    async e => {
+    async (e) => {
       e.stopPropagation()
       const fileList = getDataTransferItems(e)
-      const images = fileList.filter(file => file.type.startsWith('image/'))
-      const videos = fileList.filter(file => file.type.startsWith('video/'))
+      const images = fileList.filter((file) => file.type.startsWith('image/'))
+      const videos = fileList.filter((file) => file.type.startsWith('video/'))
       const files = await generateFiles(images, videos)
       syncAction(uploadImages, [files])
       mediaInputRef.current.value = null
@@ -489,19 +526,19 @@ const AppBar = ({
   )
 
   const handleModelChosen = useCallback(
-    async e => {
+    async (e) => {
       e.stopPropagation()
       incrementSaving()
 
       const fileList = getDataTransferItems(e)
-      const [zipFile] = fileList.filter(file =>
+      const [zipFile] = fileList.filter((file) =>
         file.name.toLowerCase().endsWith('.zip')
       )
 
-      JSZip.loadAsync(zipFile).then(zip => {
+      JSZip.loadAsync(zipFile).then((zip) => {
         const modelFile = '/model.json'
         let basePath
-        zip.forEach(relativePath => {
+        zip.forEach((relativePath) => {
           if (relativePath.toLowerCase().endsWith(modelFile)) {
             basePath = relativePath.substring(
               0,
@@ -519,11 +556,11 @@ const AppBar = ({
               )
               if (fileName !== '/') {
                 console.log(`model_web${fileName}`)
-                const uploadPromise = zipEntry.async('blob').then(blob =>
+                const uploadPromise = zipEntry.async('blob').then((blob) =>
                   collection.cos.putObject({
                     Bucket: collection.bucket,
                     Key: `model_web${fileName}`,
-                    Body: blob
+                    Body: blob,
                   })
                 )
                 promises = [...promises, uploadPromise]
@@ -546,12 +583,12 @@ const AppBar = ({
       collection.bucket,
       collection.cos,
       decrementSaving,
-      incrementSaving
+      incrementSaving,
     ]
   )
 
   const handleDeleteImage = useCallback(
-    e => {
+    (e) => {
       e.stopPropagation()
       syncAction(deleteImages, [imageRange])
       setActiveImage(undefined)
@@ -560,8 +597,53 @@ const AppBar = ({
     [imageRange, syncAction, setActiveImage]
   )
 
+  const handleExportNotebook = useCallback(
+    async (e) => {
+      e.stopPropagation()
+      setOptionsOpen(false)
+
+      const credentials = await getOrCreateBinding(
+        cosResources,
+        activeCOSResource
+      )
+
+      const classificationNotebook = await fetch(
+        '/api/proxy/github.com/cloud-annotations/notebooks/raw/master/classification-notebook.ipynb'
+      ).then((r) => r.json())
+
+      const newCells = classificationNotebook.cells.map((cell) => {
+        const newSource = cell.source.map((s) =>
+          s
+            .replace('$$$BUCKET$$$', bucket)
+            .replace('$$$IBM_API_KEY_ID$$$', credentials.apikey)
+            .replace('$$$IAM_SERVICE_ID$$$', credentials.resource_instance_id)
+            .replace(
+              '$$$ENDPOINT$$$',
+              fullPublicEndpointForLocationConstraint(location)
+            )
+        )
+        return { ...cell, source: newSource }
+      })
+
+      const blob = new Blob(
+        [
+          JSON.stringify(
+            { ...classificationNotebook, cells: newCells },
+            null,
+            1
+          ),
+        ],
+        {
+          type: 'application/json',
+        }
+      )
+      saveAs(blob, 'cloud-annotations-training.ipynb')
+    },
+    [cosResources, activeCOSResource, bucket, location]
+  )
+
   const handleExportZip = useCallback(
-    async e => {
+    async (e) => {
       e.stopPropagation()
       setOptionsOpen(false)
 
@@ -580,7 +662,7 @@ const AppBar = ({
 
       folder.file('_annotations.json', JSON.stringify(collection.toJSON()))
 
-      setFilesZipped(zipped => (zipped += 1))
+      setFilesZipped((zipped) => (zipped += 1))
 
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
@@ -590,7 +672,7 @@ const AppBar = ({
   )
 
   const handleExportYOLO = useCallback(
-    async e => {
+    async (e) => {
       e.stopPropagation()
       setOptionsOpen(false)
 
@@ -609,7 +691,7 @@ const AppBar = ({
 
       images.forEach(({ name }) => {
         const annotationTxt = collection.annotations[name]
-          .map(annotation => {
+          .map((annotation) => {
             const labelIndex = collection.labels.indexOf(annotation.label)
             const width = (annotation.x2 - annotation.x).toFixed(6)
             const height = (annotation.y2 - annotation.y).toFixed(6)
@@ -624,7 +706,7 @@ const AppBar = ({
         )
       })
 
-      setFilesZipped(zipped => (zipped += 1))
+      setFilesZipped((zipped) => (zipped += 1))
 
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
@@ -634,7 +716,7 @@ const AppBar = ({
   )
 
   const handleExportCreateML = useCallback(
-    async e => {
+    async (e) => {
       e.stopPropagation()
       setOptionsOpen(false)
 
@@ -653,7 +735,7 @@ const AppBar = ({
 
       const createMLAnnotations = images.map(({ name, dimensions }) => ({
         image: name,
-        annotations: collection.annotations[name].map(annotation => {
+        annotations: collection.annotations[name].map((annotation) => {
           const relWidth = annotation.x2 - annotation.x
           const relHeight = annotation.y2 - annotation.y
           const midX = (annotation.x + relWidth / 2) * dimensions.width
@@ -666,14 +748,14 @@ const AppBar = ({
               x: Math.round(midX),
               y: Math.round(midY),
               width: Math.round(width),
-              height: Math.round(height)
-            }
+              height: Math.round(height),
+            },
           }
-        })
+        }),
       }))
       folder.file('annotations.json', JSON.stringify(createMLAnnotations))
 
-      setFilesZipped(zipped => (zipped += 1))
+      setFilesZipped((zipped) => (zipped += 1))
 
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
@@ -683,7 +765,7 @@ const AppBar = ({
   )
 
   const handleExportVOC = useCallback(
-    async e => {
+    async (e) => {
       e.stopPropagation()
       setOptionsOpen(false)
 
@@ -709,7 +791,7 @@ const AppBar = ({
               <height>{Math.round(dimensions.height)}</height>
               <depth>3</depth>
             </size>
-            {collection.annotations[name].map(annotation => (
+            {collection.annotations[name].map((annotation) => (
               <object>
                 <name>{annotation.label}</name>
                 <pose>Unspecified</pose>
@@ -731,7 +813,7 @@ const AppBar = ({
         )
       })
 
-      setFilesZipped(zipped => (zipped += 1))
+      setFilesZipped((zipped) => (zipped += 1))
 
       const zipBlob = await zip.generateAsync({ type: 'blob' })
       saveAs(zipBlob, `${bucket}.zip`)
@@ -741,12 +823,12 @@ const AppBar = ({
   )
 
   const handleImportDataset = useCallback(
-    async e => {
+    async (e) => {
       e.stopPropagation()
       incrementSaving()
 
       const fileList = getDataTransferItems(e)
-      const [zipFile] = fileList.filter(file =>
+      const [zipFile] = fileList.filter((file) =>
         file.name.toLowerCase().endsWith('.zip')
       )
 
@@ -762,7 +844,7 @@ const AppBar = ({
   )
 
   const handleEmptyLabelImage = useCallback(
-    label => e => {
+    (label) => (e) => {
       e.stopPropagation()
       setOptionsOpen(false)
       setLastHoveredSubOption(undefined)
@@ -875,6 +957,16 @@ const AppBar = ({
                 >
                   Export as zip
                 </div>
+                <div
+                  className={
+                    cosResources.length === 0 || dissabled.exportNotebook
+                      ? styles.disabled
+                      : styles.listItem
+                  }
+                  onClick={handleExportNotebook}
+                >
+                  Export as Notebook (.ipynb)
+                </div>
               </div>
             </div>
 
@@ -967,7 +1059,7 @@ const AppBar = ({
                         : styles.popout
                     }
                   >
-                    {collection.labels.map(label => (
+                    {collection.labels.map((label) => (
                       <div
                         className={styles.listItem}
                         onClick={handleEmptyLabelImage(label)}
@@ -1050,7 +1142,7 @@ const AppBar = ({
               role="presentation"
               style={{ pointerEvents: 'none' }}
             />
-          )
+          ),
         }}
         onChange={handleToggleDarkMode}
       />
@@ -1065,14 +1157,14 @@ const AppBar = ({
   )
 }
 
-const mapPropsToState = state => ({
+const mapPropsToState = (state) => ({
   cosResources: state.resources.resources,
   activeCOSResource: state.resources.activeResource,
   wmlResourcesLoading: state.wmlResources.loading,
   wmlResources: state.wmlResources.resources,
   saving: state.editor.saving,
   imageRange: state.editor.range,
-  collection: state.collection
+  collection: state.collection,
 })
 const mapDispatchToProps = {
   syncAction,
@@ -1081,6 +1173,6 @@ const mapDispatchToProps = {
   decrementSaving,
   setActiveWMLResource,
   addModel,
-  bootstrap
+  bootstrap,
 }
 export default connect(mapPropsToState, mapDispatchToProps)(AppBar)
