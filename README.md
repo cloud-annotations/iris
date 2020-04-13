@@ -15,7 +15,7 @@
 
 ```bash
 git clone https://github.com/bourdakos1/cloud-annotations-client.git
-cd cloud-annotations-client
+cd cloud-annotations-client/src
 ```
 
 Install the server dependencies:
