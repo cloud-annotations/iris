@@ -14,11 +14,12 @@ import {
   setActiveImage,
   clearRange,
   ctlExpandRange,
-  shiftExpandRange
+  shiftExpandRange,
 } from 'redux/editor'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 import AutoLabelPanel from './AutoLabelPanel'
 import SplitLayout from './SplitLayout'
+import ThumbnailThing from './ThumbnailThing'
 
 const EMPTY_IMAGE =
   'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
@@ -29,7 +30,7 @@ const useImage = (endpoint, bucket, image) => {
     let canceled = false
     let loaded = false
 
-    const loadImage = async imageToLoad => {
+    const loadImage = async (imageToLoad) => {
       const imageData = await fetchImage(endpoint, bucket, imageToLoad, false)
       if (!canceled && image === imageToLoad) {
         loaded = true
@@ -69,7 +70,7 @@ const Localization = ({
   // setPredictions,
   clearRange,
   model,
-  range
+  range,
 }) => {
   const [imageFilter, setImageFilter] = useState(undefined)
   const [autoLabelMode, setAutoLabelMode] = useState(false)
@@ -82,7 +83,7 @@ const Localization = ({
       : collection.getLabeledImages(imageFilter)
 
   const handleImageFilterChange = useCallback(
-    e => {
+    (e) => {
       switch (e.target.value) {
         case 'all':
           setImageFilter(undefined)
@@ -94,6 +95,7 @@ const Localization = ({
           setImageFilter(false)
           break
         default:
+          setImageFilter(e.target.value)
           break
       }
       setActiveImage(undefined)
@@ -122,7 +124,7 @@ const Localization = ({
   }, [activeImage, images, setActiveImage])
 
   useEffect(() => {
-    if (!activeImage) {
+    if (!activeImage && images.length > 0) {
       setActiveImage(images[0])
     }
   }, [activeImage, images, setActiveImage])
@@ -136,11 +138,11 @@ const Localization = ({
   }, [])
 
   const selectedIndex = images.indexOf(activeImage)
-  const rangeIndex = range.map(image => images.indexOf(image))
+  const rangeIndex = range.map((image) => images.indexOf(image))
 
   const rawAnnotationsForImage = collection.annotations[activeImage] || []
   const bboxes = rawAnnotationsForImage.filter(
-    box =>
+    (box) =>
       box.x !== undefined &&
       box.y !== undefined &&
       box.x2 !== undefined &&
@@ -151,10 +153,33 @@ const Localization = ({
   const imageData = useImage(endpoint, bucket, activeImage)
 
   const cells = useMemo(() => {
-    return images.map(image => (
-      <ImageTileV3 endpoint={endpoint} bucket={bucket} item={image} />
-    ))
-  }, [endpoint, bucket, images])
+    return images.map((image) => {
+      if (
+        imageFilter !== true &&
+        imageFilter !== false &&
+        imageFilter !== undefined
+      ) {
+        const bboxes = collection.annotations[image].filter(
+          (b) => b.label === imageFilter
+        )
+        console.log(bboxes)
+        if (bboxes.length > 0) {
+          return (
+            <ThumbnailThing
+              bboxes={bboxes}
+              image={image}
+              endpoint={endpoint}
+              bucket={bucket}
+            />
+          )
+        } else {
+          return <></>
+        }
+      } else {
+        return <ImageTileV3 endpoint={endpoint} bucket={bucket} item={image} />
+      }
+    })
+  }, [bucket, collection.annotations, endpoint, imageFilter, images])
 
   const mapOfLabelCount = collection.getLabelMapCount()
 
@@ -185,8 +210,10 @@ const Localization = ({
       }
       bottom={
         <ImagesPanel
+          allImageCount={collection.images.length}
           images={images}
           labels={mapOfLabelCount}
+          imageFilter={imageFilter}
           handleImageFilterChange={handleImageFilterChange}
           cells={cells}
           range={rangeIndex}
@@ -198,18 +225,18 @@ const Localization = ({
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   collection: state.collection,
   activeImage: state.editor.image,
   range: state.editor.range,
-  model: state.autoLabel.model
+  model: state.autoLabel.model,
 })
 
 const mapDispatchToProps = {
   setActiveImage,
   shiftExpandRange,
   ctlExpandRange,
-  clearRange
+  clearRange,
   // setPredictions
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Localization)

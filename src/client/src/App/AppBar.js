@@ -121,10 +121,15 @@ const zipImages = async (
   )
 }
 
+const VALID_WML_REGIONS = ['us-south', 'eu-de']
+const DEPRECATED_WML_REGIONS = ['eu-gb']
+const MINIMUM_EXAMPLE_COUNT = 20
+
 const PoopUp = connect((state) => ({
   cosResources: state.resources.resources,
   resources: state.wmlResources.resources,
   activeResource: state.wmlResources.activeResource,
+  collection: state.collection,
 }))(
   ({
     cosResources,
@@ -133,12 +138,40 @@ const PoopUp = connect((state) => ({
     show,
     onPrimary,
     onSecondary,
+    collection,
   }) => {
+    const [chosenInstanceID, setChosenInstanceID] = useState(undefined)
+
+    useEffect(() => {
+      const [firstResource] = resources
+      if (activeResource) {
+        setChosenInstanceID(activeResource)
+      } else if (firstResource) {
+        setChosenInstanceID(firstResource.id)
+      }
+    }, [activeResource, resources])
+
     const handlePrimary = useCallback(() => {
-      const resourceID = document.getElementById('wml-select').value
-      const resourceInfo = resources.find((r) => r.id === resourceID)
+      const resourceInfo = resources.find((r) => r.id === chosenInstanceID)
       onPrimary(resourceInfo)
-    }, [onPrimary, resources])
+    }, [chosenInstanceID, onPrimary, resources])
+
+    const handSelectChange = useCallback((e) => {
+      setChosenInstanceID(e.target.value)
+    }, [])
+
+    let resourceInfo = {}
+    if (chosenInstanceID) {
+      resourceInfo = resources.find((r) => r.id === chosenInstanceID)
+    }
+
+    const enoughImages = Object.values(collection.getLabelMapCount()).reduce(
+      (acc, count) => acc && count > MINIMUM_EXAMPLE_COUNT,
+      true
+    )
+
+    const validRegion = VALID_WML_REGIONS.includes(resourceInfo.region_id)
+    const deprecated = DEPRECATED_WML_REGIONS.includes(resourceInfo.region_id)
 
     return (
       <div className={show ? styles.popupWrapper : styles.popupWrapperHidden}>
@@ -150,13 +183,113 @@ const PoopUp = connect((state) => ({
               Machine Learning service. Your images and annotations will be used
               to create your own personal object detection model.
             </div>
+
+            {!enoughImages && (
+              <div className={styles.popupWarning}>
+                <svg
+                  focusable="false"
+                  preserveAspectRatio="xMidYMid meet"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"></path>
+                  <path
+                    d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z"
+                    data-icon-path="inner-path"
+                    opacity="0"
+                  ></path>
+                  <title>warning icon</title>
+                </svg>
+                <div className={styles.popupWarningBody}>
+                  <div className={styles.popupWarningTitle}>
+                    Not enough examples per label
+                  </div>
+                  <div>
+                    Issues with training can occur when a label doesn't have at
+                    least <strong>{MINIMUM_EXAMPLE_COUNT}</strong> examples.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {chosenInstanceID && deprecated && (
+              <div className={styles.popupWarning}>
+                <svg
+                  focusable="false"
+                  preserveAspectRatio="xMidYMid meet"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"></path>
+                  <path
+                    d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z"
+                    data-icon-path="inner-path"
+                    opacity="0"
+                  ></path>
+                  <title>warning icon</title>
+                </svg>
+                <div className={styles.popupWarningBody}>
+                  <div className={styles.popupWarningTitle}>
+                    GPU support in London has been deprecated
+                  </div>
+                  <div>
+                    Training a Cloud Annotations model requires a Watson Machine
+                    Learning in either the region of <strong>Dallas</strong> or{' '}
+                    <strong>Frankfurt</strong>.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {chosenInstanceID && !validRegion && !deprecated && (
+              <div className={styles.popupWarning}>
+                <svg
+                  focusable="false"
+                  preserveAspectRatio="xMidYMid meet"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true"
+                >
+                  <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"></path>
+                  <path
+                    d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z"
+                    data-icon-path="inner-path"
+                    opacity="0"
+                  ></path>
+                  <title>warning icon</title>
+                </svg>
+                <div className={styles.popupWarningBody}>
+                  <div className={styles.popupWarningTitle}>
+                    The selected service doesn't support GPU usage
+                  </div>
+                  <div>
+                    Training a Cloud Annotations model requires a Watson Machine
+                    Learning in either the region of <strong>Dallas</strong> or{' '}
+                    <strong>Frankfurt</strong>.
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className={styles.popupFormItem}>
               <div className={styles.popupSelectLabelWrapper}>
                 <label for="wml-select" className={styles.popupSelectLabel}>
                   Machine Learning instance
                 </label>
                 <div className={styles.popupSelectWrapper}>
-                  <select className={styles.popupSelect} id="wml-select">
+                  <select
+                    className={styles.popupSelect}
+                    id="wml-select"
+                    onChange={handSelectChange}
+                  >
                     {resources.map((r) => (
                       <option value={r.id} selected={r.id === activeResource}>
                         {r.name}
@@ -1148,11 +1281,13 @@ const AppBar = ({
       />
       <ProfileDropDown profile={profile} />
       <Loading active={preparingToTrain} />
-      <PoopUp
-        show={showModal}
-        onPrimary={handleTrainModalPrimary}
-        onSecondary={handleTrainModalSecondary}
-      />
+      {showModal && ( // resets state
+        <PoopUp
+          show={showModal}
+          onPrimary={handleTrainModalPrimary}
+          onSecondary={handleTrainModalSecondary}
+        />
+      )}
     </div>
   )
 }

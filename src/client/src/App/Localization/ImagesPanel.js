@@ -35,37 +35,83 @@ const useBlockSwipeBack = (ref) => {
 const ImagesPanel = ({
   images,
   labels,
+  imageFilter,
   handleImageFilterChange,
   cells,
   selectedIndex,
   handleSelectionChanged,
   syncAction,
   range,
+  allImageCount,
 }) => {
   const scrollElementRef = useRef(null)
   useBlockSwipeBack(scrollElementRef)
 
   const handleDelete = useCallback(
-    (label) => () => {
-      syncAction(deleteLabel, [label])
+    (label) => (e) => {
+      e.stopPropagation()
+      const deleteTheLabel = window.confirm(
+        `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`
+      )
+      if (deleteTheLabel) {
+        syncAction(deleteLabel, [label])
+      }
     },
     [syncAction]
   )
 
+  const handleClickLabel = useCallback(
+    (label) => () => {
+      handleImageFilterChange({ target: { value: label } })
+    },
+    [handleImageFilterChange]
+  )
+
+  const actualLabelMode =
+    imageFilter !== true && imageFilter !== false && imageFilter !== undefined
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.labelFilterWrapper}>
-        <div className={styles.labelCount}>
-          {images.length.toLocaleString()}
-        </div>
-        <select className={styles.filter} onChange={handleImageFilterChange}>
-          <option value="all">All Images</option>
-          <option value="labeled">Labeled</option>
-          <option value="unlabeled">Unlabeled</option>
-        </select>
+        {actualLabelMode ? (
+          <>
+            <div className={styles.labelCount}>
+              {allImageCount.toLocaleString()}
+            </div>
+            <div
+              onClick={handleClickLabel('all')}
+              className={styles.filterNotSelected}
+            >
+              All Images
+            </div>
+          </>
+        ) : (
+          <>
+            <div className={styles.labelCount}>
+              {images.length.toLocaleString()}
+            </div>
+            <select
+              className={styles.filter}
+              onChange={handleImageFilterChange}
+            >
+              <option value="all">All Images</option>
+              <option value="labeled">Labeled</option>
+              <option value="unlabeled">Unlabeled</option>
+            </select>
+          </>
+        )}
+
         <div ref={scrollElementRef} className={styles.labelList}>
           {Object.keys(labels).map((label) => (
-            <div key={label} className={styles.labelItem}>
+            <div
+              key={label}
+              className={
+                imageFilter === label
+                  ? styles.selectedLabelItem
+                  : styles.labelItem
+              }
+              onClick={handleClickLabel(label)}
+            >
               <div>{label}</div>
               <div className={styles.labelItemCount}>{labels[label]}</div>
               <div onClick={handleDelete(label)} className={styles.deleteIcon}>
