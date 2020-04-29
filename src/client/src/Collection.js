@@ -51,7 +51,7 @@ const listAllObjects = async (cos, params) => {
   const recursivelyQuery = async (continuationToken, list = []) => {
     const res = await cos.listObjectsV2({
       ...params,
-      ContinuationToken: continuationToken
+      ContinuationToken: continuationToken,
     })
     const { NextContinuationToken, Contents = [] } = res.ListBucketResult
     const wrappedContents = Array.isArray(Contents) ? Contents : [Contents]
@@ -97,7 +97,7 @@ export default class Collection {
     const collectionPromise = optional(
       cos.getObject({
         Bucket: bucket,
-        Key: '_annotations.json'
+        Key: '_annotations.json',
       }),
       { type: undefined, labels: [], images: [], annotations: {} }
     )
@@ -106,25 +106,28 @@ export default class Collection {
 
     const [collectionJson, objectList] = await Promise.all([
       collectionPromise,
-      objectListPromise
+      objectListPromise,
     ])
 
-    const fileList = objectList.map(object => object.Key)
-    const imageList = fileList.filter(fileName => fileName.match(IMAGE_REGEX))
+    const fileList = objectList.map((object) => object.Key)
+    const imageList = fileList.filter((fileName) => fileName.match(IMAGE_REGEX))
     const modelList = objectList
-      .filter(obj => obj.Key.match(MODEL_REGEX))
+      .filter((obj) => obj.Key.match(MODEL_REGEX))
       .slice()
       .sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified))
-      .map(obj =>
+      .map((obj) =>
         `/api/proxy/${cos.endpoint}/${bucket}/${obj.Key}`.replace(
           MODEL_REGEX,
           ''
         )
       )
 
-    const annotations = produce(collectionJson.annotations, draft => {
-      Object.keys(draft).forEach(image => {
-        draft[image] = draft[image].map(box => ({ ...box, id: generateUUID() }))
+    const annotations = produce(collectionJson.annotations, (draft) => {
+      Object.keys(draft).forEach((image) => {
+        draft[image] = draft[image].map((box) => ({
+          ...box,
+          id: generateUUID(),
+        }))
       })
     })
 
@@ -164,11 +167,11 @@ export default class Collection {
     }
 
     if (withLabel === false) {
-      return this.images.filter(image => !labeled.includes(image))
+      return this.images.filter((image) => !labeled.includes(image))
     }
 
-    return labeled.filter(image =>
-      this.annotations[image].find(a => a.label === withLabel)
+    return labeled.filter((image) =>
+      this.annotations[image].find((a) => a.label === withLabel)
     )
   }
 
@@ -184,7 +187,7 @@ export default class Collection {
   }
 
   setType(type, syncComplete) {
-    const collection = produce(this, draft => {
+    const collection = produce(this, (draft) => {
       draft.type = type
     })
 
@@ -193,7 +196,7 @@ export default class Collection {
   }
 
   createLabel(newLabel, syncComplete) {
-    const collection = produce(this, draft => {
+    const collection = produce(this, (draft) => {
       draft.labels.push(newLabel)
     })
 
@@ -202,16 +205,16 @@ export default class Collection {
   }
 
   deleteLabel(label, syncComplete) {
-    const collection = produce(this, draft => {
+    const collection = produce(this, (draft) => {
       draft.labels.splice(
-        draft.labels.findIndex(l => l === label),
+        draft.labels.findIndex((l) => l === label),
         1
       )
       // TODO: We might have some interesting corner cases:
       // if someone deletes a label right as we label something with the label.
-      Object.keys(draft.annotations).forEach(image => {
+      Object.keys(draft.annotations).forEach((image) => {
         draft.annotations[image] = draft.annotations[image].filter(
-          a => a.label !== label
+          (a) => a.label !== label
         )
         // Ensure images without annotations are removed.
         if (draft.annotations[image].length === 0) {
@@ -226,16 +229,16 @@ export default class Collection {
 
   uploadImages(images, syncComplete) {
     // TODO: Do we need to wait until these requests finish?
-    images.forEach(image =>
+    images.forEach((image) =>
       this.cos.putObject({
         Bucket: this.bucket,
         Key: image.name,
-        Body: image.blob
+        Body: image.blob,
       })
     )
 
-    const collection = produce(this, draft => {
-      const imageNames = images.map(image => image.name)
+    const collection = produce(this, (draft) => {
+      const imageNames = images.map((image) => image.name)
       draft.images = [...new Set([...imageNames, ...draft.images])]
     })
 
@@ -245,18 +248,18 @@ export default class Collection {
 
   deleteImages(images, syncComplete) {
     // TODO: Do we need to wait until this request finishes?
-    const objects = images.map(image => ({ Key: image }))
+    const objects = images.map((image) => ({ Key: image }))
     this.cos.deleteObjects({
       Bucket: this.bucket,
       Delete: {
-        Objects: objects
-      }
+        Objects: objects,
+      },
     })
 
-    const collection = produce(this, draft => {
-      images.forEach(image => {
+    const collection = produce(this, (draft) => {
+      images.forEach((image) => {
         draft.images.splice(
-          draft.images.findIndex(i => i === image),
+          draft.images.findIndex((i) => i === image),
           1
         )
         // TODO: This could possibly cause an undefined error if someone deletes
@@ -275,8 +278,8 @@ export default class Collection {
   }
 
   labelImagesV2(images, label, onlyOne, syncComplete) {
-    const collection = produce(this, draft => {
-      images.forEach(image => {
+    const collection = produce(this, (draft) => {
+      images.forEach((image) => {
         if (onlyOne) {
           draft.annotations[image] = [] // only allow one label
         }
@@ -287,7 +290,7 @@ export default class Collection {
         // Only inset one.
         if (
           !draft.annotations[image].find(
-            box =>
+            (box) =>
               box.label === label &&
               box.x === undefined &&
               box.y === undefined &&
@@ -305,8 +308,8 @@ export default class Collection {
   }
 
   clearLabels(images, syncComplete) {
-    const collection = produce(this, draft => {
-      images.forEach(image => {
+    const collection = produce(this, (draft) => {
+      images.forEach((image) => {
         delete draft.annotations[image]
       })
     })
@@ -316,7 +319,7 @@ export default class Collection {
   }
 
   createBox(image, newBox, syncComplete) {
-    const collection = produce(this, draft => {
+    const collection = produce(this, (draft) => {
       if (!draft.annotations[image]) {
         draft.annotations[image] = []
       }
@@ -328,9 +331,9 @@ export default class Collection {
   }
 
   deleteBox(image, box, syncComplete) {
-    const collection = produce(this, draft => {
+    const collection = produce(this, (draft) => {
       draft.annotations[image].splice(
-        draft.annotations[image].findIndex(oldBBox => {
+        draft.annotations[image].findIndex((oldBBox) => {
           if (!box.id) {
             return (
               oldBBox.label === box.label &&
@@ -358,7 +361,7 @@ export default class Collection {
 
   bootstrap(images, annotations, syncComplete) {
     const _collection = this.uploadImages(images, false)
-    const collection = produce(_collection, draft => {
+    const collection = produce(_collection, (draft) => {
       draft.labels = [...new Set([...draft.labels, ...annotations.labels])]
       draft.annotations = Object.assign(
         draft.annotations,
@@ -371,10 +374,10 @@ export default class Collection {
   }
 
   addModel(model) {
-    const collection = produce(this, draft => {
+    const collection = produce(this, (draft) => {
       draft.models = [
         `/api/proxy/${draft.cos.endpoint}/${draft.bucket}/${model}`,
-        ...draft.models
+        ...draft.models,
       ]
     })
     return collection
@@ -391,7 +394,7 @@ export default class Collection {
       version: VERSION,
       type: this.type,
       labels: this.labels,
-      annotations: this.annotations
+      annotations: this.annotations,
     }
   }
 }
@@ -405,7 +408,7 @@ const syncBucket = async (cos, bucket, collection, syncComplete) => {
     await cos.putObject({
       Bucket: bucket,
       Key: '_annotations.json',
-      Body: blob
+      Body: blob,
     })
     syncComplete()
   }
