@@ -12,7 +12,7 @@ import {
   setCollection,
   uploadImages,
   syncAction,
-  bootstrap
+  bootstrap,
 } from 'redux/collection'
 import { setBucket } from 'redux/editor'
 import Localization from './Localization/Localization'
@@ -28,20 +28,20 @@ import { importDataset } from 'dataset-utils'
 
 const generateFiles = async (images, videos) => {
   const imageFiles = images.map(
-    async image =>
+    async (image) =>
       await convertToJpeg(image, {
         maxWidth: window.MAX_IMAGE_WIDTH,
         maxHeight: window.MAX_IMAGE_HEIGHT,
-        scaleMode: window.IMAGE_SCALE_MODE
+        scaleMode: window.IMAGE_SCALE_MODE,
       })
   )
   const videoFiles = videos.map(
-    async video =>
+    async (video) =>
       await videoToJpegs(video, {
         fps: window.FPS,
         maxWidth: window.MAX_IMAGE_WIDTH,
         maxHeight: window.MAX_IMAGE_HEIGHT,
-        scaleMode: window.IMAGE_SCALE_MODE
+        scaleMode: window.IMAGE_SCALE_MODE,
       })
   )
   return (await Promise.all([...imageFiles, ...videoFiles])).flat()
@@ -61,7 +61,7 @@ const AnnotationPanel = ({ bucket, location, type }) => {
 
 const App = ({
   match: {
-    params: { bucket }
+    params: { bucket },
   },
   location: { search },
   setCollection,
@@ -70,7 +70,7 @@ const App = ({
   profile,
   collection,
   setBucket,
-  sandbox
+  sandbox,
 }) => {
   const [loading, setLoading] = useState(true)
   const [dropActive, setDropActive] = useState(false)
@@ -109,7 +109,7 @@ const App = ({
   }, [])
 
   const handleSubmit = useCallback(
-    async choice => {
+    async (choice) => {
       syncAction(setCollectionType, [choice])
     },
     [syncAction]
@@ -124,9 +124,9 @@ const App = ({
   }, [])
 
   const handleDrop = useCallback(
-    async fileList => {
+    async (fileList) => {
       setDropActive(false)
-      const [zipFile] = fileList.filter(file =>
+      const [zipFile] = fileList.filter((file) =>
         file.name.toLowerCase().endsWith('.zip')
       )
       if (zipFile) {
@@ -134,8 +134,8 @@ const App = ({
         syncAction(bootstrap, [files, annotationsJSON])
         return
       }
-      const images = fileList.filter(file => file.type.startsWith('image/'))
-      const videos = fileList.filter(file => file.type.startsWith('video/'))
+      const images = fileList.filter((file) => file.type.startsWith('image/'))
+      const videos = fileList.filter((file) => file.type.startsWith('video/'))
       const files = await generateFiles(images, videos)
       syncAction(uploadImages, [files])
     },
@@ -164,6 +164,7 @@ const App = ({
     window.MAX_IMAGE_HEIGHT = 224
     window.IMAGE_SCALE_MODE = 'SCALE_FILL'
   } else {
+    dissabled.exportNotebook = true
     window.MAX_IMAGE_WIDTH = 1500
     window.MAX_IMAGE_HEIGHT = 1500
     window.IMAGE_SCALE_MODE = 'ASPECT_FIT'
@@ -221,14 +222,14 @@ const App = ({
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   collection: state.collection,
-  profile: state.profile
+  profile: state.profile,
 })
 const mapDispatchToProps = {
   setBucket,
   setCollection,
   clearCollection,
-  syncAction
+  syncAction,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(App)

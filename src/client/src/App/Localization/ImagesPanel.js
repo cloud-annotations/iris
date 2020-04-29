@@ -5,7 +5,7 @@ import { deleteLabel, syncAction } from 'redux/collection'
 
 import styles from './ImagesPanel.module.css'
 
-const blockSwipeBack = element => e => {
+const blockSwipeBack = (element) => (e) => {
   e.stopPropagation()
   if (!element.contains(e.target)) {
     return
@@ -20,11 +20,11 @@ const blockSwipeBack = element => e => {
   element.scrollLeft = Math.max(0, Math.min(max, scrollPosition))
 }
 
-const useBlockSwipeBack = ref => {
+const useBlockSwipeBack = (ref) => {
   useEffect(() => {
     const current = ref.current
     document.addEventListener('mousewheel', blockSwipeBack(current), {
-      passive: false
+      passive: false,
     })
     return () => {
       document.removeEventListener('mousewheel', blockSwipeBack(current))
@@ -40,13 +40,13 @@ const ImagesPanel = ({
   selectedIndex,
   handleSelectionChanged,
   syncAction,
-  range
+  range,
 }) => {
   const scrollElementRef = useRef(null)
   useBlockSwipeBack(scrollElementRef)
 
   const handleDelete = useCallback(
-    label => () => {
+    (label) => () => {
       syncAction(deleteLabel, [label])
     },
     [syncAction]
@@ -64,7 +64,7 @@ const ImagesPanel = ({
           <option value="unlabeled">Unlabeled</option>
         </select>
         <div ref={scrollElementRef} className={styles.labelList}>
-          {Object.keys(labels).map(label => (
+          {Object.keys(labels).map((label) => (
             <div key={label} className={styles.labelItem}>
               <div>{label}</div>
               <div className={styles.labelItemCount}>{labels[label]}</div>
@@ -93,9 +93,6 @@ const ImagesPanel = ({
 }
 
 const mapDispatchToProps = {
-  syncAction
+  syncAction,
 }
-export default connect(
-  undefined,
-  mapDispatchToProps
-)(ImagesPanel)
+export default connect(undefined, mapDispatchToProps)(ImagesPanel)
