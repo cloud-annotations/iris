@@ -24,7 +24,7 @@ import {
   uploadImages,
   labelImages,
   labelImagesV2,
-  clearLabels
+  clearLabels,
 } from 'redux/collection'
 
 // Global Settings:
@@ -59,10 +59,10 @@ if (
   const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
   window
     .matchMedia('(prefers-color-scheme: dark)')
-    .addListener(e => e.matches && activateDarkMode())
+    .addListener((e) => e.matches && activateDarkMode())
   window
     .matchMedia('(prefers-color-scheme: light)')
-    .addListener(e => e.matches && activateLightMode())
+    .addListener((e) => e.matches && activateLightMode())
 
   if (isDarkMode) {
     activateDarkMode()
@@ -80,73 +80,6 @@ const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
 
 // Clear store on history change.
 history.listen(() => store.dispatch(reset()))
-socket.on('patch', res => {
-  const { op, value } = res
-  const {
-    clearAllLabels,
-    bulkLabelV2,
-    bulkLabel,
-    annotations,
-    images,
-    labels
-  } = value
-
-  if (labels) {
-    if (op === '+') {
-      store.dispatch(createLabel(labels.label, false))
-      return
-    }
-    if (op === '-') {
-      store.dispatch(deleteLabel(labels.label, false))
-      return
-    }
-  }
-
-  if (images) {
-    if (op === '+') {
-      store.dispatch(uploadImages(images.images, false))
-      return
-    }
-    if (op === '-') {
-      store.dispatch(deleteImages(images.images, false))
-      return
-    }
-  }
-
-  if (annotations) {
-    if (op === '+') {
-      store.dispatch(createBox(annotations.image, annotations.box, false))
-      return
-    }
-    if (op === '-') {
-      store.dispatch(deleteBox(annotations.image, annotations.box, false))
-      return
-    }
-  }
-
-  if (bulkLabel) {
-    if (op === '+') {
-      store.dispatch(labelImages(bulkLabel.images, bulkLabel.label, false))
-      return
-    }
-  }
-
-  if (bulkLabelV2) {
-    store.dispatch(
-      labelImagesV2(bulkLabel.images, bulkLabel.label, bulkLabel.onlyOne, false)
-    )
-    return
-  }
-
-  if (clearAllLabels) {
-    store.dispatch(clearLabels(bulkLabel.images, false))
-    return
-  }
-})
-
-socket.on('theHeadCount', count => {
-  store.dispatch(updateHeadCount(count))
-})
 
 ReactDOM.render(
   <Provider store={store}>
