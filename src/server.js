@@ -51,7 +51,7 @@ if (process.env.NODE_ENV === 'production') {
   secure = true
 }
 
-const broadcastRoomCount = room => {
+const broadcastRoomCount = (room) => {
   try {
     io.in(room).clients((_, clients) => {
       io.to(room).emit('theHeadCount', clients.length)
@@ -59,7 +59,7 @@ const broadcastRoomCount = room => {
   } catch {}
 }
 
-const parseCookie = cookie => {
+const parseCookie = (cookie) => {
   var name = 'access_token='
   var decodedCookie = cookie
   var ca = decodedCookie.split(';')
@@ -76,8 +76,8 @@ const parseCookie = cookie => {
 }
 
 //// socket playground
-io.on('connection', socket => {
-  socket.on('patch', res => {
+io.on('connection', (socket) => {
+  socket.on('patch', (res) => {
     if (socket.bucket) {
       socket.to(socket.bucket).emit('patch', res)
     }
@@ -90,10 +90,10 @@ io.on('connection', socket => {
       const ws = new WebSocket(`${url}/${modelId}/monitor`, {
         headers: {
           'ML-Instance-ID': instanceId,
-          Authorization: `bearer ${token}`
-        }
+          Authorization: `bearer ${token}`,
+        },
       })
-      ws.on('message', json => {
+      ws.on('message', (json) => {
         socket.emit(`trainingStatus-${modelId}`, json)
       })
     } catch (error) {
@@ -120,11 +120,11 @@ io.on('connection', socket => {
         url: url,
         qs: {
           'list-type': 2,
-          'max-keys': 1
+          'max-keys': 1,
         },
         headers: {
-          Authorization: `bearer ${token}`
-        }
+          Authorization: `bearer ${token}`,
+        },
       },
       (error, response, body) => {
         if (isSuccess(error, response)) {
@@ -166,7 +166,7 @@ io.on('connection', socket => {
 app.use(cookieParser())
 app.use(frameguard()) // Prevent click jacking.
 
-const shouldRedirect = host => {
+const shouldRedirect = (host) => {
   const check = (host, check) => {
     return host.slice(0, check.length) === check
   }
@@ -200,16 +200,16 @@ const setToken = (res, json) => {
     .cookie('access_token', access_token, {
       expires: new Date(expiration * 1000),
       sameSite: 'none',
-      secure: secure
+      secure: secure,
     })
     .cookie('refresh_token', refresh_token, {
       expires: new Date(expiration * 1000),
       sameSite: 'none',
-      secure: secure
+      secure: secure,
     })
 }
 
-const toBase64 = str => {
+const toBase64 = (str) => {
   return Buffer.from(str, 'utf8').toString('base64')
 }
 
@@ -220,7 +220,7 @@ const tokenPoking = (
 ) => {
   const options = {
     url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
-    method: 'GET'
+    method: 'GET',
   }
 
   // get the proper auth endpoint.
@@ -234,12 +234,12 @@ const tokenPoking = (
         url: token_endpoint,
         method: 'POST',
         headers: {
-          Authorization: `Basic ${toBase64(`${CLIENT_ID}:${CLIENT_SECRET}`)}`
+          Authorization: `Basic ${toBase64(`${CLIENT_ID}:${CLIENT_SECRET}`)}`,
         },
         form: {
-          grant_type: 'refresh_token'
+          grant_type: 'refresh_token',
         },
-        json: true
+        json: true,
       }
 
       if (code && redirectUri) {
@@ -257,7 +257,7 @@ const tokenPoking = (
       }
 
       // Start the request
-      request(options, function(error, response, body) {
+      request(options, function (error, response, body) {
         if (isSuccess(error, response)) {
           setToken(res, body)
           done(body)
@@ -287,7 +287,7 @@ app.get('/auth/login', (req, res) => {
 
   const options = {
     url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
-    method: 'GET'
+    method: 'GET',
   }
 
   // get the proper auth endpoint.
@@ -323,7 +323,7 @@ app.get('/auth/userinfo', (req, res) => {
 
   const options = {
     url: `https://iam.${baseEndpoint}/identity/.well-known/openid-configuration`,
-    method: 'GET'
+    method: 'GET',
   }
 
   // get the proper auth endpoint.
@@ -333,9 +333,9 @@ app.get('/auth/userinfo', (req, res) => {
       const options = {
         url: userinfo_endpoint,
         headers: {
-          Authorization: 'bearer ' + access_token
+          Authorization: 'bearer ' + access_token,
         },
-        method: 'GET'
+        method: 'GET',
       }
       request(options, (error, response, body) => {
         if (!error && response.statusCode == 200) {
@@ -365,18 +365,18 @@ app.get('/api/accounts', (req, res) => {
     url: `https://accounts.${baseEndpoint}/coe/v2/accounts`,
     method: 'GET',
     headers: {
-      Authorization: 'bearer ' + access_token
+      Authorization: 'bearer ' + access_token,
     },
-    json: true
+    json: true,
   }
 
-  request(options, function(error, response, body) {
+  request(options, function (error, response, body) {
     if (isSuccess(error, response)) {
       const { resources } = body
-      const slim = resources.map(account => ({
+      const slim = resources.map((account) => ({
         accountId: account.metadata.guid,
         name: account.entity.name,
-        softlayer: account.entity.bluemix_subscriptions[0].softlayer_account_id
+        softlayer: account.entity.bluemix_subscriptions[0].softlayer_account_id,
       }))
       res.send(slim)
     } else {
@@ -393,12 +393,12 @@ app.get('/api/accounts/:id/users/:user', (req, res) => {
     url: `https://user-management.${baseEndpoint}/v2/accounts/${id}/users/${user}`,
     method: 'GET',
     headers: {
-      Authorization: 'bearer ' + access_token
+      Authorization: 'bearer ' + access_token,
     },
-    json: true
+    json: true,
   }
 
-  request(options, function(error, response, body) {
+  request(options, function (error, response, body) {
     if (isSuccess(error, response)) {
       res.send(body)
     } else {
@@ -425,12 +425,12 @@ app.get('/api/cos-instances', (req, res) => {
     url: url,
     method: 'GET',
     headers: {
-      Authorization: 'bearer ' + access_token
+      Authorization: 'bearer ' + access_token,
     },
-    json: true
+    json: true,
   }
 
-  request(options, function(error, response, body) {
+  request(options, function (error, response, body) {
     if (isSuccess(error, response)) {
       res.send(body)
     } else {
@@ -457,12 +457,12 @@ app.get('/api/wml-instances', (req, res) => {
     url: url,
     method: 'GET',
     headers: {
-      Authorization: 'bearer ' + access_token
+      Authorization: 'bearer ' + access_token,
     },
-    json: true
+    json: true,
   }
 
-  request(options, function(error, response, body) {
+  request(options, function (error, response, body) {
     if (isSuccess(error, response)) {
       res.send(body)
     } else {
@@ -486,15 +486,15 @@ app.all('/api/proxy/*', (req, res) => {
       request({
         url: url,
         qs: req.query,
-        headers: headers
+        headers: headers,
       })
     )
-    .on('error', e => {
+    .on('error', (e) => {
       console.error(e)
       res.sendStatus(500)
     })
     .pipe(res)
-    .on('error', e => {
+    .on('error', (e) => {
       console.error(e)
       res.sendStatus(500)
     })
@@ -506,7 +506,7 @@ if (process.env.NODE_ENV === 'production') {
     res
       .set({
         'Content-Type': 'text/plain; charset=utf-8',
-        'X-Content-Type-Options': 'nosniff'
+        'X-Content-Type-Options': 'nosniff',
       })
       .sendFile(path.join(__dirname, 'client', 'install.sh'))
   })

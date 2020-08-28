@@ -32,6 +32,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: us.icr.io/cloud-annotations/frontend:1638395e542e1efe268ef10790d802f0a9d39b2f
+        image: us.icr.io/cloud-annotations/frontend:em-patch-2
+        imagePullPolicy: Always
         ports:
         - containerPort: 8080
