@@ -25,8 +25,8 @@ sed -i "s,\(^.*image: \)\(.*$\),\1"$IMAGE_NAME"," k8s-base/frontend.yaml
 if [ "$DEPLOY_TO" = "production" ]
 then
   # PRODUCTION:
-  kubectl apply -f k8s-base -n prod
-  kubectl apply -f k8s-prod -n prod
+  kubectl apply -f k8s-base
+  kubectl apply -f k8s-prod
 else
   # STAGING:
   kubectl apply -f k8s-base -n stage
