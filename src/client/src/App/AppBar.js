@@ -955,6 +955,80 @@ const AppBar = ({
     [bucket, collection, location]
   )
 
+  const handleExportMaximo = useCallback(
+    async (e) => {
+      e.stopPropagation()
+      setOptionsOpen(false)
+
+      // all the labeled images + the prop.json
+      setFilesToZip(Object.keys(collection.annotations).length * 2 + 1)
+
+      const zip = new JSZip()
+      const folder = zip.folder(bucket)
+      const images = await zipImages(
+        endpointForLocationConstraint(location),
+        bucket,
+        collection,
+        folder,
+        setFilesZipped
+      )
+      images.forEach(({ name, dimensions }) => {
+        const annotation = (
+          <annotation>
+            <folder>{bucket}</folder>
+            <filename>{name}</filename>
+            <size>
+              <width>{Math.round(dimensions.width)}</width>
+              <height>{Math.round(dimensions.height)}</height>
+              <depth>3</depth>
+            </size>
+            {collection.annotations[name].map((annotation) => (
+              <object>
+                <name>{annotation.label}</name>
+                <pose>Unspecified</pose>
+                <truncated>0</truncated>
+                <difficult>0</difficult>
+                <bndbox>
+                  <xmin>{Math.round(annotation.x * dimensions.width)}</xmin>
+                  <ymin>{Math.round(annotation.y * dimensions.height)}</ymin>
+                  <xmax>{Math.round(annotation.x2 * dimensions.width)}</xmax>
+                  <ymax>{Math.round(annotation.y2 * dimensions.height)}</ymax>
+                </bndbox>
+              </object>
+            ))}
+          </annotation>
+        )
+        folder.file(
+          `${name.replace(/\.(jpg|jpeg|png)$/i, '')}.xml`,
+          ReactDOMServer.renderToStaticMarkup(annotation)
+        )
+        setFilesZipped((zipped) => (zipped += 1))
+      })
+
+      folder.file(
+        'prop.json',
+        JSON.stringify({
+          usage: 'generic',
+          name: bucket,
+          type: 0,
+          scenario: '',
+          prop_version: 'PROP_VESION_1',
+          pre_process: '',
+          category_prop_info: '[]',
+          action_prop_info: '[]',
+          file_prop_info: '[]',
+        })
+      )
+
+      setFilesZipped((zipped) => (zipped += 1))
+
+      const zipBlob = await zip.generateAsync({ type: 'blob' })
+      saveAs(zipBlob, `${bucket}.zip`)
+      setFilesToZip(0)
+    },
+    [bucket, collection, location]
+  )
+
   const handleImportDataset = useCallback(
     async (e) => {
       e.stopPropagation()
@@ -1019,7 +1093,10 @@ const AppBar = ({
                     : styles.optionCard
                 }
               >
-                <div className={styles.listItem}>
+                <div
+                  className={styles.listItem}
+                  onMouseEnter={handleSubOptionHover}
+                >
                   Upload media
                   <input
                     className={styles.upload}
@@ -1034,6 +1111,7 @@ const AppBar = ({
                   className={
                     dissabled.uploadZip ? styles.disabled : styles.listItem
                   }
+                  onMouseEnter={handleSubOptionHover}
                 >
                   Upload model zip
                   <input
@@ -1045,7 +1123,10 @@ const AppBar = ({
                   />
                 </div>
                 <div className={styles.listDivider} />
-                <div className={styles.listItem}>
+                <div
+                  className={styles.listItem}
+                  onMouseEnter={handleSubOptionHover}
+                >
                   Import dataset
                   <input
                     className={styles.upload}
@@ -1061,6 +1142,7 @@ const AppBar = ({
                     dissabled.exportYOLO ? styles.disabled : styles.listItem
                   }
                   onClick={handleExportYOLO}
+                  onMouseEnter={handleSubOptionHover}
                 >
                   Export as YOLO
                 </div>
@@ -1069,6 +1151,7 @@ const AppBar = ({
                     dissabled.exportCreateML ? styles.disabled : styles.listItem
                   }
                   onClick={handleExportCreateML}
+                  onMouseEnter={handleSubOptionHover}
                 >
                   Export as Create ML
                 </div>
@@ -1079,14 +1162,83 @@ const AppBar = ({
                       : styles.listItem
                   }
                   onClick={handleExportVOC}
+                  onMouseEnter={handleSubOptionHover}
                 >
                   Export as Pascal VOC
                 </div>
+
+                <div
+                  id="maximo"
+                  className={
+                    dissabled.exportMaximo
+                      ? styles.popwrapper
+                      : optionsOpen && lastHoveredSubOption === 'maximo'
+                      ? styles.popwrapperOpen
+                      : styles.popwrapper
+                  }
+                  onMouseEnter={handleSubOptionHover}
+                >
+                  <div
+                    className={
+                      dissabled.exportMaximo ? styles.disabled : styles.listItem
+                    }
+                    onClick={handleExportMaximo}
+                  >
+                    Export as Maximo Visual Inspection
+                    <svg
+                      className={styles.chevronRightIcon}
+                      focusable="false"
+                      preserveAspectRatio="xMidYMid meet"
+                      width="16"
+                      height="16"
+                      viewBox="0 0 32 32"
+                      aria-hidden="true"
+                    >
+                      <polygon points="17 22 17 13 13 13 13 15 15 15 15 22 12 22 12 24 20 24 20 22 17 22" />
+                      <path d="M16,7a1.5,1.5,0,1,0,1.5,1.5A1.5,1.5,0,0,0,16,7Z" />
+                      <path d="M16,30A14,14,0,1,1,30,16,14,14,0,0,1,16,30ZM16,4A12,12,0,1,0,28,16,12,12,0,0,0,16,4Z" />
+                    </svg>
+                  </div>
+
+                  <div
+                    className={
+                      dissabled.exportMaximo
+                        ? styles.popout
+                        : optionsOpen && lastHoveredSubOption === 'maximo'
+                        ? styles.popoutOpenTooltip
+                        : styles.popout
+                    }
+                  >
+                    <div className={styles.tooltipper}>
+                      <h6 className={styles.tooltipH6}>
+                        IBM Maximo Visual Inspection
+                      </h6>
+                      <p className={styles.tooltipP}>
+                        A platform tailored for domain experts to label, train
+                        and deploy models for variety of industrial use cases.
+                        Quickly build solutions at the edge, monitor assets and
+                        inspect production lines for quality.
+                      </p>
+                      <div className={styles.tooltipFooter}>
+                        <a
+                          href="https://www.ibm.com/products/ibm-maximo-visual-inspection"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.tooltipLink}
+                        >
+                          Learn more
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div
                   className={
                     dissabled.exportZip ? styles.disabled : styles.listItem
                   }
                   onClick={handleExportZip}
+                  onMouseEnter={handleSubOptionHover}
                 >
                   Export as zip
                 </div>
@@ -1097,6 +1249,7 @@ const AppBar = ({
                       : styles.listItem
                   }
                   onClick={handleExportNotebook}
+                  onMouseEnter={handleSubOptionHover}
                 >
                   Export as Notebook (.ipynb)
                 </div>

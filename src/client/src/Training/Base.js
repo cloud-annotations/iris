@@ -14,7 +14,7 @@ import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 const PANEL_WIDTH = '270px'
 
-const accountNameForAccount = account => {
+const accountNameForAccount = (account) => {
   if (account && account.softlayer) {
     return `${account.softlayer} - ${account.name}`
   } else if (account) {
@@ -22,13 +22,13 @@ const accountNameForAccount = account => {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   resources: state.wmlResources.resources,
   activeResource: state.wmlResources.activeResource,
   accounts: state.accounts.accounts,
   activeAccount: state.accounts.activeAccount,
   buckets: state.buckets,
-  profile: state.profile
+  profile: state.profile,
 })
 
 const StatusListItem = ({ children, status }) => {
@@ -51,28 +51,28 @@ const TitleBar = connect(mapStateToProps)(
     activeResource,
     accounts,
     activeAccount,
-    dispatch
+    dispatch,
   }) => {
     const handleAccountChosen = useCallback(
-      item => {
+      (item) => {
         dispatch(setActiveAccount(item))
       },
       [dispatch]
     )
 
     const handleResourceChosen = useCallback(
-      item => {
+      (item) => {
         dispatch(setActiveWMLResource(item))
       },
       [dispatch]
     )
 
     const activeAccountObject = accounts.find(
-      account => activeAccount === account.accountId
+      (account) => activeAccount === account.accountId
     )
 
     const activeResourceObject = resources.find(
-      resource => activeResource === resource.id
+      (resource) => activeResource === resource.id
     )
 
     return (
@@ -109,17 +109,17 @@ const TitleBar = connect(mapStateToProps)(
 
         <DropDown
           active={activeResourceObject && activeResourceObject.name}
-          list={resources.map(resource => ({
+          list={resources.map((resource) => ({
             display: resource.name,
-            id: resource.id
+            id: resource.id,
           }))}
           onChosen={handleResourceChosen}
         />
         <DropDown
           active={accountNameForAccount(activeAccountObject)}
-          list={accounts.map(account => ({
+          list={accounts.map((account) => ({
             display: accountNameForAccount(account),
-            id: account.accountId
+            id: account.accountId,
           }))}
           onChosen={handleAccountChosen}
         />
@@ -129,16 +129,16 @@ const TitleBar = connect(mapStateToProps)(
   }
 )
 
-const getTrainingRunList = async activeResourceInfo => {
+const getTrainingRunList = async (activeResourceInfo) => {
   const url = `/api/proxy/${activeResourceInfo.region_id}.ml.cloud.ibm.com/v3/models`
   const options = {
     method: 'GET',
     headers: {
-      'ML-Instance-ID': activeResourceInfo.guid
-    }
+      'ML-Instance-ID': activeResourceInfo.guid,
+    },
   }
 
-  const json = await fetch(url, options).then(res => res.json())
+  const json = await fetch(url, options).then((res) => res.json())
   const resources = [...json.resources]
   resources.sort(
     (a, b) =>
@@ -152,7 +152,7 @@ const Base = ({
   location: { search },
   loadingResources,
   resources,
-  activeResource
+  activeResource,
 }) => {
   const [modelList, setModelList] = useState([])
   const [activeModel, setActiveModel] = useState(undefined)
@@ -163,7 +163,7 @@ const Base = ({
   useEffect(() => {
     const modelId = queryString.parse(search).model
     if (activeModel === undefined || activeModel.metadata.guid !== modelId) {
-      const daModel = modelList.find(model => model.metadata.guid === modelId)
+      const daModel = modelList.find((model) => model.metadata.guid === modelId)
       if (daModel) {
         setActiveModel(daModel)
         setActiveModelState(daModel.entity.status.state)
@@ -180,15 +180,15 @@ const Base = ({
 
   useEffect(() => {
     if (activeResource && resources.length > 0) {
-      const activeResourceInfo = resources.find(r => r.id === activeResource)
+      const activeResourceInfo = resources.find((r) => r.id === activeResource)
 
       const listRefresh = () => {
-        getTrainingRunList(activeResourceInfo).then(resources => {
+        getTrainingRunList(activeResourceInfo).then((resources) => {
           setModelList(resources)
           if (activeModel) {
             const modelId = activeModel.metadata.guid
             const freshActiveModel = resources.find(
-              r => r.metadata.guid === modelId
+              (r) => r.metadata.guid === modelId
             )
             setActiveModelState(
               freshActiveModel && freshActiveModel.entity.status.state
@@ -205,13 +205,13 @@ const Base = ({
   }, [activeModel, activeResource, resources])
 
   const handleModelChosen = useCallback(
-    model => () => {
+    (model) => () => {
       globalHistory.replace(`/training?model=${model.metadata.guid}`)
     },
     []
   )
 
-  const activeResourceInfo = resources.find(r => r.id === activeResource)
+  const activeResourceInfo = resources.find((r) => r.id === activeResource)
 
   return (
     <div className={styles.wrapper}>
@@ -254,10 +254,10 @@ const Base = ({
               bottom: '0',
               overflow: 'scroll',
               background: 'var(--secondaryBg)',
-              borderRight: '1px solid var(--border)'
+              borderRight: '1px solid var(--border)',
             }}
           >
-            {modelList.map(item => (
+            {modelList.map((item) => (
               <div
                 key={item.metadata.guid}
                 onClick={handleModelChosen(item)}
@@ -281,7 +281,7 @@ const Base = ({
               top: '64px',
               bottom: '0',
               overflow: 'scroll',
-              width: `calc(100% - ${PANEL_WIDTH})`
+              width: `calc(100% - ${PANEL_WIDTH})`,
             }}
           >
             <Training
@@ -300,8 +300,8 @@ const Base = ({
   )
 }
 
-export default connect(state => ({
+export default connect((state) => ({
   resources: state.wmlResources.resources,
   activeResource: state.wmlResources.activeResource,
-  loadingResources: state.wmlResources.loading
+  loadingResources: state.wmlResources.loading,
 }))(Base)

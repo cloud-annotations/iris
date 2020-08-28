@@ -29,7 +29,7 @@ const StatusTag = ({ status }) => {
   return <span className={styles.tagCanceled}>{status}</span>
 }
 
-const smoothDataset2 = data => {
+const smoothDataset2 = (data) => {
   let windowSize = Number.parseInt(data.length / 23)
   if (windowSize % 2 === 0) {
     windowSize += 1
@@ -40,7 +40,7 @@ const smoothDataset2 = data => {
     windowSize: windowSize,
     derivative: 0,
     polynomial: 1,
-    pad: 'pre'
+    pad: 'pre',
   }
   const smoothed = savitzkyGolay(data, 1, options)
   return smoothed
@@ -62,7 +62,7 @@ const getMatches = (string, regex) => {
 const zipModel = async (model, setCurrent, setTotal) => {
   const {
     bucket,
-    model_location
+    model_location,
   } = model.entity.training_results_reference.location
 
   const zip = new JSZip()
@@ -73,26 +73,26 @@ const zipModel = async (model, setCurrent, setTotal) => {
       regionFromEndpoint(
         model.entity.training_results_reference.connection.endpoint_url
       )
-    )
+    ),
   })
   // TODO: this might not download all files.
   const data = await cos.listObjectsV2({
     Bucket: bucket,
-    Prefix: model_location
+    Prefix: model_location,
   })
 
-  const files = data.ListBucketResult.Contents.map(o => o.Key).filter(
-    name => !name.endsWith('/')
+  const files = data.ListBucketResult.Contents.map((o) => o.Key).filter(
+    (name) => !name.endsWith('/')
   )
 
   setTotal(files.length)
 
   let current = 0
-  const promises = files.map(async file => {
+  const promises = files.map(async (file) => {
     const data = await cos.getObject(
       {
         Bucket: bucket,
-        Key: file
+        Key: file,
       },
       true
     )
@@ -121,7 +121,7 @@ const Downloader = ({ current, total }) => {
             height: '20px',
             fill: 'transparent',
             margin: '0 16px',
-            transform: 'rotate(-90deg)'
+            transform: 'rotate(-90deg)',
           }}
           viewBox="-29.8125 -29.8125 59.625 59.625"
         >
@@ -131,7 +131,7 @@ const Downloader = ({ current, total }) => {
               stroke: '#e0e0e0',
               strokeDashoffset: 0,
               strokeLinecap: 'butt',
-              strokeDasharray: 169
+              strokeDasharray: 169,
             }}
             cx="0"
             cy="0"
@@ -143,7 +143,7 @@ const Downloader = ({ current, total }) => {
               stroke: '#0f62fe',
               strokeDashoffset: amount,
               strokeLinecap: 'butt',
-              strokeDasharray: 169
+              strokeDasharray: 169,
             }}
             cx="0"
             cy="0"
@@ -162,13 +162,36 @@ let chart
 let dataMap = {}
 
 const getStepsAndLoss = () => {
-  const steps = Object.keys(dataMap).map(m => Number.parseInt(m, 10))
+  const steps = Object.keys(dataMap).map((m) => Number.parseInt(m, 10))
   steps.sort((a, b) => a - b)
-  const loss = steps.map(step => dataMap[step])
+  const loss = steps.map((step) => dataMap[step])
   return [steps, loss]
 }
 
 const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
+  useEffect(() => {
+    let color
+    if (status === 'completed') {
+      color = '-green'
+    } else if (status === 'error' || status === 'failed') {
+      color = '-red'
+    } else if (status === 'running' || status === 'pending') {
+      color = '-yellow'
+    } else {
+      // canceled
+      color = ''
+    }
+    document.querySelectorAll('link[rel="icon"]').forEach((favicon) => {
+      if (favicon.sizes.value === '32x32') {
+        favicon.href = `${process.env.PUBLIC_URL}/favicon${color}-32x32.png`
+      } else if (favicon.sizes.value === '16x16') {
+        favicon.href = `${process.env.PUBLIC_URL}/favicon${color}-16x16.png`
+      } else {
+        favicon.href = `${process.env.PUBLIC_URL}/favicon${color}-32x32.png`
+      }
+    })
+  }, [status])
+
   const [socketIsOpen, setSocketIsOpen] = useState(false)
 
   const [useLogarithmicScale, setUseLogarithmicScale] = useState(false)
@@ -193,7 +216,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
       try {
         const {
           bucket,
-          model_location
+          model_location,
         } = model.entity.training_results_reference.location
         if (model_location && bucket) {
           const safeEndpoint = endpointFromRegion(
@@ -205,7 +228,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
             .load(
               `/api/proxy/${safeEndpoint}/${bucket}/${model_location}/model_web`
             )
-            .then(async tfjsModel => {
+            .then(async (tfjsModel) => {
               // warm up the model
               const image = new ImageData(1, 1)
               if (tfjsModel.type === 'detection') {
@@ -244,7 +267,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
       chart = new window.Chart(ctx, {
         type: 'line',
         data: {
-          labels: steps.map(x => (x === 0 ? '' : x)),
+          labels: steps.map((x) => (x === 0 ? '' : x)),
           datasets: [
             {
               label: 'Data',
@@ -252,7 +275,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
               borderColor: 'rgba(255,255,255,0.2)',
               pointRadius: 0,
               data: loss,
-              fill: false
+              fill: false,
             },
             {
               label: 'Smoothed',
@@ -260,17 +283,17 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
               borderColor: smoothedColor,
               pointRadius: 0,
               data: smoothDataset2(loss),
-              fill: false
-            }
-          ]
+              fill: false,
+            },
+          ],
         },
         options: {
           events: [],
           tooltips: {
-            enabled: false
+            enabled: false,
           },
           legend: {
-            display: false
+            display: false,
           },
           scales: {
             x: {
@@ -281,7 +304,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
                 borderWidth: 1,
                 drawOnChartArea: false,
                 drawTicks: false,
-                color: brightWhite
+                color: brightWhite,
               },
               ticks: {
                 display: true,
@@ -289,8 +312,8 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
                 autoSkip: true,
                 maxTicksLimit: 8,
                 maxRotation: 0,
-                padding: 6
-              }
+                padding: 6,
+              },
             },
             y: {
               axis: 'y',
@@ -301,18 +324,18 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
                 borderWidth: 1,
                 z: -1,
                 drawTicks: false,
-                color: dimWhite
+                color: dimWhite,
               },
               ticks: {
                 display: true,
                 beginAtZero: true,
                 autoSkip: true,
                 maxTicksLimit: 7,
-                padding: 6
-              }
-            }
-          }
-        }
+                padding: 6,
+              },
+            },
+          },
+        },
       })
     }
   }, [lossGraphCanvas, useLogarithmicScale])
@@ -325,7 +348,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
       try {
         const {
           bucket,
-          model_location
+          model_location,
         } = model.entity.training_results_reference.location
 
         if (model_location && bucket) {
@@ -334,10 +357,10 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
               regionFromEndpoint(
                 model.entity.training_results_reference.connection.endpoint_url
               )
-            )
+            ),
           }).getObject({
             Bucket: bucket,
-            Key: `${model_location}/training-log.txt`
+            Key: `${model_location}/training-log.txt`,
           })
 
           // Examples:
@@ -354,7 +377,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
 
           if (matches[1] !== undefined && matches[2] !== undefined) {
             const loss = matches[1].map(Number.parseFloat)
-            const steps = matches[2].map(m => Number.parseInt(m, 10))
+            const steps = matches[2].map((m) => Number.parseInt(m, 10))
             steps.forEach((step, i) => {
               dataMap[step] = loss[i]
             })
@@ -387,13 +410,13 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
   }, [model])
 
   const handleToggleScale = useCallback(() => {
-    setUseLogarithmicScale(previous => !previous)
+    setUseLogarithmicScale((previous) => !previous)
   }, [])
 
-  const updateFilesZippedCount = useCallback(current => {
+  const updateFilesZippedCount = useCallback((current) => {
     setFilesZipped(current)
   }, [])
-  const updateFilesToZipCount = useCallback(total => {
+  const updateFilesToZipCount = useCallback((total) => {
     setFilesToZip(total)
   }, [])
 
@@ -436,7 +459,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
       socket.emit('connectToTrainingSocket', {
         url: wmlEndpoint,
         modelId: modelID,
-        instanceId: wmlInstanceId
+        instanceId: wmlInstanceId,
       })
     }
   }, [model, modelID, socketIsOpen, status, wmlEndpoint, wmlInstanceId])
@@ -445,7 +468,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
     dataMap = {}
     setStepOveride(undefined)
     setLossOveride(undefined)
-    const statusListener = res => {
+    const statusListener = (res) => {
       console.log(res)
       const resJson = JSON.parse(res)
 
@@ -462,7 +485,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
 
         if (matches[1] !== undefined && matches[2] !== undefined) {
           const loss = matches[1].map(Number.parseFloat)
-          const steps = matches[2].map(m => Number.parseInt(m, 10))
+          const steps = matches[2].map((m) => Number.parseInt(m, 10))
 
           steps.forEach((step, i) => {
             dataMap[step] = loss[i]
@@ -534,7 +557,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
           style={{
             margin: '16px 16px 0 16px',
             display: 'flex',
-            alignItems: 'center'
+            alignItems: 'center',
           }}
         >
           <div
@@ -543,7 +566,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
               width: '14px',
               height: '3px',
               marginRight: '8px',
-              background: 'var(--blue)'
+              background: 'var(--blue)',
             }}
           />
           <div
@@ -552,7 +575,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
               fontWeight: 500,
               color: 'var(--secondaryText)',
               margin: '8px 0',
-              display: 'flex'
+              display: 'flex',
             }}
           >
             {`loss (${daLoss})`}
@@ -579,7 +602,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
               fontWeight: 500,
               color: 'var(--secondaryText)',
               margin: '8px 0',
-              display: 'flex'
+              display: 'flex',
             }}
           >
             <div>
@@ -589,7 +612,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
             </div>
             <div
               style={{
-                marginLeft: 'auto'
+                marginLeft: 'auto',
               }}
             >
               {(() => {
@@ -614,7 +637,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
               position: 'relative',
               width: '100%',
               height: '2px',
-              background: 'var(--progressBg)'
+              background: 'var(--progressBg)',
             }}
           >
             <div
@@ -622,7 +645,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
                 position: 'absolute',
                 width: `${isLoadingData ? 0 : percentComplete}%`,
                 height: '100%',
-                background: 'var(--blue)'
+                background: 'var(--blue)',
               }}
             />
           </div>
@@ -642,20 +665,20 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
             style={{
               width: '220px',
               height: '28px',
-              marginBottom: '8px'
+              marginBottom: '8px',
             }}
           />
           <div
             className={styles.skeleton}
             style={{
               width: '180px',
-              height: '14px'
+              height: '14px',
             }}
           />
           <div
             style={{
               width: '180px',
-              height: '10px'
+              height: '10px',
             }}
           />
         </div>
@@ -680,7 +703,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
         style={{
           margin: '16px 16px 0 16px',
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <div
@@ -688,14 +711,14 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
           style={{
             marginLeft: 'auto',
             width: '80px',
-            height: '14px'
+            height: '14px',
           }}
         />
       </div>
       <div
         style={{
           width: '180px',
-          height: '16px'
+          height: '16px',
         }}
       />
 
@@ -708,7 +731,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
       <div
         style={{
           width: '180px',
-          height: '29px'
+          height: '29px',
         }}
       />
 
@@ -728,7 +751,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
             fontWeight: 500,
             color: 'var(--secondaryText)',
             margin: '8px 0',
-            display: 'flex'
+            display: 'flex',
           }}
         >
           <div>
@@ -736,20 +759,20 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
               className={styles.skeleton}
               style={{
                 width: '100px',
-                height: '14px'
+                height: '14px',
               }}
             />
           </div>
           <div
             style={{
-              marginLeft: 'auto'
+              marginLeft: 'auto',
             }}
           >
             <div
               className={styles.skeleton}
               style={{
                 width: '40px',
-                height: '14px'
+                height: '14px',
               }}
             />
           </div>
@@ -759,7 +782,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
             position: 'relative',
             width: '100%',
             height: '2px',
-            background: 'var(--progressBg)'
+            background: 'var(--progressBg)',
           }}
         >
           <div
@@ -767,7 +790,7 @@ const Training = ({ model, wmlInstanceId, wmlEndpoint, status }) => {
               position: 'absolute',
               width: '0%',
               height: '100%',
-              background: 'var(--blue)'
+              background: 'var(--blue)',
             }}
           />
         </div>
