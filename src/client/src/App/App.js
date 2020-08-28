@@ -160,6 +160,7 @@ const App = ({
     dissabled.exportYOLO = true
     dissabled.exportCreateML = true
     dissabled.exportPascalVOC = true
+    dissabled.exportMaximo = true
     window.MAX_IMAGE_WIDTH = 224
     window.MAX_IMAGE_HEIGHT = 224
     window.IMAGE_SCALE_MODE = 'SCALE_FILL'

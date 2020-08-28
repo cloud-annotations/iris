@@ -132,7 +132,7 @@
   cursor: default;
   pointer-events: none;
   position: relative;
-  padding: 8px 14px;
+  padding: 8px 42px 8px 14px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
