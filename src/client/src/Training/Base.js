@@ -216,6 +216,21 @@ const Base = ({
   return (
     <div className={styles.wrapper}>
       <TitleBar />
+      <div
+        style={{
+          margin: '8px',
+          position: 'absolute',
+          right: 0,
+          top: '64px',
+          // height: '48px',
+          overflow: 'scroll',
+          padding: `16px`,
+          backgroundColor: 'var(--appBar)',
+          border: '1px solid var(--textInputUnderline)',
+        }}
+      >
+        WML v4 migration in progress. Training may be temporarily unavailable.
+      </div>
       {!loadingResources && resources.length === 0 ? (
         <div className={styles.noObjectStorage}>
           <div className={styles.noBucketsTitle} style={{ marginTop: '60px' }}>
