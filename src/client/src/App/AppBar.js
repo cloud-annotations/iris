@@ -36,6 +36,7 @@ import {
 import { setActiveWMLResource } from 'redux/wmlResources'
 
 import { importDataset } from 'dataset-utils'
+import FloatingButton from './FloatingButton'
 
 const DEFAULT_GPU = 'k80'
 const DEFAULT_STEPS = '500'
@@ -125,206 +126,351 @@ const VALID_WML_REGIONS = ['us-south', 'eu-de']
 const DEPRECATED_WML_REGIONS = ['eu-gb']
 const MINIMUM_EXAMPLE_COUNT = 20
 
+// const PoopUp = connect((state) => ({
+//   cosResources: state.resources.resources,
+//   resources: state.wmlResources.resources,
+//   activeResource: state.wmlResources.activeResource,
+//   collection: state.collection,
+// }))(
+//   ({
+//     cosResources,
+//     resources,
+//     activeResource,
+//     show,
+//     onPrimary,
+//     onSecondary,
+//     collection,
+//   }) => {
+//     const [chosenInstanceID, setChosenInstanceID] = useState(undefined)
+
+//     useEffect(() => {
+//       const [firstResource] = resources
+//       if (activeResource) {
+//         setChosenInstanceID(activeResource)
+//       } else if (firstResource) {
+//         setChosenInstanceID(firstResource.id)
+//       }
+//     }, [activeResource, resources])
+
+//     const handlePrimary = useCallback(() => {
+//       const resourceInfo = resources.find((r) => r.id === chosenInstanceID)
+//       onPrimary(resourceInfo)
+//     }, [chosenInstanceID, onPrimary, resources])
+
+//     const handSelectChange = useCallback((e) => {
+//       setChosenInstanceID(e.target.value)
+//     }, [])
+
+//     let resourceInfo = {}
+//     if (chosenInstanceID) {
+//       resourceInfo = resources.find((r) => r.id === chosenInstanceID)
+//     }
+
+//     const enoughImages = Object.values(collection.getLabelMapCount()).reduce(
+//       (acc, count) => acc && count > MINIMUM_EXAMPLE_COUNT,
+//       true
+//     )
+
+//     const validRegion = VALID_WML_REGIONS.includes(resourceInfo.region_id)
+//     const deprecated = DEPRECATED_WML_REGIONS.includes(resourceInfo.region_id)
+
+//     return (
+//       <div className={show ? styles.popupWrapper : styles.popupWrapperHidden}>
+//         <div className={styles.popup}>
+//           <div className={styles.contentWrapper}>
+//             <div className={styles.popupTitle}>Start a training run</div>
+//             <div className={styles.popupBody}>
+//               Training will temporarily connect this bucket to the Watson
+//               Machine Learning service. Your images and annotations will be used
+//               to create your own personal object detection model.
+//             </div>
+
+//             {!enoughImages && (
+//               <div className={styles.popupWarning}>
+//                 <svg
+//                   focusable="false"
+//                   preserveAspectRatio="xMidYMid meet"
+//                   xmlns="http://www.w3.org/2000/svg"
+//                   width="20"
+//                   height="20"
+//                   viewBox="0 0 20 20"
+//                   aria-hidden="true"
+//                 >
+//                   <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"></path>
+//                   <path
+//                     d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z"
+//                     data-icon-path="inner-path"
+//                     opacity="0"
+//                   ></path>
+//                   <title>warning icon</title>
+//                 </svg>
+//                 <div className={styles.popupWarningBody}>
+//                   <div className={styles.popupWarningTitle}>
+//                     Not enough examples per label
+//                   </div>
+//                   <div>
+//                     Issues with training can occur when a label doesn't have at
+//                     least <strong>{MINIMUM_EXAMPLE_COUNT}</strong> examples.
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+
+//             {chosenInstanceID && deprecated && (
+//               <div className={styles.popupWarning}>
+//                 <svg
+//                   focusable="false"
+//                   preserveAspectRatio="xMidYMid meet"
+//                   xmlns="http://www.w3.org/2000/svg"
+//                   width="20"
+//                   height="20"
+//                   viewBox="0 0 20 20"
+//                   aria-hidden="true"
+//                 >
+//                   <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"></path>
+//                   <path
+//                     d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z"
+//                     data-icon-path="inner-path"
+//                     opacity="0"
+//                   ></path>
+//                   <title>warning icon</title>
+//                 </svg>
+//                 <div className={styles.popupWarningBody}>
+//                   <div className={styles.popupWarningTitle}>
+//                     GPU support in London has been deprecated
+//                   </div>
+//                   <div>
+//                     Training a Cloud Annotations model requires a Watson Machine
+//                     Learning in either the region of <strong>Dallas</strong> or{' '}
+//                     <strong>Frankfurt</strong>.
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+
+//             {chosenInstanceID && !validRegion && !deprecated && (
+//               <div className={styles.popupWarning}>
+//                 <svg
+//                   focusable="false"
+//                   preserveAspectRatio="xMidYMid meet"
+//                   xmlns="http://www.w3.org/2000/svg"
+//                   width="20"
+//                   height="20"
+//                   viewBox="0 0 20 20"
+//                   aria-hidden="true"
+//                 >
+//                   <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"></path>
+//                   <path
+//                     d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z"
+//                     data-icon-path="inner-path"
+//                     opacity="0"
+//                   ></path>
+//                   <title>warning icon</title>
+//                 </svg>
+//                 <div className={styles.popupWarningBody}>
+//                   <div className={styles.popupWarningTitle}>
+//                     The selected service doesn't support GPU usage
+//                   </div>
+//                   <div>
+//                     Training a Cloud Annotations model requires a Watson Machine
+//                     Learning in either the region of <strong>Dallas</strong> or{' '}
+//                     <strong>Frankfurt</strong>.
+//                   </div>
+//                 </div>
+//               </div>
+//             )}
+
+//             <div className={styles.popupFormItem}>
+//               <div className={styles.popupSelectLabelWrapper}>
+//                 <label for="wml-select" className={styles.popupSelectLabel}>
+//                   Machine Learning instance
+//                 </label>
+//                 <div className={styles.popupSelectWrapper}>
+//                   <select
+//                     className={styles.popupSelect}
+//                     id="wml-select"
+//                     onChange={handSelectChange}
+//                   >
+//                     {resources.map((r) => (
+//                       <option value={r.id} selected={r.id === activeResource}>
+//                         {r.name}
+//                       </option>
+//                     ))}
+//                   </select>
+//                   <svg
+//                     className={styles.popupSelectIcon}
+//                     focusable="false"
+//                     preserveAspectRatio="xMidYMid meet"
+//                     width="16"
+//                     height="16"
+//                     viewBox="0 0 16 16"
+//                     aria-hidden="true"
+//                   >
+//                     <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
+//                   </svg>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//           <div className={styles.popupButtons}>
+//             <div className={styles.popupButtonSecondary} onClick={onSecondary}>
+//               Cancel
+//             </div>
+//             <a
+//               href="https://colab.research.google.com/github/cloud-annotations/google-colab-training/blob/master/object_detection.ipynb"
+//               target="_blank"
+//               rel="noopener noreferrer"
+//               className={
+//                 cosResources.length > 0 && resources.length > 0
+//                   ? styles.popupButtonPrimary
+//                   : styles.popupButtonPrimaryDissabled
+//               }
+//               onClick={handlePrimary}
+//             >
+//               Open Colab
+//             </a>
+//           </div>
+//         </div>
+//       </div>
+//     )
+//   }
+// )
+
 const PoopUp = connect((state) => ({
   cosResources: state.resources.resources,
-  resources: state.wmlResources.resources,
-  activeResource: state.wmlResources.activeResource,
-  collection: state.collection,
+  activeCOSResource: state.resources.activeResource,
+  bucket: state.editor.bucket,
+  modelType: state.collection.type,
 }))(
   ({
+    location,
+    modelType,
+    bucket,
     cosResources,
-    resources,
-    activeResource,
+    activeCOSResource,
     show,
-    onPrimary,
     onSecondary,
-    collection,
   }) => {
-    const [chosenInstanceID, setChosenInstanceID] = useState(undefined)
+    const ref = useRef(null)
+
+    const [copyText, setCopyText] = useState('Copy')
+    const [credentials, setCredentials] = useState(undefined)
 
     useEffect(() => {
-      const [firstResource] = resources
-      if (activeResource) {
-        setChosenInstanceID(activeResource)
-      } else if (firstResource) {
-        setChosenInstanceID(firstResource.id)
+      async function main() {
+        // find or create a binding.
+        const cosResourceInfo = cosResources.find(
+          (r) => r.id === activeCOSResource
+        )
+        const credentialsEndpoint =
+          '/api/proxy/resource-controller.cloud.ibm.com/v2/resource_keys'
+        const listCredentialsEndpoint = `${credentialsEndpoint}?name=cloud-annotations-binding&source_crn=${cosResourceInfo.crn}`
+        const credentialsList = await fetch(
+          listCredentialsEndpoint
+        ).then((res) => res.json())
+
+        let creds
+        // create binding if none exists.
+        if (credentialsList.resources.length > 0) {
+          creds = credentialsList.resources[0]
+        } else {
+          const resCreate = await fetch(credentialsEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              name: 'cloud-annotations-binding',
+              source: cosResourceInfo.guid,
+              role: 'writer',
+              parameters: {
+                HMAC: true,
+              },
+            }),
+          }).then((res) => res.json())
+          creds = resCreate
+        }
+
+        const {
+          access_key_id,
+          secret_access_key,
+        } = creds.credentials.cos_hmac_keys
+
+        const credentials = {
+          bucket: bucket,
+          access_key_id: access_key_id,
+          secret_access_key: secret_access_key,
+          endpoint_url: fullPublicEndpointForLocationConstraint(location),
+        }
+
+        setCredentials(JSON.stringify(credentials, null, 2))
       }
-    }, [activeResource, resources])
 
-    const handlePrimary = useCallback(() => {
-      const resourceInfo = resources.find((r) => r.id === chosenInstanceID)
-      onPrimary(resourceInfo)
-    }, [chosenInstanceID, onPrimary, resources])
-
-    const handSelectChange = useCallback((e) => {
-      setChosenInstanceID(e.target.value)
+      main()
     }, [])
 
-    let resourceInfo = {}
-    if (chosenInstanceID) {
-      resourceInfo = resources.find((r) => r.id === chosenInstanceID)
+    const handleCurlCopy = () => {
+      setCopyText('Copied')
+      setTimeout(() => {
+        setCopyText('Copy')
+      }, 2000)
+      navigator.clipboard.writeText(ref.current.innerText)
     }
 
-    const enoughImages = Object.values(collection.getLabelMapCount()).reduce(
-      (acc, count) => acc && count > MINIMUM_EXAMPLE_COUNT,
-      true
-    )
-
-    const validRegion = VALID_WML_REGIONS.includes(resourceInfo.region_id)
-    const deprecated = DEPRECATED_WML_REGIONS.includes(resourceInfo.region_id)
+    let notebookUrl
+    switch (modelType) {
+      case 'classification':
+        notebookUrl =
+          'https://colab.research.google.com/github/cloud-annotations/google-colab-training/blob/master/classification.ipynb'
+        break
+      case 'localization':
+        notebookUrl =
+          'https://colab.research.google.com/github/cloud-annotations/google-colab-training/blob/master/object_detection.ipynb'
+        break
+    }
 
     return (
       <div className={show ? styles.popupWrapper : styles.popupWrapperHidden}>
         <div className={styles.popup}>
           <div className={styles.contentWrapper}>
-            <div className={styles.popupTitle}>Start a training run</div>
+            <div className={styles.popupTitle}>Connecting your bucket</div>
             <div className={styles.popupBody}>
-              Training will temporarily connect this bucket to the Watson
-              Machine Learning service. Your images and annotations will be used
-              to create your own personal object detection model.
+              Use the following credentials to connect this bucket to Google
+              Colab. Your images and annotations can then be used to train your
+              very own model.
             </div>
-
-            {!enoughImages && (
-              <div className={styles.popupWarning}>
-                <svg
-                  focusable="false"
-                  preserveAspectRatio="xMidYMid meet"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"></path>
-                  <path
-                    d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z"
-                    data-icon-path="inner-path"
-                    opacity="0"
-                  ></path>
-                  <title>warning icon</title>
-                </svg>
-                <div className={styles.popupWarningBody}>
-                  <div className={styles.popupWarningTitle}>
-                    Not enough examples per label
-                  </div>
-                  <div>
-                    Issues with training can occur when a label doesn't have at
-                    least <strong>{MINIMUM_EXAMPLE_COUNT}</strong> examples.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {chosenInstanceID && deprecated && (
-              <div className={styles.popupWarning}>
-                <svg
-                  focusable="false"
-                  preserveAspectRatio="xMidYMid meet"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"></path>
-                  <path
-                    d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z"
-                    data-icon-path="inner-path"
-                    opacity="0"
-                  ></path>
-                  <title>warning icon</title>
-                </svg>
-                <div className={styles.popupWarningBody}>
-                  <div className={styles.popupWarningTitle}>
-                    GPU support in London has been deprecated
-                  </div>
-                  <div>
-                    Training a Cloud Annotations model requires a Watson Machine
-                    Learning in either the region of <strong>Dallas</strong> or{' '}
-                    <strong>Frankfurt</strong>.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {chosenInstanceID && !validRegion && !deprecated && (
-              <div className={styles.popupWarning}>
-                <svg
-                  focusable="false"
-                  preserveAspectRatio="xMidYMid meet"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  aria-hidden="true"
-                >
-                  <path d="M10,1c-5,0-9,4-9,9s4,9,9,9s9-4,9-9S15,1,10,1z M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1	s1,0.4,1,1S10.6,16,10,16z"></path>
-                  <path
-                    d="M9.2,5h1.5v7H9.2V5z M10,16c-0.6,0-1-0.4-1-1s0.4-1,1-1s1,0.4,1,1S10.6,16,10,16z"
-                    data-icon-path="inner-path"
-                    opacity="0"
-                  ></path>
-                  <title>warning icon</title>
-                </svg>
-                <div className={styles.popupWarningBody}>
-                  <div className={styles.popupWarningTitle}>
-                    The selected service doesn't support GPU usage
-                  </div>
-                  <div>
-                    Training a Cloud Annotations model requires a Watson Machine
-                    Learning in either the region of <strong>Dallas</strong> or{' '}
-                    <strong>Frankfurt</strong>.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className={styles.popupFormItem}>
-              <div className={styles.popupSelectLabelWrapper}>
-                <label for="wml-select" className={styles.popupSelectLabel}>
-                  Machine Learning instance
-                </label>
-                <div className={styles.popupSelectWrapper}>
-                  <select
-                    className={styles.popupSelect}
-                    id="wml-select"
-                    onChange={handSelectChange}
-                  >
-                    {resources.map((r) => (
-                      <option value={r.id} selected={r.id === activeResource}>
-                        {r.name}
-                      </option>
-                    ))}
-                  </select>
-                  <svg
-                    className={styles.popupSelectIcon}
-                    focusable="false"
-                    preserveAspectRatio="xMidYMid meet"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    aria-hidden="true"
-                  >
-                    <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
-                  </svg>
-                </div>
-              </div>
-            </div>
+          </div>
+          <div style={{ margin: '16px 16px 48px 16px' }}>
+            <FloatingButton onClick={handleCurlCopy} label={copyText}>
+              <pre
+                style={{
+                  paddingRight: '60px',
+                }}
+              >
+                <code ref={ref}>
+                  {credentials === undefined
+                    ? 'loading...'
+                    : 'credentials = ' + credentials}
+                </code>
+              </pre>
+            </FloatingButton>
           </div>
           <div className={styles.popupButtons}>
             <div className={styles.popupButtonSecondary} onClick={onSecondary}>
               Cancel
             </div>
-            <div
+            <a
+              href={`${notebookUrl}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className={
-                cosResources.length > 0 && resources.length > 0
+                cosResources.length > 0
                   ? styles.popupButtonPrimary
                   : styles.popupButtonPrimaryDissabled
               }
-              onClick={handlePrimary}
             >
-              Train
-            </div>
+              Open Colab
+            </a>
           </div>
         </div>
       </div>
@@ -506,136 +652,138 @@ const AppBar = ({
     setShowModal(true)
   }, [])
 
-  const handleTrainModalPrimary = useCallback(
-    async (instance) => {
-      setActiveWMLResource(instance.id)
-      setPreparingToTrain(true)
-      setShowModal(false)
-      // find or create a binding.
-      const cosResourceInfo = cosResources.find(
-        (r) => r.id === activeCOSResource
-      )
-      const credentialsEndpoint =
-        '/api/proxy/resource-controller.cloud.ibm.com/v2/resource_keys'
-      const listCredentialsEndpoint = `${credentialsEndpoint}?name=cloud-annotations-binding&source_crn=${cosResourceInfo.crn}`
-      const credentialsList = await fetch(listCredentialsEndpoint).then((res) =>
-        res.json()
-      )
+  const handleTrainModalPrimary = useCallback(() => {}, [])
 
-      let creds
-      // create binding if none exists.
-      if (credentialsList.resources.length > 0) {
-        creds = credentialsList.resources[0]
-      } else {
-        const resCreate = await fetch(credentialsEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: 'cloud-annotations-binding',
-            source: cosResourceInfo.guid,
-            role: 'writer',
-            parameters: {
-              HMAC: true,
-            },
-          }),
-        }).then((res) => res.json())
-        creds = resCreate
-      }
+  // const handleTrainModalPrimary = useCallback(
+  //   async (instance) => {
+  //     setActiveWMLResource(instance.id)
+  //     setPreparingToTrain(true)
+  //     setShowModal(false)
+  //     // find or create a binding.
+  //     const cosResourceInfo = cosResources.find(
+  //       (r) => r.id === activeCOSResource
+  //     )
+  //     const credentialsEndpoint =
+  //       '/api/proxy/resource-controller.cloud.ibm.com/v2/resource_keys'
+  //     const listCredentialsEndpoint = `${credentialsEndpoint}?name=cloud-annotations-binding&source_crn=${cosResourceInfo.crn}`
+  //     const credentialsList = await fetch(listCredentialsEndpoint).then((res) =>
+  //       res.json()
+  //     )
 
-      const {
-        access_key_id,
-        secret_access_key,
-      } = creds.credentials.cos_hmac_keys
+  //     let creds
+  //     // create binding if none exists.
+  //     if (credentialsList.resources.length > 0) {
+  //       creds = credentialsList.resources[0]
+  //     } else {
+  //       const resCreate = await fetch(credentialsEndpoint, {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //         body: JSON.stringify({
+  //           name: 'cloud-annotations-binding',
+  //           source: cosResourceInfo.guid,
+  //           role: 'writer',
+  //           parameters: {
+  //             HMAC: true,
+  //           },
+  //         }),
+  //       }).then((res) => res.json())
+  //       creds = resCreate
+  //     }
 
-      const instanceID = instance.guid
+  //     const {
+  //       access_key_id,
+  //       secret_access_key,
+  //     } = creds.credentials.cos_hmac_keys
 
-      const trainingDefinition = JSON.parse(
-        JSON.stringify(DEFAULT_TRAINING_DEFINITION)
-      )
-      trainingDefinition.name = bucket
+  //     const instanceID = instance.guid
 
-      const resTrainingDefinition = await fetch(
-        `/api/proxy/${instance.region_id}.ml.cloud.ibm.com/v3/ml_assets/training_definitions`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'ML-Instance-ID': instanceID,
-          },
-          body: JSON.stringify(trainingDefinition),
-        }
-      ).then((res) => res.json())
+  //     const trainingDefinition = JSON.parse(
+  //       JSON.stringify(DEFAULT_TRAINING_DEFINITION)
+  //     )
+  //     trainingDefinition.name = bucket
 
-      await fetch(
-        `/api/proxy/${resTrainingDefinition.entity.training_definition_version.content_url.replace(
-          /^https:\/\//,
-          ''
-        )}`,
-        {
-          method: 'PUT',
-          headers: {
-            'ML-Instance-ID': instanceID,
-            'Content-Type': 'application/octet-stream',
-          },
-          body: await fetch(
-            '/api/proxy/github.com/cloud-annotations/training/releases/latest/download/training.zip'
-          ).then((res) => res.blob()),
-        }
-      )
+  //     const resTrainingDefinition = await fetch(
+  //       `/api/proxy/${instance.region_id}.ml.cloud.ibm.com/v3/ml_assets/training_definitions`,
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'ML-Instance-ID': instanceID,
+  //         },
+  //         body: JSON.stringify(trainingDefinition),
+  //       }
+  //     ).then((res) => res.json())
 
-      // Try to find the start command (could be `start.sh` or `zipname/start.sh`)
-      const command = `cd "$(dirname "$(find . -name "start.sh" -maxdepth 2 | head -1)")" && chmod 777 ./start.sh && ./start.sh ${DEFAULT_STEPS}`
-      const connection = {
-        endpoint_url: fullPrivateEndpointForLocationConstraint(location),
-        access_key_id: access_key_id,
-        secret_access_key: secret_access_key,
-      }
-      const trainingRun = {
-        model_definition: {
-          framework: {
-            name: resTrainingDefinition.entity.framework.name,
-            version: resTrainingDefinition.entity.framework.version,
-          },
-          name: resTrainingDefinition.entity.name,
-          author: {},
-          definition_href: resTrainingDefinition.metadata.url,
-          execution: {
-            command: command,
-            compute_configuration: { name: DEFAULT_GPU },
-          },
-        },
-        training_data_reference: {
-          connection: connection,
-          source: { bucket: bucket },
-          type: 's3',
-        },
-        training_results_reference: {
-          connection: connection,
-          target: { bucket: bucket },
-          type: 's3',
-        },
-      }
+  //     await fetch(
+  //       `/api/proxy/${resTrainingDefinition.entity.training_definition_version.content_url.replace(
+  //         /^https:\/\//,
+  //         ''
+  //       )}`,
+  //       {
+  //         method: 'PUT',
+  //         headers: {
+  //           'ML-Instance-ID': instanceID,
+  //           'Content-Type': 'application/octet-stream',
+  //         },
+  //         body: await fetch(
+  //           '/api/proxy/github.com/cloud-annotations/training/releases/latest/download/training.zip'
+  //         ).then((res) => res.blob()),
+  //       }
+  //     )
 
-      const resTrainingRun = await fetch(
-        `/api/proxy/${instance.region_id}.ml.cloud.ibm.com/v3/models`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'ML-Instance-ID': instanceID,
-          },
-          body: JSON.stringify(trainingRun),
-        }
-      ).then((res) => res.json())
+  //     // Try to find the start command (could be `start.sh` or `zipname/start.sh`)
+  //     const command = `cd "$(dirname "$(find . -name "start.sh" -maxdepth 2 | head -1)")" && chmod 777 ./start.sh && ./start.sh ${DEFAULT_STEPS}`
+  //     const connection = {
+  //       endpoint_url: fullPrivateEndpointForLocationConstraint(location),
+  //       access_key_id: access_key_id,
+  //       secret_access_key: secret_access_key,
+  //     }
+  //     const trainingRun = {
+  //       model_definition: {
+  //         framework: {
+  //           name: resTrainingDefinition.entity.framework.name,
+  //           version: resTrainingDefinition.entity.framework.version,
+  //         },
+  //         name: resTrainingDefinition.entity.name,
+  //         author: {},
+  //         definition_href: resTrainingDefinition.metadata.url,
+  //         execution: {
+  //           command: command,
+  //           compute_configuration: { name: DEFAULT_GPU },
+  //         },
+  //       },
+  //       training_data_reference: {
+  //         connection: connection,
+  //         source: { bucket: bucket },
+  //         type: 's3',
+  //       },
+  //       training_results_reference: {
+  //         connection: connection,
+  //         target: { bucket: bucket },
+  //         type: 's3',
+  //       },
+  //     }
 
-      setPreparingToTrain(false)
+  //     const resTrainingRun = await fetch(
+  //       `/api/proxy/${instance.region_id}.ml.cloud.ibm.com/v3/models`,
+  //       {
+  //         method: 'POST',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'ML-Instance-ID': instanceID,
+  //         },
+  //         body: JSON.stringify(trainingRun),
+  //       }
+  //     ).then((res) => res.json())
 
-      history.push(`/training?model=${resTrainingRun.metadata.guid}`)
-    },
-    [activeCOSResource, bucket, cosResources, location, setActiveWMLResource]
-  )
+  //     setPreparingToTrain(false)
+
+  //     history.push(`/training?model=${resTrainingRun.metadata.guid}`)
+  //   },
+  //   [activeCOSResource, bucket, cosResources, location, setActiveWMLResource]
+  // )
 
   const handleTrainModalSecondary = useCallback(() => {
     setShowModal(false)
@@ -1358,7 +1506,7 @@ const AppBar = ({
               </div>
             </div>
 
-            <div
+            {/* <div
               id="trainingruns"
               className={
                 optionsOpen && lastHoveredOption === 'trainingruns'
@@ -1385,14 +1533,17 @@ const AppBar = ({
                   View all
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
           <div className={styles.saved}>
             {saving > 0 ? 'Saving...' : 'Saved'}
           </div>
         </div>
       </div>
-      {sandbox ? null : !wmlResourcesLoading && wmlResources.length === 0 ? (
+      <div className={styles.train} onClick={handleClickTrain}>
+        <div className={styles.trainText}>Train model in Colab</div>
+      </div>
+      {/* {sandbox ? null : !wmlResourcesLoading && wmlResources.length === 0 ? (
         <div className={styles.notification}>
           <div className={styles.notificationTitle}>
             No Machine Learning instance available
@@ -1411,9 +1562,9 @@ const AppBar = ({
           className={wmlResourcesLoading ? styles.trainDisabled : styles.train}
           onClick={handleClickTrain}
         >
-          <div className={styles.trainText}>Train model</div>
+          <div className={styles.trainText}>Train model in Colab</div>
         </div>
-      )}
+      )} */}
       <Toggle
         className={styles.toggle}
         checked={darkModeToggle}
@@ -1436,6 +1587,7 @@ const AppBar = ({
       <Loading active={preparingToTrain} />
       {showModal && ( // resets state
         <PoopUp
+          location={location}
           show={showModal}
           onPrimary={handleTrainModalPrimary}
           onSecondary={handleTrainModalSecondary}

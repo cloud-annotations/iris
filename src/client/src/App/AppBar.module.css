@@ -459,6 +459,7 @@
   background-color: var(--blue);
   padding: 16px;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .popupButtonPrimaryDissabled {

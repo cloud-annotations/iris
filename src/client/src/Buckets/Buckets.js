@@ -16,7 +16,7 @@ import { setActiveResource } from 'redux/resources'
 import { setActiveAccount } from 'redux/accounts'
 import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
-const accountNameForAccount = account => {
+const accountNameForAccount = (account) => {
   if (account && account.softlayer) {
     return `${account.softlayer} - ${account.name}`
   } else if (account) {
@@ -24,12 +24,12 @@ const accountNameForAccount = account => {
   }
 }
 
-const ConditionalTable = connect(state => ({
+const ConditionalTable = connect((state) => ({
   resources: state.resources.resources,
   loadingResources: state.resources.loading,
   accounts: state.accounts.accounts,
   loadingAccounts: state.accounts.loading,
-  buckets: state.buckets
+  buckets: state.buckets,
 }))(
   ({
     loadingAccounts,
@@ -41,7 +41,7 @@ const ConditionalTable = connect(state => ({
     handleDeleteBucket,
     handleCreateBucket,
     handleRowSelected,
-    loading
+    loading,
   }) => {
     if (!loadingAccounts && accounts.length === 0) {
       return (
@@ -128,7 +128,7 @@ const Buckets = ({
   accounts,
   activeAccount,
   dispatch,
-  loadingResources
+  loadingResources,
 }) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
   const [bucketToDelete, setBucketToDelete] = useState(false)
@@ -137,7 +137,7 @@ const Buckets = ({
   const [listOfLoadingBuckets, setListOfLoadingBuckets] = useState([])
 
   const dispatchLoadBuckets = useCallback(
-    async chosenInstance => {
+    async (chosenInstance) => {
       try {
         // We only want to show the loading indicator when we first load the
         // page. Don't `setLoading(true)`
@@ -167,8 +167,8 @@ const Buckets = ({
   }, [activeResource, dispatchLoadBuckets])
 
   const handleRowSelected = useCallback(
-    id => {
-      const bucket = buckets.filter(bucket => bucket.id === id)[0]
+    (id) => {
+      const bucket = buckets.filter((bucket) => bucket.id === id)[0]
       history.push(`/buckets/${bucket.name}?location=${bucket.location}`)
     },
     [buckets]
@@ -183,7 +183,7 @@ const Buckets = ({
   }, [])
 
   const handleSubmitCreateModal = useCallback(
-    bucketName => {
+    (bucketName) => {
       dispatchLoadBuckets(activeResource)
       setIsCreateBucketModalOpen(false)
       history.push(`/buckets/${bucketName}?location=us`)
@@ -191,7 +191,7 @@ const Buckets = ({
     [activeResource, dispatchLoadBuckets]
   )
 
-  const handleDeleteBucket = useCallback(bucketName => {
+  const handleDeleteBucket = useCallback((bucketName) => {
     setBucketToDelete(bucketName)
   }, [])
 
@@ -200,9 +200,9 @@ const Buckets = ({
   }, [])
 
   const handleSubmitDeleteModal = useCallback(
-    async bucketName => {
+    async (bucketName) => {
       setBucketToDelete(false)
-      setListOfLoadingBuckets(list => [...list, bucketName])
+      setListOfLoadingBuckets((list) => [...list, bucketName])
       try {
         const cos = new COS({ endpoint: defaultEndpoint })
 
@@ -211,13 +211,13 @@ const Buckets = ({
           const res = await cos.listObjectsV2({ Bucket: bucketName })
           const { Contents = [] } = res.ListBucketResult
           const contents = Array.isArray(Contents) ? Contents : [Contents]
-          const objects = contents.map(item => ({ Key: item.Key }))
+          const objects = contents.map((item) => ({ Key: item.Key }))
           if (objects.length > 0) {
             await cos.deleteObjects({
               Bucket: bucketName,
               Delete: {
-                Objects: objects
-              }
+                Objects: objects,
+              },
             })
             await deleteAllObjects()
           }
@@ -227,37 +227,37 @@ const Buckets = ({
         await deleteAllObjects()
 
         await cos.deleteBucket({
-          Bucket: bucketName
+          Bucket: bucketName,
         })
       } catch (error) {
         console.error(error)
       }
       await dispatchLoadBuckets(activeResource)
-      setListOfLoadingBuckets(list => list.filter(b => b !== bucketName))
+      setListOfLoadingBuckets((list) => list.filter((b) => b !== bucketName))
     },
     [activeResource, dispatchLoadBuckets]
   )
 
   const handleAccountChosen = useCallback(
-    item => {
+    (item) => {
       dispatch(setActiveAccount(item))
     },
     [dispatch]
   )
 
   const handleResourceChosen = useCallback(
-    item => {
+    (item) => {
       dispatch(setActiveResource(item))
     },
     [dispatch]
   )
 
   const activeAccountObject = accounts.find(
-    account => activeAccount === account.accountId
+    (account) => activeAccount === account.accountId
   )
 
   const activeResourceObject = resources.find(
-    resource => activeResource === resource.id
+    (resource) => activeResource === resource.id
   )
 
   return (
@@ -285,9 +285,9 @@ const Buckets = ({
           <a className={styles.link} href="https://cloud.annotations.ai/sdks">
             SDKs
           </a>
-          <Link to="/training" className={styles.link}>
+          {/* <Link to="/training" className={styles.link}>
             Training runs
-          </Link>
+          </Link> */}
         </nav>
         <DropDown
           active={
@@ -295,17 +295,17 @@ const Buckets = ({
             activeResourceObject &&
             activeResourceObject.name
           }
-          list={resources.map(resource => ({
+          list={resources.map((resource) => ({
             display: resource.name,
-            id: resource.id
+            id: resource.id,
           }))}
           onChosen={handleResourceChosen}
         />
         <DropDown
           active={accountNameForAccount(activeAccountObject)}
-          list={accounts.map(account => ({
+          list={accounts.map((account) => ({
             display: accountNameForAccount(account),
-            id: account.accountId
+            id: account.accountId,
           }))}
           onChosen={handleAccountChosen}
         />
@@ -334,13 +334,13 @@ const Buckets = ({
   )
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   loadingResources: state.resources.loading,
   resources: state.resources.resources,
   activeResource: state.resources.activeResource,
   accounts: state.accounts.accounts,
   activeAccount: state.accounts.activeAccount,
   buckets: state.buckets,
-  profile: state.profile
+  profile: state.profile,
 })
 export default connect(mapStateToProps)(Buckets)

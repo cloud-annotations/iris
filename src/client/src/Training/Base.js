@@ -102,9 +102,9 @@ const TitleBar = connect(mapStateToProps)(
           <a className={styles.link} href="https://cloud.annotations.ai/sdks">
             SDKs
           </a>
-          <Link to="/training" className={styles.activeLink}>
+          {/* <Link to="/training" className={styles.activeLink}>
             Training runs
-          </Link>
+          </Link> */}
         </nav>
 
         <DropDown
