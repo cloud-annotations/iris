@@ -1,4 +1,3 @@
-import cookieParser from "cookie-parser";
 import express from "express";
 
 import gzip from "./middleware/gzip";
@@ -18,7 +17,6 @@ app.disable("x-powered-by");
 app.use(gzip());
 app.use(security());
 app.use(logger());
-app.use(cookieParser());
 
 app.use(collaboration);
 
