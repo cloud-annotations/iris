@@ -1,6 +1,5 @@
 {
-  "name": "watson-ml",
-  "version": "0.1.0",
+  "name": "ui-frontend",
   "private": true,
   "dependencies": {
     "@cloud-annotations/models": "^0.1.0",
@@ -34,6 +33,7 @@
     "react-toggle": "^4.1.1",
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
+    "socket.io-client": "^2.3.0",
     "typescript": "^3.8.3"
   },
   "scripts": {

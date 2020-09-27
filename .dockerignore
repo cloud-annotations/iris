@@ -1,9 +1,10 @@
 # Ignore everything.
 **
 
-# Allow `/src` and `Dockerfile`.
+# Allow `/ui-frontend`, /ui-backend` and `Dockerfile`.
 !/Dockerfile
-!/src/**
+!/ui-backend/**
+!/ui-frontend/**
 
 ################################################################################
 # Ignore things inside of `/src`. (esentially Node .gitignore)

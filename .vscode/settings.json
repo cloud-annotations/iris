@@ -1,2 +1,7 @@
 {
+  "workbench.editor.labelFormat": "short",
+  "eslint.workingDirectories": [
+    "./ui-frontend",
+    "./ui-backend"
+  ]
 }
