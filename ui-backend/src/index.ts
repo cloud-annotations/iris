@@ -1,3 +1,5 @@
+import http from "http";
+
 import express from "express";
 
 import gzip from "./middleware/gzip";
@@ -7,8 +9,10 @@ import apiRouter from "./routes/api";
 import authRouter from "./routes/auth";
 import spaRouter from "./routes/spa";
 import collaboration from "./sockets/collaboration";
+import hotReload from "./util/hot-reload";
 
 const app = express();
+const server = http.createServer(app);
 const port = process.env.PORT || 9000;
 
 app.enable("trust proxy");
@@ -18,12 +22,14 @@ app.use(gzip());
 app.use(security());
 app.use(logger());
 
-app.use(collaboration);
+collaboration(server);
 
 app.use("/api", apiRouter);
 app.use("/auth", authRouter);
 app.use("/", spaRouter);
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log("listening on port " + port);
 });
+
+hotReload(module, server);

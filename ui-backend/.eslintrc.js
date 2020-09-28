@@ -40,6 +40,22 @@ module.exports = {
       },
     ],
   },
+  overrides: [
+    {
+      files: ["webpack.*.js"],
+      rules: {
+        "import/no-extraneous-dependencies": [
+          "warn",
+          {
+            devDependencies: true,
+            optionalDependencies: false,
+            peerDependencies: false,
+            bundledDependencies: true,
+          },
+        ],
+      },
+    },
+  ],
   settings: {
     "import/internal-regex": "^src/",
     "import/extensions": allExtensions,

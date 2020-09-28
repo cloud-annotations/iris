@@ -1,26 +1,38 @@
 {
+  "include": ["./src/"],
   "compilerOptions": {
-    "target": "es5",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "allowJs": true,
+    "sourceMap": true,
+    "outDir": "./build/",
+
     "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["es2017", "es2019.array"],
+    "declaration": true,
+    "declarationMap": true,
+
+    /* Strict Type-Checking Options */
     "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+
+    /* Additional Checks */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Module Resolution Options */
     "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react",
-    "baseUrl": ".",
-  },
-  "include": [
-    "src"
-  ]
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+
+    /* Advanced Options */
+    "resolveJsonModule": true
+  }
 }
