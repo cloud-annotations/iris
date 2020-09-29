@@ -1,6 +1,6 @@
+import { Project } from "cloud-annotations-types";
 import useSWR from "swr";
 
-import { Project } from "src/types";
 import API from "src/util/api";
 
 const appstaticAPI = new API();

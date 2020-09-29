@@ -1,9 +1,9 @@
 import React from "react";
 
+import { Project } from "cloud-annotations-types";
 import { useParams } from "react-router-dom";
 
 import { useProject } from "src/state/appstatic/api";
-import { Project } from "src/types";
 
 interface ProjectProps {
   project: Project;
