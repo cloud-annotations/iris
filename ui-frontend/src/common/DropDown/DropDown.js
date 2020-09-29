@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from "react";
 
-import styles from './DropDown.module.css'
-import history from 'globalHistory'
-import { clearCookies } from 'Utils'
+import styles from "./DropDown.module.css";
+import history from "src/globalHistory";
+import { clearCookies } from "src/Utils";
 
 const Chevron = () => (
   <svg className={styles.chevronIcon} viewBox="0 0 12 7">
@@ -11,40 +11,40 @@ const Chevron = () => (
       d="M6.002 5.55L11.27 0l.726.685L6.003 7 0 .685.726 0z"
     />
   </svg>
-)
+);
 
 const useOnBlur = (ref, onBlur) => {
   useEffect(() => {
-    const currentRef = ref.current
-    currentRef.addEventListener('blur', onBlur)
+    const currentRef = ref.current;
+    currentRef.addEventListener("blur", onBlur);
     return () => {
-      currentRef.removeEventListener('blur', onBlur)
-    }
-  }, [ref, onBlur])
-}
+      currentRef.removeEventListener("blur", onBlur);
+    };
+  }, [ref, onBlur]);
+};
 
 const DropDown = ({ active, list, onChosen }) => {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const blurListener = useCallback(() => {
-    setOpen(false)
-  }, [])
+    setOpen(false);
+  }, []);
 
-  const dropDownRef = useRef(null)
-  useOnBlur(dropDownRef, blurListener)
+  const dropDownRef = useRef(null);
+  useOnBlur(dropDownRef, blurListener);
 
   const handleClick = useCallback(() => {
-    setOpen(true)
-  }, [])
+    setOpen(true);
+  }, []);
 
   const handleChosen = useCallback(
-    item => e => {
-      e.stopPropagation()
-      onChosen(item)
-      setOpen(false)
+    (item) => (e) => {
+      e.stopPropagation();
+      onChosen(item);
+      setOpen(false);
     },
     [onChosen]
-  )
+  );
 
   return (
     <div
@@ -57,7 +57,7 @@ const DropDown = ({ active, list, onChosen }) => {
       <Chevron />
       {open && (
         <div className={styles.droplist}>
-          {list.map(item => (
+          {list.map((item) => (
             <div
               key={item.id}
               onClick={handleChosen(item.id)}
@@ -69,27 +69,27 @@ const DropDown = ({ active, list, onChosen }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-let baseEndpoint = 'test.cloud.ibm.com'
-if (process.env.NODE_ENV === 'production') {
-  baseEndpoint = 'cloud.ibm.com'
+let baseEndpoint = "test.cloud.ibm.com";
+if (process.env.NODE_ENV === "production") {
+  baseEndpoint = "cloud.ibm.com";
 }
 
 const ProfileImage = ({ photo }) => {
-  const [validImage, setValidImage] = useState(false)
+  const [validImage, setValidImage] = useState(false);
 
   useEffect(() => {
-    const img = new Image()
-    img.onload = function() {
-      setValidImage(true)
-    }
-    img.onerror = function() {
-      setValidImage(false)
-    }
-    img.src = photo
-  }, [photo])
+    const img = new Image();
+    img.onload = function () {
+      setValidImage(true);
+    };
+    img.onerror = function () {
+      setValidImage(false);
+    };
+    img.src = photo;
+  }, [photo]);
 
   return (
     <>
@@ -107,36 +107,36 @@ const ProfileImage = ({ photo }) => {
         </svg>
       )}
     </>
-  )
-}
+  );
+};
 
 export const ProfileDropDown = ({ profile }) => {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const blurListener = useCallback(() => {
-    setOpen(false)
-  }, [])
+    setOpen(false);
+  }, []);
 
-  const dropDownRef = useRef(null)
-  useOnBlur(dropDownRef, blurListener)
+  const dropDownRef = useRef(null);
+  useOnBlur(dropDownRef, blurListener);
 
   const handleClick = useCallback(() => {
-    setOpen(true)
-  }, [])
+    setOpen(true);
+  }, []);
 
   const handleLogout = useCallback(() => {
-    clearCookies(['access_token', 'refresh_token'])
-    history.push('/login')
+    clearCookies(["access_token", "refresh_token"]);
+    history.push("/login");
 
     // This won't log us out of IBM, we need to redirect to actually logout:
     const wind = window.open(
       `https://iam.${baseEndpoint}/identity/logout`,
-      '_blank'
-    )
+      "_blank"
+    );
     setTimeout(() => {
-      wind.close()
-    }, 10000)
-  }, [])
+      wind.close();
+    }, 10000);
+  }, []);
 
   return (
     <div
@@ -161,7 +161,7 @@ export const ProfileDropDown = ({ profile }) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default DropDown
+export default DropDown;

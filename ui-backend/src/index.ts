@@ -2,6 +2,8 @@ import http from "http";
 
 import express from "express";
 
+import errorHandler from "./handlers/error";
+import notFoundHandler from "./handlers/not-found";
 import gzip from "./middleware/gzip";
 import logger from "./middleware/logger";
 import security from "./middleware/security";
@@ -27,6 +29,9 @@ collaboration(server);
 app.use("/api", apiRouter);
 app.use("/auth", authRouter);
 app.use("/", spaRouter);
+
+app.use(notFoundHandler);
+app.use(errorHandler);
 
 server.listen(port, () => {
   console.log("listening on port " + port);

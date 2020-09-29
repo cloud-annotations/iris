@@ -33,6 +33,7 @@
     "eslint-plugin-react-hooks": "2.x",
     "start-server-webpack-plugin": "^2.2.5",
     "ts-loader": "^8.0.4",
+    "tsconfig-paths-webpack-plugin": "^3.3.0",
     "typescript": "^4.0.3",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",

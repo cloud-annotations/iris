@@ -1,124 +1,112 @@
-import React, { useState, useEffect, useCallback } from 'react'
-import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
-import { loadBuckets } from 'redux/buckets'
+import React, { useState, useEffect, useCallback } from "react";
 
-import Table from './TableV2'
-import CreateModal from './CreateModal'
-import DeleteModal from './DeleteModal'
-import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
-import COS from 'api/COSv2'
-import { defaultEndpoint } from 'endpoints'
+import DropDown, { ProfileDropDown } from "src/common/DropDown/DropDown";
+import { defaultEndpoint } from "src/endpoints";
+import history from "src/globalHistory";
+import { Link } from "react-router-dom";
 
-import history from 'globalHistory'
-import styles from './Buckets.module.css'
-import { setActiveResource } from 'redux/resources'
-import { setActiveAccount } from 'redux/accounts'
-import { useGoogleAnalytics } from 'googleAnalyticsHook'
+import COS from "src/api/COSv2";
+
+import styles from "./Buckets.module.css";
+import CreateModal from "./CreateModal";
+import DeleteModal from "./DeleteModal";
+import Table from "./TableV2";
 
 const accountNameForAccount = (account) => {
   if (account && account.softlayer) {
-    return `${account.softlayer} - ${account.name}`
+    return `${account.softlayer} - ${account.name}`;
   } else if (account) {
-    return account.name
+    return account.name;
   }
-}
+};
 
-const ConditionalTable = connect((state) => ({
-  resources: state.resources.resources,
-  loadingResources: state.resources.loading,
-  accounts: state.accounts.accounts,
-  loadingAccounts: state.accounts.loading,
-  buckets: state.buckets,
-}))(
-  ({
-    loadingAccounts,
-    accounts,
-    loadingResources,
-    resources,
-    buckets,
-    listOfLoadingBuckets,
-    handleDeleteBucket,
-    handleCreateBucket,
-    handleRowSelected,
-    loading,
-  }) => {
-    if (!loadingAccounts && accounts.length === 0) {
-      return (
-        <div className={styles.noObjectStorage}>
-          <div className={styles.noBucketsTitle} style={{ marginTop: '60px' }}>
-            Account not yet activated
-          </div>
-          <div className={styles.noBucketsSub}>
-            Your IBM Cloud account hasn't been activated yet. You can activate
-            your account by logging into{' '}
-            <a
-              className={styles.getStartedLink}
-              href="https://cloud.ibm.com?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              IBM Cloud
-            </a>
-            . Once activated, refresh this page.
-          </div>
+const ConditionalTable = ({
+  loadingAccounts,
+  accounts,
+  loadingResources,
+  resources,
+  buckets,
+  listOfLoadingBuckets,
+  handleDeleteBucket,
+  handleCreateBucket,
+  handleRowSelected,
+  loading,
+}) => {
+  if (!loadingAccounts && accounts.length === 0) {
+    return (
+      <div className={styles.noObjectStorage}>
+        <div className={styles.noBucketsTitle} style={{ marginTop: "60px" }}>
+          Account not yet activated
+        </div>
+        <div className={styles.noBucketsSub}>
+          Your IBM Cloud account hasn't been activated yet. You can activate
+          your account by logging into{" "}
           <a
+            className={styles.getStartedLink}
             href="https://cloud.ibm.com?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
             target="_blank"
             rel="noopener noreferrer"
-            className={styles.createBucket}
-            style={{ height: '48px', marginTop: '40px' }}
           >
-            <div className={styles.createBucketText}>Activate your account</div>
+            IBM Cloud
           </a>
+          . Once activated, refresh this page.
         </div>
-      )
-    }
+        <a
+          href="https://cloud.ibm.com?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.createBucket}
+          style={{ height: "48px", marginTop: "40px" }}
+        >
+          <div className={styles.createBucketText}>Activate your account</div>
+        </a>
+      </div>
+    );
+  }
 
-    if (!loadingResources && resources.length === 0) {
-      return (
-        <div className={styles.noObjectStorage}>
-          <div className={styles.noBucketsTitle} style={{ marginTop: '60px' }}>
-            No Object Storage instance
-          </div>
-          <div className={styles.noBucketsSub}>
-            We use object storage to save your annotations. You can create an
-            Object Storage instance for free on{' '}
-            <a
-              className={styles.getStartedLink}
-              href="https://cloud.ibm.com/catalog/services/cloud-object-storage?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              IBM Cloud
-            </a>
-            . Once created, refresh this page.
-          </div>
+  if (!loadingResources && resources.length === 0) {
+    return (
+      <div className={styles.noObjectStorage}>
+        <div className={styles.noBucketsTitle} style={{ marginTop: "60px" }}>
+          No Object Storage instance
+        </div>
+        <div className={styles.noBucketsSub}>
+          We use object storage to save your annotations. You can create an
+          Object Storage instance for free on{" "}
           <a
+            className={styles.getStartedLink}
             href="https://cloud.ibm.com/catalog/services/cloud-object-storage?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
             target="_blank"
             rel="noopener noreferrer"
-            className={styles.createBucket}
-            style={{ height: '48px', marginTop: '40px' }}
           >
-            <div className={styles.createBucketText}>Get started</div>
+            IBM Cloud
           </a>
+          . Once created, refresh this page.
         </div>
-      )
-    }
-
-    return (
-      <Table
-        buckets={buckets}
-        listOfLoadingBuckets={listOfLoadingBuckets}
-        onDeleteBucket={handleDeleteBucket}
-        onCreateBucket={handleCreateBucket}
-        onRowSelected={handleRowSelected}
-        loading={loading || loadingResources}
-      />
-    )
+        <a
+          href="https://cloud.ibm.com/catalog/services/cloud-object-storage?cm_mmc=OSocial_Blog-_-Developer_IBM+Developer-_-WW_WW-_-ibmdev-Github-NSB-cloud-annotations-sign-up&cm_mmca1=000037FD&cm_mmca2=10010797"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={styles.createBucket}
+          style={{ height: "48px", marginTop: "40px" }}
+        >
+          <div className={styles.createBucketText}>Get started</div>
+        </a>
+      </div>
+    );
   }
-)
+
+  return (
+    <Table
+      buckets={buckets}
+      listOfLoadingBuckets={listOfLoadingBuckets}
+      onDeleteBucket={handleDeleteBucket}
+      onCreateBucket={handleCreateBucket}
+      onRowSelected={handleRowSelected}
+      loading={loading || loadingResources}
+    />
+  );
+};
 
 const Buckets = ({
   profile,
@@ -127,138 +115,126 @@ const Buckets = ({
   activeResource,
   accounts,
   activeAccount,
-  dispatch,
   loadingResources,
 }) => {
-  const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
-  const [bucketToDelete, setBucketToDelete] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false);
+  const [bucketToDelete, setBucketToDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const [listOfLoadingBuckets, setListOfLoadingBuckets] = useState([])
+  const [listOfLoadingBuckets, setListOfLoadingBuckets] = useState([]);
 
-  const dispatchLoadBuckets = useCallback(
-    async (chosenInstance) => {
-      try {
-        // We only want to show the loading indicator when we first load the
-        // page. Don't `setLoading(true)`
-        dispatch(await loadBuckets(chosenInstance))
-        setLoading(false)
-      } catch (error) {
-        console.error(error)
-      }
-    },
-    [dispatch]
-  )
-
-  useGoogleAnalytics('buckets')
+  const dispatchLoadBuckets = useCallback(async (chosenInstance) => {
+    // try {
+    //   // We only want to show the loading indicator when we first load the
+    //   // page. Don't `setLoading(true)`
+    //   dispatch(await loadBuckets(chosenInstance));
+    //   setLoading(false);
+    // } catch (error) {
+    //   console.error(error);
+    // }
+  }, []);
 
   useEffect(() => {
     // Loading until activeResource is ready.
     if (!buckets) {
-      setLoading(true)
+      setLoading(true);
     }
-  }, [buckets])
+  }, [buckets]);
 
   useEffect(() => {
     if (activeResource) {
-      setLoading(true)
-      dispatchLoadBuckets(activeResource)
+      setLoading(true);
+      dispatchLoadBuckets(activeResource);
     }
-  }, [activeResource, dispatchLoadBuckets])
+  }, [activeResource, dispatchLoadBuckets]);
 
   const handleRowSelected = useCallback(
     (id) => {
-      const bucket = buckets.filter((bucket) => bucket.id === id)[0]
-      history.push(`/buckets/${bucket.name}?location=${bucket.location}`)
+      const bucket = buckets.filter((bucket) => bucket.id === id)[0];
+      history.push(`/buckets/${bucket.name}?location=${bucket.location}`);
     },
     [buckets]
-  )
+  );
 
   const handleCreateBucket = useCallback(() => {
-    setIsCreateBucketModalOpen(true)
-  }, [])
+    setIsCreateBucketModalOpen(true);
+  }, []);
 
   const handleCloseCreateModal = useCallback(() => {
-    setIsCreateBucketModalOpen(false)
-  }, [])
+    setIsCreateBucketModalOpen(false);
+  }, []);
 
   const handleSubmitCreateModal = useCallback(
     (bucketName) => {
-      dispatchLoadBuckets(activeResource)
-      setIsCreateBucketModalOpen(false)
-      history.push(`/buckets/${bucketName}?location=us`)
+      dispatchLoadBuckets(activeResource);
+      setIsCreateBucketModalOpen(false);
+      history.push(`/buckets/${bucketName}?location=us`);
     },
     [activeResource, dispatchLoadBuckets]
-  )
+  );
 
   const handleDeleteBucket = useCallback((bucketName) => {
-    setBucketToDelete(bucketName)
-  }, [])
+    setBucketToDelete(bucketName);
+  }, []);
 
   const handleCloseDeleteModal = useCallback(() => {
-    setBucketToDelete(false)
-  }, [])
+    setBucketToDelete(false);
+  }, []);
 
   const handleSubmitDeleteModal = useCallback(
     async (bucketName) => {
-      setBucketToDelete(false)
-      setListOfLoadingBuckets((list) => [...list, bucketName])
+      setBucketToDelete(false);
+      setListOfLoadingBuckets((list) => [...list, bucketName]);
       try {
-        const cos = new COS({ endpoint: defaultEndpoint })
+        const cos = new COS({ endpoint: defaultEndpoint });
 
         // Recursively delete 1000 objects at time.
         const deleteAllObjects = async () => {
-          const res = await cos.listObjectsV2({ Bucket: bucketName })
-          const { Contents = [] } = res.ListBucketResult
-          const contents = Array.isArray(Contents) ? Contents : [Contents]
-          const objects = contents.map((item) => ({ Key: item.Key }))
+          const res = await cos.listObjectsV2({ Bucket: bucketName });
+          const { Contents = [] } = res.ListBucketResult;
+          const contents = Array.isArray(Contents) ? Contents : [Contents];
+          const objects = contents.map((item) => ({ Key: item.Key }));
           if (objects.length > 0) {
             await cos.deleteObjects({
               Bucket: bucketName,
               Delete: {
                 Objects: objects,
               },
-            })
-            await deleteAllObjects()
+            });
+            await deleteAllObjects();
           }
-          return
-        }
+          return;
+        };
 
-        await deleteAllObjects()
+        await deleteAllObjects();
 
         await cos.deleteBucket({
           Bucket: bucketName,
-        })
+        });
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
-      await dispatchLoadBuckets(activeResource)
-      setListOfLoadingBuckets((list) => list.filter((b) => b !== bucketName))
+      await dispatchLoadBuckets(activeResource);
+      setListOfLoadingBuckets((list) => list.filter((b) => b !== bucketName));
     },
     [activeResource, dispatchLoadBuckets]
-  )
+  );
 
-  const handleAccountChosen = useCallback(
-    (item) => {
-      dispatch(setActiveAccount(item))
-    },
-    [dispatch]
-  )
+  const handleAccountChosen = useCallback((item) => {
+    // dispatch(setActiveAccount(item));
+  }, []);
 
-  const handleResourceChosen = useCallback(
-    (item) => {
-      dispatch(setActiveResource(item))
-    },
-    [dispatch]
-  )
+  const handleResourceChosen = useCallback((item) => {
+    // dispatch(setActiveResource(item));
+  }, []);
 
   const activeAccountObject = accounts.find(
     (account) => activeAccount === account.accountId
-  )
+  );
 
   const activeResourceObject = resources.find(
     (resource) => activeResource === resource.id
-  )
+  );
 
   return (
     <div className={styles.wrapper}>
@@ -324,6 +300,11 @@ const Buckets = ({
         instanceId={activeResource}
       />
       <ConditionalTable
+        loadingAccounts={true}
+        accounts={accounts}
+        loadingResources={loadingResources}
+        resources={resources}
+        buckets={buckets}
         listOfLoadingBuckets={listOfLoadingBuckets}
         handleDeleteBucket={handleDeleteBucket}
         handleCreateBucket={handleCreateBucket}
@@ -331,16 +312,7 @@ const Buckets = ({
         loading={loading}
       />
     </div>
-  )
-}
+  );
+};
 
-const mapStateToProps = (state) => ({
-  loadingResources: state.resources.loading,
-  resources: state.resources.resources,
-  activeResource: state.resources.activeResource,
-  accounts: state.accounts.accounts,
-  activeAccount: state.accounts.activeAccount,
-  buckets: state.buckets,
-  profile: state.profile,
-})
-export default connect(mapStateToProps)(Buckets)
+export default Buckets;

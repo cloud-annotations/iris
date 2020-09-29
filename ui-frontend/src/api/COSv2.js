@@ -1,43 +1,44 @@
-import { parseXML } from 'Utils'
-import MD5 from 'crypto-js/md5'
-import Base64 from 'crypto-js/enc-base64'
+import Base64 from "crypto-js/enc-base64";
+import MD5 from "crypto-js/md5";
+
+import { parseXML } from "src/Utils";
 
 const xmlAsJsonFetch = async (url, options) => {
-  const res = await fetch(url, options)
-  const textXML = await res.text()
-  const json = parseXML(textXML)
+  const res = await fetch(url, options);
+  const textXML = await res.text();
+  const json = parseXML(textXML);
 
   if (json.Error) {
-    const error = new Error()
-    error.message = json.Error.Message
-    error.name = json.Error.Code
-    throw error
+    const error = new Error();
+    error.message = json.Error.Message;
+    error.name = json.Error.Code;
+    throw error;
   }
 
-  return json
-}
+  return json;
+};
 
 const blobFetch = async (url, options, forceBinary) => {
-  const res = await fetch(url, options)
+  const res = await fetch(url, options);
 
   if (forceBinary) {
-    return res.blob()
+    return res.blob();
   }
 
-  if (url.endsWith('.json')) {
-    return res.json()
+  if (url.endsWith(".json")) {
+    return res.json();
   }
-  if (url.endsWith('.txt')) {
-    return res.text()
+  if (url.endsWith(".txt")) {
+    return res.text();
   }
-  return res.blob()
-}
+  return res.blob();
+};
 
 export default class COS {
   constructor({ endpoint, accessKeyId, secretAccessKey }) {
-    this.endpoint = endpoint
-    this.accessKeyId = accessKeyId
-    this.secretAccessKey = secretAccessKey
+    this.endpoint = endpoint;
+    this.accessKeyId = accessKeyId;
+    this.secretAccessKey = secretAccessKey;
   }
 
   /**
@@ -47,15 +48,15 @@ export default class COS {
    * @param {string} [IBMServiceInstanceId]
    */
   createBucket = async ({ Bucket, IBMServiceInstanceId }) => {
-    const url = `/api/proxy/${this.endpoint}/${Bucket}`
+    const url = `/api/proxy/${this.endpoint}/${Bucket}`;
     const options = {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'ibm-service-instance-id': IBMServiceInstanceId
-      }
-    }
-    return await xmlAsJsonFetch(url, options)
-  }
+        "ibm-service-instance-id": IBMServiceInstanceId,
+      },
+    };
+    return await xmlAsJsonFetch(url, options);
+  };
 
   /**
    * Deletes the bucket.
@@ -65,12 +66,12 @@ export default class COS {
    * @param {string} Bucket
    */
   deleteBucket = async ({ Bucket }) => {
-    const url = `/api/proxy/${this.endpoint}/${Bucket}`
+    const url = `/api/proxy/${this.endpoint}/${Bucket}`;
     const options = {
-      method: 'DELETE'
-    }
-    return await xmlAsJsonFetch(url, options)
-  }
+      method: "DELETE",
+    };
+    return await xmlAsJsonFetch(url, options);
+  };
 
   /**
    * If object versioning is not enabled, deletes an object.
@@ -82,12 +83,12 @@ export default class COS {
    * @param {string} Key
    */
   deleteObject = async ({ Bucket, Key }) => {
-    const url = `/api/proxy/${this.endpoint}/${Bucket}/${Key}`
+    const url = `/api/proxy/${this.endpoint}/${Bucket}/${Key}`;
     const options = {
-      method: 'DELETE'
-    }
-    return await xmlAsJsonFetch(url, options)
-  }
+      method: "DELETE",
+    };
+    return await xmlAsJsonFetch(url, options);
+  };
 
   /**
    * TODO
@@ -101,23 +102,23 @@ export default class COS {
    * @param {string} Delete.Objects[].Key Key name of the object to delete.
    */
   deleteObjects = async ({ Bucket, Delete }) => {
-    const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>'
+    const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>';
     const objectString = Delete.Objects.map(
-      object => `<Object><Key>${object.Key}</Key></Object>`
-    ).join('')
-    const deleteXml = `${xmlHeader}<Delete>${objectString}</Delete>`
-    const md5Hash = MD5(deleteXml).toString(Base64)
+      (object) => `<Object><Key>${object.Key}</Key></Object>`
+    ).join("");
+    const deleteXml = `${xmlHeader}<Delete>${objectString}</Delete>`;
+    const md5Hash = MD5(deleteXml).toString(Base64);
 
-    const url = `/api/proxy/${this.endpoint}/${Bucket}?delete=`
+    const url = `/api/proxy/${this.endpoint}/${Bucket}?delete=`;
     const options = {
-      method: 'POST',
+      method: "POST",
       body: deleteXml,
       headers: {
-        'Content-MD5': md5Hash
-      }
-    }
-    return await xmlAsJsonFetch(url, options)
-  }
+        "Content-MD5": md5Hash,
+      },
+    };
+    return await xmlAsJsonFetch(url, options);
+  };
 
   /**
    * Returns the region the bucket resides in.
@@ -125,12 +126,12 @@ export default class COS {
    * @param {string} Bucket
    */
   getBucketLocation = async ({ Bucket }) => {
-    const url = `/api/proxy/${this.endpoint}/${Bucket}?location`
+    const url = `/api/proxy/${this.endpoint}/${Bucket}?location`;
     const options = {
-      method: 'GET'
-    }
-    return await xmlAsJsonFetch(url, options)
-  }
+      method: "GET",
+    };
+    return await xmlAsJsonFetch(url, options);
+  };
 
   /**
    * Retrieves objects from IBM COS.
@@ -139,12 +140,12 @@ export default class COS {
    * @param {string} Key
    */
   getObject = async ({ Bucket, Key }, forceBinary) => {
-    const url = `/api/proxy/${this.endpoint}/${Bucket}/${Key}`
+    const url = `/api/proxy/${this.endpoint}/${Bucket}/${Key}`;
     const options = {
-      method: 'GET'
-    }
-    return await blobFetch(url, options, forceBinary)
-  }
+      method: "GET",
+    };
+    return await blobFetch(url, options, forceBinary);
+  };
 
   /**
    * Returns a list of all buckets owned by the authenticated sender of the
@@ -153,15 +154,15 @@ export default class COS {
    * @param {string} [IBMServiceInstanceId]
    */
   listBuckets = async ({ IBMServiceInstanceId }) => {
-    const url = `/api/proxy/${this.endpoint}`
+    const url = `/api/proxy/${this.endpoint}`;
     const options = {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'ibm-service-instance-id': IBMServiceInstanceId
-      }
-    }
-    return await xmlAsJsonFetch(url, options)
-  }
+        "ibm-service-instance-id": IBMServiceInstanceId,
+      },
+    };
+    return await xmlAsJsonFetch(url, options);
+  };
 
   /**
    * Returns a list of all buckets owned by the authenticated sender of the
@@ -171,15 +172,15 @@ export default class COS {
    * @param {string} [IBMServiceInstanceId]
    */
   listBucketsExtended = async ({ IBMServiceInstanceId }) => {
-    const url = `/api/proxy/${this.endpoint}?extended`
+    const url = `/api/proxy/${this.endpoint}?extended`;
     const options = {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'ibm-service-instance-id': IBMServiceInstanceId
-      }
-    }
-    return await xmlAsJsonFetch(url, options)
-  }
+        "ibm-service-instance-id": IBMServiceInstanceId,
+      },
+    };
+    return await xmlAsJsonFetch(url, options);
+  };
 
   /**
    * Returns some or all (up to 1000) of the objects in a bucket.
@@ -192,23 +193,23 @@ export default class COS {
    * ContinuationToken is obfuscated and is not a real key
    */
   listObjectsV2 = async ({ Bucket, Prefix, ContinuationToken }) => {
-    const params = { 'list-type': 2 }
+    const params = { "list-type": 2 };
     if (ContinuationToken) {
-      params['continuation-token'] = ContinuationToken
+      params["continuation-token"] = ContinuationToken;
     }
 
     if (Prefix) {
-      params['prefix'] = Prefix
+      params["prefix"] = Prefix;
     }
 
-    const search = new URLSearchParams(params)
-    const url = `/api/proxy/${this.endpoint}/${Bucket}?${search.toString()}`
+    const search = new URLSearchParams(params);
+    const url = `/api/proxy/${this.endpoint}/${Bucket}?${search.toString()}`;
 
     const options = {
-      method: 'GET'
-    }
-    return await xmlAsJsonFetch(url, options)
-  }
+      method: "GET",
+    };
+    return await xmlAsJsonFetch(url, options);
+  };
 
   /**
    * Adds an object to a bucket.
@@ -220,11 +221,11 @@ export default class COS {
    * data.
    */
   putObject = async ({ Bucket, Key, Body }) => {
-    const url = `/api/proxy/${this.endpoint}/${Bucket}/${Key}`
+    const url = `/api/proxy/${this.endpoint}/${Bucket}/${Key}`;
     const options = {
-      method: 'PUT',
-      body: Body
-    }
-    return await xmlAsJsonFetch(url, options)
-  }
+      method: "PUT",
+      body: Body,
+    };
+    return await xmlAsJsonFetch(url, options);
+  };
 }
