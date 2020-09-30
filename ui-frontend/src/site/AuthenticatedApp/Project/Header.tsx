@@ -49,7 +49,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Options = ({ menus }: Props) => {
+// function Menu() {
+//   return
+// }
+
+function Menus({ menus }: Props) {
   const optionsRef = useRef<HTMLDivElement>(null);
 
   const [optionsOpen, setOptionsOpen] = useState(false);
@@ -245,7 +249,7 @@ const Options = ({ menus }: Props) => {
       })}
     </div>
   );
-};
+}
 
 const menus: Menu[] = [
   {
@@ -311,7 +315,7 @@ function Header() {
       <div className={styles.headerWrapper}>
         <div className={styles.bucketName}>{project}</div>
         <div className={styles.options}>
-          <Options menus={menus} />
+          <Menus menus={menus} />
           <div className={styles.saved}>
             {saving > 0 ? "Saving..." : "Saved"}
           </div>

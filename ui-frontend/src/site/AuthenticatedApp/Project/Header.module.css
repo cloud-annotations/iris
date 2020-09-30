@@ -37,6 +37,7 @@
 
 .bucketName {
   font-size: 18px;
+  /* line-height: 18px; */
   color: var(--brightText);
   margin-top: 9px;
   padding: 2px 8px;

@@ -51,7 +51,9 @@ const theme = createMuiTheme({
       60: "#697077",
       70: "#4d5358",
       80: "#343a3f",
-      90: "#21272a",
+      90: "#1b1f21",
+      // 90: "#21272a",
+      // 100: "#1b1f21",
       100: "#121619",
     },
     blue: {
@@ -110,6 +112,13 @@ theme.palette.background = {
 };
 
 theme.overrides = {
+  MuiCssBaseline: {
+    "@global": {
+      body: {
+        lineHeight: 1,
+      },
+    },
+  },
   MuiButton: {
     root: {
       justifyContent: "space-between",
