@@ -8,7 +8,10 @@ import {
   activeBoxState,
   activeLabelState,
   boxesState,
+  hoverBoxState,
+  imageState,
   labelsState,
+  toolState,
 } from "../state";
 
 import { uniqueColor } from "./color-utils";
@@ -32,57 +35,57 @@ const iou = (boxA: any, boxB: any) => {
   return iou;
 };
 
-// const useIsControlPressed = (onCtrlChange) => {
-//   const [isPressed, setIsPressed] = useState(false);
-//   const handleKeyDown = useCallback(
-//     (e) => {
-//       if (document.activeElement.tagName.toLowerCase() === "input") {
-//         setIsPressed(false);
-//         onCtrlChange(false);
-//         return;
-//       }
+const useIsControlPressed = (onCtrlChange: Function) => {
+  const [isPressed, setIsPressed] = useState(false);
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (document.activeElement?.tagName.toLowerCase() === "input") {
+        setIsPressed(false);
+        onCtrlChange(false);
+        return;
+      }
 
-//       if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
-//         setIsPressed(true);
-//         onCtrlChange(true);
-//         return;
-//       }
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
+        setIsPressed(true);
+        onCtrlChange(true);
+        return;
+      }
 
-//       setIsPressed(false);
-//       onCtrlChange(false);
-//     },
-//     [onCtrlChange]
-//   );
+      setIsPressed(false);
+      onCtrlChange(false);
+    },
+    [onCtrlChange]
+  );
 
-//   const handleKeyUp = useCallback(
-//     (e) => {
-//       setIsPressed(false);
-//       onCtrlChange(false);
-//     },
-//     [onCtrlChange]
-//   );
+  const handleKeyUp = useCallback(
+    (e) => {
+      setIsPressed(false);
+      onCtrlChange(false);
+    },
+    [onCtrlChange]
+  );
 
-//   useEffect(() => {
-//     document.addEventListener("keydown", handleKeyDown);
-//     document.addEventListener("keyup", handleKeyUp);
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keyup", handleKeyUp);
 
-//     document.addEventListener("msvisibilitychange", handleKeyUp);
-//     document.addEventListener("webkitvisibilitychange", handleKeyUp);
-//     document.addEventListener("visibilitychange", handleKeyUp);
-//     window.addEventListener("blur", handleKeyUp);
-//     return () => {
-//       document.removeEventListener("keydown", handleKeyDown);
-//       document.removeEventListener("keyup", handleKeyUp);
+    document.addEventListener("msvisibilitychange", handleKeyUp);
+    document.addEventListener("webkitvisibilitychange", handleKeyUp);
+    document.addEventListener("visibilitychange", handleKeyUp);
+    window.addEventListener("blur", handleKeyUp);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keyup", handleKeyUp);
 
-//       document.removeEventListener("msvisibilitychange", handleKeyUp);
-//       document.removeEventListener("webkitvisibilitychange", handleKeyUp);
-//       document.removeEventListener("visibilitychange", handleKeyUp);
-//       window.removeEventListener("blur", handleKeyUp);
-//     };
-//   }, [handleKeyDown, handleKeyUp]);
+      document.removeEventListener("msvisibilitychange", handleKeyUp);
+      document.removeEventListener("webkitvisibilitychange", handleKeyUp);
+      document.removeEventListener("visibilitychange", handleKeyUp);
+      window.removeEventListener("blur", handleKeyUp);
+    };
+  }, [handleKeyDown, handleKeyUp]);
 
-//   return isPressed;
-// };
+  return isPressed;
+};
 
 // const useToggleLabel = (activeLabel, labels, setActiveLabel) => {
 //   const handleKeyDown = useCallback(
@@ -127,25 +130,18 @@ function partition<T>(array: T[], isValid: (item: T) => boolean) {
 }
 
 function DrawingPanel({
-  // activeBox,
-  // labels,
-  // activeLabel,
   headCount,
-  tool,
-  selectedImage,
   autoLabelActive,
-  image,
   predictions,
   activePrediction,
-  hoveredBox,
 }: any) {
+  const [tool, setActiveTool] = useRecoilState(toolState);
   const [activeBox, setActiveBox] = useRecoilState(activeBoxState);
+  const image = useRecoilValue(imageState);
+  const hoveredBox = useRecoilValue(hoverBoxState);
   const activeLabel = useRecoilValue(activeLabelState);
   const labels = useRecoilValue(labelsState);
   const boxes = useRecoilValue(boxesState);
-  // if (autoLabelActive) {
-  //   tool = AUTO_LABEL
-  // }
 
   //////////////////////////////////
   // const latestImage = useRef(image);
@@ -199,14 +195,14 @@ function DrawingPanel({
       box.y2 !== undefined
   );
 
-  // const handleControlChange = useCallback(
-  //   (isPressed) => {
-  //     setActiveTool(isPressed ? MOVE : BOX);
-  //   },
-  //   [setActiveTool]
-  // );
+  const handleControlChange = useCallback(
+    (isPressed) => {
+      setActiveTool(isPressed ? MOVE : BOX);
+    },
+    [setActiveTool]
+  );
 
-  // useIsControlPressed(handleControlChange);
+  useIsControlPressed(handleControlChange);
   // useToggleLabel(activeLabel, labels, setActiveLabel);
 
   const handleBoxStarted = useCallback(
@@ -313,7 +309,7 @@ function DrawingPanel({
           </div>
         )}
       </div>
-      {selectedImage ? (
+      {image ? (
         <CrossHair
           color={activeColor}
           active={tool === BOX}

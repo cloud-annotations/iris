@@ -1,74 +1,85 @@
-import React, { useEffect, useRef, useCallback } from 'react'
-import { connect } from 'react-redux'
-import HorizontalListController from 'common/HorizontalList/HorizontalListController'
-import { deleteLabel, syncAction } from 'redux/collection'
+import React, { useEffect, useRef, useCallback } from "react";
 
-import styles from './ImagesPanel.module.css'
+import HorizontalListController from "src/common/HorizontalList/HorizontalListController";
+import ImageTileV4 from "src/common/ImageTile/ImageTileV4";
 
-const blockSwipeBack = (element) => (e) => {
-  e.stopPropagation()
+import styles from "./ImagesPanel.module.css";
+
+const blockSwipeBack = (element: any) => (e: any) => {
+  e.stopPropagation();
   if (!element.contains(e.target)) {
-    return
+    return;
   }
 
-  e.preventDefault()
-  const max = element.scrollWidth - element.offsetWidth
+  e.preventDefault();
+  const max = element.scrollWidth - element.offsetWidth;
   const scrollPosition =
     Math.abs(e.deltaX) > Math.abs(e.deltaY)
       ? element.scrollLeft + e.deltaX
-      : element.scrollLeft + e.deltaY
-  element.scrollLeft = Math.max(0, Math.min(max, scrollPosition))
-}
+      : element.scrollLeft + e.deltaY;
+  element.scrollLeft = Math.max(0, Math.min(max, scrollPosition));
+};
 
-const useBlockSwipeBack = (ref) => {
+const useBlockSwipeBack = (ref: any) => {
   useEffect(() => {
-    const current = ref.current
-    document.addEventListener('mousewheel', blockSwipeBack(current), {
+    const current = ref.current;
+    document.addEventListener("mousewheel", blockSwipeBack(current), {
       passive: false,
-    })
+    });
     return () => {
-      document.removeEventListener('mousewheel', blockSwipeBack(current))
-    }
-  }, [ref])
-}
+      document.removeEventListener("mousewheel", blockSwipeBack(current));
+    };
+  }, [ref]);
+};
 
-const ImagesPanel = ({
-  images,
-  labels,
-  imageFilter,
-  handleImageFilterChange,
-  cells,
-  selectedIndex,
-  handleSelectionChanged,
-  syncAction,
-  range,
-  allImageCount,
-}) => {
-  const scrollElementRef = useRef(null)
-  useBlockSwipeBack(scrollElementRef)
+function ImagesPanel() {
+  const imageFilter: any = true;
+  const allImageCount = 0;
+  const images: string[] = ["", ""];
+  const labels: { [key: string]: string } = {
+    dog: (10).toLocaleString(),
+    cat: (20).toLocaleString(),
+  };
+  const cells = [
+    <ImageTileV4 url="https://www.aspca.org/sites/default/files/blog_make-dogs-day_101619_main.jpg" />,
+    <ImageTileV4 url="https://www.sciencemag.org/sites/default/files/styles/article_main_image_-_1280w__no_aspect_/public/dogs_1280p_0.jpg" />,
+  ];
+  const range: number[] = []; // [0, 3, 4];
+  const selectedIndex = 1;
+  const handleSelectionChanged = useCallback(
+    (label) => () => {
+      // handleImageFilterChange({ target: { value: label } });
+    },
+    []
+  );
+
+  //////////
+
+  const scrollElementRef = useRef(null);
+  useBlockSwipeBack(scrollElementRef);
 
   const handleDelete = useCallback(
-    (label) => (e) => {
-      e.stopPropagation()
-      const deleteTheLabel = window.confirm(
-        `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`
-      )
-      if (deleteTheLabel) {
-        syncAction(deleteLabel, [label])
-      }
+    (label) => (e: any) => {
+      e.stopPropagation();
+      // const deleteTheLabel = window.confirm(
+      //   `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`
+      // );
+      // if (deleteTheLabel) {
+      //   syncAction(deleteLabel, [label]);
+      // }
     },
-    [syncAction]
-  )
+    []
+  );
 
   const handleClickLabel = useCallback(
     (label) => () => {
-      handleImageFilterChange({ target: { value: label } })
+      // handleImageFilterChange({ target: { value: label } });
     },
-    [handleImageFilterChange]
-  )
+    []
+  );
 
   const actualLabelMode =
-    imageFilter !== true && imageFilter !== false && imageFilter !== undefined
+    imageFilter !== true && imageFilter !== false && imageFilter !== undefined;
 
   return (
     <div className={styles.wrapper}>
@@ -79,7 +90,7 @@ const ImagesPanel = ({
               {allImageCount.toLocaleString()}
             </div>
             <div
-              onClick={handleClickLabel('all')}
+              onClick={handleClickLabel("all")}
               className={styles.filterNotSelected}
             >
               All Images
@@ -92,7 +103,7 @@ const ImagesPanel = ({
             </div>
             <select
               className={styles.filter}
-              onChange={handleImageFilterChange}
+              // onChange={handleImageFilterChange}
             >
               <option value="all">All Images</option>
               <option value="labeled">Labeled</option>
@@ -135,10 +146,7 @@ const ImagesPanel = ({
         />
       </div>
     </div>
-  )
+  );
 }
 
-const mapDispatchToProps = {
-  syncAction,
-}
-export default connect(undefined, mapDispatchToProps)(ImagesPanel)
+export default ImagesPanel;

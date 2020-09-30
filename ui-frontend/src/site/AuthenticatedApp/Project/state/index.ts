@@ -1,5 +1,7 @@
-import { atom } from "recoil";
+import { atom, selector } from "recoil";
 
+const mockImage =
+  "https://www.sciencemag.org/sites/default/files/styles/article_main_image_-_1280w__no_aspect_/public/dogs_1280p_0.jpg?itok=6jQzdNB8";
 const mockLabels = ["cat", "dog"];
 const mockBoxes = [
   { id: "1", x: 0.53, y: 0.25, x2: 0.7, y2: 0.5, label: mockLabels[1] },
@@ -20,6 +22,11 @@ export const boxesState = atom<Box[]>({
   default: mockBoxes,
 });
 
+export const hoverBoxState = atom<Box | undefined>({
+  key: "hoverBoxState",
+  default: undefined,
+});
+
 export const activeBoxState = atom<Box | undefined>({
   key: "activeBoxState",
   default: undefined,
@@ -30,7 +37,26 @@ export const labelsState = atom<string[]>({
   default: mockLabels,
 });
 
-export const activeLabelState = atom<string>({
+export const activeLabelAtom = atom<string | undefined>({
+  key: "activeLabelAtom",
+  default: undefined,
+});
+
+export const activeLabelState = selector<string>({
   key: "activeLabelState",
-  default: mockLabels[0],
+  get: ({ get }) =>
+    get(activeLabelAtom) || get(labelsState)[0] || "Untitled Label",
+  set: ({ set }, newVal) => {
+    set(activeLabelAtom, newVal);
+  },
+});
+
+export const imageState = atom<string | undefined>({
+  key: "imageState",
+  default: mockImage,
+});
+
+export const toolState = atom<"box" | "move">({
+  key: "toolState",
+  default: "box",
 });

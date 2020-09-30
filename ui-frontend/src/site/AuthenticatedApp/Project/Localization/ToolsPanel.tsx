@@ -1,19 +1,19 @@
 import React, { useCallback } from "react";
+import { useRecoilState } from "recoil";
 
 import { MOVE, BOX } from "src/common/Canvas/Canvas";
+import { toolState } from "../state";
 
 import styles from "./ToolsPanel.module.css";
 
-interface ToolsPanelProps {
-  tool: "move" | "box";
-}
+function ToolsPanel() {
+  const [tool, setActiveTool] = useRecoilState(toolState);
 
-function ToolsPanel({ tool }: ToolsPanelProps) {
   const handleToolChosen = useCallback(
     (tool) => () => {
-      // setActiveTool(tool);
+      setActiveTool(tool);
     },
-    []
+    [setActiveTool]
   );
 
   return (

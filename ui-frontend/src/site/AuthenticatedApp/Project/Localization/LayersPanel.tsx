@@ -5,8 +5,14 @@ import { motion } from "framer-motion";
 import useOnClickOutside from "src/hooks/useOnClickOutside";
 
 import styles from "./LayersPanel.module.css";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { activeBoxState, boxesState, labelsState } from "../state";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import {
+  activeBoxState,
+  boxesState,
+  hoverBoxState,
+  imageState,
+  labelsState,
+} from "../state";
 
 const MAX_HEIGHT = 24;
 const MAX_WIDTH = 24;
@@ -79,7 +85,7 @@ interface ListItemProps {
   // setHoveredBox: Function;
   box: Box;
   labels: string[];
-  imageName: string;
+  imageID: string;
   image: string;
   imageDims: number[];
 }
@@ -88,11 +94,13 @@ function ListItem({
   // setHoveredBox,
   box,
   labels,
-  imageName,
+  imageID,
   image,
   imageDims,
 }: ListItemProps) {
+  const setHoveredBox = useSetRecoilState(hoverBoxState);
   const [labelOpen, setLabelOpen] = useState(false);
+
   const [labelEditingValue, setEditingLabelValue] = useState(undefined);
 
   const inputRef = useRef<HTMLInputElement>(null);
@@ -165,14 +173,14 @@ function ListItem({
 
   const handleBoxEnter = useCallback(
     (box) => () => {
-      // setHoveredBox(box);
+      setHoveredBox(box);
     },
-    []
+    [setHoveredBox]
   );
 
   const handleBoxLeave = useCallback(() => {
-    // setHoveredBox(undefined);
-  }, []);
+    setHoveredBox(undefined);
+  }, [setHoveredBox]);
 
   const {
     cropWidth,
@@ -246,21 +254,8 @@ function ListItem({
   );
 }
 
-interface PanelProps {
-  // boxes: Box[];
-  imageName: string;
-  image: string;
-  // activeBox: Box;
-  // labels: string[];
-}
-
-function LayersPanel({
-  // boxes,
-  imageName,
-  image,
-}: // activeBox,
-// labels,
-PanelProps) {
+function LayersPanel() {
+  const image = useRecoilValue(imageState) || "";
   const labels = useRecoilValue(labelsState);
   const activeBox = useRecoilValue(activeBoxState);
   const boxes = useRecoilValue(boxesState);
@@ -295,7 +290,7 @@ PanelProps) {
             box={box}
             labels={labels}
             image={image}
-            imageName={imageName}
+            imageID=""
             imageDims={imageDims}
           />
         </motion.div>
