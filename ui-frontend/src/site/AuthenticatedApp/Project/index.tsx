@@ -5,12 +5,15 @@ import { useParams } from "react-router-dom";
 
 import { useProject } from "src/state/appstatic/api";
 
+import Header from "./Header";
+import Layout from "./Layout";
+
 interface ProjectProps {
   project: Project;
 }
 
 function ProjectsView({ project }: ProjectProps) {
-  return <div>{project.name}</div>;
+  return <Layout header={<Header />} main={<div>{project.name}</div>} />;
 }
 
 function ProjectController() {
