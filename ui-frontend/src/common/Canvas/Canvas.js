@@ -1,78 +1,78 @@
-import React, { Component } from 'react'
-import Prediction from './Prediction'
-import Box2 from './Box2'
-import Move from './Move'
-import Nobs from './Nobs'
-import TouchTargets from './TouchTargets'
+import React, { Component } from "react";
+import Prediction from "./Prediction";
+import Box2 from "./Box2";
+import Move from "./Move";
+import Nobs from "./Nobs";
+import TouchTargets from "./TouchTargets";
 
-import styles from './Canvas.module.css'
-import { generateUUID } from 'Utils'
+import styles from "./Canvas.module.css";
+import { generateUUID } from "src/Utils";
 
-export const MOVE = 'move'
-export const BOX = 'box'
-export const AUTO_LABEL = 'auto'
+export const MOVE = "move";
+export const BOX = "box";
+export const AUTO_LABEL = "auto";
 
 export default class App extends Component {
   state = {
-    size: { imageWidth: 0, imageHeight: 0 }
-  }
+    size: { imageWidth: 0, imageHeight: 0 },
+  };
 
-  box = undefined
-  canvasRect = undefined
-  dragging = false
-  move = [0, 0]
+  box = undefined;
+  canvasRect = undefined;
+  dragging = false;
+  move = [0, 0];
 
-  canvasRef = React.createRef()
+  canvasRef = React.createRef();
 
   componentDidMount() {
-    window.addEventListener('resize', this.handleWindowResize)
-    document.addEventListener('mouseup', this.handleDragEnd)
-    document.addEventListener('mousemove', this.handleMouseMove)
-    document.addEventListener('touchend', this.handleDragEnd)
-    document.addEventListener('touchmove', this.handleMouseMove)
+    window.addEventListener("resize", this.handleWindowResize);
+    document.addEventListener("mouseup", this.handleDragEnd);
+    document.addEventListener("mousemove", this.handleMouseMove);
+    document.addEventListener("touchend", this.handleDragEnd);
+    document.addEventListener("touchmove", this.handleMouseMove);
   }
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.handleWindowResize)
-    document.removeEventListener('mouseup', this.handleDragEnd)
-    document.removeEventListener('mousemove', this.handleMouseMove)
-    document.removeEventListener('touchend', this.handleDragEnd)
-    document.removeEventListener('touchmove', this.handleMouseMove)
+    window.removeEventListener("resize", this.handleWindowResize);
+    document.removeEventListener("mouseup", this.handleDragEnd);
+    document.removeEventListener("mousemove", this.handleMouseMove);
+    document.removeEventListener("touchend", this.handleDragEnd);
+    document.removeEventListener("touchmove", this.handleMouseMove);
   }
 
-  handleCanvasDragStart = e => {
-    const { mode, activeLabel, onBoxStarted } = this.props
-    const { size } = this.state
+  handleCanvasDragStart = (e) => {
+    const { mode, activeLabel, onBoxStarted } = this.props;
+    const { size } = this.state;
 
     // Start drag if it was a left click.
     if (e.button && e.button !== 0) {
-      return
+      return;
     }
 
     if (mode !== BOX) {
-      return
+      return;
     }
 
     // If we are still dragging then they drew too small of a box. So we are
     // in double click mode.
     if (this.dragging) {
-      this.handleDragEnd()
-      return
+      this.handleDragEnd();
+      return;
     }
 
-    const { imageWidth, imageHeight } = size
+    const { imageWidth, imageHeight } = size;
 
     e = (() => {
       if (e.clientX && e.clientY) {
-        return e
+        return e;
       }
-      return e.touches[0]
-    })()
+      return e.touches[0];
+    })();
 
     // bug fix for mobile safari thinking there is a scroll.
-    this.canvasRect = this.canvasRef.current.getBoundingClientRect()
-    const mX = (e.clientX - this.canvasRect.left) / imageWidth
-    const mY = (e.clientY - this.canvasRect.top) / imageHeight
+    this.canvasRect = this.canvasRef.current.getBoundingClientRect();
+    const mX = (e.clientX - this.canvasRect.left) / imageWidth;
+    const mY = (e.clientY - this.canvasRect.top) / imageHeight;
 
     const box = {
       id: generateUUID(),
@@ -80,78 +80,78 @@ export default class App extends Component {
       y: Math.min(1, Math.max(0, mY)),
       x2: Math.min(1, Math.max(0, mX)),
       y2: Math.min(1, Math.max(0, mY)),
-      label: activeLabel
-    }
+      label: activeLabel,
+    };
 
-    onBoxStarted(box)
+    onBoxStarted(box);
 
-    this.dragging = true
-    this.move = [1, 1]
-    this.editingBoxId = undefined
-    this.box = box
-  }
+    this.dragging = true;
+    this.move = [1, 1];
+    this.editingBoxId = undefined;
+    this.box = box;
+  };
 
   handleMouseDown = (e, boxId, move) => {
-    const { bboxes, mode } = this.props
+    const { bboxes, mode } = this.props;
 
     // Start drag if it was a left click.
     if (e.button && e.button !== 0) {
-      return
+      return;
     }
 
     if (mode !== MOVE) {
-      return
+      return;
     }
 
     // bug fix for mobile safari thinking there is a scroll.
-    this.canvasRect = this.canvasRef.current.getBoundingClientRect()
+    this.canvasRect = this.canvasRef.current.getBoundingClientRect();
 
-    this.move = move
-    this.dragging = true
+    this.move = move;
+    this.dragging = true;
 
-    this.box = bboxes.find(b => b.id === boxId)
-  }
+    this.box = bboxes.find((b) => b.id === boxId);
+  };
 
-  handleMouseMove = e => {
-    const { onBoxChanged } = this.props
-    const { size } = this.state
+  handleMouseMove = (e) => {
+    const { onBoxChanged } = this.props;
+    const { size } = this.state;
 
     if (!this.dragging) {
-      return
+      return;
     }
 
-    const { x, y, x2, y2, ...rest } = this.box
-    const { imageWidth, imageHeight } = size
+    const { x, y, x2, y2, ...rest } = this.box;
+    const { imageWidth, imageHeight } = size;
 
     e = (() => {
       if (e.clientX && e.clientY) {
-        return e
+        return e;
       }
-      return e.touches[0]
-    })()
+      return e.touches[0];
+    })();
 
-    const mX = (e.clientX - this.canvasRect.left) / imageWidth
-    const mY = (e.clientY - this.canvasRect.top) / imageHeight
+    const mX = (e.clientX - this.canvasRect.left) / imageWidth;
+    const mY = (e.clientY - this.canvasRect.top) / imageHeight;
 
-    let newX
-    let newY
-    let newX2
-    let newY2
+    let newX;
+    let newY;
+    let newX2;
+    let newY2;
 
     if (this.move[0] === 0) {
-      newX = mX
-      newX2 = x2
+      newX = mX;
+      newX2 = x2;
     } else {
-      newX = x
-      newX2 = mX
+      newX = x;
+      newX2 = mX;
     }
 
     if (this.move[1] === 0) {
-      newY = mY
-      newY2 = y2
+      newY = mY;
+      newY2 = y2;
     } else {
-      newY = y
-      newY2 = mY
+      newY = y;
+      newY2 = mY;
     }
 
     const computedBox = {
@@ -159,28 +159,28 @@ export default class App extends Component {
       y: Math.min(1, Math.max(0, newY)),
       x2: Math.min(1, Math.max(0, newX2)),
       y2: Math.min(1, Math.max(0, newY2)),
-      ...rest
-    }
+      ...rest,
+    };
 
-    onBoxChanged(computedBox)
-  }
+    onBoxChanged(computedBox);
+  };
 
   handleDragEnd = () => {
-    const { bboxes, onBoxFinished } = this.props
-    const { imageWidth, imageHeight } = this.state.size
+    const { bboxes, onBoxFinished } = this.props;
+    const { imageWidth, imageHeight } = this.state.size;
 
     if (!this.dragging) {
-      return
+      return;
     }
 
-    const { x, y, x2, y2, ...rest } = bboxes.find(b => b.id === this.box.id)
+    const { x, y, x2, y2, ...rest } = bboxes.find((b) => b.id === this.box.id);
 
     // If the box is less than or equal to 1 pixel, there was probably no drag.
     if (
       Math.abs(imageWidth * (x - x2)) <= 1 &&
       Math.abs(imageHeight * (y - y2) <= 1)
     ) {
-      return
+      return;
     }
 
     onBoxFinished({
@@ -188,30 +188,30 @@ export default class App extends Component {
       y: Math.min(y, y2),
       x2: Math.max(x, x2),
       y2: Math.max(y, y2),
-      ...rest
-    })
+      ...rest,
+    });
 
-    this.dragging = false
-    this.box = undefined
-  }
+    this.dragging = false;
+    this.box = undefined;
+  };
 
   handleWindowResize = () => {
     this.setState({
       size: {
         imageWidth: this.canvasRef.current.clientWidth,
-        imageHeight: this.canvasRef.current.clientHeight
-      }
-    })
-  }
+        imageHeight: this.canvasRef.current.clientHeight,
+      },
+    });
+  };
 
-  handleOnImageLoad = e => {
+  handleOnImageLoad = (e) => {
     this.setState({
       size: {
         imageWidth: e.target.clientWidth,
-        imageHeight: e.target.clientHeight
-      }
-    })
-  }
+        imageHeight: e.target.clientHeight,
+      },
+    });
+  };
 
   render() {
     const {
@@ -222,9 +222,9 @@ export default class App extends Component {
       image,
       cmap,
       predictions,
-      activePrediction
-    } = this.props
-    const { size } = this.state
+      activePrediction,
+    } = this.props;
+    const { size } = this.state;
 
     return (
       <div
@@ -240,8 +240,8 @@ export default class App extends Component {
           src={image}
           onLoad={this.handleOnImageLoad}
           ref={this.canvasRef}
-          onDragStart={e => {
-            e.preventDefault()
+          onDragStart={(e) => {
+            e.preventDefault();
           }}
         />
 
@@ -250,10 +250,10 @@ export default class App extends Component {
           className={styles.blendMode}
           style={{
             width: size.imageWidth,
-            height: size.imageHeight
+            height: size.imageHeight,
           }}
         >
-          {bboxes.map(bbox => (
+          {bboxes.map((bbox) => (
             <div key={bbox.id}>
               {mode === MOVE && (
                 <>
@@ -285,11 +285,11 @@ export default class App extends Component {
           style={{
             width: size.imageWidth,
             height: size.imageHeight,
-            opacity: autoLabelActive ? '0.4' : '1.0'
+            opacity: autoLabelActive ? "0.4" : "1.0",
           }}
         >
           {mode === BOX &&
-            bboxes.map(bbox => (
+            bboxes.map((bbox) => (
               <Box2
                 key={bbox.id}
                 bbox={bbox}
@@ -304,12 +304,12 @@ export default class App extends Component {
         <div
           className={styles.normalMode}
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
             width: size.imageWidth,
-            height: size.imageHeight
+            height: size.imageHeight,
           }}
         >
           {predictions.map((prediction, i) => (
@@ -328,11 +328,11 @@ export default class App extends Component {
           className={styles.normalMode}
           style={{
             width: size.imageWidth,
-            height: size.imageHeight
+            height: size.imageHeight,
           }}
         >
           {mode === MOVE &&
-            bboxes.map(bbox => (
+            bboxes.map((bbox) => (
               <TouchTargets
                 key={bbox.id}
                 bbox={bbox}
@@ -342,6 +342,6 @@ export default class App extends Component {
             ))}
         </div>
       </div>
-    )
+    );
   }
 }

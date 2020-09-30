@@ -7,18 +7,14 @@ import { useProject } from "src/state/appstatic/api";
 
 import Header from "./Header";
 import Layout from "./Layout";
+import Main from "./Main";
 
 interface ProjectProps {
   project: Project;
 }
 
 function ProjectsView({ project }: ProjectProps) {
-  return (
-    <Layout
-      header={<Header project={project} />}
-      main={<div>{project.name}</div>}
-    />
-  );
+  return <Layout header={<Header project={project} />} main={<Main />} />;
 }
 
 function ProjectController() {
