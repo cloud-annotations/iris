@@ -13,7 +13,12 @@ interface ProjectProps {
 }
 
 function ProjectsView({ project }: ProjectProps) {
-  return <Layout header={<Header />} main={<div>{project.name}</div>} />;
+  return (
+    <Layout
+      header={<Header project={project} />}
+      main={<div>{project.name}</div>}
+    />
+  );
 }
 
 function ProjectController() {

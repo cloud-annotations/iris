@@ -1,6 +1,7 @@
 import React from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import { Project } from "cloud-annotations-types";
 import { Link } from "react-router-dom";
 
 import { ProfileDropDown } from "src/common/DropDown/DropDown";
@@ -113,10 +114,13 @@ const menus = [
   },
 ];
 
-const project = "thumbs-up-down-v2";
 const saving = 0;
 
-function Header() {
+interface ProjectProps {
+  project: Project;
+}
+
+function Header({ project }: ProjectProps) {
   const classes = useStyles();
 
   return (
@@ -127,7 +131,7 @@ function Header() {
         </svg>
       </Link>
       <div className={classes.project}>
-        <div className={classes.projectName}>{project}</div>
+        <div className={classes.projectName}>{project.name}</div>
         <div className={classes.menus}>
           <ToolbarMenus menus={menus} />
           <div className={classes.saveStatus}>
