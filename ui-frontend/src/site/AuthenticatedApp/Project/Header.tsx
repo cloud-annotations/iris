@@ -49,9 +49,121 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-// function Menu() {
-//   return
-// }
+interface TooltipBoyProps {
+  id: string;
+  item: MenuItem;
+  onMouseEnter: any;
+  open: boolean;
+}
+
+function TooltipBoy({ id, item, open, onMouseEnter }: TooltipBoyProps) {
+  return (
+    <div
+      id={id}
+      className={open ? styles.popwrapperOpen : styles.popwrapper}
+      onMouseEnter={onMouseEnter}
+    >
+      <div
+        className={item.disabled ? styles.disabled : styles.listItem}
+        onClick={item.action}
+      >
+        {item.name}
+        <svg
+          className={styles.chevronRightIcon}
+          focusable="false"
+          preserveAspectRatio="xMidYMid meet"
+          width="16"
+          height="16"
+          viewBox="0 0 32 32"
+          aria-hidden="true"
+        >
+          <polygon points="17 22 17 13 13 13 13 15 15 15 15 22 12 22 12 24 20 24 20 22 17 22" />
+          <path d="M16,7a1.5,1.5,0,1,0,1.5,1.5A1.5,1.5,0,0,0,16,7Z" />
+          <path d="M16,30A14,14,0,1,1,30,16,14,14,0,0,1,16,30ZM16,4A12,12,0,1,0,28,16,12,12,0,0,0,16,4Z" />
+        </svg>
+      </div>
+
+      <div className={open ? styles.popoutOpenTooltip : styles.popout}>
+        <div className={styles.tooltipper}>
+          <h6 className={styles.tooltipH6}>{item.tooltip?.title}</h6>
+          <p className={styles.tooltipP}>{item.tooltip?.description}</p>
+          <div className={styles.tooltipFooter}>
+            <a
+              href={item.tooltip?.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.tooltipLink}
+            >
+              Learn more
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SubSubBoy({ id, item, open, onMouseEnter }: TooltipBoyProps) {
+  if (item.items === undefined) {
+    return null;
+  }
+
+  return (
+    <div
+      id={id}
+      className={open ? styles.popwrapperOpen : styles.popwrapper}
+      onMouseEnter={onMouseEnter}
+    >
+      <div className={item.disabled ? styles.disabled : styles.listItem}>
+        {item.name}
+        <svg
+          className={styles.chevronRightIcon}
+          focusable="false"
+          preserveAspectRatio="xMidYMid meet"
+          width="16"
+          height="16"
+          viewBox="0 0 32 32"
+          aria-hidden="true"
+        >
+          <path d="M22 16L12 26l-1.4-1.4 8.6-8.6-8.6-8.6L12 6z"></path>
+        </svg>
+      </div>
+
+      <div className={open ? styles.popoutOpen : styles.popout}>
+        {item.items.map((subItem) => {
+          if (subItem.divider) {
+            return <div className={styles.listDivider} />;
+          }
+          return (
+            <div
+              className={subItem.disabled ? styles.disabled : styles.listItem}
+              onClick={subItem.action}
+            >
+              {subItem.name}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+interface SimpleBoyProps {
+  item: any;
+  onMouseEnter: any;
+}
+
+function SimpleBoy({ item, onMouseEnter }: SimpleBoyProps) {
+  return (
+    <div
+      className={item.disabled ? styles.disabled : styles.listItem}
+      onClick={item.action}
+      onMouseEnter={onMouseEnter}
+    >
+      {item.name}
+    </div>
+  );
+}
 
 function Menus({ menus }: Props) {
   const optionsRef = useRef<HTMLDivElement>(null);
@@ -107,140 +219,34 @@ function Menus({ menus }: Props) {
                 if (item.divider) {
                   return <div className={styles.listDivider} />;
                 }
+
+                const id = menu.name + "---" + item.name;
+                const open = optionsOpen && lastHoveredSubOption === id;
+
                 if (item.items) {
                   return (
-                    <div
-                      id={menu.name + "---" + item.name}
-                      className={
-                        optionsOpen &&
-                        lastHoveredSubOption === menu.name + "---" + item.name
-                          ? styles.popwrapperOpen
-                          : styles.popwrapper
-                      }
+                    <SubSubBoy
+                      id={id}
                       onMouseEnter={handleSubOptionHover}
-                    >
-                      <div
-                        className={
-                          item.disabled ? styles.disabled : styles.listItem
-                        }
-                      >
-                        {item.name}
-                        <svg
-                          className={styles.chevronRightIcon}
-                          focusable="false"
-                          preserveAspectRatio="xMidYMid meet"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 32 32"
-                          aria-hidden="true"
-                        >
-                          <path d="M22 16L12 26l-1.4-1.4 8.6-8.6-8.6-8.6L12 6z"></path>
-                        </svg>
-                      </div>
-
-                      <div
-                        className={
-                          optionsOpen &&
-                          lastHoveredSubOption === menu.name + "---" + item.name
-                            ? styles.popoutOpen
-                            : styles.popout
-                        }
-                      >
-                        {item.items.map((subItem) => {
-                          if (subItem.divider) {
-                            return <div className={styles.listDivider} />;
-                          }
-                          return (
-                            <div
-                              className={
-                                subItem.disabled
-                                  ? styles.disabled
-                                  : styles.listItem
-                              }
-                              onClick={subItem.action}
-                            >
-                              {subItem.name}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                      item={item}
+                      open={open}
+                    />
                   );
                 }
+
                 if (item.tooltip) {
                   return (
-                    <div
-                      id={menu.name + "---" + item.name}
-                      className={
-                        optionsOpen &&
-                        lastHoveredSubOption === menu.name + "---" + item.name
-                          ? styles.popwrapperOpen
-                          : styles.popwrapper
-                      }
+                    <TooltipBoy
+                      id={id}
                       onMouseEnter={handleSubOptionHover}
-                    >
-                      <div
-                        className={
-                          item.disabled ? styles.disabled : styles.listItem
-                        }
-                        onClick={item.action}
-                      >
-                        {item.name}
-                        <svg
-                          className={styles.chevronRightIcon}
-                          focusable="false"
-                          preserveAspectRatio="xMidYMid meet"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 32 32"
-                          aria-hidden="true"
-                        >
-                          <polygon points="17 22 17 13 13 13 13 15 15 15 15 22 12 22 12 24 20 24 20 22 17 22" />
-                          <path d="M16,7a1.5,1.5,0,1,0,1.5,1.5A1.5,1.5,0,0,0,16,7Z" />
-                          <path d="M16,30A14,14,0,1,1,30,16,14,14,0,0,1,16,30ZM16,4A12,12,0,1,0,28,16,12,12,0,0,0,16,4Z" />
-                        </svg>
-                      </div>
-
-                      <div
-                        className={
-                          optionsOpen &&
-                          lastHoveredSubOption === menu.name + "---" + item.name
-                            ? styles.popoutOpenTooltip
-                            : styles.popout
-                        }
-                      >
-                        <div className={styles.tooltipper}>
-                          <h6 className={styles.tooltipH6}>
-                            {item.tooltip.title}
-                          </h6>
-                          <p className={styles.tooltipP}>
-                            {item.tooltip.description}
-                          </p>
-                          <div className={styles.tooltipFooter}>
-                            <a
-                              href={item.tooltip.link}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={styles.tooltipLink}
-                            >
-                              Learn more
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                      item={item}
+                      open={open}
+                    />
                   );
                 }
+
                 return (
-                  <div
-                    className={
-                      item.disabled ? styles.disabled : styles.listItem
-                    }
-                    onClick={item.action}
-                    onMouseEnter={handleSubOptionHover}
-                  >
-                    {item.name}
-                  </div>
+                  <SimpleBoy item={item} onMouseEnter={handleSubOptionHover} />
                 );
               })}
             </div>
