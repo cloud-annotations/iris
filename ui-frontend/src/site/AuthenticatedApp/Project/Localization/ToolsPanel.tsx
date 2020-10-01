@@ -1,9 +1,10 @@
 import React, { useCallback } from "react";
+
 import { useRecoilState } from "recoil";
 
 import { MOVE, BOX } from "src/common/Canvas/Canvas";
-import { toolState } from "../state";
 
+import { toolState } from "../state";
 import styles from "./ToolsPanel.module.css";
 
 function ToolsPanel() {

@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
+
 import { useRecoilState, useRecoilValue } from "recoil";
 
 import useOnClickOutside from "src/hooks/useOnClickOutside";
-import { activeLabelState, labelsState } from "../state";
 
+import { activeLabelState, labelsState } from "../state";
 import styles from "./ToolOptionsPanel.module.css";
 
 function LabelDropDown() {

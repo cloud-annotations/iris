@@ -1,43 +1,43 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from "react";
 
-import styles from './ThumbnailThing.module.css'
-import fetchImage from 'api/fetchImage'
+import styles from "./ThumbnailThing.module.css";
+import fetchImage from "api/fetchImage";
 
-const MAX_HEIGHT = 80
+const MAX_HEIGHT = 80;
 // const MAX_WIDTH = 200
 
 const calculateCrop = (x1, x2, y1, y2, imageSize) => {
   // If the boxes are still being dragged, the values might not be in the right order.
-  const relativeXOffset = Math.min(x1, x2)
-  const relativeYOffset = Math.min(y1, y2)
-  const relativeBoxWidth = Math.abs(x2 - x1)
-  const relativeBoxHeight = Math.abs(y2 - y1)
+  const relativeXOffset = Math.min(x1, x2);
+  const relativeYOffset = Math.min(y1, y2);
+  const relativeBoxWidth = Math.abs(x2 - x1);
+  const relativeBoxHeight = Math.abs(y2 - y1);
 
-  const pixelBoxWidth = relativeBoxWidth * imageSize[0]
-  const pixelBoxHeight = relativeBoxHeight * imageSize[1]
-  const pixelXOffset = relativeXOffset * imageSize[0]
-  const pixelYOffset = relativeYOffset * imageSize[1]
+  const pixelBoxWidth = relativeBoxWidth * imageSize[0];
+  const pixelBoxHeight = relativeBoxHeight * imageSize[1];
+  const pixelXOffset = relativeXOffset * imageSize[0];
+  const pixelYOffset = relativeYOffset * imageSize[1];
 
   // To prevent division by zero.
-  const safeBoxWidth = Math.max(pixelBoxWidth, 1)
-  const safeBoxHeight = Math.max(pixelBoxHeight, 1)
+  const safeBoxWidth = Math.max(pixelBoxWidth, 1);
+  const safeBoxHeight = Math.max(pixelBoxHeight, 1);
 
-  let scale
-  let actualWidth
-  let actualHeight
+  let scale;
+  let actualWidth;
+  let actualHeight;
 
   // if (safeBoxWidth > safeBoxHeight) {
   //   scale = MAX_WIDTH / safeBoxWidth
   //   actualWidth = MAX_WIDTH
   //   actualHeight = safeBoxHeight * scale
   // } else {
-  scale = MAX_HEIGHT / safeBoxHeight
-  actualWidth = safeBoxWidth * scale
-  actualHeight = MAX_HEIGHT
+  scale = MAX_HEIGHT / safeBoxHeight;
+  actualWidth = safeBoxWidth * scale;
+  actualHeight = MAX_HEIGHT;
   // }
 
-  const xOffset = -scale * pixelXOffset
-  const yOffset = -scale * pixelYOffset
+  const xOffset = -scale * pixelXOffset;
+  const yOffset = -scale * pixelYOffset;
 
   return {
     cropWidth: actualWidth,
@@ -46,8 +46,8 @@ const calculateCrop = (x1, x2, y1, y2, imageSize) => {
     yOffset: yOffset,
     fullWidth: scale * imageSize[0],
     fullHeight: scale * imageSize[1],
-  }
-}
+  };
+};
 
 const ListItem = ({ box, image, imageDims }) => {
   const {
@@ -57,7 +57,7 @@ const ListItem = ({ box, image, imageDims }) => {
     yOffset,
     fullWidth,
     fullHeight,
-  } = calculateCrop(box.x, box.x2, box.y, box.y2, imageDims)
+  } = calculateCrop(box.x, box.x2, box.y, box.y2, imageDims);
 
   return (
     <div className={styles.thumbnailWrapper}>
@@ -71,11 +71,11 @@ const ListItem = ({ box, image, imageDims }) => {
         }}
       />
     </div>
-  )
-}
+  );
+};
 
 const EMPTY_IMAGE =
-  'data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+  "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
 
 // const useImage = (endpoint, bucket, image) => {
 //   const [imageData, setImageData] = useState(EMPTY_IMAGE)
@@ -120,41 +120,41 @@ const LayersPanel = ({
   endpoint,
   bucket,
 }) => {
-  const imageRef = useRef(null)
-  const [imageDims, setImageDims] = useState([0, 0])
-  const [imageData, setImage] = useState(EMPTY_IMAGE)
+  const imageRef = useRef(null);
+  const [imageDims, setImageDims] = useState([0, 0]);
+  const [imageData, setImage] = useState(EMPTY_IMAGE);
 
   // const imageData = useImage(endpoint, bucket, image)
   const handleObserver = useCallback(
     (entries, observer) => {
       entries.forEach(async (entry) => {
         if (entry.isIntersecting) {
-          observer.unobserve(entry.target)
-          const res = await fetchImage(endpoint, bucket, image, 160)
-          setImage(res.image)
-          const img = new Image()
+          observer.unobserve(entry.target);
+          const res = await fetchImage(endpoint, bucket, image, 160);
+          setImage(res.image);
+          const img = new Image();
           img.onload = () => {
-            setImageDims([img.width, img.height])
-          }
-          img.src = res.image
+            setImageDims([img.width, img.height]);
+          };
+          img.src = res.image;
         }
-      })
+      });
     },
     [bucket, endpoint, image]
-  )
+  );
 
   useEffect(() => {
     const observer = new IntersectionObserver(handleObserver, {
       root: null,
-      rootMargin: '0px',
+      rootMargin: "0px",
       threshold: 0.0,
-    })
-    const target = imageRef.current
-    observer.observe(target)
+    });
+    const target = imageRef.current;
+    observer.observe(target);
     return () => {
-      observer.unobserve(target)
-    }
-  }, [handleObserver])
+      observer.unobserve(target);
+    };
+  }, [handleObserver]);
 
   // useEffect(() => {
   //   const img = new Image()
@@ -191,7 +191,7 @@ const LayersPanel = ({
         </svg>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default LayersPanel
+export default LayersPanel;

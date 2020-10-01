@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+
 import { useRecoilState, useRecoilValue } from "recoil";
 
 import Canvas, { BOX, MOVE } from "src/common/Canvas/Canvas";
 import CrossHair from "src/common/CrossHair/CrossHair";
 import EmptySet from "src/common/EmptySet/EmptySet";
+
 import {
   activeBoxState,
   activeLabelState,
@@ -13,7 +15,6 @@ import {
   labelsState,
   toolState,
 } from "../state";
-
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
 

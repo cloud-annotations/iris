@@ -1,11 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { motion } from "framer-motion";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 
 import useOnClickOutside from "src/hooks/useOnClickOutside";
 
-import styles from "./LayersPanel.module.css";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import {
   activeBoxState,
   boxesState,
@@ -13,6 +12,7 @@ import {
   imageState,
   labelsState,
 } from "../state";
+import styles from "./LayersPanel.module.css";
 
 const MAX_HEIGHT = 24;
 const MAX_WIDTH = 24;
