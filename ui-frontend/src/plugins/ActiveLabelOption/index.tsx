@@ -3,11 +3,11 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useRecoilState, useRecoilValue } from "recoil";
 
 import useOnClickOutside from "src/hooks/useOnClickOutside";
+import { activeLabelState, labelsState } from "src/state/localization";
 
-import { activeLabelState, labelsState } from "../state";
 import styles from "./ToolOptionsPanel.module.css";
 
-function LabelDropDown() {
+function ActiveLabelOptionPlugin() {
   const [activeLabel, setActiveLabel] = useRecoilState(activeLabelState);
   const labels = useRecoilValue(labelsState);
   const [labelOpen, setLabelOpen] = useState(false);
@@ -124,14 +124,4 @@ function LabelDropDown() {
   );
 }
 
-function ToolOptionsPanel() {
-  return (
-    <div className={styles.wrapper}>
-      <div className={styles.divider} />
-      <LabelDropDown />
-      <div className={styles.divider} />
-    </div>
-  );
-}
-
-export default ToolOptionsPanel;
+export default ActiveLabelOptionPlugin;

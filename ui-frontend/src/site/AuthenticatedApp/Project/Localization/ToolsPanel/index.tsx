@@ -1,26 +1,19 @@
-import React, { useCallback } from "react";
+import React from "react";
 
 import { useRecoilState } from "recoil";
 
 import { MOVE, BOX } from "src/common/Canvas/Canvas";
+import { toolState } from "src/state/localization";
 
-import { toolState } from "../state";
 import styles from "./ToolsPanel.module.css";
 
 function ToolsPanel() {
   const [tool, setActiveTool] = useRecoilState(toolState);
 
-  const handleToolChosen = useCallback(
-    (tool) => () => {
-      setActiveTool(tool);
-    },
-    [setActiveTool]
-  );
-
   return (
     <div className={styles.wrapper}>
       <div
-        onClick={handleToolChosen(MOVE)}
+        onClick={() => setActiveTool(MOVE)}
         className={tool === MOVE ? styles.toolActive : styles.tool}
       >
         <svg className={styles.move} width="20" height="20" viewBox="0 0 40 40">
@@ -29,7 +22,7 @@ function ToolsPanel() {
       </div>
 
       <div
-        onClick={handleToolChosen(BOX)}
+        onClick={() => setActiveTool(BOX)}
         className={tool === BOX ? styles.toolActive : styles.tool}
       >
         <svg className={styles.box} width="20" height="20" viewBox="0 0 40 40">

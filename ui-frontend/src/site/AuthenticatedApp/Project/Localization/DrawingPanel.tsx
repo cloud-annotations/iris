@@ -14,7 +14,7 @@ import {
   imageState,
   labelsState,
   toolState,
-} from "../state";
+} from "src/state/localization";
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
 

@@ -11,7 +11,7 @@ import {
   hoverBoxState,
   imageState,
   labelsState,
-} from "../state";
+} from "src/state/localization";
 import styles from "./LayersPanel.module.css";
 
 const MAX_HEIGHT = 24;
