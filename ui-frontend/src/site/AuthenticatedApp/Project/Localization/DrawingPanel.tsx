@@ -140,8 +140,12 @@ function DrawingPanel({
   const [activeBox, setActiveBox] = useRecoilState(activeBoxState);
   const image = useRecoilValue(imageState);
   const hoveredBox = useRecoilValue(hoverBoxState);
-  const activeLabel = useSelector((state: any) => state.activeLabel);
-  const labels = useRecoilValue(labelsState);
+  const activeLabel = useSelector(
+    (state: any) => state.project.data.activeLabel
+  );
+  const labels = useSelector(
+    (state: any) => state.project.data.annotations.labels
+  );
   const boxes = useRecoilValue(boxesState);
 
   //////////////////////////////////
