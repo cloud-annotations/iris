@@ -107,9 +107,13 @@ function ActiveLabel() {
   const classes = useStyles();
 
   const dispatch = useDispatch();
-  const activeLabel = useSelector((state: any) => state.activeLabel);
+  const labels = useSelector(
+    (state: any) => state.project.data.annotations.labels
+  );
+  const activeLabel = useSelector(
+    (state: any) => state.project.data.activeLabel
+  );
 
-  let labels = ["bloop", "soup"];
   // const [activeLabel, setActiveLabel] = useRecoilState(activeLabelState);
   // const labels = useRecoilValue(labelsState);
   const [labelOpen, setLabelOpen] = useState(false);
@@ -159,7 +163,7 @@ function ActiveLabel() {
     (label) => (e: any) => {
       e.stopPropagation();
       dispatch({
-        type: "active-label/set",
+        type: "project/setActiveLabel",
         payload: label,
       });
       setEditingLabelValue(undefined);
