@@ -3,7 +3,7 @@ import React from "react";
 import { Project } from "cloud-annotations-types";
 import { Link } from "react-router-dom";
 
-import { useProjects } from "src/state/appstatic/api";
+import { useProjects } from "src/state/api";
 
 interface ProjectProps {
   projects: Project[];

@@ -1,23 +1,26 @@
 import React from "react";
+import { useRecoilValue } from "recoil";
+import { toolState } from "src/state/localization";
 
 import styles from "./ToolOptionsPanel.module.css";
 
-interface ToolOptionsPanelProps {
-  xxx: JSX.Element[];
-}
+function ToolOptionsPanel() {
+  const tool = useRecoilValue(toolState);
 
-function ToolOptionsPanel({ xxx }: ToolOptionsPanelProps) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.divider} />
-      {xxx.map((element) => {
-        return (
-          <React.Fragment>
-            {element}
-            <div className={styles.divider} />
-          </React.Fragment>
-        );
-      })}
+      {window.IRIS.tools
+        .get(tool)
+        .options.list()
+        .map((option: any) => {
+          return (
+            <React.Fragment>
+              {option.component}
+              <div className={styles.divider} />
+            </React.Fragment>
+          );
+        })}
     </div>
   );
 }

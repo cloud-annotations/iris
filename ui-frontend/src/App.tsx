@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from "react";
 
-import { useAuthentication } from "./state/appstatic/api";
+import { useAuthentication } from "./state/api";
 
 // This will result in `<link rel="prefetch" href="login-modal-chunk.js">` being
 // appended in the head of the page, which will instruct the browser to prefetch

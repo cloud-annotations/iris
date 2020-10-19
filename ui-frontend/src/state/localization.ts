@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom } from "recoil";
 
 const mockImage =
   "https://www.sciencemag.org/sites/default/files/styles/article_main_image_-_1280w__no_aspect_/public/dogs_1280p_0.jpg?itok=6jQzdNB8";
@@ -37,26 +37,26 @@ export const labelsState = atom<string[]>({
   default: mockLabels,
 });
 
-export const activeLabelAtom = atom<string | undefined>({
-  key: "activeLabelAtom",
-  default: undefined,
-});
+// export const activeLabelAtom = atom<string | undefined>({
+//   key: "activeLabelAtom",
+//   default: undefined,
+// });
 
-export const activeLabelState = selector<string>({
-  key: "activeLabelState",
-  get: ({ get }) =>
-    get(activeLabelAtom) || get(labelsState)[0] || "Untitled Label",
-  set: ({ set }, newVal) => {
-    set(activeLabelAtom, newVal);
-  },
-});
+// export const activeLabelState = selector<string>({
+//   key: "activeLabelState",
+//   get: ({ get }) =>
+//     get(activeLabelAtom) || get(labelsState)[0] || "Untitled Label",
+//   set: ({ set }, newVal) => {
+//     set(activeLabelAtom, newVal);
+//   },
+// });
 
 export const imageState = atom<string | undefined>({
   key: "imageState",
   default: mockImage,
 });
 
-export const toolState = atom<"box" | "move">({
+export const toolState = atom<string>({
   key: "toolState",
   default: "box",
 });

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
-import { Project } from "cloud-annotations-types";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { ProfileDropDown } from "src/common/DropDown/DropDown";
@@ -114,13 +114,12 @@ const menus = [
   },
 ];
 
-const saving = 0;
-
-interface ProjectProps {
-  project: Project;
+interface Props {
+  name: string;
+  saving: number;
 }
 
-function Header({ project }: ProjectProps) {
+function Header({ name, saving }: Props) {
   const classes = useStyles();
 
   return (
@@ -131,7 +130,7 @@ function Header({ project }: ProjectProps) {
         </svg>
       </Link>
       <div className={classes.project}>
-        <div className={classes.projectName}>{project.name}</div>
+        <div className={classes.projectName}>{name}</div>
         <div className={classes.menus}>
           <ToolbarMenus menus={menus} />
           <div className={classes.saveStatus}>
@@ -145,4 +144,10 @@ function Header({ project }: ProjectProps) {
   );
 }
 
-export default Header;
+function HeaderController() {
+  const name = useSelector((state: any) => state.project.data.name);
+  const saving = 0;
+  return <Header name={name} saving={saving} />;
+}
+
+export default HeaderController;

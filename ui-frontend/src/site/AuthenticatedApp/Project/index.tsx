@@ -1,28 +1,23 @@
 import React from "react";
 
-import { Project } from "cloud-annotations-types";
 import { useParams } from "react-router-dom";
 
-import { useProject } from "src/state/appstatic/api";
+import { useProject } from "src/state/project";
 
 import Header from "./Header";
 import Layout from "./Layout";
 import Main from "./Main";
 
-interface ProjectProps {
-  project: Project;
-}
-
-function ProjectsView({ project }: ProjectProps) {
-  return <Layout header={<Header project={project} />} main={<Main />} />;
+function ProjectsView() {
+  return <Layout header={<Header />} main={<Main />} />;
 }
 
 function ProjectController() {
   const { id } = useParams<{ id: string }>();
-  const { project, error } = useProject(id);
+  const { data, error } = useProject(id);
 
-  if (project !== undefined) {
-    return <ProjectsView project={project} />;
+  if (data !== undefined) {
+    return <ProjectsView />;
   }
 
   if (error === undefined) {

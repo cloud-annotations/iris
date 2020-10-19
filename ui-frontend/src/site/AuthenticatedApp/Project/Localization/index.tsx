@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-
-import settings from "src/plugins/settings";
+import React from "react";
 
 import AutoLabelPanel from "./AutoLabelPanel";
 import DrawingPanel from "./DrawingPanel";
@@ -11,25 +9,10 @@ import SplitLayout from "./SplitLayout";
 import ToolOptionsPanel from "./ToolsOptionsPanel";
 import ToolsPanel from "./ToolsPanel";
 
-const toolbar = Promise.all(
-  settings.toolbarOptions.map((option) => import(option))
-);
-
-function usePlugins(plugins: any) {
-  const [_plugins, _setPlugins] = useState([]);
-  useEffect(() => {
-    plugins.then((loadedPlugins: any) => {
-      _setPlugins(loadedPlugins);
-    });
-  }, [plugins]);
-  return _plugins;
-}
-
 function Localization() {
-  const toolbarOptions = usePlugins(toolbar);
   return (
     <Layout
-      top={<ToolOptionsPanel xxx={toolbarOptions} />}
+      top={<ToolOptionsPanel />}
       left={<ToolsPanel />}
       content={
         <DrawingPanel

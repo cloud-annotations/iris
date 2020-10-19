@@ -1,20 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
 
+import { useSelector } from "react-redux";
 import { useRecoilState, useRecoilValue } from "recoil";
 
 import Canvas, { BOX, MOVE } from "src/common/Canvas/Canvas";
 import CrossHair from "src/common/CrossHair/CrossHair";
 import EmptySet from "src/common/EmptySet/EmptySet";
-
 import {
   activeBoxState,
-  activeLabelState,
   boxesState,
   hoverBoxState,
   imageState,
   labelsState,
   toolState,
 } from "src/state/localization";
+
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
 
@@ -140,7 +140,7 @@ function DrawingPanel({
   const [activeBox, setActiveBox] = useRecoilState(activeBoxState);
   const image = useRecoilValue(imageState);
   const hoveredBox = useRecoilValue(hoverBoxState);
-  const activeLabel = useRecoilValue(activeLabelState);
+  const activeLabel = useSelector((state: any) => state.activeLabel);
   const labels = useRecoilValue(labelsState);
   const boxes = useRecoilValue(boxesState);
 
