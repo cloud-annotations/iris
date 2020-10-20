@@ -75,7 +75,7 @@ function ImagesPanel() {
   const handleSelectionChanged = useCallback(
     (selection, key) => {
       if (key.shiftKey) {
-        // later...
+        // TODO
       } else if (key.ctrlKey) {
         dispatch({
           type: "project/toggleSelectedImage",

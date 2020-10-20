@@ -144,7 +144,7 @@ function DrawingPanel({
   // const boxes = useRecoilValue(boxesState);
 
   const boxes = useSelector((state: RootState) => {
-    const image = state.project.ui?.activeImage;
+    const image = state.project.ui?.selectedImages[0];
     if (state.project.annotations && image) {
       return state.project.annotations[image];
     }
@@ -153,10 +153,11 @@ function DrawingPanel({
 
   const projectID = useSelector((state: RootState) => state.project.id);
   const activeImage = useSelector(
-    (state: RootState) => state.project.ui?.activeImage
+    (state: RootState) => state.project.ui?.selectedImages[0]
   );
   const activeLabel =
-    useSelector((state: RootState) => state.project.ui?.activeLabel) ?? "";
+    useSelector((state: RootState) => state.project.ui?.selectedImages[0]) ??
+    "";
   const labels = useSelector((state: RootState) => state.project.labels) ?? [];
 
   //////////////////////////////////
