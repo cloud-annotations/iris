@@ -1,5 +1,7 @@
 import React from "react";
+
 import { useRecoilValue } from "recoil";
+
 import { toolState } from "src/state/localization";
 
 import styles from "./ToolOptionsPanel.module.css";

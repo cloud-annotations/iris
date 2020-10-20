@@ -1,17 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { motion } from "framer-motion";
+import { useSelector } from "react-redux";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 
 import useOnClickOutside from "src/hooks/useOnClickOutside";
+import { activeBoxState, hoverBoxState } from "src/state/localization";
+import { RootState } from "src/store";
 
-import {
-  activeBoxState,
-  boxesState,
-  hoverBoxState,
-  imageState,
-  labelsState,
-} from "src/state/localization";
 import styles from "./LayersPanel.module.css";
 
 const MAX_HEIGHT = 24;
@@ -255,10 +251,22 @@ function ListItem({
 }
 
 function LayersPanel() {
-  const image = useRecoilValue(imageState) || "";
-  const labels = useRecoilValue(labelsState);
+  const projectID = useSelector((state: RootState) => state.project.id);
+  const activeImage = useSelector(
+    (state: RootState) => state.project.ui?.activeImage
+  );
+  const labels = useSelector((state: RootState) => state.project.labels) || [];
+
+  const boxes = useSelector((state: RootState) => {
+    const image = state.project.ui?.activeImage;
+    if (state.project.annotations && image) {
+      return state.project.annotations[image];
+    }
+    return [];
+  });
+
   const activeBox = useRecoilValue(activeBoxState);
-  const boxes = useRecoilValue(boxesState);
+  // const boxes = useRecoilValue(boxesState);
 
   const [imageDims, setImageDims] = useState([0, 0]);
 
@@ -274,8 +282,8 @@ function LayersPanel() {
     img.onload = () => {
       setImageDims([img.width, img.height]);
     };
-    img.src = image;
-  }, [image]);
+    img.src = `/api/projects/${projectID}/images/${activeImage}`;
+  }, [projectID, activeImage]);
 
   return (
     <div className={styles.wrapper}>
@@ -289,7 +297,7 @@ function LayersPanel() {
           <ListItem
             box={box}
             labels={labels}
-            image={image}
+            image={`/api/projects/${projectID}/images/${activeImage}`}
             imageID=""
             imageDims={imageDims}
           />
