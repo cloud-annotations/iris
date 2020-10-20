@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useCallback } from "react";
 
+import { useSelector } from "react-redux";
+
 import HorizontalListController from "src/common/HorizontalList/HorizontalListController";
 import ImageTileV4 from "src/common/ImageTile/ImageTileV4";
+import { RootState } from "src/store";
 
 import styles from "./ImagesPanel.module.css";
 
@@ -35,15 +38,19 @@ const useBlockSwipeBack = (ref: any) => {
 function ImagesPanel() {
   const imageFilter: any = true;
   const allImageCount = 0;
-  const images: string[] = ["", ""];
+
+  const projectID = useSelector((state: RootState) => state.project.id);
+  const images = useSelector((state: RootState) =>
+    Object.keys(state.project.annotations || {})
+  );
+
   const labels: { [key: string]: string } = {
     dog: (10).toLocaleString(),
     cat: (20).toLocaleString(),
   };
-  const cells = [
-    <ImageTileV4 url="https://www.aspca.org/sites/default/files/blog_make-dogs-day_101619_main.jpg" />,
-    <ImageTileV4 url="https://www.sciencemag.org/sites/default/files/styles/article_main_image_-_1280w__no_aspect_/public/dogs_1280p_0.jpg" />,
-  ];
+  const cells = images.map((i) => {
+    return <ImageTileV4 url={`/api/projects/${projectID}/images/${i}`} />;
+  });
   const range: number[] = []; // [0, 3, 4];
   const selectedIndex = 1;
   const handleSelectionChanged = useCallback(

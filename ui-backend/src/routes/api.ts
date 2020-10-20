@@ -11,9 +11,23 @@ router.get("/projects", async (_req, res) => {
   res.json(projects);
 });
 
-router.get("/projects/:id", async (req, res) => {
-  const project = await provider.getProject(req.params.id);
+router.get("/projects/:projectID", async (req, res) => {
+  const project = await provider.getProject(req.params.projectID);
   res.json(project);
+});
+
+router.get("/projects/:projectID/images/:imageID", async (req, res) => {
+  const { projectID, imageID } = req.params;
+  const s = await provider.getImage(projectID, imageID);
+  s.on("open", () => {
+    res.set("Content-Type", "image/jpeg");
+    s.pipe(res);
+  });
+  s.on("error", (e) => {
+    console.log(e);
+    res.set("Content-Type", "text/plain");
+    res.status(404).end("Not found");
+  });
 });
 
 export default router;

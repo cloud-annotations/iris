@@ -107,15 +107,9 @@ function ActiveLabel() {
   const classes = useStyles();
 
   const dispatch = useDispatch();
-  const labels = useSelector(
-    (state: any) => state.project.data.annotations.labels
-  );
-  const activeLabel = useSelector(
-    (state: any) => state.project.data.activeLabel
-  );
+  const labels = useSelector((state: any) => state.project.labels);
+  const activeLabel = useSelector((state: any) => state.project.ui.activeLabel);
 
-  // const [activeLabel, setActiveLabel] = useRecoilState(activeLabelState);
-  // const labels = useRecoilValue(labelsState);
   const [labelOpen, setLabelOpen] = useState(false);
   const [labelEditingValue, setEditingLabelValue] = useState(undefined);
 

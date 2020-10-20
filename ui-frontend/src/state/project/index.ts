@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import API from "src/util/api";
 import { fetcher } from "src/util/fetcher";
+import { RootState } from "src/store";
 
 const appstaticAPI = new API();
 
@@ -28,41 +29,87 @@ export function useProject(id: string) {
     dispatch(load(id));
   }, [dispatch, id]);
 
-  return useSelector((state: any) => state.project);
+  return useSelector((state: RootState) => state.project);
 }
 
-interface State {
+interface UI {
+  activeLabel: string;
+  activeImage: string;
+  highlightedBox?: string;
+}
+
+interface Annotation {
+  id: string;
+  label: string;
+  x: number;
+  x2: number;
+  y: number;
+  y2: number;
+}
+
+interface Annotations {
+  [key: string]: Annotation[];
+}
+
+interface ProjectState {
+  id?: string;
+  name?: string;
+  created?: string;
   loading: "idle" | "pending" | false;
   error?: any;
-  data?: any;
+  labels?: string[];
+  annotations?: Annotations;
+  ui?: UI;
 }
 
-const initialState: State = { loading: "idle" };
+const initialState: ProjectState = { loading: "idle" };
 
 const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
-    setActiveLabel(state, action) {
-      state.data.activeLabel = action.payload;
+    setActiveLabel(state, { payload }) {
+      if (state.ui !== undefined) {
+        state.ui.activeLabel = payload;
+      }
+    },
+    setActiveImage(state, { payload }) {
+      if (state.ui !== undefined) {
+        state.ui.activeImage = payload;
+      }
+    },
+    setHighlightedBox(state, { payload }) {
+      if (state.ui !== undefined) {
+        state.ui.highlightedBox = payload;
+      }
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(load.pending, (state) => {
-      state.loading = "pending";
-      state.error = undefined;
-      state.data = undefined;
+    builder.addCase(load.pending, (_state, _action) => {
+      return {
+        loading: "pending",
+      };
     });
-    builder.addCase(load.fulfilled, (state, { payload }) => {
-      state.loading = false;
-      state.error = undefined;
-      state.data = payload;
-      state.data.activeLabel = payload.annotations.labels[0];
+    builder.addCase(load.fulfilled, (_state, { payload }) => {
+      const firstImage = Object.keys(payload.annotations.annotations)[0];
+      return {
+        loading: false,
+        id: payload.id,
+        name: payload.name,
+        created: payload.created,
+        labels: payload.annotations.labels,
+        annotations: payload.annotations.annotations,
+        ui: {
+          activeLabel: payload.annotations.labels[0],
+          activeImage: firstImage,
+        },
+      };
     });
-    builder.addCase(load.rejected, (state, { payload }) => {
-      state.loading = false;
-      state.error = payload;
-      state.data = undefined;
+    builder.addCase(load.rejected, (_state, { payload }) => {
+      return {
+        loading: false,
+        error: payload,
+      };
     });
   },
 });

@@ -14,6 +14,7 @@ import {
   labelsState,
   toolState,
 } from "src/state/localization";
+import { RootState } from "src/store";
 
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
@@ -138,15 +139,17 @@ function DrawingPanel({
 }: any) {
   const [tool, setActiveTool] = useRecoilState(toolState);
   const [activeBox, setActiveBox] = useRecoilState(activeBoxState);
-  const image = useRecoilValue(imageState);
+  // const image = useRecoilValue(imageState);
   const hoveredBox = useRecoilValue(hoverBoxState);
-  const activeLabel = useSelector(
-    (state: any) => state.project.data.activeLabel
-  );
-  const labels = useSelector(
-    (state: any) => state.project.data.annotations.labels
-  );
   const boxes = useRecoilValue(boxesState);
+
+  const projectID = useSelector((state: RootState) => state.project.id);
+  const activeImage = useSelector(
+    (state: RootState) => state.project.ui?.activeImage
+  );
+  const activeLabel =
+    useSelector((state: RootState) => state.project.ui?.activeLabel) ?? "";
+  const labels = useSelector((state: RootState) => state.project.labels) ?? [];
 
   //////////////////////////////////
   // const latestImage = useRef(image);
@@ -314,7 +317,7 @@ function DrawingPanel({
           </div>
         )}
       </div>
-      {image ? (
+      {activeImage ? (
         <CrossHair
           color={activeColor}
           active={tool === BOX}
@@ -326,7 +329,7 @@ function DrawingPanel({
                 activeLabel={activeLabel}
                 cmap={cmap}
                 bboxes={mergedBoxes}
-                image={image}
+                image={`/api/projects/${projectID}/images/${activeImage}`}
                 hovered={hoveredBox}
                 onBoxStarted={handleBoxStarted}
                 onBoxChanged={handleBoxChanged}

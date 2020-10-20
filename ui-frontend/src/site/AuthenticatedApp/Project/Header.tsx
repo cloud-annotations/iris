@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { ProfileDropDown } from "src/common/DropDown/DropDown";
 
 import ToolbarMenus from "./ToolbarMenus";
+import { RootState } from "src/store";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -145,9 +146,9 @@ function Header({ name, saving }: Props) {
 }
 
 function HeaderController() {
-  const name = useSelector((state: any) => state.project.data.name);
+  const name = useSelector((state: RootState) => state.project.name);
   const saving = 0;
-  return <Header name={name} saving={saving} />;
+  return <Header name={name ?? ""} saving={saving} />;
 }
 
 export default HeaderController;
