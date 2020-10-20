@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 
+import { RootState } from "src/store";
 import API from "src/util/api";
 import { fetcher } from "src/util/fetcher";
-import { RootState } from "src/store";
 
 const appstaticAPI = new API();
 
@@ -33,9 +33,10 @@ export function useProject(id: string) {
 }
 
 interface UI {
-  activeLabel: string;
-  activeImage: string;
+  selectedLabel: string;
+  selectedImages: string[];
   highlightedBox?: string;
+  intermediateBox?: string;
 }
 
 interface Annotation {
@@ -70,12 +71,24 @@ const projectSlice = createSlice({
   reducers: {
     setActiveLabel(state, { payload }) {
       if (state.ui !== undefined) {
-        state.ui.activeLabel = payload;
+        state.ui.selectedLabel = payload;
       }
     },
-    setActiveImage(state, { payload }) {
+    setSelectedImages(state, { payload }) {
       if (state.ui !== undefined) {
-        state.ui.activeImage = payload;
+        state.ui.selectedImages = [payload];
+      }
+    },
+    toggleSelectedImage(state, { payload }) {
+      if (state.ui !== undefined) {
+        const rangeHasImage = state.ui.selectedImages.includes(payload);
+
+        // Add or remove the new image.
+        const newRange = rangeHasImage
+          ? state.ui.selectedImages.filter((i) => i !== payload)
+          : [payload, ...state.ui.selectedImages];
+
+        state.ui.selectedImages = newRange;
       }
     },
     setHighlightedBox(state, { payload }) {
@@ -100,8 +113,8 @@ const projectSlice = createSlice({
         labels: payload.annotations.labels,
         annotations: payload.annotations.annotations,
         ui: {
-          activeLabel: payload.annotations.labels[0],
-          activeImage: firstImage,
+          selectedLabel: payload.annotations.labels[0],
+          selectedImages: [firstImage],
         },
       };
     });

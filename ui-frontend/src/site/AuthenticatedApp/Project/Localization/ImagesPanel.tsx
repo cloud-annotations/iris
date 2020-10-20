@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 import HorizontalListController from "src/common/HorizontalList/HorizontalListController";
 import ImageTileV4 from "src/common/ImageTile/ImageTileV4";
@@ -39,10 +39,30 @@ function ImagesPanel() {
   const imageFilter: any = true;
   const allImageCount = 0;
 
+  const dispatch = useDispatch();
+
   const projectID = useSelector((state: RootState) => state.project.id);
   const images = useSelector((state: RootState) =>
     Object.keys(state.project.annotations || {})
   );
+
+  const range = useSelector((state: RootState) => {
+    const images = Object.keys(state.project.annotations || {});
+    const selection = state.project.ui?.selectedImages;
+    if (selection) {
+      return selection.map((s) => images.indexOf(s));
+    }
+    return [];
+  });
+
+  const selectedIndex = useSelector((state: RootState) => {
+    const images = Object.keys(state.project.annotations || {});
+    const selection = state.project.ui?.selectedImages;
+    if (selection) {
+      return images.indexOf(selection[0]);
+    }
+    return 0;
+  });
 
   const labels: { [key: string]: string } = {
     dog: (10).toLocaleString(),
@@ -51,13 +71,24 @@ function ImagesPanel() {
   const cells = images.map((i) => {
     return <ImageTileV4 url={`/api/projects/${projectID}/images/${i}`} />;
   });
-  const range: number[] = []; // [0, 3, 4];
-  const selectedIndex = 1;
+
   const handleSelectionChanged = useCallback(
-    (label) => () => {
-      // handleImageFilterChange({ target: { value: label } });
+    (selection, key) => {
+      if (key.shiftKey) {
+        // later...
+      } else if (key.ctrlKey) {
+        dispatch({
+          type: "project/toggleSelectedImage",
+          payload: images[selection],
+        });
+      } else {
+        dispatch({
+          type: "project/setSelectedImages",
+          payload: images[selection],
+        });
+      }
     },
-    []
+    [dispatch, images]
   );
 
   //////////
