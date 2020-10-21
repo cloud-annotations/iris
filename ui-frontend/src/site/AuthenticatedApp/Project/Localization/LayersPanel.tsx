@@ -253,12 +253,12 @@ function ListItem({
 function LayersPanel() {
   const projectID = useSelector((state: RootState) => state.project.id);
   const activeImage = useSelector(
-    (state: RootState) => state.project.ui?.activeImage
+    (state: RootState) => state.project.ui?.selectedImages[0]
   );
   const labels = useSelector((state: RootState) => state.project.labels) || [];
 
   const boxes = useSelector((state: RootState) => {
-    const image = state.project.ui?.activeImage;
+    const image = state.project.ui?.selectedImages[0];
     if (state.project.annotations && image) {
       return state.project.annotations[image];
     }

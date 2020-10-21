@@ -1,7 +1,7 @@
 import React from "react";
+
 import ActiveLabel from "./ActiveLabel";
 import Counter from "./Counter";
-// import ActiveLabel from "./ActiveLabel";
 
 const moveStyle = {
   fill: "white",

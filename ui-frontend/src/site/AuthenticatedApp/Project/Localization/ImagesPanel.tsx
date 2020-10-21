@@ -83,7 +83,7 @@ function ImagesPanel() {
         });
       } else {
         dispatch({
-          type: "project/setSelectedImages",
+          type: "project/selectImages",
           payload: images[selection],
         });
       }

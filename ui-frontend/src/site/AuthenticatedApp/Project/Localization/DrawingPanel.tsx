@@ -156,8 +156,7 @@ function DrawingPanel({
     (state: RootState) => state.project.ui?.selectedImages[0]
   );
   const activeLabel =
-    useSelector((state: RootState) => state.project.ui?.selectedImages[0]) ??
-    "";
+    useSelector((state: RootState) => state.project.ui?.selectedLabel) ?? "";
   const labels = useSelector((state: RootState) => state.project.labels) ?? [];
 
   //////////////////////////////////

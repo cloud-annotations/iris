@@ -69,12 +69,12 @@ const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
-    setActiveLabel(state, { payload }) {
+    selectLabel(state, { payload }) {
       if (state.ui !== undefined) {
         state.ui.selectedLabel = payload;
       }
     },
-    setSelectedImages(state, { payload }) {
+    selectImages(state, { payload }) {
       if (state.ui !== undefined) {
         state.ui.selectedImages = [payload];
       }
@@ -91,7 +91,7 @@ const projectSlice = createSlice({
         state.ui.selectedImages = newRange;
       }
     },
-    setHighlightedBox(state, { payload }) {
+    highlightBox(state, { payload }) {
       if (state.ui !== undefined) {
         state.ui.highlightedBox = payload;
       }
