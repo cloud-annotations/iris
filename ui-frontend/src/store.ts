@@ -1,4 +1,4 @@
-import { configureStore } from "@reduxjs/toolkit";
+import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
 
 import project from "./state/project";
 
@@ -8,5 +8,7 @@ const store = configureStore({
 });
 
 export type RootState = ReturnType<typeof store.getState>;
+
+export type AppThunk = ThunkAction<void, RootState, null, Action<string>>;
 
 export default store;

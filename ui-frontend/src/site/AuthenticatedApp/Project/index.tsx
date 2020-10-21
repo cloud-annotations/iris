@@ -14,17 +14,17 @@ function ProjectsView() {
 
 function ProjectController() {
   const { id } = useParams<{ id: string }>();
-  const { loading, error } = useProject(id);
+  const { status } = useProject(id);
 
-  if (loading) {
-    return <div>LOADING...</div>;
+  switch (status) {
+    case "idle":
+    case "pending":
+      return <div>LOADING...</div>;
+    case "success":
+      return <ProjectsView />;
+    default:
+      return <div>ERROR</div>;
   }
-
-  if (error !== undefined) {
-    return <div>ERROR</div>;
-  }
-
-  return <ProjectsView />;
 }
 
 export default ProjectController;

@@ -3,11 +3,25 @@ import { useEffect } from "react";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 
-import { RootState } from "src/store";
+import { AppThunk, RootState } from "src/store";
 import API from "src/util/api";
 import { fetcher } from "src/util/fetcher";
 
 const appstaticAPI = new API();
+
+export const sync = (action: any): AppThunk => async (dispatch, getState) => {
+  dispatch({ type: "project/incrementSaving" });
+  dispatch(action);
+  try {
+    const state = getState();
+    console.log(state);
+    // TODO: persist state;
+    // TODO: emit socket message;
+    dispatch({ type: "project/decrementSaving" });
+  } catch (err) {
+    dispatch({ type: "project/decrementSaving" });
+  }
+};
 
 const load = createAsyncThunk(
   "project/load",
@@ -53,22 +67,35 @@ interface Annotations {
 }
 
 interface ProjectState {
+  status: "idle" | "pending" | "success" | "error";
+  saving: number;
   id?: string;
   name?: string;
   created?: string;
-  loading: "idle" | "pending" | false;
   error?: any;
   labels?: string[];
   annotations?: Annotations;
   ui?: UI;
 }
 
-const initialState: ProjectState = { loading: "idle" };
+const initialState: ProjectState = { saving: 0, status: "idle" };
 
 const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
+    // addLabel
+    // deleteLabel
+    // addImage
+    // deleteImage
+    // addAnnotationToImage
+    // deleteAnnotationFromImage
+    incrementSaving(state) {
+      state.saving += 1;
+    },
+    decrementSaving(state) {
+      state.saving -= 1;
+    },
     selectLabel(state, { payload }) {
       if (state.ui !== undefined) {
         state.ui.selectedLabel = payload;
@@ -100,13 +127,15 @@ const projectSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(load.pending, (_state, _action) => {
       return {
-        loading: "pending",
+        status: "pending",
+        saving: 0,
       };
     });
     builder.addCase(load.fulfilled, (_state, { payload }) => {
       const firstImage = Object.keys(payload.annotations.annotations)[0];
       return {
-        loading: false,
+        status: "success",
+        saving: 0,
         id: payload.id,
         name: payload.name,
         created: payload.created,
@@ -120,7 +149,8 @@ const projectSlice = createSlice({
     });
     builder.addCase(load.rejected, (_state, { payload }) => {
       return {
-        loading: false,
+        status: "error",
+        saving: 0,
         error: payload,
       };
     });
