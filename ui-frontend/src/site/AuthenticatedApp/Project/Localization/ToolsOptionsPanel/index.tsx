@@ -1,13 +1,14 @@
 import React from "react";
 
-import { useRecoilValue } from "recoil";
+import { useSelector } from "react-redux";
 
-import { toolState } from "src/state/localization";
+import { RootState } from "src/store";
 
 import styles from "./ToolOptionsPanel.module.css";
 
 function ToolOptionsPanel() {
-  const tool = useRecoilValue(toolState);
+  const tool =
+    useSelector((state: RootState) => state.project.ui?.selectedTool) ?? "";
 
   return (
     <div className={styles.wrapper}>
@@ -15,7 +16,7 @@ function ToolOptionsPanel() {
       {window.IRIS.tools
         .get(tool)
         .options.list()
-        .map((option: any) => {
+        .map((option) => {
           return (
             <React.Fragment>
               {option.component}

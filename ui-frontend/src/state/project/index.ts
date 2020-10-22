@@ -47,7 +47,8 @@ export function useProject(id: string) {
 }
 
 interface UI {
-  selectedLabel: string;
+  selectedTool: string;
+  selectedCategory: string;
   selectedImages: string[];
   highlightedBox?: string;
   intermediateBox?: string;
@@ -94,12 +95,12 @@ const projectSlice = createSlice({
     },
     deleteCategory(state, { payload }) {
       // find and remove category
-      if (state.categories) {
+      if (state.categories !== undefined) {
         const labelIndex = state.categories.findIndex((c) => c === payload);
         state.categories.splice(labelIndex, 1);
       }
 
-      if (state.annotations) {
+      if (state.annotations !== undefined) {
         // NOTE: What if someone deletes a category right as we label something
         // as the deleted category?
         // it should work out as long as we make sure to recreate the category
@@ -152,7 +153,7 @@ const projectSlice = createSlice({
       }
     },
     deleteAnnotations(state, { payload }) {
-      if (state.annotations) {
+      if (state.annotations !== undefined) {
         for (const image of payload.images) {
           const annotationIndex = state.annotations[image].findIndex((a) => {
             return a.id === payload.annotation.id;
@@ -172,9 +173,14 @@ const projectSlice = createSlice({
     decrementSaving(state) {
       state.saving -= 1;
     },
-    selectLabel(state, { payload }) {
+    selectTool(state, { payload }) {
       if (state.ui !== undefined) {
-        state.ui.selectedLabel = payload;
+        state.ui.selectedTool = payload;
+      }
+    },
+    selectCategory(state, { payload }) {
+      if (state.ui !== undefined) {
+        state.ui.selectedCategory = payload;
       }
     },
     selectImages(state, { payload }) {
@@ -218,7 +224,8 @@ const projectSlice = createSlice({
         categories: payload.annotations.labels,
         annotations: payload.annotations.annotations,
         ui: {
-          selectedLabel: payload.annotations.labels[0],
+          selectedTool: "rect",
+          selectedCategory: payload.annotations.labels[0],
           selectedImages: [firstImage],
         },
       };

@@ -27,7 +27,7 @@ const BoxToolPlugin = {
     });
 
     iris.tools.register({
-      id: "box2",
+      id: "box",
       priority: 0,
       icon: (
         <svg style={boxStyle} width="20" height="20" viewBox="0 0 40 40">
@@ -37,7 +37,7 @@ const BoxToolPlugin = {
     });
 
     const boxTool = iris.tools.register({
-      id: "box",
+      id: "rect",
       icon: (
         <svg style={boxStyle} width="20" height="20" viewBox="0 0 40 40">
           <rect x="4" y="8" width="32" height="24" />

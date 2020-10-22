@@ -1,20 +1,24 @@
 import React from "react";
 
-import { useRecoilState } from "recoil";
+import { useDispatch, useSelector } from "react-redux";
 
-import { toolState } from "src/state/localization";
+import { RootState } from "src/store";
 
 import styles from "./ToolsPanel.module.css";
 
 function ToolsPanel() {
-  const [tool, setActiveTool] = useRecoilState(toolState);
+  const dispatch = useDispatch();
+  const tool =
+    useSelector((state: RootState) => state.project.ui?.selectedTool) ?? "";
 
   return (
     <div className={styles.wrapper}>
       {window.IRIS.tools.list().map((t) => {
         return (
           <div
-            onClick={() => setActiveTool(t.id)}
+            onClick={() =>
+              dispatch({ type: "project/selectTool", payload: t.id })
+            }
             className={tool === t.id ? styles.toolActive : styles.tool}
           >
             {t.icon}

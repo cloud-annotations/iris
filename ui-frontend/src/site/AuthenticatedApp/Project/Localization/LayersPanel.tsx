@@ -255,7 +255,8 @@ function LayersPanel() {
   const activeImage = useSelector(
     (state: RootState) => state.project.ui?.selectedImages[0]
   );
-  const labels = useSelector((state: RootState) => state.project.labels) || [];
+  const labels =
+    useSelector((state: RootState) => state.project.categories) ?? [];
 
   const boxes = useSelector((state: RootState) => {
     const image = state.project.ui?.selectedImages[0];

@@ -107,9 +107,9 @@ function ActiveLabel() {
   const classes = useStyles();
 
   const dispatch = useDispatch();
-  const labels = useSelector((state: any) => state.project.labels);
+  const labels = useSelector((state: any) => state.project.categories);
   const activeLabel = useSelector(
-    (state: any) => state.project.ui.selectedLabel
+    (state: any) => state.project.ui.selectedCategory
   );
 
   const [labelOpen, setLabelOpen] = useState(false);
@@ -159,7 +159,7 @@ function ActiveLabel() {
     (label) => (e: any) => {
       e.stopPropagation();
       dispatch({
-        type: "project/selectLabel",
+        type: "project/selectCategory",
         payload: label,
       });
       setEditingLabelValue(undefined);
