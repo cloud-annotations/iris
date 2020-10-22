@@ -73,7 +73,7 @@ interface ProjectState {
   name?: string;
   created?: string;
   error?: any;
-  labels?: string[];
+  categories?: string[];
   annotations?: Annotations;
   ui?: UI;
 }
@@ -84,12 +84,88 @@ const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
-    // addLabel
-    // deleteLabel
-    // addImage
-    // deleteImage
-    // addAnnotationToImage
-    // deleteAnnotationFromImage
+    addCategory(state, { payload }) {
+      if (state.categories === undefined) {
+        state.categories = [];
+      }
+      if (!state.categories.includes(payload)) {
+        state.categories.push(payload);
+      }
+    },
+    deleteCategory(state, { payload }) {
+      // find and remove category
+      if (state.categories) {
+        const labelIndex = state.categories.findIndex((c) => c === payload);
+        state.categories.splice(labelIndex, 1);
+      }
+
+      if (state.annotations) {
+        // NOTE: What if someone deletes a category right as we label something
+        // as the deleted category?
+        // it should work out as long as we make sure to recreate the category
+        // when creating the annotation.
+        for (const [key, val] of Object.entries(state.annotations)) {
+          // Remove annotations without annotations.
+          state.annotations[key] = val.filter((a) => a.label !== payload);
+          // Remove images without annotations.
+          if (state.annotations[key].length === 0) {
+            delete state.annotations[key];
+          }
+        }
+      }
+    },
+    addImages(state, { payload }) {
+      // TODO
+      // const imageNames = payload.map((image) => image.name);
+      // state.images = [...new Set([...imageNames, ...state.images])];
+    },
+    deleteImages(state, { payload }) {
+      // TODO
+      // images.forEach((image) => {
+      //   state.images.splice(
+      //     state.images.findIndex((i) => i === image),
+      //     1
+      //   );
+      //   // TODO: This could possibly cause an undefined error if someone deletes
+      //   // an image when someone else adds a box to the image. We should check
+      //   // if the image exists in `createBox` and `deleteBox`
+      //   delete draft.annotations[image];
+      // });
+    },
+    addAnnotations(state, { payload }) {
+      if (state.annotations === undefined) {
+        state.annotations = {};
+      }
+      // add annotation to images
+      for (const image of payload.images) {
+        if (state.annotations[image] === undefined) {
+          state.annotations[image] = [];
+        }
+        state.annotations[image].unshift(payload.annotation);
+      }
+      if (state.categories === undefined) {
+        state.categories = [];
+      }
+      // create categories if it doesn't exist for some reason
+      if (!state.categories.includes(payload.annotation.label)) {
+        state.categories.push(payload.annotation.label);
+      }
+    },
+    deleteAnnotations(state, { payload }) {
+      if (state.annotations) {
+        for (const image of payload.images) {
+          const annotationIndex = state.annotations[image].findIndex((a) => {
+            return a.id === payload.annotation.id;
+          });
+          state.annotations[image].splice(annotationIndex, 1);
+
+          // remove image if it doesn't have any annotations
+          if (state.annotations[image].length === 0) {
+            delete state.annotations[image];
+          }
+        }
+      }
+    },
     incrementSaving(state) {
       state.saving += 1;
     },
@@ -139,7 +215,7 @@ const projectSlice = createSlice({
         id: payload.id,
         name: payload.name,
         created: payload.created,
-        labels: payload.annotations.labels,
+        categories: payload.annotations.labels,
         annotations: payload.annotations.annotations,
         ui: {
           selectedLabel: payload.annotations.labels[0],
