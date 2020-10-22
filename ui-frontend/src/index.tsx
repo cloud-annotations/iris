@@ -5,7 +5,6 @@ import { ThemeProvider } from "@material-ui/core/styles";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
-import { RecoilRoot } from "recoil";
 import { SWRConfig } from "swr";
 
 import App from "./App";
@@ -30,9 +29,7 @@ function initReactApp() {
         <Router>
           <Provider store={store}>
             <SWRConfig value={swrOptions}>
-              <RecoilRoot>
-                <App />
-              </RecoilRoot>
+              <App />
             </SWRConfig>
           </Provider>
         </Router>

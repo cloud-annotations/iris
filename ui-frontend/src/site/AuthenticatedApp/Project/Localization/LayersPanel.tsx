@@ -2,10 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { useRecoilValue } from "recoil";
 
 import useOnClickOutside from "src/hooks/useOnClickOutside";
-import { activeBoxState } from "src/state/localization";
+import { Annotation } from "src/state/project";
 import { RootState } from "src/store";
 
 import styles from "./LayersPanel.module.css";
@@ -260,23 +259,20 @@ function LayersPanel() {
 
   const boxes = useSelector((state: RootState) => {
     const image = state.project.ui?.selectedImages[0];
+    const intermediateBox = state.project.ui?.intermediateBox;
+    let boxes: Annotation[] = [];
     if (state.project.annotations && image) {
-      return state.project.annotations[image];
+      boxes = [...state.project.annotations[image]];
     }
-    return [];
+    if (intermediateBox) {
+      boxes = boxes.filter((box) => box.id !== intermediateBox.id);
+      boxes = [intermediateBox, ...boxes];
+    }
+
+    return boxes;
   });
 
-  const activeBox = useRecoilValue(activeBoxState);
-  // const boxes = useRecoilValue(boxesState);
-
   const [imageDims, setImageDims] = useState([0, 0]);
-
-  let mergedBoxes = [...boxes];
-
-  if (activeBox) {
-    mergedBoxes = mergedBoxes.filter((box) => box.id !== activeBox.id);
-    mergedBoxes.unshift(activeBox);
-  }
 
   useEffect(() => {
     const img = new Image();
@@ -288,7 +284,7 @@ function LayersPanel() {
 
   return (
     <div className={styles.wrapper}>
-      {mergedBoxes.map((box) => (
+      {boxes.map((box) => (
         <motion.div
           key={box.id}
           positionTransition={transition}

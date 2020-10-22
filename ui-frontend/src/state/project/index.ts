@@ -51,10 +51,10 @@ interface UI {
   selectedCategory: string;
   selectedImages: string[];
   highlightedBox?: string;
-  intermediateBox?: string;
+  intermediateBox?: Annotation;
 }
 
-interface Annotation {
+export interface Annotation {
   id: string;
   label: string;
   x: number;
@@ -203,6 +203,11 @@ const projectSlice = createSlice({
     highlightBox(state, { payload }) {
       if (state.ui !== undefined) {
         state.ui.highlightedBox = payload;
+      }
+    },
+    setIntermediateBox(state, { payload }) {
+      if (state.ui !== undefined) {
+        state.ui.intermediateBox = payload;
       }
     },
   },

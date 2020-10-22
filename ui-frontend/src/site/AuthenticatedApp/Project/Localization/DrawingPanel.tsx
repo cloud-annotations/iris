@@ -1,19 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
-import { useRecoilState, useRecoilValue } from "recoil";
 
 import Canvas, { BOX, MOVE } from "src/common/Canvas/Canvas";
 import CrossHair from "src/common/CrossHair/CrossHair";
 import EmptySet from "src/common/EmptySet/EmptySet";
-import {
-  activeBoxState,
-  boxesState,
-  hoverBoxState,
-  imageState,
-  labelsState,
-  toolState,
-} from "src/state/localization";
 import { RootState } from "src/store";
 
 import { uniqueColor } from "./color-utils";
@@ -140,12 +131,13 @@ function DrawingPanel({
   const dispatch = useDispatch();
   const selectedTool =
     useSelector((state: RootState) => state.project.ui?.selectedTool) ?? "";
-  // const [tool, setActiveTool] = useRecoilState(toolState);
-  const [activeBox, setActiveBox] = useRecoilState(activeBoxState);
-  // const image = useRecoilValue(imageState);
+
+  const intermediateBox = useSelector(
+    (state: RootState) => state.project.ui?.intermediateBox
+  );
+
   const highlightedBox =
     useSelector((state: RootState) => state.project.ui?.highlightedBox) ?? "";
-  // const boxes = useRecoilValue(boxesState);
 
   const boxes = useSelector((state: RootState) => {
     const image = state.project.ui?.selectedImages[0];
@@ -228,16 +220,22 @@ function DrawingPanel({
 
   const handleBoxStarted = useCallback(
     (box) => {
-      setActiveBox(box);
+      dispatch({
+        type: "project/setIntermediateBox",
+        payload: box,
+      });
     },
-    [setActiveBox]
+    [dispatch]
   );
 
   const handleBoxChanged = useCallback(
     (box) => {
-      setActiveBox(box);
+      dispatch({
+        type: "project/setIntermediateBox",
+        payload: box,
+      });
     },
-    [setActiveBox]
+    [dispatch]
   );
 
   const handleBoxFinished = useCallback(
@@ -255,9 +253,12 @@ function DrawingPanel({
       // } else {
       //   syncAction(createBox, [selectedImage, box]);
       // }
-      setActiveBox(undefined);
+      dispatch({
+        type: "project/setIntermediateBox",
+        payload: undefined,
+      });
     },
-    [setActiveBox]
+    [dispatch]
   );
 
   const handleDeleteLabel = useCallback(
@@ -269,9 +270,9 @@ function DrawingPanel({
 
   // Remove the currently drawn box from the list of boxes
   let mergedBoxes = [...bboxes];
-  if (activeBox) {
-    mergedBoxes = mergedBoxes.filter((box) => box.id !== activeBox.id);
-    mergedBoxes.unshift(activeBox);
+  if (intermediateBox) {
+    mergedBoxes = mergedBoxes.filter((box) => box.id !== intermediateBox.id);
+    mergedBoxes.unshift(intermediateBox);
   }
 
   const cmap = labels.reduce((acc: any, label: string, i: number) => {
