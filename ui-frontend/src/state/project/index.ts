@@ -134,6 +134,7 @@ const projectSlice = createSlice({
       // });
     },
     addAnnotations(state, { payload }) {
+      console.log("ADD ANNOTATON", payload);
       if (state.annotations === undefined) {
         state.annotations = {};
       }

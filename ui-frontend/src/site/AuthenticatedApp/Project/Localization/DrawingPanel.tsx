@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import Canvas, { BOX, MOVE } from "src/common/Canvas/Canvas";
 import CrossHair from "src/common/CrossHair/CrossHair";
 import EmptySet from "src/common/EmptySet/EmptySet";
+import { sync } from "src/state/project";
 import { RootState } from "src/store";
 
 import { uniqueColor } from "./color-utils";
@@ -80,38 +81,42 @@ const useIsControlPressed = (onCtrlChange: Function) => {
   return isPressed;
 };
 
-// const useToggleLabel = (activeLabel, labels, setActiveLabel) => {
-//   const handleKeyDown = useCallback(
-//     (e) => {
-//       if (document.activeElement.tagName.toLowerCase() === "input") {
-//         return;
-//       }
+const useToggleLabel = (
+  activeLabel: string,
+  labels: string[],
+  setActiveLabel: (label: string) => void
+) => {
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (document.activeElement?.tagName.toLowerCase() === "input") {
+        return;
+      }
 
-//       const char = e.key.toLowerCase();
-//       if (char === "q") {
-//         setActiveLabel(
-//           labels[(labels.indexOf(activeLabel) + 1) % labels.length]
-//         );
-//       }
-//       let labelIndex = parseInt(char) - 1;
-//       // Treat 0 as 10 because it comes after 9 on the keyboard.
-//       if (labelIndex < 0) {
-//         labelIndex = 9;
-//       }
-//       if (labelIndex < labels.length) {
-//         setActiveLabel(labels[labelIndex]);
-//       }
-//     },
-//     [activeLabel, labels, setActiveLabel]
-//   );
+      const char = e.key.toLowerCase();
+      if (char === "q") {
+        setActiveLabel(
+          labels[(labels.indexOf(activeLabel) + 1) % labels.length]
+        );
+      }
+      let labelIndex = parseInt(char) - 1;
+      // Treat 0 as 10 because it comes after 9 on the keyboard.
+      if (labelIndex < 0) {
+        labelIndex = 9;
+      }
+      if (labelIndex < labels.length) {
+        setActiveLabel(labels[labelIndex]);
+      }
+    },
+    [activeLabel, labels, setActiveLabel]
+  );
 
-//   useEffect(() => {
-//     document.addEventListener("keydown", handleKeyDown);
-//     return () => {
-//       document.removeEventListener("keydown", handleKeyDown);
-//     };
-//   }, [handleKeyDown]);
-// };
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [handleKeyDown]);
+};
 
 function partition<T>(array: T[], isValid: (item: T) => boolean) {
   return array.reduce(
@@ -216,7 +221,9 @@ function DrawingPanel({
   );
 
   useIsControlPressed(handleControlChange);
-  // useToggleLabel(activeLabel, labels, setActiveLabel);
+  useToggleLabel(activeLabel, labels, (label) =>
+    dispatch({ type: "project/selectCategory", payload: label })
+  );
 
   const handleBoxStarted = useCallback(
     (box) => {
@@ -239,33 +246,42 @@ function DrawingPanel({
   );
 
   const handleBoxFinished = useCallback(
-    (box) => {
-      // // If the active label doesn't exit, create it. We shouldn't have to trim
-      // // it, because it shouldn't be anything other than `Untitled Label`.
-      // if (!labels.includes(box.label)) {
-      //   syncAction(createLabel, [box.label]);
-      //   setActiveLabel(box.label);
-      // }
-      // const boxToUpdate = bboxes.find((b) => b.id === box.id);
-      // if (boxToUpdate) {
-      //   syncAction(deleteBox, [selectedImage, boxToUpdate]);
-      //   syncAction(createBox, [selectedImage, box]);
-      // } else {
-      //   syncAction(createBox, [selectedImage, box]);
-      // }
+    (annotation) => {
+      const boxToUpdate = bboxes.find((b) => b.id === annotation.id);
+      if (boxToUpdate) {
+        dispatch(
+          sync({
+            type: "project/deleteAnnotations",
+            payload: { images: [activeImage], annotation: boxToUpdate },
+          })
+        );
+      }
+
+      dispatch(
+        sync({
+          type: "project/addAnnotations",
+          payload: { images: [activeImage], annotation: annotation },
+        })
+      );
+
       dispatch({
         type: "project/setIntermediateBox",
         payload: undefined,
       });
     },
-    [dispatch]
+    [dispatch, bboxes, activeImage]
   );
 
   const handleDeleteLabel = useCallback(
-    (label) => () => {
-      // syncAction(deleteBox, [selectedImage, { label: label }]);
+    (annotation) => () => {
+      dispatch(
+        sync({
+          type: "project/deleteAnnotation",
+          payload: annotation,
+        })
+      );
     },
-    []
+    [dispatch]
   );
 
   // Remove the currently drawn box from the list of boxes
@@ -281,8 +297,6 @@ function DrawingPanel({
   }, {});
 
   const activeColor = cmap[activeLabel] || "white";
-
-  // const activeTool = isControlPressed ? MOVE : tool
 
   const maxBubbles = 3;
   const othersCount = Math.max(headCount - 1, 0);
@@ -301,7 +315,7 @@ function DrawingPanel({
                 width="12px"
                 viewBox="2 2 36 36"
                 className={styles.deleteIcon}
-                onClick={handleDeleteLabel(box.label)}
+                onClick={handleDeleteLabel(box)}
               >
                 <g>
                   <path d="m31.6 10.7l-9.3 9.3 9.3 9.3-2.3 2.3-9.3-9.3-9.3 9.3-2.3-2.3 9.3-9.3-9.3-9.3 2.3-2.3 9.3 9.3 9.3-9.3z" />

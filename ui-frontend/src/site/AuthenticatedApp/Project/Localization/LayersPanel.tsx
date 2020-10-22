@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
 import useOnClickOutside from "src/hooks/useOnClickOutside";
-import { Annotation } from "src/state/project";
+import { Annotation, sync } from "src/state/project";
 import { RootState } from "src/store";
 
 import styles from "./LayersPanel.module.css";
@@ -105,8 +105,13 @@ function ListItem({
   }, []);
 
   const handleDelete = useCallback(() => {
-    // syncAction(deleteBox, [imageName, box]);
-  }, []);
+    sync(
+      dispatch({
+        type: "project/deleteAnnotations",
+        payload: { images: [imageID], annotation: box },
+      })
+    );
+  }, [box, dispatch, imageID]);
 
   useEffect(() => {
     // calling this directly after setEditing doesn't work, which is why we need
@@ -295,7 +300,7 @@ function LayersPanel() {
             box={box}
             labels={labels}
             image={`/api/projects/${projectID}/images/${activeImage}`}
-            imageID=""
+            imageID={activeImage ?? ""}
             imageDims={imageDims}
           />
         </motion.div>
