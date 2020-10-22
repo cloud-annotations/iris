@@ -9,7 +9,7 @@ import styles from "./Canvas.module.css";
 import { generateUUID } from "src/Utils";
 
 export const MOVE = "move";
-export const BOX = "box";
+export const BOX = "rect";
 export const AUTO_LABEL = "auto";
 
 export default class App extends Component {

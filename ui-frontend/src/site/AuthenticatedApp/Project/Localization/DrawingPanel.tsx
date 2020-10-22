@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRecoilState, useRecoilValue } from "recoil";
 
 import Canvas, { BOX, MOVE } from "src/common/Canvas/Canvas";
@@ -137,10 +137,14 @@ function DrawingPanel({
   predictions,
   activePrediction,
 }: any) {
-  const [tool, setActiveTool] = useRecoilState(toolState);
+  const dispatch = useDispatch();
+  const selectedTool =
+    useSelector((state: RootState) => state.project.ui?.selectedTool) ?? "";
+  // const [tool, setActiveTool] = useRecoilState(toolState);
   const [activeBox, setActiveBox] = useRecoilState(activeBoxState);
   // const image = useRecoilValue(imageState);
-  const hoveredBox = useRecoilValue(hoverBoxState);
+  const highlightedBox =
+    useSelector((state: RootState) => state.project.ui?.highlightedBox) ?? "";
   // const boxes = useRecoilValue(boxesState);
 
   const boxes = useSelector((state: RootState) => {
@@ -214,9 +218,9 @@ function DrawingPanel({
 
   const handleControlChange = useCallback(
     (isPressed) => {
-      setActiveTool(isPressed ? MOVE : BOX);
+      dispatch({ type: "project/selectTool", payload: isPressed ? MOVE : BOX });
     },
-    [setActiveTool]
+    [dispatch]
   );
 
   useIsControlPressed(handleControlChange);
@@ -329,17 +333,17 @@ function DrawingPanel({
       {activeImage ? (
         <CrossHair
           color={activeColor}
-          active={tool === BOX}
+          active={selectedTool === BOX}
           children={
             <div className={styles.canvasWrapper}>
               <Canvas
-                mode={tool}
+                mode={selectedTool}
                 autoLabelActive={autoLabelActive}
                 activeLabel={activeLabel}
                 cmap={cmap}
                 bboxes={mergedBoxes}
                 image={`/api/projects/${projectID}/images/${activeImage}`}
-                hovered={hoveredBox}
+                hovered={highlightedBox}
                 onBoxStarted={handleBoxStarted}
                 onBoxChanged={handleBoxChanged}
                 onBoxFinished={handleBoxFinished}

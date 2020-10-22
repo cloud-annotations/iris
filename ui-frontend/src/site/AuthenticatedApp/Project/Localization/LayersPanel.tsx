@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 import { motion } from "framer-motion";
-import { useSelector } from "react-redux";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useDispatch, useSelector } from "react-redux";
+import { useRecoilValue } from "recoil";
 
 import useOnClickOutside from "src/hooks/useOnClickOutside";
-import { activeBoxState, hoverBoxState } from "src/state/localization";
+import { activeBoxState } from "src/state/localization";
 import { RootState } from "src/store";
 
 import styles from "./LayersPanel.module.css";
@@ -94,7 +94,7 @@ function ListItem({
   image,
   imageDims,
 }: ListItemProps) {
-  const setHoveredBox = useSetRecoilState(hoverBoxState);
+  const dispatch = useDispatch();
   const [labelOpen, setLabelOpen] = useState(false);
 
   const [labelEditingValue, setEditingLabelValue] = useState(undefined);
@@ -169,14 +169,14 @@ function ListItem({
 
   const handleBoxEnter = useCallback(
     (box) => () => {
-      setHoveredBox(box);
+      dispatch({ type: "project/highlightBox", payload: box });
     },
-    [setHoveredBox]
+    [dispatch]
   );
 
   const handleBoxLeave = useCallback(() => {
-    setHoveredBox(undefined);
-  }, [setHoveredBox]);
+    dispatch({ type: "project/highlightBox", payload: undefined });
+  }, [dispatch]);
 
   const {
     cropWidth,
