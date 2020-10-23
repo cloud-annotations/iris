@@ -13,8 +13,6 @@ import theme from "./theme";
 import { fetcher } from "./util/fetcher";
 
 import "./index.css";
-import "./bx-overrides.css";
-import "carbon-components/css/carbon-components.min.css";
 
 const swrOptions = {
   errorRetryCount: 3,
