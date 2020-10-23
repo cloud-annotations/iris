@@ -1,0 +1,21 @@
+{
+  "name": "@iris/box-tool-extension",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack --config webpack.dev.js",
+    "build": "webpack --config webpack.prod.js"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "@reduxjs/toolkit": "^1.4.0",
+    "react": "^16.13.0",
+    "react-dom": "^16.13.0",
+    "react-redux": "^7.2.1"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.50",
+    "@types/react-redux": "^7.1.9"
+  }
+}

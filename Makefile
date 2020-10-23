@@ -10,14 +10,14 @@ docker-publish:
 
 .PHONY: plugins
 plugins:
-	cd iris-plugin-box-tool && yarn start
+	cd packages/box-tool-extension && yarn start
 
-.PHONY: backend
-backend:
-	cd ui-backend && yarn start
+.PHONY: client
+client:
+	cd packages/client && yarn start
 
-.PHONY: frontend
-frontend:
-	cd ui-frontend && yarn start
+.PHONY: server
+server:
+	cd packages/server && yarn start
 
 

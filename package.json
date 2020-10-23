@@ -1,25 +1,11 @@
 {
-  "name": "ui-backend",
   "private": true,
-  "scripts": {
-    "start": "webpack --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js"
-  },
-  "dependencies": {
-    "axios": "^0.20.0",
-    "compression": "^1.7.4",
-    "express": "^4.17.1",
-    "helmet": "^4.1.1",
-    "pino-colada": "^2.1.0",
-    "pino-http": "^5.3.0",
-    "ws": "^7.2.1"
-  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {},
   "devDependencies": {
-    "@types/compression": "^1.7.0",
-    "@types/express": "^4.17.8",
-    "@types/node": "^14.0.23",
-    "@types/pino-http": "^5.0.5",
-    "@types/ws": "^7.2.6",
+    "lerna": "^3.22.1",
     "@typescript-eslint/eslint-plugin": "2.x",
     "@typescript-eslint/parser": "2.x",
     "babel-eslint": "10.x",
@@ -31,7 +17,6 @@
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "2.x",
-    "start-server-webpack-plugin": "^2.2.5",
     "ts-loader": "^8.0.4",
     "tsconfig-paths-webpack-plugin": "^3.3.0",
     "typescript": "^4.0.3",
@@ -39,5 +24,6 @@
     "webpack-cli": "^3.3.12",
     "webpack-merge": "^5.1.4",
     "webpack-node-externals": "^2.5.2"
-  }
+  },
+  "name": "iris"
 }
