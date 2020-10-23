@@ -5,6 +5,7 @@ metadata:
   annotations:
     ingress.bluemix.net/sticky-cookie-services: "serviceName=frontend name=sticky expires=5h path=/ hash=sha1"
     ingress.bluemix.net/client-max-body-size: "size=10m"
+    ingress.bluemix.net/redirect-to-https: "True"
     # nginx.ingress.kubernetes.io/affinity: "cookie"
     # nginx.ingress.kubernetes.io/proxy-body-size: "10m"
 spec:
