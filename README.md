@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/cloud-annotations/cloud-annotations-client.svg?branch=master)](https://travis-ci.org/cloud-annotations/cloud-annotations-client)
+[![Build Status](https://travis-ci.org/cloud-annotations/project-iris.svg?branch=master)](https://travis-ci.org/cloud-annotations/project-iris)
 
 <h1 align="center">Cloud Annotations</h1>
 
