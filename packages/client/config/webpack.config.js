@@ -60,7 +60,7 @@ Handlebars.registerHelper("clean", (s) => {
 });
 const template = Handlebars.compile(templateString);
 const output = template({
-  extensions: ["@iris/box-tool-extension", "fake-fake-fake"],
+  extensions: ["@iris/box-tool-extension"],
 });
 fs.writeFileSync(appEntryPoint, output);
 
@@ -105,20 +105,22 @@ module.exports = function (webpackEnv) {
         options: {
           // Necessary for external CSS imports to work
           // https://github.com/facebook/create-react-app/issues/2677
-          ident: "postcss",
-          plugins: () => [
-            require("postcss-flexbugs-fixes"),
-            require("postcss-preset-env")({
-              autoprefixer: {
-                flexbox: "no-2009",
-              },
-              stage: 3,
-            }),
-            // Adds PostCSS Normalize as the reset css with default options,
-            // so that it honors browserslist config in package.json
-            // which in turn let's users customize the target behavior as per their needs.
-            postcssNormalize(),
-          ],
+          postcssOptions: {
+            ident: "postcss",
+            plugins: [
+              require("postcss-flexbugs-fixes"),
+              require("postcss-preset-env")({
+                autoprefixer: {
+                  flexbox: "no-2009",
+                },
+                stage: 3,
+              }),
+              // Adds PostCSS Normalize as the reset css with default options,
+              // so that it honors browserslist config in package.json
+              // which in turn let's users customize the target behavior as per their needs.
+              postcssNormalize(),
+            ],
+          },
           sourceMap: isEnvProduction && shouldUseSourceMap,
         },
       },
@@ -179,16 +181,17 @@ module.exports = function (webpackEnv) {
     ].filter(Boolean),
     output: {
       // The build folder.
-      path: isEnvProduction ? paths.appBuild : undefined,
+      path: isEnvProduction ? paths.appBuild : path.join(process.cwd(), "dist"), // seems like undefined isn't allowed, the default is dist so using that
       // Add /* filename */ comments to generated require()s in the output.
       pathinfo: isEnvDevelopment,
       // There will be one main bundle, and one file per asynchronous chunk.
       // In development, it does not produce real files.
-      filename: isEnvProduction
-        ? "static/js/[name].[contenthash:8].js"
-        : isEnvDevelopment && "static/js/bundle.js",
+      // filename: isEnvProduction
+      //   ? "static/js/[name].[contenthash:8].js"
+      //   : isEnvDevelopment && "static/js/bundle.js",
+      filename: "static/js/[name].[contenthash:8].js",
       // TODO: remove this when upgrading to webpack 5
-      futureEmitAssets: true,
+      // futureEmitAssets: true,
       // There are also additional JS chunk files if you use code splitting.
       chunkFilename: isEnvProduction
         ? "static/js/[name].[contenthash:8].chunk.js"
@@ -208,7 +211,8 @@ module.exports = function (webpackEnv) {
             path.resolve(info.absoluteResourcePath).replace(/\\/g, "/")),
       // Prevents conflicts when multiple webpack runtimes (from different apps)
       // are used on the same page.
-      jsonpFunction: `webpackJsonp${appPackageJson.name}`,
+      chunkLoadingGlobal: `webpackJsonp${appPackageJson.name}`,
+      chunkLoading: "jsonp",
       // this defaults to 'window', but by setting it to 'this' then
       // module chunks which are built will work in web workers as well.
       globalObject: "this",
@@ -255,7 +259,7 @@ module.exports = function (webpackEnv) {
               ascii_only: true,
             },
           },
-          sourceMap: shouldUseSourceMap,
+          // sourceMap: shouldUseSourceMap, (removed, respects devtool option)
         }),
         // This is only used in production mode
         new OptimizeCSSAssetsPlugin({
@@ -334,7 +338,7 @@ module.exports = function (webpackEnv) {
         // To fix this, we prevent you from importing files out of src/ -- if you'd like to,
         // please link the files into your node_modules/ and let module-resolution kick in.
         // Make sure your source files are compiled, as they will not be processed in any way.
-        new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
+        // new ModuleScopePlugin(paths.appSrc, [paths.appPackageJson]),
       ],
     },
     resolveLoader: {
@@ -605,24 +609,25 @@ module.exports = function (webpackEnv) {
       //   `index.html`
       // - "entrypoints" key: Array of files which are included in `index.html`,
       //   can be used to reconstruct the HTML if necessary
-      new ManifestPlugin({
-        fileName: "asset-manifest.json",
-        publicPath: paths.publicUrlOrPath,
-        generate: (seed, files, entrypoints) => {
-          const manifestFiles = files.reduce((manifest, file) => {
-            manifest[file.name] = file.path;
-            return manifest;
-          }, seed);
-          const entrypointFiles = entrypoints.main.filter(
-            (fileName) => !fileName.endsWith(".map")
-          );
+      // TODO: Add this back when it adds support for webpack 5
+      // new ManifestPlugin({
+      //   fileName: "asset-manifest.json",
+      //   publicPath: paths.publicUrlOrPath,
+      //   generate: (seed, files, entrypoints) => {
+      //     const manifestFiles = files.reduce((manifest, file) => {
+      //       manifest[file.name] = file.path;
+      //       return manifest;
+      //     }, seed);
+      //     const entrypointFiles = entrypoints.main.filter(
+      //       (fileName) => !fileName.endsWith(".map")
+      //     );
 
-          return {
-            files: manifestFiles,
-            entrypoints: entrypointFiles,
-          };
-        },
-      }),
+      //     return {
+      //       files: manifestFiles,
+      //       entrypoints: entrypointFiles,
+      //     };
+      //   },
+      // }),
       // Moment.js is an extremely popular library that bundles large locale files
       // by default due to how webpack interprets its code. This is a practical
       // solution that requires the user to opt into importing specific locales.
@@ -631,22 +636,23 @@ module.exports = function (webpackEnv) {
       new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
       // Generate a service worker script that will precache, and keep up to date,
       // the HTML & assets that are part of the webpack build.
-      isEnvProduction &&
-        new WorkboxWebpackPlugin.GenerateSW({
-          clientsClaim: true,
-          exclude: [/\.map$/, /asset-manifest\.json$/],
-          importWorkboxFrom: "cdn",
-          navigateFallback: paths.publicUrlOrPath + "index.html",
-          navigateFallbackBlacklist: [
-            // Exclude URLs starting with /_, as they're likely an API call
-            new RegExp("^/_"),
-            // Exclude any URLs whose last part seems to be a file extension
-            // as they're likely a resource and not a SPA route.
-            // URLs containing a "?" character won't be blacklisted as they're likely
-            // a route with query params (e.g. auth callbacks).
-            new RegExp("/[^/?]+\\.[^/]+$"),
-          ],
-        }),
+      // NOTE: nick removed this
+      // isEnvProduction &&
+      //   new WorkboxWebpackPlugin.GenerateSW({
+      //     clientsClaim: true,
+      //     exclude: [/\.map$/, /asset-manifest\.json$/],
+      //     importWorkboxFrom: "cdn",
+      //     navigateFallback: paths.publicUrlOrPath + "index.html",
+      //     navigateFallbackDenylist: [
+      //       // Exclude URLs starting with /_, as they're likely an API call
+      //       new RegExp("^/_"),
+      //       // Exclude any URLs whose last part seems to be a file extension
+      //       // as they're likely a resource and not a SPA route.
+      //       // URLs containing a "?" character won't be blacklisted as they're likely
+      //       // a route with query params (e.g. auth callbacks).
+      //       new RegExp("/[^/?]+\\.[^/]+$"),
+      //     ],
+      //   }),
       // TypeScript type checking
       useTypeScript &&
         new ForkTsCheckerWebpackPlugin({
@@ -677,16 +683,16 @@ module.exports = function (webpackEnv) {
     ].filter(Boolean),
     // Some libraries import Node modules but don't use them in the browser.
     // Tell webpack to provide empty mocks for them so importing them works.
-    node: {
-      module: "empty",
-      dgram: "empty",
-      dns: "mock",
-      fs: "empty",
-      http2: "empty",
-      net: "empty",
-      tls: "empty",
-      child_process: "empty",
-    },
+    // node: {
+    //   module: "empty",
+    //   dgram: "empty",
+    //   dns: "mock",
+    //   fs: "empty",
+    //   http2: "empty",
+    //   net: "empty",
+    //   tls: "empty",
+    //   child_process: "empty",
+    // },
     // Turn off performance processing because we utilize
     // our own hints via the FileSizeReporter
     performance: false,

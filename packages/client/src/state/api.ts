@@ -1,4 +1,4 @@
-import { Project } from "cloud-annotations-types";
+import { Project } from "src/project";
 import useSWR from "swr";
 
 import API from "src/util/api";

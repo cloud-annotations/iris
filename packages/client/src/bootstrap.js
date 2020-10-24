@@ -9,11 +9,5 @@ try {
 } catch (e) {
   console.log(e)
 }
-try {
-  const fake_fake_fake = require("fake-fake-fake")
-  fake_fake_fake.default.activate(window.IRIS)
-} catch (e) {
-  console.log(e)
-}
 
 initReactApp()

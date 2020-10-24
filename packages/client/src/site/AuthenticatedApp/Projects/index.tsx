@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Project } from "cloud-annotations-types";
+import { Project } from "src/project";
 import { Link } from "react-router-dom";
 
 import { useProjects } from "src/state/api";

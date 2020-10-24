@@ -292,7 +292,7 @@ function LayersPanel() {
       {boxes.map((box) => (
         <motion.div
           key={box.id}
-          positionTransition={transition}
+          transition={transition}
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0, transition: transition }}
         >

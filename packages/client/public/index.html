@@ -50,11 +50,14 @@
       name="description"
       content="An open source image annotation tool for teams and individuals. Easily build real-time object detection models without having to code."
     />
+
+    <!-- TODO: super hacky shim -->
+    <script>
+      process = {};
+    </script>
   </head>
   <body>
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
+    <noscript> You need to enable JavaScript to run this app. </noscript>
     <div id="root"></div>
     <script src="%PUBLIC_URL%/chart/Chart.min.js"></script>
     <!--

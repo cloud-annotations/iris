@@ -16,6 +16,10 @@ plugins:
 client:
 	cd packages/client && yarn start
 
+.PHONY: build-client
+build-client:
+	cd packages/client && yarn build
+
 .PHONY: server
 server:
 	cd packages/server && yarn start
