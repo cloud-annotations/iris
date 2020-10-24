@@ -10,7 +10,6 @@ import security from "./middleware/security";
 import apiRouter from "./routes/api";
 import authRouter from "./routes/auth";
 import spaRouter from "./routes/spa";
-import collaboration from "./sockets/collaboration";
 import hotReload from "./util/hot-reload";
 
 const app = express();
@@ -23,8 +22,6 @@ app.disable("x-powered-by");
 app.use(gzip());
 app.use(security());
 app.use(logger());
-
-collaboration(server);
 
 app.use("/api", apiRouter);
 app.use("/auth", authRouter);
