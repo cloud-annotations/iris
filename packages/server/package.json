@@ -3,8 +3,8 @@
   "private": true,
   "version": "0.0.1",
   "scripts": {
-    "start": "webpack --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js"
+    "start": "webpack --config config/webpack.dev.js",
+    "build": "webpack --config config/webpack.prod.js"
   },
   "dependencies": {
     "@types/compression": "^1.7.0",
