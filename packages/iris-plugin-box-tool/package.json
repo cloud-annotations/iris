@@ -4,7 +4,8 @@
   "main": "dist/index.js",
   "license": "MIT",
   "scripts": {
-    "start": "webpack --config webpack.dev.js",
+    "start": "tsc -w",
+    "start2": "webpack --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js"
   },
   "dependencies": {

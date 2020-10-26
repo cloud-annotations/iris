@@ -60,7 +60,7 @@ Handlebars.registerHelper("clean", (s) => {
 });
 const template = Handlebars.compile(templateString);
 const output = template({
-  extensions: ["@iris/box-tool-extension"],
+  extensions: ["@iris/plugin-box-tool"],
 });
 fs.writeFileSync(appEntryPoint, output);
 

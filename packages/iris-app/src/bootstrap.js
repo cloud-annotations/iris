@@ -4,8 +4,8 @@ import initIris from "./initIris"
 initIris()
 
 try {
-  const _iris_box_tool_extension = require("@iris/box-tool-extension")
-  _iris_box_tool_extension.default.activate(window.IRIS)
+  const _iris_plugin_box_tool = require("@iris/plugin-box-tool")
+  _iris_plugin_box_tool.default.activate(window.IRIS)
 } catch (e) {
   console.log(e)
 }

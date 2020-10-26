@@ -25,7 +25,7 @@ const {
   createCompiler,
   prepareProxy,
   prepareUrls,
-} = require("react-dev-utils/WebpackDevServerUtils");
+} = require("./WebpackDevServerUtils");
 const openBrowser = require("react-dev-utils/openBrowser");
 const paths = require("../config/paths");
 const configFactory = require("../config/webpack.config");
@@ -104,16 +104,8 @@ checkBrowsers(paths.appPath, isInteractive)
       webpack,
     });
 
-    compiler.hooks.invalid.tap("invalid", () => {
-      console.log("invalid");
-    });
-
     compiler.hooks.failed.tap("failed", (error) => {
       console.log(error);
-    });
-
-    compiler.hooks.done.tap("done", () => {
-      console.log("done");
     });
 
     // Load proxy config
