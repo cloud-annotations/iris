@@ -1,3 +1,6 @@
 {
   "workbench.editor.labelFormat": "short",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
 }

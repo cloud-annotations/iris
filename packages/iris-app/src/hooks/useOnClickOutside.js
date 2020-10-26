@@ -1,39 +1,39 @@
-import { useEffect } from 'react'
+import { useEffect } from "react";
 
 const useOnClickOutside = (ref, handler, hideOnBlur) => {
   useEffect(() => {
-    const listener = e => {
+    const listener = (e) => {
       // Do nothing if clicking ref's element or descendent elements
       if (!ref.current || ref.current.contains(e.target)) {
-        return
+        return;
       }
-      handler(e)
-    }
+      handler(e);
+    };
 
-    const loseFocusListener = e => {
+    const loseFocusListener = (e) => {
       if (!document.hasFocus() && hideOnBlur) {
-        handler(e)
+        handler(e);
       }
-    }
+    };
 
-    document.addEventListener('msvisibilitychange', loseFocusListener)
-    document.addEventListener('webkitvisibilitychange', loseFocusListener)
-    document.addEventListener('visibilitychange', loseFocusListener)
-    window.addEventListener('blur', loseFocusListener)
+    document.addEventListener("msvisibilitychange", loseFocusListener);
+    document.addEventListener("webkitvisibilitychange", loseFocusListener);
+    document.addEventListener("visibilitychange", loseFocusListener);
+    window.addEventListener("blur", loseFocusListener);
 
-    document.addEventListener('mousedown', listener)
-    document.addEventListener('touchstart', listener)
+    document.addEventListener("mousedown", listener);
+    document.addEventListener("touchstart", listener);
 
     return () => {
-      document.removeEventListener('msvisibilitychange', loseFocusListener)
-      document.removeEventListener('webkitvisibilitychange', loseFocusListener)
-      document.removeEventListener('visibilitychange', loseFocusListener)
-      window.removeEventListener('blur', loseFocusListener)
+      document.removeEventListener("msvisibilitychange", loseFocusListener);
+      document.removeEventListener("webkitvisibilitychange", loseFocusListener);
+      document.removeEventListener("visibilitychange", loseFocusListener);
+      window.removeEventListener("blur", loseFocusListener);
 
-      document.removeEventListener('mousedown', listener)
-      document.removeEventListener('touchstart', listener)
-    }
-  }, [ref, handler, hideOnBlur])
-}
+      document.removeEventListener("mousedown", listener);
+      document.removeEventListener("touchstart", listener);
+    };
+  }, [ref, hideOnBlur, handler]);
+};
 
-export default useOnClickOutside
+export default useOnClickOutside;

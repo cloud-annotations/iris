@@ -5,6 +5,7 @@ module.exports = {
   extends: "react-app",
   plugins: ["import"],
   rules: {
+    "import/newline-after-import": ["warn", { count: 1 }],
     "import/no-extraneous-dependencies": [
       "warn",
       {
@@ -28,6 +29,7 @@ module.exports = {
           "external",
           "internal",
           ["parent", "sibling", "index"],
+          "object",
         ],
         pathGroups: [
           {
