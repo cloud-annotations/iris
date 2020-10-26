@@ -1,5 +1,5 @@
 {
-  "name": "@iris/box-tool-extension",
+  "name": "@iris/plugin-box-tool",
   "version": "0.0.1",
   "main": "dist/index.js",
   "license": "MIT",
