@@ -8,7 +8,7 @@ const chalk = require("chalk");
 const detect = require("detect-port-alt");
 const isRoot = require("is-root");
 const inquirer = require("inquirer");
-const clearConsole = require("react-dev-utils/clearConsole");
+// const clearConsole = require("react-dev-utils/clearConsole");
 const formatWebpackMessages = require("react-dev-utils/formatWebpackMessages");
 const getProcessForPort = require("react-dev-utils/getProcessForPort");
 const typescriptFormatter = require("react-dev-utils/typescriptFormatter");
@@ -124,7 +124,7 @@ function createCompiler({
   // "invalid" is short for "bundle invalidated", it doesn't imply any errors.
   compiler.hooks.invalid.tap("invalid", () => {
     if (isInteractive) {
-      clearConsole();
+      // clearConsole();
     }
     console.log("Compiling...");
   });
@@ -160,7 +160,7 @@ function createCompiler({
   // Whether or not you have warnings or errors, you will get this event.
   compiler.hooks.done.tap("done", async (stats) => {
     if (isInteractive) {
-      clearConsole();
+      // clearConsole();
     }
 
     // We have switched off the default webpack output in WebpackDevServer
@@ -216,7 +216,7 @@ function createCompiler({
       }
 
       if (isInteractive) {
-        clearConsole();
+        // clearConsole();
       }
     }
 
@@ -455,7 +455,7 @@ function choosePort(host, defaultPort) {
             ? `Admin permissions are required to run a server on a port below 1024.`
             : `Something is already running on port ${defaultPort}.`;
         if (isInteractive) {
-          clearConsole();
+          // clearConsole();
           const existingProcess = getProcessForPort(defaultPort);
           const question = {
             type: "confirm",

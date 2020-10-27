@@ -18,7 +18,7 @@ const fs = require("fs");
 const chalk = require("react-dev-utils/chalk");
 const webpack = require("webpack");
 const WebpackDevServer = require("webpack-dev-server");
-const clearConsole = require("react-dev-utils/clearConsole");
+// const clearConsole = require("react-dev-utils/clearConsole");
 const checkRequiredFiles = require("react-dev-utils/checkRequiredFiles");
 const {
   choosePort,
@@ -127,7 +127,7 @@ checkBrowsers(paths.appPath, isInteractive)
         return console.log(err);
       }
       if (isInteractive) {
-        clearConsole();
+        // clearConsole();
       }
 
       // We used to support resolving modules according to `NODE_PATH`.
@@ -155,11 +155,11 @@ checkBrowsers(paths.appPath, isInteractive)
 
     if (isInteractive || process.env.CI !== "true") {
       // Gracefully exit when stdin ends
-      process.stdin.on("end", function () {
-        devServer.close();
-        process.exit();
-      });
-      process.stdin.resume();
+      // process.stdin.on("end", function () {
+      //   devServer.close();
+      //   process.exit();
+      // });
+      // process.stdin.resume();
     }
   })
   .catch((err) => {
