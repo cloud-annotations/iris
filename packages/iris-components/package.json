@@ -5,7 +5,9 @@
   "license": "MIT",
   "scripts": {
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "start": "tsc -w",
+    "build": "tsc"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.0",

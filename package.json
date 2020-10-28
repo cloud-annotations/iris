@@ -5,7 +5,9 @@
       "packages/*",
       "iris"
     ],
-    "nohoist": ["**"]
+    "nohoist": [
+      "**"
+    ]
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "2.x",
@@ -18,7 +20,8 @@
     "eslint-plugin-jsx-a11y": "6.x",
     "eslint-plugin-react": "7.x",
     "eslint-plugin-react-hooks": "2.x",
-    "lerna": "^3.22.1"
+    "lerna": "^3.22.1",
+    "typescript": "^4.0.5"
   },
   "name": "iris"
 }

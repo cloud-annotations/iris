@@ -1,5 +1,6 @@
 import React from "react";
 
+import theme from "@iris/theme";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import { ThemeProvider } from "@material-ui/core/styles";
 import ReactDOM from "react-dom";
@@ -9,7 +10,6 @@ import { SWRConfig } from "swr";
 
 import App from "./App";
 import store from "./store";
-import theme from "./theme";
 import { fetcher } from "./util/fetcher";
 
 import "./index.css";
