@@ -28,6 +28,5 @@
 
     /* Advanced Options */
     "resolveJsonModule": true
-  },
-  "include": ["src"]
+  }
 }

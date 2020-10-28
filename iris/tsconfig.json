@@ -9,5 +9,6 @@
     "target": "es2017",
     "lib": ["es2017", "es2019.array"],
     "module": "commonjs"
-  }
+  },
+  "include": ["src"]
 }
