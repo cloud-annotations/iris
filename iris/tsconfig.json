@@ -6,6 +6,8 @@
     "sourceMap": true,
     "outDir": "dist",
 
+    "baseUrl": ".",
+
     "target": "es2017",
     "lib": ["es2017", "es2019.array"],
     "module": "commonjs"

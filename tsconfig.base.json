@@ -2,7 +2,6 @@
   "compilerOptions": {
     "allowJs": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
 
     /* Strict Type-Checking Options */
     "strict": true,
