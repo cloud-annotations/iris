@@ -3,10 +3,15 @@
   "version": "0.0.1",
   "main": "dist/index.js",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/lab": "^4.0.0-alpha.56",
-    "@storybook/react": "6.0.27"
+    "@storybook/react": "6.0.27",
+    "@storybook/addon-essentials": "6.0.27",
+    "@iris/theme": "^0.0.1"
   }
 }
