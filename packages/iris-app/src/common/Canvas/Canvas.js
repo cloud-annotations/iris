@@ -1,12 +1,13 @@
 import React, { Component } from "react";
-import Prediction from "./Prediction";
+
+import { generateUUID } from "src/Utils";
+
 import Box2 from "./Box2";
+import styles from "./Canvas.module.css";
 import Move from "./Move";
 import Nobs from "./Nobs";
+import Prediction from "./Prediction";
 import TouchTargets from "./TouchTargets";
-
-import styles from "./Canvas.module.css";
-import { generateUUID } from "src/Utils";
 
 export const MOVE = "move";
 export const BOX = "rect";

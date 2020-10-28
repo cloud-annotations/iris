@@ -1,6 +1,6 @@
-import { Project } from "src/project";
 import useSWR from "swr";
 
+import { Project } from "src/project";
 import API from "src/util/api";
 
 const appstaticAPI = new API();

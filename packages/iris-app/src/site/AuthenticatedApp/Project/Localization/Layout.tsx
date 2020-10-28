@@ -1,6 +1,6 @@
 import React from "react";
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import { createStyles, makeStyles } from "@material-ui/core";
 
 const topHeight = 36;
 const leftWidth = 50;
@@ -15,7 +15,7 @@ interface Props {
   bottom: JSX.Element;
 }
 
-const useStyles = makeStyles((theme: Theme) =>
+const useStyles = makeStyles(() =>
   createStyles({
     top: {
       position: "absolute",

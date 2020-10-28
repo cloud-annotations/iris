@@ -149,7 +149,7 @@ function ListItem({
   }, []);
 
   const handleLabelChosen = useCallback(
-    (label) => (e: any) => {
+    (_label) => (e: any) => {
       e.stopPropagation();
       // syncAction(deleteBox, [imageName, box]);
       // syncAction(createBox, [imageName, { ...box, label: label }]);

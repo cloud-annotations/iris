@@ -5,9 +5,33 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
 import { ProfileDropDown } from "src/common/DropDown/DropDown";
+import { RootState } from "src/store";
 
 import ToolbarMenus from "./ToolbarMenus";
-import { RootState } from "src/store";
+
+// TODO: how do we fix this...?
+interface CarbonColorRange {
+  10: string;
+  20: string;
+  30: string;
+  40: string;
+  50: string;
+  60: string;
+  70: string;
+  80: string;
+  90: string;
+  100: string;
+}
+declare module "@material-ui/core/styles/createPalette" {
+  interface Palette {
+    blue: CarbonColorRange;
+    coolGray: CarbonColorRange;
+  }
+  interface PaletteOptions {
+    blue: CarbonColorRange;
+    coolGray: CarbonColorRange;
+  }
+}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

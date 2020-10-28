@@ -1,11 +1,12 @@
-import React, { Component } from 'react'
-import styles from './EmptySet.module.css'
+import React, { Component } from "react";
+
+import styles from "./EmptySet.module.css";
 
 export default class EmptySet extends Component {
   render() {
-    const { show } = this.props
+    const { show } = this.props;
     if (!show) {
-      return null
+      return null;
     }
 
     return (
@@ -18,6 +19,6 @@ export default class EmptySet extends Component {
           <div className={styles.smallText}>Drop and drop to upload media.</div>
         </div>
       </div>
-    )
+    );
   }
 }

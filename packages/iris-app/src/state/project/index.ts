@@ -115,12 +115,12 @@ const projectSlice = createSlice({
         }
       }
     },
-    addImages(state, { payload }) {
+    addImages(_state, _action) {
       // TODO
       // const imageNames = payload.map((image) => image.name);
       // state.images = [...new Set([...imageNames, ...state.images])];
     },
-    deleteImages(state, { payload }) {
+    deleteImages(_state, _action) {
       // TODO
       // images.forEach((image) => {
       //   state.images.splice(

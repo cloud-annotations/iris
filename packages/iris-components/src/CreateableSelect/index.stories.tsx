@@ -17,13 +17,17 @@ const options = [
 ];
 
 const Template: Story<Props> = (args) => {
-  const [val, setVal] = React.useState("boop");
+  const [val, setVal] = React.useState<any>(null);
   return (
     <CreateableSelect
       {...args}
       value={val}
-      onChange={setVal}
-      onCreate={setVal}
+      onChange={(option) => {
+        setVal(option);
+      }}
+      onCreate={(option) => {
+        setVal(option);
+      }}
     />
   );
 };

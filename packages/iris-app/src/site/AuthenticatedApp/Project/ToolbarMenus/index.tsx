@@ -1,15 +1,11 @@
 import React, { useState, useCallback, useRef } from "react";
 
-import { createStyles, makeStyles, Theme } from "@material-ui/core";
-
 import useOnClickOutside from "src/hooks/useOnClickOutside";
 
 import Divider from "./Divider";
 import styles from "./Header.module.css";
 import MenuItem from "./MenuItem";
 import { isDivider, Menu } from "./types";
-
-const useStyles = makeStyles((theme: Theme) => createStyles({}));
 
 interface Props {
   menus: Menu[];

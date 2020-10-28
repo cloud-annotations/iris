@@ -1,8 +1,8 @@
 import React from "react";
 
-import { Project } from "src/project";
 import { Link } from "react-router-dom";
 
+import { Project } from "src/project";
 import { useProjects } from "src/state/api";
 
 interface ProjectProps {

@@ -97,7 +97,7 @@ function ImagesPanel() {
   useBlockSwipeBack(scrollElementRef);
 
   const handleDelete = useCallback(
-    (label) => (e: any) => {
+    (_label) => (e: any) => {
       e.stopPropagation();
       // const deleteTheLabel = window.confirm(
       //   `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`
@@ -110,7 +110,7 @@ function ImagesPanel() {
   );
 
   const handleClickLabel = useCallback(
-    (label) => () => {
+    (_label) => () => {
       // handleImageFilterChange({ target: { value: label } });
     },
     []

@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 
-import styles from "./DropDown.module.css";
-import history from "src/globalHistory";
 import { clearCookies } from "src/Utils";
+
+import styles from "./DropDown.module.css";
 
 const Chevron = () => (
   <svg className={styles.chevronIcon} viewBox="0 0 12 7">
@@ -126,7 +126,7 @@ export const ProfileDropDown = ({ profile }) => {
 
   const handleLogout = useCallback(() => {
     clearCookies(["access_token", "refresh_token"]);
-    history.push("/login");
+    // history.push("/login");
 
     // This won't log us out of IBM, we need to redirect to actually logout:
     const wind = window.open(

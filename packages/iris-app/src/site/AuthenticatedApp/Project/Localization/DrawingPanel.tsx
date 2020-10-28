@@ -11,23 +11,23 @@ import { RootState } from "src/store";
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
 
-const iou = (boxA: any, boxB: any) => {
-  const xA = Math.max(boxA.bbox[0], boxB.x);
-  const yA = Math.max(boxA.bbox[1], boxB.y);
-  const xB = Math.min(boxA.bbox[0] + boxA.bbox[2], boxB.x2);
-  const yB = Math.min(boxA.bbox[1] + boxA.bbox[3], boxB.y2);
+// const iou = (boxA: any, boxB: any) => {
+//   const xA = Math.max(boxA.bbox[0], boxB.x);
+//   const yA = Math.max(boxA.bbox[1], boxB.y);
+//   const xB = Math.min(boxA.bbox[0] + boxA.bbox[2], boxB.x2);
+//   const yB = Math.min(boxA.bbox[1] + boxA.bbox[3], boxB.y2);
 
-  const interArea = (xB - xA) * (yB - yA);
+//   const interArea = (xB - xA) * (yB - yA);
 
-  const boxAArea =
-    (boxA.bbox[0] + boxA.bbox[2] - boxA.bbox[0]) *
-    (boxA.bbox[1] + boxA.bbox[3] - boxA.bbox[1]);
-  const boxBArea = (boxB.x2 - boxB.x) * (boxB.y2 - boxB.y);
+//   const boxAArea =
+//     (boxA.bbox[0] + boxA.bbox[2] - boxA.bbox[0]) *
+//     (boxA.bbox[1] + boxA.bbox[3] - boxA.bbox[1]);
+//   const boxBArea = (boxB.x2 - boxB.x) * (boxB.y2 - boxB.y);
 
-  const iou = interArea / (boxAArea + boxBArea - interArea);
+//   const iou = interArea / (boxAArea + boxBArea - interArea);
 
-  return iou;
-};
+//   return iou;
+// };
 
 const useIsControlPressed = (onCtrlChange: Function) => {
   const [isPressed, setIsPressed] = useState(false);
@@ -51,13 +51,10 @@ const useIsControlPressed = (onCtrlChange: Function) => {
     [onCtrlChange]
   );
 
-  const handleKeyUp = useCallback(
-    (e) => {
-      setIsPressed(false);
-      onCtrlChange(false);
-    },
-    [onCtrlChange]
-  );
+  const handleKeyUp = useCallback(() => {
+    setIsPressed(false);
+    onCtrlChange(false);
+  }, [onCtrlChange]);
 
   useEffect(() => {
     document.addEventListener("keydown", handleKeyDown);
