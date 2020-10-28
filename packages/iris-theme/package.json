@@ -1,12 +1,16 @@
 {
-  "name": "@iris/components",
+  "name": "@iris/theme",
   "version": "0.0.1",
   "main": "dist/index.js",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start": "tsc -w",
+    "build": "tsc"
+  },
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/lab": "^4.0.0-alpha.56",
+    "typescript": "^4.0.5",
     "@storybook/react": "6.0.27"
   }
 }

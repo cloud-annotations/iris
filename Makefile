@@ -12,15 +12,8 @@ docker-publish:
 start:
 	FORCE_COLOR=true yarn lerna run start --parallel --stream
 
-# .PHONY: client
-# client:
-# 	cd packages/iris-app && yarn start
 
-# .PHONY: build
-# build:
-# 	cd packages/iris-app && yarn build
-
-# .PHONY: server
-# server:
-# 	cd iris && yarn start
-
+.PHONY: storybook
+storybook:
+	rm -rf ./packages/storybook/node_modules/html-webpack-plugin/node_modules/webpack
+	FORCE_COLOR=true yarn lerna exec "yarn storybook" --scope storybook
