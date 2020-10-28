@@ -8,11 +8,25 @@ docker-publish:
 	@docker build -t ${ORG}/${REPO}:${TAG} .
 	@docker push ${ORG}/${REPO}:${TAG}
 
+.PHONY: clean
+clean:
+	rm -rf node_modules
+	yarn lerna exec "rm -rf node_modules dist build"
+
+.PHONY: install
+install:
+	yarn install
+	yarn lerna bootstrap
+
+.PHONY: build
+build:
+	yarn lerna run build --stream
+
 .PHONY: start
 start:
 	FORCE_COLOR=true yarn lerna run start --parallel --stream
 
 .PHONY: storybook
 storybook:
-	rm -rf ./packages/iris-components/node_modules/html-webpack-plugin/node_modules/webpack
-	FORCE_COLOR=true yarn lerna exec "yarn storybook" --scope @iris/components
+	yarn lerna exec "rm -rf node_modules/html-webpack-plugin/node_modules/webpack" --scope @iris/components
+	FORCE_COLOR=true yarn lerna run storybook --scope @iris/components --stream
