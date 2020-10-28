@@ -1,8 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 
-import { useSelector, useDispatch } from "react-redux";
-
 import { createStyles, makeStyles } from "@material-ui/core";
+import { useSelector, useDispatch } from "react-redux";
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -137,7 +136,7 @@ function ActiveLabel() {
     setEditingLabelValue(e.target.value);
   }, []);
 
-  const handleKeyPress = useCallback((e) => {
+  const handleKeyPress = useCallback(() => {
     // if (e.key === "Enter") {
     //   const newActiveLabel = inputRef.current.value.trim();
     //   if (newActiveLabel) {
@@ -165,7 +164,7 @@ function ActiveLabel() {
       setEditingLabelValue(undefined);
       setLabelOpen(false);
     },
-    []
+    [dispatch]
   );
 
   const query = (labelEditingValue || "").trim();

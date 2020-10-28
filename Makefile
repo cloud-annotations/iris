@@ -10,8 +10,8 @@ docker-publish:
 
 .PHONY: clean
 clean:
-	rm -rf node_modules
 	yarn lerna exec "rm -rf node_modules dist build"
+	rm -rf node_modules
 
 .PHONY: install
 install:
@@ -24,6 +24,7 @@ build:
 
 .PHONY: start
 start:
+	yarn lerna run build --stream --ignore @iris/app
 	FORCE_COLOR=true yarn lerna run start --parallel --stream
 
 .PHONY: storybook
