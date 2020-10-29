@@ -194,21 +194,32 @@ function LabelSelect({ labels, activeLabel, onChange, onFocusChange }: Props) {
           // Only sort the list when we filter, to make it easier to see diff.
           .sort((a: any, b: any) => a.length - b.length);
 
+  const items = filteredLabels.map((label) => {
+    return {
+      label: label,
+      value: label,
+    };
+  });
+
+  if (query) {
+    items.push({ label: `Create label "${query}"`, value: query });
+  }
+
   return (
     <div
       ref={ref}
       onClick={handleClick}
       className={labelOpen ? classes.labelDropDownOpen : classes.labelDropDown}
     >
-      {filteredLabels.length > 0 && (
+      {items.length > 0 && (
         <div className={labelOpen ? classes.cardOpen : classes.card}>
-          {filteredLabels.map((label: any) => (
+          {items.map((label) => (
             <div
               className={classes.listItem}
-              key={label}
-              onClick={handleLabelChosen(label)}
+              key={label.value}
+              onClick={handleLabelChosen(label.value)}
             >
-              {label}
+              {label.label}
             </div>
           ))}
         </div>
