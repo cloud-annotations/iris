@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
-import useOnClickOutside from "./useOnClickOutside";
+import useClickOutside from "./../useClickOutside";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -139,7 +139,7 @@ function LabelSelect({ labels, activeLabel, onChange, onFocusChange }: Props) {
     setEditingLabelValue(undefined);
     setFocus(false);
   }, [setFocus]);
-  useOnClickOutside(ref, handleBlur);
+  useClickOutside(ref, handleBlur);
 
   useEffect(() => {
     // calling this directly after setEditing doesn't work, which is why we need

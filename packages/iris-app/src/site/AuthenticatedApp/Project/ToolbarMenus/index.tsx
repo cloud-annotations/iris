@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 
-import useOnClickOutside from "src/hooks/useOnClickOutside";
+import { useClickOutside } from "@iris/components";
 
 import Divider from "./Divider";
 import styles from "./Header.module.css";
@@ -37,7 +37,7 @@ function ToolbarMenus({ menus }: Props) {
     setLastHoveredSubOption(e.currentTarget.id);
   }, []);
 
-  useOnClickOutside(optionsRef, handleClickOutside, true);
+  useClickOutside(optionsRef, handleClickOutside, true);
 
   return (
     <div ref={optionsRef} className={styles.options}>

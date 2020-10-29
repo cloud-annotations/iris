@@ -1,8 +1,12 @@
-import { useEffect } from "react";
+import React from "react";
 
-const useOnClickOutside = (ref, handler, hideOnBlur) => {
-  useEffect(() => {
-    const listener = (e) => {
+const useClickOutside = (
+  ref: React.MutableRefObject<any>,
+  handler: EventListener,
+  hideOnBlur?: boolean
+) => {
+  React.useEffect(() => {
+    const listener: EventListenerOrEventListenerObject = (e) => {
       // Do nothing if clicking ref's element or descendent elements
       if (!ref.current || ref.current.contains(e.target)) {
         return;
@@ -10,7 +14,7 @@ const useOnClickOutside = (ref, handler, hideOnBlur) => {
       handler(e);
     };
 
-    const loseFocusListener = (e) => {
+    const loseFocusListener: EventListenerOrEventListenerObject = (e) => {
       if (!document.hasFocus() && hideOnBlur) {
         handler(e);
       }
@@ -36,4 +40,4 @@ const useOnClickOutside = (ref, handler, hideOnBlur) => {
   }, [ref, hideOnBlur, handler]);
 };
 
-export default useOnClickOutside;
+export default useClickOutside;
