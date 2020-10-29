@@ -30,4 +30,5 @@ start:
 .PHONY: storybook
 storybook:
 	yarn lerna exec "rm -rf node_modules/html-webpack-plugin/node_modules/webpack" --scope @iris/components
-	FORCE_COLOR=true yarn lerna run storybook --scope @iris/components --stream
+	# exec makes progress bar work
+	yarn lerna exec "yarn storybook" --scope @iris/components
