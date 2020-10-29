@@ -317,6 +317,12 @@ module.exports = function (webpackEnv) {
         react: require.resolve("react"),
         "react-dom": require.resolve("react-dom"),
         "react-redux": require.resolve("react-redux"),
+        "@material-ui": path.join(
+          require.resolve("@material-ui/core"),
+          "..",
+          ".."
+        ),
+        // "@material-ui": path.resolve(__dirname, "..", "node_modules/@material-ui"),
         // nick-added-fix-thing
 
         // Support React Native Web

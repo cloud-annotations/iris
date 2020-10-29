@@ -1,28 +1,33 @@
 import { createMuiTheme } from "@material-ui/core";
 
-interface CarbonColorRange {
-  10: string;
-  20: string;
-  30: string;
-  40: string;
-  50: string;
-  60: string;
-  70: string;
-  80: string;
-  90: string;
-  100: string;
-}
-
-declare module "@material-ui/core/styles/createPalette" {
-  interface Palette {
-    blue: CarbonColorRange;
-    coolGray: CarbonColorRange;
-  }
-  interface PaletteOptions {
-    blue: CarbonColorRange;
-    coolGray: CarbonColorRange;
-  }
-}
+// const palette = {
+//   coolGrey: {
+//     10: "#f2f4f8",
+//     20: "#dde1e6",
+//     30: "#c1c7cd",
+//     40: "#a2a9b0",
+//     50: "#878d96",
+//     60: "#697077",
+//     70: "#4d5358",
+//     80: "#343a3f",
+//     90: "#1b1f21",
+//     // 90: "#21272a",
+//     // 100: "#1b1f21",
+//     100: "#121619",
+//   },
+//   blue: {
+//     10: "#edf5ff",
+//     20: "#d0e2ff",
+//     30: "#a6c8ff",
+//     40: "#78a9ff",
+//     50: "#4589ff",
+//     60: "#0f62fe",
+//     70: "#0043ce",
+//     80: "#002d9c",
+//     90: "#001d6c",
+//     100: "#001141",
+//   },
+// };
 
 const theme = createMuiTheme({
   typography: {
@@ -42,31 +47,30 @@ const theme = createMuiTheme({
   },
   palette: {
     type: "dark",
-    coolGray: {
-      10: "#f2f4f8",
-      20: "#dde1e6",
-      30: "#c1c7cd",
-      40: "#a2a9b0",
-      50: "#878d96",
-      60: "#697077",
-      70: "#4d5358",
-      80: "#343a3f",
-      90: "#1b1f21",
-      // 90: "#21272a",
-      // 100: "#1b1f21",
-      100: "#121619",
+    grey: {
+      50: "#f2f4f8",
+      100: "#dde1e6",
+      200: "#c1c7cd",
+      300: "#a2a9b0",
+      400: "#878d96",
+      500: "#697077",
+      600: "#4d5358",
+      700: "#343a3f",
+      800: "#1b1f21",
+      900: "#121619",
     },
-    blue: {
-      10: "#edf5ff",
-      20: "#d0e2ff",
-      30: "#a6c8ff",
-      40: "#78a9ff",
-      50: "#4589ff",
-      60: "#0f62fe",
-      70: "#0043ce",
-      80: "#002d9c",
-      90: "#001d6c",
-      100: "#001141",
+    primary: {
+      main: "#0f62fe",
+      dark: "#0043ce",
+    },
+    text: {
+      primary: "rgba(255, 255, 255, 1)",
+      secondary: "rgba(255, 255, 255, 0.87)",
+      disabled: "rgba(255, 255, 255, 0.2)",
+      hint: "rgba(255, 255, 255, 0.53)",
+    },
+    action: {
+      hover: "rgba(255, 255, 255, 0.06)",
     },
   },
   shape: {
@@ -107,8 +111,8 @@ const theme = createMuiTheme({
 });
 
 theme.palette.background = {
-  default: theme.palette.coolGray[100],
-  paper: theme.palette.coolGray[90],
+  default: theme.palette.grey[900],
+  paper: theme.palette.grey[800],
 };
 
 theme.overrides = {
@@ -123,12 +127,12 @@ theme.overrides = {
     root: {
       justifyContent: "space-between",
       textTransform: "none",
-      backgroundColor: theme.palette.blue[60],
+      backgroundColor: theme.palette.primary.main,
       maxWidth: "20rem",
       minWidth: "13.75rem",
       height: "3rem",
       "&:hover": {
-        backgroundColor: theme.palette.blue[70],
+        backgroundColor: theme.palette.primary.dark,
       },
     },
 
@@ -157,13 +161,13 @@ theme.overrides = {
   },
   MuiTabs: {
     indicator: {
-      backgroundColor: theme.palette.blue[60],
+      backgroundColor: theme.palette.primary.main,
       height: 1,
     },
   },
   MuiAppBar: {
     colorPrimary: {
-      backgroundColor: theme.palette.coolGray[100],
+      backgroundColor: theme.palette.grey[900],
     },
   },
   MuiStepLabel: {

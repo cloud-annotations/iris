@@ -1,6 +1,5 @@
 import React from "react";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { ThemeProvider } from "@material-ui/core/styles";
+import { ThemeProvider, CssBaseline } from "@material-ui/core";
 import theme from "@iris/theme";
 
 export const decorators = [

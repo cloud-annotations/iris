@@ -9,30 +9,6 @@ import { RootState } from "src/store";
 
 import ToolbarMenus from "./ToolbarMenus";
 
-// TODO: how do we fix this...?
-interface CarbonColorRange {
-  10: string;
-  20: string;
-  30: string;
-  40: string;
-  50: string;
-  60: string;
-  70: string;
-  80: string;
-  90: string;
-  100: string;
-}
-declare module "@material-ui/core/styles/createPalette" {
-  interface Palette {
-    blue: CarbonColorRange;
-    coolGray: CarbonColorRange;
-  }
-  interface PaletteOptions {
-    blue: CarbonColorRange;
-    coolGray: CarbonColorRange;
-  }
-}
-
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
@@ -43,18 +19,18 @@ const useStyles = makeStyles((theme: Theme) =>
       bottom: 0,
       right: 0,
       left: 0,
-      backgroundColor: theme.palette.coolGray[90],
+      backgroundColor: theme.palette.grey[800],
     },
     projectButton: {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: theme.palette.blue[60],
+      backgroundColor: theme.palette.primary.main,
       height: "100%",
       width: 64,
       cursor: "pointer",
       "&:hover": {
-        backgroundColor: theme.palette.blue[70],
+        backgroundColor: theme.palette.primary.dark,
       },
     },
     projectIcon: {

@@ -34,8 +34,5 @@ const Template: Story<Props> = (args) => {
 
 export const Primary = Template.bind({});
 Primary.args = {
-  value: null,
   options: options,
-  onChange: () => {},
-  onCreate: () => {},
 };

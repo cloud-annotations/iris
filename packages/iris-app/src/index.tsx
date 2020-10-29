@@ -1,8 +1,7 @@
 import React from "react";
 
 import theme from "@iris/theme";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import { ThemeProvider } from "@material-ui/core/styles";
+import { ThemeProvider, CssBaseline } from "@material-ui/core";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";

@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme: Theme) =>
       border: 0,
       borderTopWidth: divider,
       borderTopStyle: "solid",
-      borderTopColor: theme.palette.coolGray[100],
+      borderTopColor: theme.palette.grey[900],
       margin: 0,
     },
     main: {
