@@ -120,5 +120,8 @@
     "webpack-merge": "^5.2.0",
     "webpack-node-externals": "^2.5.2",
     "workbox-webpack-plugin": "^5.1.4"
+  },
+  "iris": {
+    "extensions": ["@iris/plugin-box-tool"]
   }
 }
