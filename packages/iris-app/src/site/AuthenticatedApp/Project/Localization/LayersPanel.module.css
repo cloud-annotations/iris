@@ -32,7 +32,7 @@
 }
 
 .editTextBase {
-  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-family: "ibm-plex-sans", Helvetica Neue, Arial, sans-serif;
   font-weight: var(--default-font-weight);
   font-size: var(--font-size-14);
   color: var(--brightText);
@@ -93,7 +93,7 @@
 
 .deleteIcon {
   composes: icon;
-  margin-left: 5px;
+  margin-left: auto;
   margin-right: 17px;
 }
 

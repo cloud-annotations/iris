@@ -1,2 +1,1 @@
-export { default as CreateableSelect } from "./CreateableSelect";
-export { default as Select } from "./Select";
+export { default as LabelSelect } from "./LabelSelect";

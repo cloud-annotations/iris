@@ -2,6 +2,8 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
+import useOnClickOutside from "./useOnClickOutside";
+
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     labelDropDownOpen: {
@@ -97,6 +99,12 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     dropDownIcon: {
       fill: theme.palette.text.secondary,
+      right: 0,
+      position: "absolute",
+      top: 0,
+      height: "100%",
+      width: 28,
+      padding: " 0 8px",
     },
   })
 );
@@ -104,10 +112,11 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface Props {
   labels: string[];
   activeLabel: string;
-  onChange: (label: string) => void;
+  onChange: (label: string) => any;
+  onFocusChange?: (focused: boolean) => any;
 }
 
-function ActiveLabel({ labels, activeLabel, onChange }: Props) {
+function LabelSelect({ labels, activeLabel, onChange, onFocusChange }: Props) {
   const classes = useStyles();
 
   const [labelOpen, setLabelOpen] = useState(false);
@@ -115,12 +124,22 @@ function ActiveLabel({ labels, activeLabel, onChange }: Props) {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const setFocus = React.useCallback(
+    (f) => {
+      setLabelOpen(f);
+      if (onFocusChange) {
+        onFocusChange(f);
+      }
+    },
+    [onFocusChange]
+  );
+
   const ref = useRef(null);
-  // const handleBlur = useCallback(() => {
-  //   setEditingLabelValue(undefined);
-  //   setLabelOpen(false);
-  // }, []);
-  // useOnClickOutside(ref, handleBlur);
+  const handleBlur = useCallback(() => {
+    setEditingLabelValue(undefined);
+    setFocus(false);
+  }, [setFocus]);
+  useOnClickOutside(ref, handleBlur);
 
   useEffect(() => {
     // calling this directly after setEditing doesn't work, which is why we need
@@ -135,32 +154,32 @@ function ActiveLabel({ labels, activeLabel, onChange }: Props) {
     setEditingLabelValue(e.target.value);
   }, []);
 
-  const handleKeyPress = useCallback(() => {
-    // if (e.key === "Enter") {
-    //   const newActiveLabel = inputRef.current.value.trim();
-    //   if (newActiveLabel) {
-    //     if (!labels.includes(newActiveLabel)) {
-    //       syncAction(createLabel, [newActiveLabel]);
-    //     }
-    //     setActiveLabel(newActiveLabel);
-    //   }
-    //   setEditingLabelValue(undefined);
-    //   setLabelOpen(false);
-    // }
-  }, []);
+  const handleKeyPress = useCallback(
+    (e) => {
+      if (e.key === "Enter" && inputRef.current) {
+        const newActiveLabel = inputRef.current.value.trim();
+        if (newActiveLabel) {
+          onChange(newActiveLabel);
+        }
+        setEditingLabelValue(undefined);
+        setFocus(false);
+      }
+    },
+    [onChange, setFocus]
+  );
 
   const handleClick = useCallback(() => {
-    setLabelOpen(true);
-  }, []);
+    setFocus(true);
+  }, [setFocus]);
 
   const handleLabelChosen = useCallback(
     (label) => (e: any) => {
       e.stopPropagation();
       onChange(label);
       setEditingLabelValue(undefined);
-      setLabelOpen(false);
+      setFocus(false);
     },
-    [onChange]
+    [onChange, setFocus]
   );
 
   const query = (labelEditingValue || "").trim();
@@ -212,7 +231,15 @@ function ActiveLabel({ labels, activeLabel, onChange }: Props) {
         type="text"
       />
       <svg
+        onClick={(e) => {
+          if (labelOpen) {
+            e.stopPropagation();
+            setEditingLabelValue(undefined);
+            setFocus(false);
+          }
+        }}
         className={classes.dropDownIcon}
+        style={labelOpen ? { transform: "rotate(-180deg)" } : undefined}
         focusable="false"
         preserveAspectRatio="xMidYMid meet"
         width="12"
@@ -226,4 +253,4 @@ function ActiveLabel({ labels, activeLabel, onChange }: Props) {
   );
 }
 
-export default ActiveLabel;
+export default LabelSelect;

@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React from "react";
 
+import { LabelSelect } from "@iris/components";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
-import useOnClickOutside from "src/hooks/useOnClickOutside";
 import { Annotation, sync } from "src/state/project";
 import { RootState } from "src/store";
 
@@ -77,7 +77,6 @@ function calculateCrop(
 }
 
 interface ListItemProps {
-  // setHoveredBox: Function;
   box: Box;
   labels: string[];
   imageID: string;
@@ -85,26 +84,11 @@ interface ListItemProps {
   imageDims: number[];
 }
 
-function ListItem({
-  // setHoveredBox,
-  box,
-  labels,
-  imageID,
-  image,
-  imageDims,
-}: ListItemProps) {
+function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
+  const [focused, setFocused] = React.useState(false);
   const dispatch = useDispatch();
-  const [labelOpen, setLabelOpen] = useState(false);
 
-  const [labelEditingValue, setEditingLabelValue] = useState(undefined);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleEdit = useCallback(() => {
-    setLabelOpen(true);
-  }, []);
-
-  const handleDelete = useCallback(() => {
+  const handleDelete = React.useCallback(() => {
     sync(
       dispatch({
         type: "project/deleteAnnotations",
@@ -113,72 +97,22 @@ function ListItem({
     );
   }, [box, dispatch, imageID]);
 
-  useEffect(() => {
-    // calling this directly after setEditing doesn't work, which is why we need
-    // to use and effect.
-    if (labelOpen && inputRef.current) {
-      inputRef.current.focus();
-      inputRef.current.select();
-    }
-  }, [labelOpen]);
-
-  const ref = useRef(null);
-  const handleBlur = useCallback(() => {
-    setEditingLabelValue(undefined);
-    setLabelOpen(false);
-  }, []);
-  useOnClickOutside(ref, handleBlur);
-
-  const handleChange = useCallback((e) => {
-    setEditingLabelValue(e.target.value);
+  const handleLabelChosen = React.useCallback((_label) => {
+    //   if (!labels.includes(newActiveLabel)) {
+    //     syncAction(createLabel, [newActiveLabel]);
+    //   }
+    // syncAction(deleteBox, [imageName, box]);
+    // syncAction(createBox, [imageName, { ...box, label: label }]);
   }, []);
 
-  const handleKeyPress = useCallback((e) => {
-    if (e.key === "Enter") {
-      // const newActiveLabel = inputRef.current.value.trim();
-      // if (newActiveLabel) {
-      //   if (!labels.includes(newActiveLabel)) {
-      //     syncAction(createLabel, [newActiveLabel]);
-      //   }
-      //   syncAction(deleteBox, [imageName, box]);
-      //   syncAction(createBox, [imageName, { ...box, label: newActiveLabel }]);
-      // }
-      setEditingLabelValue(undefined);
-      setLabelOpen(false);
-    }
-  }, []);
-
-  const handleLabelChosen = useCallback(
-    (_label) => (e: any) => {
-      e.stopPropagation();
-      // syncAction(deleteBox, [imageName, box]);
-      // syncAction(createBox, [imageName, { ...box, label: label }]);
-      setEditingLabelValue(undefined);
-      setLabelOpen(false);
-    },
-    []
-  );
-
-  const query = (labelEditingValue || "").trim();
-  const filteredLabels =
-    query === ""
-      ? labels
-      : labels
-          // If the query is at the begining of the label.
-          .filter(
-            (item) => item.toLowerCase().indexOf(query.toLowerCase()) === 0
-          )
-          // Only sort the list when we filter, to make it easier to see diff.
-          .sort((a, b) => a.length - b.length);
-
-  const handleBoxEnter = useCallback(
+  const handleBoxEnter = React.useCallback(
     (box) => () => {
       dispatch({ type: "project/highlightBox", payload: box });
     },
     [dispatch]
   );
 
-  const handleBoxLeave = useCallback(() => {
+  const handleBoxLeave = React.useCallback(() => {
     dispatch({ type: "project/highlightBox", payload: undefined });
   }, [dispatch]);
 
@@ -193,7 +127,7 @@ function ListItem({
 
   return (
     <div
-      className={labelOpen ? styles.editing : styles.listItemWrapper}
+      className={focused ? styles.editing : styles.listItemWrapper}
       onMouseEnter={handleBoxEnter(box)}
       onMouseLeave={handleBoxLeave}
     >
@@ -208,41 +142,12 @@ function ListItem({
           }}
         />
       </div>
-      <div ref={ref} className={styles.dropDownWrapper}>
-        {filteredLabels.length > 0 && (
-          <div className={labelOpen ? styles.cardOpen : styles.card}>
-            {filteredLabels.map((label) => (
-              <div
-                className={styles.listItem}
-                key={label}
-                onClick={handleLabelChosen(label)}
-              >
-                {label}
-              </div>
-            ))}
-          </div>
-        )}
-        <input
-          ref={inputRef}
-          className={styles.editTextWrapper}
-          readOnly={!labelOpen}
-          disabled={!labelOpen}
-          onChange={handleChange}
-          onKeyPress={handleKeyPress}
-          // We need to use undefined because and empty string is falsy
-          value={
-            labelEditingValue !== undefined ? labelEditingValue : box.label
-          }
-          type="text"
-        />
-      </div>
-      <div onClick={handleEdit} className={styles.editIcon}>
-        <svg height="12px" width="12px" viewBox="2 2 36 36">
-          <g>
-            <path d="m30 2.5l-5 5 7.5 7.5 5-5-7.5-7.5z m-27.5 27.5l0 7.5 7.5 0 20-20-7.5-7.5-20 20z m7.5 5h-5v-5h2.5v2.5h2.5v2.5z" />
-          </g>
-        </svg>
-      </div>
+      <LabelSelect
+        labels={labels}
+        activeLabel={box.label}
+        onChange={handleLabelChosen}
+        onFocusChange={(f) => setFocused(f)}
+      />
       <div onClick={handleDelete} className={styles.deleteIcon}>
         <svg height="12px" width="12px" viewBox="2 2 36 36">
           <g>
@@ -277,9 +182,9 @@ function LayersPanel() {
     return boxes;
   });
 
-  const [imageDims, setImageDims] = useState([0, 0]);
+  const [imageDims, setImageDims] = React.useState([0, 0]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const img = new Image();
     img.onload = () => {
       setImageDims([img.width, img.height]);

@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Select } from "@iris/components";
+import { LabelSelect } from "@iris/components";
 import { useSelector, useDispatch } from "react-redux";
 
 function ActiveLabel() {
@@ -21,7 +21,7 @@ function ActiveLabel() {
   );
 
   return (
-    <Select
+    <LabelSelect
       labels={labels}
       activeLabel={activeLabel}
       onChange={handleLabelChosen}
