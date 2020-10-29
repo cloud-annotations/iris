@@ -1,6 +1,6 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
-/iris/my-first-project
+/iris/sample-projects
 
 # dependencies
 **/node_modules

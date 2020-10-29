@@ -16,7 +16,12 @@ class ProjectProvider {
   async getProject(projectID: string) {
     const project = projects.find((p) => p.id === projectID) as any;
     const annotationsString = await fs2.readFile(
-      path.join(process.cwd(), projectID, "_annotations.json"),
+      path.join(
+        process.cwd(),
+        "sample-projects",
+        projectID,
+        "_annotations.json"
+      ),
       "utf-8"
     );
     project.annotations = JSON.parse(annotationsString);
@@ -24,7 +29,9 @@ class ProjectProvider {
   }
 
   async getImage(projectID: string, imageID: string) {
-    return fs.createReadStream(path.join(process.cwd(), projectID, imageID));
+    return fs.createReadStream(
+      path.join(process.cwd(), "sample-projects", projectID, imageID)
+    );
   }
 }
 
