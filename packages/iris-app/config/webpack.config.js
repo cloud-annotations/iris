@@ -52,7 +52,7 @@ const sassRegex = /\.(scss|sass)$/;
 const sassModuleRegex = /\.module\.(scss|sass)$/;
 
 // Create extension activation code.
-const appEntryPoint = path.join(paths.appSrc, "bootstrap.js");
+// const appEntryPoint = path.join(paths.appSrc, "bootstrap.js");
 const templatePath = path.join(paths.appSrc, "bootstrap.handlebars");
 const templateString = fs.readFileSync(templatePath).toString();
 Handlebars.registerHelper("clean", (s) => {
@@ -62,7 +62,7 @@ const template = Handlebars.compile(templateString);
 const output = template({
   extensions: appPackageJson.iris.extensions,
 });
-fs.writeFileSync(appEntryPoint, output);
+fs.writeFileSync(paths.appIndexJs, output);
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
@@ -171,8 +171,8 @@ module.exports = function (webpackEnv) {
 
       // Finally, this is your app's code:
       //
-      // paths.appIndexJs,
-      appEntryPoint,
+      paths.appIndexJs,
+      // appEntryPoint,
       //
 
       // We include the app code last so that if there is a runtime error during

@@ -5,10 +5,10 @@ import { useAuthentication } from "@iris/api";
 // This will result in `<link rel="prefetch" href="login-modal-chunk.js">` being
 // appended in the head of the page, which will instruct the browser to prefetch
 // in idle time the `authenticated-app-chunk.js` file.
-const AuthenticatedApp = React.lazy(
-  () => import(/* webpackPrefetch: true */ "./site/AuthenticatedApp")
+const AuthenticatedApp = React.lazy(() =>
+  import(/* webpackPrefetch: true */ "./AuthenticatedApp")
 );
-const UnauthenticatedApp = lazy(() => import("./site/UnauthenticatedApp"));
+const UnauthenticatedApp = lazy(() => import("./UnauthenticatedApp"));
 
 function App() {
   const authenticated = useAuthentication();
