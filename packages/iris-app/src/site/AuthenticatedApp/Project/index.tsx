@@ -1,8 +1,7 @@
 import React from "react";
 
+import { useProject } from "@iris/store/dist/project";
 import { useParams } from "react-router-dom";
-
-import { useProject } from "src/state/project";
 
 import Header from "./Header";
 import Layout from "./Layout";

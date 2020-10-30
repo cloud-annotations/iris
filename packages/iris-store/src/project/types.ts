@@ -1,19 +1,19 @@
-export interface Project {
+export interface IProject {
   id: string;
   name: string;
   created: string;
 }
 
-export interface Annotations {
+export interface IAnnotations {
   version: string;
   type: string;
   labels: string[];
   annotations: {
-    [key: string]: Annotation;
+    [key: string]: IAnnotation;
   };
 }
 
-export interface Annotation {
+export interface IAnnotation {
   x?: number;
   y?: number;
   x2?: number;

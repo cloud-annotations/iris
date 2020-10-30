@@ -1,12 +1,12 @@
 import React from "react";
 
+import { IProject } from "@iris/store/dist/project";
 import { Link } from "react-router-dom";
 
-import { Project } from "src/project";
-import { useProjects } from "src/state/api";
+import { useProjects } from "@iris/api";
 
 interface ProjectProps {
-  projects: Project[];
+  projects: IProject[];
 }
 
 function ProjectsView({ projects }: ProjectProps) {

@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 
-import styles from "./ThumbnailThing.module.css";
 import fetchImage from "api/fetchImage";
+
+import styles from "./ThumbnailThing.module.css";
 
 const MAX_HEIGHT = 80;
 // const MAX_WIDTH = 200

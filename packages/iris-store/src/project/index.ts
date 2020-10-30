@@ -3,9 +3,9 @@ import { useEffect } from "react";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 
-import { AppThunk, RootState } from "src/store";
-import API from "src/util/api";
-import { fetcher } from "src/util/fetcher";
+import API from "@iris/api";
+
+import { AppThunk, RootState } from "./..";
 
 const appstaticAPI = new API();
 
@@ -26,13 +26,12 @@ export const sync = (action: any): AppThunk => async (dispatch, getState) => {
 const load = createAsyncThunk(
   "project/load",
   async (projectID: string, _thunkAPI) => {
-    const command = appstaticAPI.endpoint("/api/projects/:id", {
+    const request = appstaticAPI.endpoint("/api/projects/:id", {
       path: {
         id: projectID,
       },
     });
-    const response = await fetcher(command as string);
-    return response;
+    return await request.do();
   }
 );
 
@@ -67,7 +66,7 @@ interface Annotations {
   [key: string]: Annotation[];
 }
 
-interface ProjectState {
+export interface ProjectState {
   status: "idle" | "pending" | "success" | "error";
   saving: number;
   id?: string;
@@ -247,3 +246,4 @@ const projectSlice = createSlice({
 });
 
 export default projectSlice.reducer;
+export * from "./types";

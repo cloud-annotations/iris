@@ -70,6 +70,8 @@
     ]
   },
   "dependencies": {
+    "@iris/api": "^0.0.1",
+    "@iris/store": "^0.0.1",
     "@iris/theme": "^0.0.1",
     "@iris/components": "^0.0.1",
     "@iris/plugin-box-tool": "^0.0.1",

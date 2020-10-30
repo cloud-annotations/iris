@@ -1,13 +1,13 @@
 import useSWR from "swr";
 
-import { Project } from "src/project";
-import API from "src/util/api";
+import API from "./api";
+import { fetcher } from "./fetcher";
 
 const appstaticAPI = new API();
 
 export function useAuthentication() {
   const checkAuthentication = appstaticAPI.endpoint("/auth/status");
-  const { error } = useSWR(checkAuthentication);
+  const { error } = useSWR(checkAuthentication.key, fetcher);
 
   // NOTE: pretends to be logged out if it returns any kind of error.
   // const authenticated = error?.status !== 401;
@@ -17,7 +17,7 @@ export function useAuthentication() {
 
 export function useProjects() {
   const getProjects = appstaticAPI.endpoint("/api/projects");
-  const { data, mutate, error } = useSWR<Project[]>(getProjects);
+  const { data, mutate, error } = useSWR<any[]>(getProjects.key, fetcher);
 
   return {
     projects: data,
@@ -30,7 +30,7 @@ export function useProject(id: string) {
   const getProject = appstaticAPI.endpoint("/api/projects/:id", {
     path: { id },
   });
-  const { data, mutate, error } = useSWR<Project>(getProject);
+  const { data, mutate, error } = useSWR<any>(getProject.key, fetcher);
 
   return {
     project: data,

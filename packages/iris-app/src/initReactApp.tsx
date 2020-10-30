@@ -1,21 +1,20 @@
 import React from "react";
 
-import theme from "@iris/theme";
 import { ThemeProvider, CssBaseline } from "@material-ui/core";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
 import { SWRConfig } from "swr";
 
+import store from "@iris/store";
+import theme from "@iris/theme";
+
 import App from "./App";
-import store from "./store";
-import { fetcher } from "./util/fetcher";
 
 import "./index.css";
 
 const swrOptions = {
   errorRetryCount: 3,
-  fetcher: fetcher,
 };
 
 function initReactApp() {

@@ -1,9 +1,16 @@
 import { keyInterface } from "swr";
 
+import { fetcher } from "./fetcher";
+
 interface Options {
   auth?: string;
   path?: { [key: string]: any };
   query?: { [key: string]: any };
+}
+
+interface Request {
+  key: keyInterface;
+  do: () => Promise<any>;
 }
 
 class API {
@@ -13,7 +20,7 @@ class API {
     this.host = host !== undefined ? "https://" + host : "";
   }
 
-  endpoint(endpoint: string, options: Options = {}): keyInterface {
+  endpoint(endpoint: string, options: Options = {}): Request {
     const { path, query, auth } = options;
 
     let reject;
@@ -26,7 +33,10 @@ class API {
     });
 
     if (reject === true) {
-      return null;
+      return {
+        key: null,
+        do: async () => {},
+      };
     }
 
     const queryParams = new URLSearchParams(query);
@@ -37,11 +47,12 @@ class API {
       url += "?" + queryString;
     }
 
-    if (auth) {
-      return [url, auth];
-    }
-
-    return url;
+    return {
+      key: [url, auth],
+      do: async () => {
+        return await fetcher(url, auth);
+      },
+    };
   }
 }
 

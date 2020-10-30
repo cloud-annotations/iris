@@ -4,8 +4,9 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 
+import { RootState } from "@iris/store";
+
 import { ProfileDropDown } from "src/common/DropDown/DropDown";
-import { RootState } from "src/store";
 
 import ToolbarMenus from "./ToolbarMenus";
 

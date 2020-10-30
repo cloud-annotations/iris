@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from "react";
 
+import { sync } from "@iris/store/dist/project";
 import { useDispatch, useSelector } from "react-redux";
+
+import { RootState } from "@iris/store";
 
 import Canvas, { BOX, MOVE } from "src/common/Canvas/Canvas";
 import CrossHair from "src/common/CrossHair/CrossHair";
 import EmptySet from "src/common/EmptySet/EmptySet";
-import { sync } from "src/state/project";
-import { RootState } from "src/store";
 
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
@@ -203,7 +204,7 @@ function DrawingPanel({
 
   const [bboxes, onlyLabels] = partition(
     boxes,
-    (box) =>
+    (box: any) =>
       box.x !== undefined &&
       box.y !== undefined &&
       box.x2 !== undefined &&

@@ -2,7 +2,7 @@ import React from "react";
 
 import { useSelector } from "react-redux";
 
-import { RootState } from "src/store";
+import { RootState } from "@iris/store";
 
 import styles from "./ToolOptionsPanel.module.css";
 

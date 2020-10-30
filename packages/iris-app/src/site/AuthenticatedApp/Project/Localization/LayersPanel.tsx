@@ -1,11 +1,11 @@
 import React from "react";
 
-import { LabelSelect } from "@iris/components";
+import { Annotation, sync } from "@iris/store/dist/project";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
-import { Annotation, sync } from "src/state/project";
-import { RootState } from "src/store";
+import { LabelSelect } from "@iris/components";
+import { RootState } from "@iris/store";
 
 import styles from "./LayersPanel.module.css";
 

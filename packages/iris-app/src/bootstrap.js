@@ -1,4 +1,4 @@
-import initReactApp from "./"
+import initReactApp from "./initReactApp"
 import initIris from "./initIris"
 
 initIris()

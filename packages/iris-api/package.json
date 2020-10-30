@@ -1,0 +1,13 @@
+{
+  "name": "@iris/api",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsc -w",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "swr": "^0.3.6"
+  }
+}

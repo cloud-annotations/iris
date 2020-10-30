@@ -1,9 +1,10 @@
 import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
 
-import project from "./state/project";
+import project from "./project";
 
 const store = configureStore({
   reducer: { project },
+  // @ts-ignore
   devTools: process.env.NODE_ENV !== "production",
 });
 

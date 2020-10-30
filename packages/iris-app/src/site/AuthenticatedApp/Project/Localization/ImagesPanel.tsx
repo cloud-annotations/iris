@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useCallback } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 
+import { RootState } from "@iris/store";
+
 import HorizontalListController from "src/common/HorizontalList/HorizontalListController";
 import ImageTileV4 from "src/common/ImageTile/ImageTileV4";
-import { RootState } from "src/store";
 
 import styles from "./ImagesPanel.module.css";
 

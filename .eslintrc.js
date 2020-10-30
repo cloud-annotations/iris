@@ -37,6 +37,11 @@ module.exports = {
             group: "external",
             position: "before",
           },
+          {
+            pattern: "@iris/*",
+            group: "external",
+            position: "after",
+          },
         ],
         pathGroupsExcludedImportTypes: ["builtin"],
       },
