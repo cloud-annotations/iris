@@ -1,5 +1,5 @@
-import initReactApp from "./initReactApp"
 import initIris from "./initIris"
+import initReactApp from "./initReactApp"
 
 initIris()
 

@@ -2,10 +2,8 @@ import React, { useEffect, useRef, useCallback } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 
+import { HorizontalListController, ImageTile } from "@iris/components";
 import { RootState } from "@iris/store";
-
-import HorizontalListController from "src/common/HorizontalList/HorizontalListController";
-import ImageTileV4 from "src/common/ImageTile/ImageTileV4";
 
 import styles from "./ImagesPanel.module.css";
 
@@ -70,7 +68,7 @@ function ImagesPanel() {
     cat: (20).toLocaleString(),
   };
   const cells = images.map((i) => {
-    return <ImageTileV4 url={`/api/projects/${projectID}/images/${i}`} />;
+    return <ImageTile url={`/api/projects/${projectID}/images/${i}`} />;
   });
 
   const handleSelectionChanged = useCallback(

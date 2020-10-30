@@ -6,8 +6,6 @@ import { Link } from "react-router-dom";
 
 import { RootState } from "@iris/store";
 
-import { ProfileDropDown } from "src/common/DropDown/DropDown";
-
 import ToolbarMenus from "./ToolbarMenus";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -140,8 +138,6 @@ function Header({ name, saving }: Props) {
           </div>
         </div>
       </div>
-
-      <ProfileDropDown profile={{}} />
     </div>
   );
 }

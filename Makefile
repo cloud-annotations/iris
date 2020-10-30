@@ -31,4 +31,5 @@ start:
 storybook:
 	yarn lerna exec "rm -rf node_modules/html-webpack-plugin/node_modules/webpack" --scope @iris/components
 	# exec makes progress bar work
+	yarn lerna run build --stream --scope @iris/components --scope @iris/theme
 	yarn lerna exec "yarn storybook" --scope @iris/components

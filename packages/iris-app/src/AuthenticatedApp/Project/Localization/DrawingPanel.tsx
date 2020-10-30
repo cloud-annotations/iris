@@ -3,14 +3,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { sync } from "@iris/store/dist/project";
 import { useDispatch, useSelector } from "react-redux";
 
+import { Canvas, CrossHair, EmptySet } from "@iris/components";
 import { RootState } from "@iris/store";
-
-import Canvas, { BOX, MOVE } from "src/common/Canvas/Canvas";
-import CrossHair from "src/common/CrossHair/CrossHair";
-import EmptySet from "src/common/EmptySet/EmptySet";
 
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
+
+const MOVE = "move";
+const BOX = "box";
 
 // const iou = (boxA: any, boxB: any) => {
 //   const xA = Math.max(boxA.bbox[0], boxB.x);
