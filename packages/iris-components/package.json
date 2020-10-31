@@ -12,6 +12,7 @@
   "dependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/lab": "^4.0.0-alpha.56",
+    "@iris/hooks": "^0.0.1",
     "@iris/theme": "^0.0.1",
     "@storybook/react": "6.0.27",
     "@storybook/addon-essentials": "6.0.27"

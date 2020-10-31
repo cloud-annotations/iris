@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
-import useClickOutside from "./../useClickOutside";
+import { useClickOutside } from "@iris/hooks";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

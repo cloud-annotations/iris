@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 
-import { useClickOutside } from "@iris/components";
+import { useClickOutside } from "@iris/hooks";
 
 import Divider from "./Divider";
 import styles from "./Header.module.css";
