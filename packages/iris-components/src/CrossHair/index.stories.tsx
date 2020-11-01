@@ -5,7 +5,7 @@ import { Story } from "@storybook/react/types-6-0";
 import CrossHair from "./";
 
 export default {
-  title: "Example/CrossHairV2",
+  title: "components/CrossHair",
   component: CrossHair,
 };
 

@@ -5,7 +5,7 @@ import { Story } from "@storybook/react/types-6-0";
 import EmptySet from "./";
 
 export default {
-  title: "Example/EmptySet",
+  title: "components/EmptySet",
   component: EmptySet,
 };
 

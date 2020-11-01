@@ -5,7 +5,7 @@ import { Story } from "@storybook/react/types-6-0";
 import Select, { Props } from "./";
 
 export default {
-  title: "Example/Select",
+  title: "components/LabelSelect",
   component: Select,
 };
 
