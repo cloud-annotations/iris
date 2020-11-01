@@ -2,37 +2,105 @@ import React from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    selected: {},
-    secondarySelected: {},
-    container: {},
-    highlight: {},
-    image: {},
-    iconWrapper: {},
-    icon: {},
-  })
-);
+const useStyles = makeStyles((theme: Theme) => {
+  const base = createStyles({
+    root: {
+      position: "relative",
+      userSelect: "none",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      height: 84,
+      margin: "0 8px 8px 8px",
+    },
+  });
+  return createStyles({
+    normal: {
+      ...base.root,
+      "&:hover $image": {
+        border: `2px solid ${theme.palette.primary.main}`,
+      },
+      "&:hover $iconWrapper": {
+        opacity: 0.4,
+      },
+    },
+    active: {
+      ...base.root,
+      "& $image": {
+        height: "71.4%",
+        margin: "0 20.328px",
+        border: `2px solid ${theme.palette.primary.main}`,
+      },
+      "& $iconWrapper": {
+        opacity: 1,
+        transition: "none",
+      },
+      "& $highlight": {
+        opacity: 1,
+      },
+    },
+    selected: {
+      ...base.root,
+      "& $image": {
+        height: "71.4%",
+        margin: " 0 20.328px",
+        border: `2px solid ${theme.palette.primary.main}`,
+      },
+      "&:hover $iconWrapper": {
+        opacity: 0.4,
+      },
+      "& $highlight": {
+        opacity: 1,
+      },
+    },
+    highlight: {
+      height: "100%",
+      background: theme.palette.action.hover,
+      position: "absolute",
+      left: -6,
+      right: -6,
+      top: 0,
+      borderRadius: 4,
+      opacity: 0,
+    },
+    image: {
+      position: "relative",
+      height: "100%",
+      backgroundColor: theme.palette.action.hover,
+      verticalAlign: "middle",
+      border: "2px solid transparent",
+      borderRadius: 4,
+    },
+    iconWrapper: {
+      position: "absolute",
+      top: 8,
+      right: 8,
+      width: 26,
+      height: 26,
+      opacity: 0,
+      borderRadius: "50%",
+      backgroundColor: "#ffffff",
+      boxShadow: "0 1px 2px rgba(0, 0, 0, 0.25)",
+    },
+    icon: {
+      fill: theme.palette.primary.main,
+      width: 24,
+      height: 24,
+      margin: 1,
+    },
+  });
+});
 
 interface ImageTileV4Props {
-  selected?: boolean;
-  secondarySelected?: boolean;
+  state: "active" | "selected" | "normal";
   url: string;
 }
 
-function ImageTileV4({ selected, secondarySelected, url }: ImageTileV4Props) {
+function ImageTileV4({ state, url }: ImageTileV4Props) {
   const classes = useStyles();
 
   return (
-    <div
-      className={
-        selected
-          ? classes.selected
-          : secondarySelected
-          ? classes.secondarySelected
-          : classes.container
-      }
-    >
+    <div className={classes[state]}>
       <div className={classes.highlight} />
       <img draggable={false} className={classes.image} alt="" src={url} />
       <div className={classes.iconWrapper}>

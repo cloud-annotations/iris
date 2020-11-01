@@ -7,7 +7,7 @@ interface Props {
 }
 
 const Vertical = React.forwardRef<SVGSVGElement, Props>(({ color }, ref) => {
-  const classes = useStyles();
+  const classes = useStyles({ color });
   return (
     <svg
       preserveAspectRatio="none"
@@ -15,7 +15,7 @@ const Vertical = React.forwardRef<SVGSVGElement, Props>(({ color }, ref) => {
       className={classes.base}
       ref={ref}
     >
-      <rect x="0" y="0" width="1" height="1" style={{ fill: color }} />
+      <rect x="0" y="0" width="1" height="1" className={classes.primary} />
       <rect x="1" y="0" width="1" height="1" className={classes.shadow} />
     </svg>
   );
