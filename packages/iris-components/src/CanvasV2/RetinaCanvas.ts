@@ -15,11 +15,16 @@ interface Box extends Point {
 }
 
 class RetinaCanvas {
-  private dp: number;
-  private ctx: CanvasRenderingContext2D;
-  private width: number;
-  private height: number;
-  private padding: number;
+  private readonly dp: number;
+  private readonly ctx: CanvasRenderingContext2D;
+  private readonly width: number;
+  private readonly height: number;
+  private readonly padding: number;
+
+  private offsetX = 0;
+  private offsetY = 0;
+  private scaledWidth = 0;
+  private scaledHeight = 0;
 
   constructor(
     canvas: HTMLCanvasElement,
@@ -44,7 +49,27 @@ class RetinaCanvas {
     this.ctx = ctx;
   }
 
-  loadImage(imageData: HTMLImageElement) {
+  private x(x: number) {
+    return this.px(this.offsetX + x * this.scaledWidth);
+  }
+
+  private y(y: number) {
+    return this.px(this.offsetY + y * this.scaledHeight);
+  }
+
+  private w(w: number) {
+    return this.px(w * this.scaledWidth);
+  }
+
+  private h(h: number) {
+    return this.px(h * this.scaledHeight);
+  }
+
+  private px(px: number) {
+    return Math.round(px * this.dp);
+  }
+
+  drawImage(imageData: HTMLImageElement) {
     const { naturalWidth, naturalHeight } = imageData;
 
     const spaceMaxWidth = this.width - 2 * this.padding;
@@ -56,55 +81,111 @@ class RetinaCanvas {
     const rs = maxWidth / maxHeight;
     const ri = naturalWidth / naturalHeight;
 
-    let scaledWidth;
-    let scaledHeight;
-
     if (rs > ri) {
-      scaledWidth = (naturalWidth * maxHeight) / naturalHeight;
-      scaledHeight = maxHeight;
+      this.scaledWidth = (naturalWidth * maxHeight) / naturalHeight;
+      this.scaledHeight = maxHeight;
     } else {
-      scaledWidth = maxWidth;
-      scaledHeight = (naturalHeight * maxWidth) / naturalWidth;
+      this.scaledWidth = maxWidth;
+      this.scaledHeight = (naturalHeight * maxWidth) / naturalWidth;
     }
 
-    const offsetX = this.padding + (spaceMaxWidth - scaledWidth) / 2;
-    const offsetY = this.padding + (spaceMaxHeight - scaledHeight) / 2;
+    this.offsetX = this.padding + (spaceMaxWidth - this.scaledWidth) / 2;
+    this.offsetY = this.padding + (spaceMaxHeight - this.scaledHeight) / 2;
 
     this.ctx.drawImage(
       imageData,
-      offsetX * this.dp,
-      offsetY * this.dp,
-      scaledWidth * this.dp,
-      scaledHeight * this.dp
+      this.px(this.offsetX),
+      this.px(this.offsetY),
+      this.px(this.scaledWidth),
+      this.px(this.scaledHeight)
     );
   }
 
-  drawAnchor({ x, y }: Point) {
-    const scale = window.devicePixelRatio;
-    ctx.fillStyle = "#ffffff";
-    ctx.beginPath();
-    ctx.arc(x * scale, y * scale, 4.5 * scale, 0, Math.PI * 2, true);
-    ctx.fill();
+  drawBox(box: Box) {
+    this.drawMoveBox(box);
 
-    ctx.fillStyle = "#bebebe";
-    ctx.beginPath();
-    ctx.arc(x * scale, y * scale, 3.5 * scale, 0, Math.PI * 2, true);
-    ctx.fill();
+    this.drawAnchor({
+      x: box.x,
+      y: box.y,
+    });
+
+    this.drawAnchor({
+      x: box.x + box.width,
+      y: box.y,
+    });
+
+    this.drawAnchor({
+      x: box.x + box.width,
+      y: box.y + box.height,
+    });
+
+    this.drawAnchor({
+      x: box.x,
+      y: box.y + box.height,
+    });
   }
 
-  drawMoveBox({ x, y, width, height }: Box) {
-    const scale = window.devicePixelRatio;
-    ctx.lineWidth = 1 * scale;
+  private drawAnchor(point: Point) {
+    this.ctx.fillStyle = "#ffffff";
+    this.ctx.beginPath();
+    this.ctx.arc(
+      this.x(point.x),
+      this.y(point.y),
+      this.px(4.5),
+      0,
+      Math.PI * 2,
+      true
+    );
+    this.ctx.fill();
 
-    ctx.strokeStyle = "black";
-    ctx.setLineDash([4 * scale, 4 * scale]);
-    ctx.lineDashOffset = 4 * scale;
-    ctx.strokeRect(x * scale, y * scale, width * scale + 1, height * scale + 1);
+    this.ctx.fillStyle = "#bebebe";
+    this.ctx.beginPath();
+    this.ctx.arc(
+      this.x(point.x),
+      this.y(point.y),
+      this.px(3.5),
+      0,
+      Math.PI * 2,
+      true
+    );
+    this.ctx.fill();
+  }
 
-    ctx.strokeStyle = "white";
-    ctx.setLineDash([4 * scale, 4 * scale]);
-    ctx.lineDashOffset = 0;
-    ctx.strokeRect(x * scale, y * scale, width * scale + 1, height * scale + 1);
+  private strokeRect(box: Box, { color, dash = [], offset, size }: any) {
+    this.ctx.save();
+
+    this.ctx.lineWidth = this.px(size);
+
+    const inlineFix = this.ctx.lineWidth / 2;
+
+    this.ctx.strokeStyle = color;
+
+    this.ctx.setLineDash(dash.map((d: number) => this.px(d)));
+
+    this.ctx.lineDashOffset = this.px(offset);
+    this.ctx.strokeRect(
+      this.x(box.x) + inlineFix,
+      this.y(box.y) + inlineFix,
+      this.w(box.width) - 2 * inlineFix,
+      this.h(box.width) - 2 * inlineFix
+    );
+    this.ctx.restore();
+  }
+
+  private drawMoveBox(box: Box) {
+    this.strokeRect(box, {
+      color: "black",
+      dash: [4, 4],
+      offset: 4,
+      size: 1,
+    });
+
+    this.strokeRect(box, {
+      color: "white",
+      dash: [4, 4],
+      offset: 0,
+      size: 1,
+    });
   }
 }
 
