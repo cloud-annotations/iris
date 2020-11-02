@@ -24,7 +24,7 @@ interface Props {
   render: { [key: string]: (c: CrispyCanvas, v: any) => void };
   actions: {
     [key: string]: {
-      onMove: (coords: { x: number; y: number }) => void;
+      onMove: (coords: { x: number; y: number }, target: any) => void;
     };
   };
 }
@@ -93,9 +93,9 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
   const imageData = useImage(image);
 
   const cRef = useRef<CrispyCanvas | null>(null);
-  const stateRef = useRef({
+  const stateRef = useRef<{ dragging: boolean; target: any }>({
     dragging: false,
-    tool: "",
+    target: undefined,
   });
 
   useEffect(() => {
@@ -107,7 +107,7 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
 
       for (const [key, val] of Object.entries(shapes)) {
         for (const v of val) {
-          c.setTool(key);
+          c.setTargets(key, v);
           render[key](c, v);
         }
       }
@@ -126,10 +126,10 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
 
         switch (mode) {
           case "move": {
-            const clickedTool = cRef.current.toolForClick({ x, y });
-            if (clickedTool) {
+            const target = cRef.current.toolForClick({ x, y });
+            if (target) {
               stateRef.current.dragging = true;
-              stateRef.current.tool = clickedTool;
+              stateRef.current.target = target;
             }
             return;
           }
@@ -153,7 +153,10 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
             const x = clientX - rect.left;
             const y = clientY - rect.top;
             const coords = cRef.current.getCoords({ x, y });
-            actions[stateRef.current.tool].onMove(coords);
+            actions[stateRef.current.target.tool].onMove(
+              coords,
+              stateRef.current.target
+            );
             return;
           }
           case "draw": {

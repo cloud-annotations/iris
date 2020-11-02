@@ -16,6 +16,8 @@ interface Box extends Point {
 }
 
 interface TouchTarget {
+  shapeID: string;
+  targetID: string;
   tool: string;
   target: Path2D;
 }
@@ -87,14 +89,25 @@ class CrispyCanvas {
     };
   }
 
-  setTool(tool: string) {
+  setTargets(tool: string, shape: { id: string; targets: any[] }) {
     this.tool = tool;
+
+    for (const t of shape.targets) {
+      const target = new Path2D();
+      target.arc(this.x(t.x), this.y(t.y), this.px(5), 0, Math.PI * 2);
+      this.touchTargets.push({
+        shapeID: shape.id,
+        targetID: t.id,
+        tool: this.tool,
+        target: target,
+      });
+    }
   }
 
   toolForClick({ x, y }: Point) {
-    for (const { tool, target } of this.touchTargets) {
-      if (this.ctx.isPointInPath(target, this.px(x), this.px(y))) {
-        return tool;
+    for (const t of this.touchTargets) {
+      if (this.ctx.isPointInPath(t.target, this.px(x), this.px(y))) {
+        return t;
       }
     }
     return undefined;
@@ -200,13 +213,6 @@ class CrispyCanvas {
   }
 
   drawAnchor(point: Point, color?: string) {
-    const target = new Path2D();
-    target.arc(this.x(point.x), this.y(point.y), this.px(5), 0, Math.PI * 2);
-    this.touchTargets.push({
-      tool: this.tool,
-      target: target,
-    });
-
     switch (this.mode) {
       case "move": {
         this.point(point, { color: "#ffffff", size: 4.5 });
