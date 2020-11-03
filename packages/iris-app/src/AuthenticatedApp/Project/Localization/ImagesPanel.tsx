@@ -68,6 +68,7 @@ function ImagesPanel() {
     cat: (20).toLocaleString(),
   };
   const cells = images.map((i) => {
+    // TODO we need to find a better way to inject props
     // @ts-ignore
     return <ImageTile url={`/api/projects/${projectID}/images/${i}`} />;
   });

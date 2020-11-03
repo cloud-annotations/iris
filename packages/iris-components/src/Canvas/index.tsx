@@ -48,7 +48,12 @@ function getClientCoordinates(e: MouseEvent | TouchEvent) {
   if (guard(e)) {
     return { clientX: e.clientX, clientY: e.clientY };
   }
-  return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+  if (e.touches) {
+    return { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY };
+  }
+
+  // TODO: how did we get here...?
+  return { clientX: 0, clientY: 0 };
 }
 
 function useWatchSize(ref: React.RefObject<HTMLDivElement>) {
