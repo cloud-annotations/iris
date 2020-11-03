@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
 import { Story } from "@storybook/react/types-6-0";
+import produce from "immer";
 
 import Canvas from "./";
 
@@ -26,24 +27,51 @@ export default {
   },
 };
 
-const Template: Story<any> = (args) => {
-  const [boxes, setBoxes] = useState([
-    {
-      x: 0,
-      y: 0,
-      width: 0.5,
-      height: 0.5,
-      color: "red",
-      highlight: true,
-    },
-    { x: 0.2, y: 0.2, width: 0.6, height: 0.4, color: "cyan" },
-  ]);
+interface ConnectionMap {
+  [key: string]: {
+    y: keyof ConnectionMap;
+    x: keyof ConnectionMap;
+  };
+}
 
-  const [boxes2, setBoxes2] = useState([
+interface Target {
+  id: keyof ConnectionMap;
+  x: number;
+  y: number;
+}
+
+interface Shape {
+  color: string;
+  highlight: boolean;
+  id: string;
+  connections: ConnectionMap;
+  targets: Target[];
+}
+
+const Template: Story<any> = (args) => {
+  const [boxes, setBoxes] = useState<Shape[]>([
     {
       color: "red",
       highlight: false,
       id: "a",
+      connections: {
+        a0: {
+          x: "a1",
+          y: "a3",
+        },
+        a1: {
+          x: "a0",
+          y: "a2",
+        },
+        a2: {
+          x: "a3",
+          y: "a1",
+        },
+        a3: {
+          x: "a2",
+          y: "a0",
+        },
+      },
       targets: [
         { id: "a0", x: 0, y: 0 },
         { id: "a1", x: 0, y: 0.5 },
@@ -51,33 +79,99 @@ const Template: Story<any> = (args) => {
         { id: "a3", x: 0.5, y: 0 },
       ],
     },
+    {
+      color: "cyan",
+      highlight: false,
+      id: "b",
+      connections: {
+        b0: {
+          x: "b1",
+          y: "b3",
+        },
+        b1: {
+          x: "b0",
+          y: "b2",
+        },
+        b2: {
+          x: "b3",
+          y: "b1",
+        },
+        b3: {
+          x: "b2",
+          y: "b0",
+        },
+      },
+      targets: [
+        { id: "b0", x: 0.2, y: 0.2 },
+        { id: "b1", x: 0.2, y: 0.6 },
+        { id: "b2", x: 0.8, y: 0.6 },
+        { id: "b3", x: 0.8, y: 0.2 },
+      ],
+    },
   ]);
 
   return (
     <Canvas
       shapes={{
-        box: boxes2,
+        box: boxes,
       }}
       render={{
         box: (c, blob) => {
-          const x = blob.targets[0].x;
-          const y = blob.targets[0].y;
-          const width = blob.targets[2].x;
-          const height = blob.targets[2].y;
+          const xMin = Math.min(...blob.targets.map((t: any) => t.x));
+          const yMin = Math.min(...blob.targets.map((t: any) => t.y));
+          const xMax = Math.max(...blob.targets.map((t: any) => t.x));
+          const yMax = Math.max(...blob.targets.map((t: any) => t.y));
+          const x = xMin;
+          const y = yMin;
+          const width = xMax - xMin;
+          const height = yMax - yMin;
+
           c.drawBox(
             { x, y, width, height },
             { color: blob.color, highlight: blob.highlight }
           );
         },
-        // box: (c, box) => {
-        //   c.drawBox(box, { color: box.color, highlight: box.highlight });
-        // },
       }}
       actions={{
         box: {
-          onMove: (coords, target) => {
-            console.log(target);
-            console.log(coords);
+          onMove: (coords, { shapeID, targetID }) => {
+            const newBoxes = produce(boxes, (draft) => {
+              const shape = draft.find((s) => s.id === shapeID);
+              if (shape === undefined) {
+                // this should never happen.
+                console.error("BOX.onMove: shape is undefined");
+                return;
+              }
+
+              const { targets, connections } = shape;
+
+              const txy = targets.find((t) => t.id === targetID);
+
+              if (txy === undefined) {
+                // this should never happen.
+                console.error("BOX.onMove: target is undefined");
+                return;
+              }
+
+              const connect = connections[txy.id];
+
+              const tx = targets.find((t) => t.id === connect.x);
+              const ty = targets.find((t) => t.id === connect.y);
+
+              if (tx !== undefined && ty !== undefined) {
+                txy.x = coords.x;
+                txy.y = coords.y;
+
+                tx.x = coords.x;
+                ty.y = coords.y;
+                return;
+              }
+
+              // this should never happen.
+              console.error("BOX.onMove: point is not connected");
+            });
+
+            setBoxes(newBoxes);
           },
         },
       }}
