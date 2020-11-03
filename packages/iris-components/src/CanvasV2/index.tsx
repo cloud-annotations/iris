@@ -24,7 +24,12 @@ interface Props {
   render: { [key: string]: (c: CrispyCanvas, v: any) => void };
   actions: {
     [key: string]: {
-      onMove: (coords: { x: number; y: number }, target: any) => void;
+      onTargetMove: (coords: { x: number; y: number }, target: any) => void;
+      onTargetClick: (coords: { x: number; y: number }, target: any) => void;
+      onClick: (coords: { x: number; y: number }, target: any) => void;
+      onMouseDown: (coords: { x: number; y: number }, target: any) => void;
+      onMouseMove: (coords: { x: number; y: number }, target: any) => void;
+      onMouseUp: (coords: { x: number; y: number }, target: any) => void;
     };
   };
 }
@@ -116,6 +121,10 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
 
   const handleMouseDown = useCallback(
     (e: React.SyntheticEvent) => {
+      if ((e as any).button && (e as any).button !== 0) {
+        return;
+      }
+
       const { clientX, clientY } = getClientCoordinates(e as any);
 
       if (cRef.current && canvasRef.current) {
@@ -153,7 +162,7 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
             const x = clientX - rect.left;
             const y = clientY - rect.top;
             const coords = cRef.current.getCoords({ x, y });
-            actions[stateRef.current.target.tool].onMove(
+            actions[stateRef.current.target.tool].onTargetMove(
               coords,
               stateRef.current.target
             );

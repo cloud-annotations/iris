@@ -134,7 +134,7 @@ const Template: Story<any> = (args) => {
       }}
       actions={{
         box: {
-          onMove: (coords, { shapeID, targetID }) => {
+          onTargetMove: (coords, { shapeID, targetID }) => {
             const newBoxes = produce(boxes, (draft) => {
               const shape = draft.find((s) => s.id === shapeID);
               if (shape === undefined) {
