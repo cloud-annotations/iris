@@ -344,12 +344,16 @@ function DrawingPanel({
         )}
       </div>
       {activeImage ? (
-        <CrossHair
-          color={activeColor}
-          active={selectedTool === BOX}
-          children={
-            <div className={styles.canvasWrapper}>
-              <Canvas
+        <CrossHair color={activeColor} active={selectedTool === BOX}>
+          <Canvas
+            mode="move"
+            image={`/api/projects/${projectID}/images/${activeImage}`}
+            tool="box"
+            shapes={{}}
+            render={{}}
+            actions={{}}
+          />
+          {/* <Canvas
                 mode={selectedTool}
                 autoLabelActive={autoLabelActive}
                 activeLabel={activeLabel}
@@ -362,10 +366,8 @@ function DrawingPanel({
                 onBoxFinished={handleBoxFinished}
                 predictions={predictions}
                 activePrediction={activePrediction}
-              />
-            </div>
-          }
-        />
+              /> */}
+        </CrossHair>
       ) : (
         <EmptySet show />
       )}

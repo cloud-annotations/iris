@@ -6,26 +6,26 @@ import Horizontal from "./Horizontal";
 import Pointer from "./Pointer";
 import Vertical from "./Vertical";
 
+interface Props {
+  active?: boolean;
+  children?: React.ReactNode;
+  color?: string;
+}
+
 const useStyles = makeStyles(() =>
   createStyles({
-    wrapper: {
+    root: {
       position: "absolute",
       top: 0,
       left: 0,
       right: 0,
       bottom: 0,
       userSelect: "none",
-      cursor: "none",
+      cursor: (props: Props) => (props.active ? "none" : "default"),
       overflow: "hidden",
     },
   })
 );
-
-interface Props {
-  active?: boolean;
-  children?: React.ReactNode;
-  color?: string;
-}
 
 function setStyle(el: HTMLElement | SVGElement | null, style: any) {
   if (el) {
@@ -36,7 +36,7 @@ function setStyle(el: HTMLElement | SVGElement | null, style: any) {
 }
 
 function CrossHair({ active, children, color }: Props) {
-  const classes = useStyles();
+  const classes = useStyles({ active });
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -116,7 +116,7 @@ function CrossHair({ active, children, color }: Props) {
 
   if (!active) {
     return (
-      <div draggable={false} className={classes.wrapper}>
+      <div draggable={false} className={classes.root}>
         {children}
       </div>
     );
@@ -127,7 +127,7 @@ function CrossHair({ active, children, color }: Props) {
       draggable={false}
       ref={wrapperRef}
       onMouseLeave={handleMouseLeave}
-      className={classes.wrapper}
+      className={classes.root}
     >
       {children}
       <Pointer color={color} ref={pointerRef} />

@@ -68,6 +68,7 @@ function ImagesPanel() {
     cat: (20).toLocaleString(),
   };
   const cells = images.map((i) => {
+    // @ts-ignore
     return <ImageTile url={`/api/projects/${projectID}/images/${i}`} />;
   });
 

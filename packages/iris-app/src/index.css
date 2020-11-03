@@ -44,7 +44,7 @@ body {
   --secondaryButton: #6f6f6f;
   --secondaryButtonHover: #606060;
 
-  --images: url("common/EmptySet/imagesdark.png");
+  /* --images: url("common/EmptySet/imagesdark.png"); */
 
   --dropzoneGrad1: hsla(0, 0%, 0%, 1);
   --dropzoneGrad2: hsla(0, 0%, 0%, 0.85);
