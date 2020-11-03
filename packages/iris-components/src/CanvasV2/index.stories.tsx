@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 
 import { Story } from "@storybook/react/types-6-0";
 import produce from "immer";
+// @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
 import Canvas from "./";
