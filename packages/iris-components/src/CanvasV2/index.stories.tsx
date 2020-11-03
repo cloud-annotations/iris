@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 import { Story } from "@storybook/react/types-6-0";
 import produce from "immer";
+import { v4 as uuidv4 } from "uuid";
 
 import Canvas from "./";
 
@@ -110,6 +111,9 @@ const Template: Story<any> = (args) => {
     },
   ]);
 
+  const editingRef = useRef<string | null>(null);
+  const draggingRef = useRef(false);
+
   return (
     <Canvas
       shapes={{
@@ -172,6 +176,87 @@ const Template: Story<any> = (args) => {
             });
 
             setBoxes(newBoxes);
+          },
+          onMouseDown: () => {
+            draggingRef.current = true;
+          },
+          onMouseMove: (coords) => {
+            if (draggingRef.current === false) {
+              return;
+            }
+            if (editingRef.current === null) {
+              const id = uuidv4();
+              editingRef.current = id;
+              setBoxes([
+                ...boxes,
+                {
+                  color: "pink",
+                  highlight: false,
+                  id: id,
+                  connections: {
+                    [`${id}-0`]: {
+                      x: `${id}-1`,
+                      y: `${id}-3`,
+                    },
+                    [`${id}-1`]: {
+                      x: `${id}-0`,
+                      y: `${id}-2`,
+                    },
+                    [`${id}-2`]: {
+                      x: `${id}-3`,
+                      y: `${id}-1`,
+                    },
+                    [`${id}-3`]: {
+                      x: `${id}-2`,
+                      y: `${id}-0`,
+                    },
+                  },
+                  targets: [
+                    { id: `${id}-0`, x: coords.x, y: coords.y },
+                    { id: `${id}-1`, x: coords.x, y: coords.y },
+                    { id: `${id}-2`, x: coords.x, y: coords.y },
+                    { id: `${id}-3`, x: coords.x, y: coords.y },
+                  ],
+                },
+              ]);
+              return;
+            }
+            const newBoxes = produce(boxes, (draft) => {
+              const box = draft.find((b) => b.id === editingRef.current);
+              if (box) {
+                box.targets[1].y = coords.y;
+
+                box.targets[2].x = coords.x;
+                box.targets[2].y = coords.y;
+
+                box.targets[3].x = coords.x;
+              }
+            });
+
+            setBoxes(newBoxes);
+          },
+          onMouseUp: (_coords, xScale, yScale) => {
+            if (draggingRef.current === true && editingRef.current === null) {
+              // click then click mode (vs drag to draw)
+              return;
+            }
+
+            const box = boxes.find((b) => b.id === editingRef.current);
+            if (box) {
+              const xMin = Math.min(...box.targets.map((t: any) => t.x));
+              const yMin = Math.min(...box.targets.map((t: any) => t.y));
+              const xMax = Math.max(...box.targets.map((t: any) => t.x));
+              const yMax = Math.max(...box.targets.map((t: any) => t.y));
+              const width = xMax - xMin;
+              const height = yMax - yMin;
+              if (width * xScale <= 4 && height * yScale <= 4) {
+                // click then click mode (vs drag to draw)
+                return;
+              }
+            }
+
+            draggingRef.current = false;
+            editingRef.current = null;
           },
         },
       }}

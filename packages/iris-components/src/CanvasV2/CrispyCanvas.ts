@@ -62,6 +62,14 @@ class CrispyCanvas {
     this.ctx = ctx;
   }
 
+  get xScale() {
+    return this.scaledWidth * this.dp;
+  }
+
+  get yScale() {
+    return this.scaledHeight * this.dp;
+  }
+
   private x(x: number) {
     return this.px(this.offsetX + x * this.scaledWidth);
   }
@@ -94,7 +102,7 @@ class CrispyCanvas {
 
     for (const t of shape.targets) {
       const target = new Path2D();
-      target.arc(this.x(t.x), this.y(t.y), this.px(5), 0, Math.PI * 2);
+      target.arc(this.x(t.x), this.y(t.y), this.px(8), 0, Math.PI * 2);
       this.touchTargets.push({
         shapeID: shape.id,
         targetID: t.id,

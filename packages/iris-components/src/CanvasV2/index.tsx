@@ -26,10 +26,14 @@ interface Props {
     [key: string]: {
       onTargetMove: (coords: { x: number; y: number }, target: any) => void;
       onTargetClick: (coords: { x: number; y: number }, target: any) => void;
-      onClick: (coords: { x: number; y: number }, target: any) => void;
-      onMouseDown: (coords: { x: number; y: number }, target: any) => void;
-      onMouseMove: (coords: { x: number; y: number }, target: any) => void;
-      onMouseUp: (coords: { x: number; y: number }, target: any) => void;
+      onClick: (coords: { x: number; y: number }) => void;
+      onMouseDown: (coords: { x: number; y: number }) => void;
+      onMouseMove: (coords: { x: number; y: number }) => void;
+      onMouseUp: (
+        coords: { x: number; y: number },
+        xScale: number,
+        yScale: number
+      ) => void;
     };
   };
 }
@@ -133,6 +137,8 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
         const x = clientX - rect.left;
         const y = clientY - rect.top;
 
+        const coords = cRef.current.getCoords({ x, y });
+
         switch (mode) {
           case "move": {
             const target = cRef.current.toolForClick({ x, y });
@@ -143,43 +149,72 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
             return;
           }
           case "draw": {
+            actions[tool].onMouseDown(coords);
             return;
           }
         }
       }
     },
-    [mode]
+    [actions, mode, tool]
   );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent | TouchEvent) => {
       const { clientX, clientY } = getClientCoordinates(e as any);
 
-      if (stateRef.current.dragging && canvasRef.current && cRef.current) {
+      if (cRef.current && canvasRef.current) {
+        const rect = canvasRef.current.getBoundingClientRect();
+
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+
+        const coords = cRef.current.getCoords({ x, y });
+
         switch (mode) {
           case "move": {
-            const rect = canvasRef.current.getBoundingClientRect();
-            const x = clientX - rect.left;
-            const y = clientY - rect.top;
-            const coords = cRef.current.getCoords({ x, y });
-            actions[stateRef.current.target.tool].onTargetMove(
-              coords,
-              stateRef.current.target
-            );
+            if (stateRef.current.dragging) {
+              actions[stateRef.current.target.tool].onTargetMove(
+                coords,
+                stateRef.current.target
+              );
+            }
             return;
           }
           case "draw": {
+            actions[tool].onMouseMove(coords);
             return;
           }
         }
       }
     },
-    [actions, mode]
+    [actions, mode, tool]
   );
 
-  const handleMouseUp = useCallback(() => {
-    stateRef.current.dragging = false;
-  }, []);
+  const handleMouseUp = useCallback(
+    (e: MouseEvent | TouchEvent) => {
+      stateRef.current.dragging = false;
+
+      const { clientX, clientY } = getClientCoordinates(e as any);
+
+      if (cRef.current && canvasRef.current) {
+        const rect = canvasRef.current.getBoundingClientRect();
+
+        const x = clientX - rect.left;
+        const y = clientY - rect.top;
+
+        const coords = cRef.current.getCoords({ x, y });
+
+        if (mode === "draw") {
+          actions[tool].onMouseUp(
+            coords,
+            cRef.current.xScale,
+            cRef.current.yScale
+          );
+        }
+      }
+    },
+    [actions, mode, tool]
+  );
 
   useEffect(() => {
     document.addEventListener("mouseup", handleMouseUp);
