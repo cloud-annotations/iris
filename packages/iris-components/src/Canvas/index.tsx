@@ -25,8 +25,8 @@ interface Props {
   actions: {
     [key: string]: {
       onTargetMove: (coords: { x: number; y: number }, target: any) => void;
-      onTargetClick: (coords: { x: number; y: number }, target: any) => void;
-      onClick: (coords: { x: number; y: number }) => void;
+      // onTargetClick: (coords: { x: number; y: number }, target: any) => void;
+      // onClick: (coords: { x: number; y: number }) => void;
       onMouseDown: (coords: { x: number; y: number }) => void;
       onMouseMove: (coords: { x: number; y: number }) => void;
       onMouseUp: (

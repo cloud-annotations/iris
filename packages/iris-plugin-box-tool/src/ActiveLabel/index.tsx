@@ -1,7 +1,8 @@
 import React from "react";
 
-import { LabelSelect } from "@iris/components";
 import { useSelector, useDispatch } from "react-redux";
+
+import { LabelSelect } from "@iris/components";
 
 function ActiveLabel() {
   const dispatch = useDispatch();

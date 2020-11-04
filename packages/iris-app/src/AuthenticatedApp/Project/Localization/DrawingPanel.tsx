@@ -301,6 +301,40 @@ function DrawingPanel({
   const clippedCount = Math.min(othersCount, maxBubbles);
   const overflowCount = othersCount - maxBubbles;
 
+  console.log(boxes);
+
+  const bb2 = boxes.map((box) => {
+    return {
+      color: cmap[box.label],
+      highlight: false,
+      id: box.id,
+      connections: {
+        [`${box.id}-0`]: {
+          x: `${box.id}-1`,
+          y: `${box.id}-3`,
+        },
+        [`${box.id}-1`]: {
+          x: `${box.id}-0`,
+          y: `${box.id}-2`,
+        },
+        [`${box.id}-2`]: {
+          x: `${box.id}-3`,
+          y: `${box.id}-1`,
+        },
+        [`${box.id}-3`]: {
+          x: `${box.id}-2`,
+          y: `${box.id}-0`,
+        },
+      },
+      targets: [
+        { id: `${box.id}-0`, x: box.x, y: box.y },
+        { id: `${box.id}-1`, x: box.x, y: box.y2 },
+        { id: `${box.id}-2`, x: box.x2, y: box.y2 },
+        { id: `${box.id}-3`, x: box.x2, y: box.y },
+      ],
+    };
+  });
+
   return (
     <div className={styles.wrapper}>
       <div className={styles.roomHolder}>
@@ -346,12 +380,35 @@ function DrawingPanel({
       {activeImage ? (
         <CrossHair color={activeColor} active={selectedTool === BOX}>
           <Canvas
-            mode="move"
+            mode={selectedTool === "move" ? "move" : "draw"}
             image={`/api/projects/${projectID}/images/${activeImage}`}
-            tool="box"
-            shapes={{}}
-            render={{}}
-            actions={{}}
+            tool={selectedTool}
+            shapes={{ box: bb2 }}
+            render={{
+              box: (c, blob) => {
+                const xMin = Math.min(...blob.targets.map((t: any) => t.x));
+                const yMin = Math.min(...blob.targets.map((t: any) => t.y));
+                const xMax = Math.max(...blob.targets.map((t: any) => t.x));
+                const yMax = Math.max(...blob.targets.map((t: any) => t.y));
+                const x = xMin;
+                const y = yMin;
+                const width = xMax - xMin;
+                const height = yMax - yMin;
+
+                c.drawBox(
+                  { x, y, width, height },
+                  { color: blob.color, highlight: blob.highlight }
+                );
+              },
+            }}
+            actions={{
+              box: {
+                onTargetMove: () => {},
+                onMouseDown: () => {},
+                onMouseMove: () => {},
+                onMouseUp: () => {},
+              },
+            }}
           />
           {/* <Canvas
                 mode={selectedTool}

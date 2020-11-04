@@ -10,16 +10,17 @@ import { AppThunk, RootState } from "./..";
 const appstaticAPI = new API();
 
 export const sync = (action: any): AppThunk => async (dispatch, getState) => {
-  dispatch({ type: "project/incrementSaving" });
+  dispatch(incrementSaving());
   dispatch(action);
   try {
     const state = getState();
     console.log(state);
     // TODO: persist state;
     // TODO: emit socket message;
-    dispatch({ type: "project/decrementSaving" });
   } catch (err) {
-    dispatch({ type: "project/decrementSaving" });
+    // TODO: handle error
+  } finally {
+    dispatch(decrementSaving());
   }
 };
 
@@ -133,7 +134,6 @@ const projectSlice = createSlice({
       // });
     },
     addAnnotations(state, { payload }) {
-      console.log("ADD ANNOTATON", payload);
       if (state.annotations === undefined) {
         state.annotations = {};
       }
@@ -220,6 +220,10 @@ const projectSlice = createSlice({
     });
     builder.addCase(load.fulfilled, (_state, { payload }) => {
       const firstImage = Object.keys(payload.annotations.annotations)[0];
+      // TODO: get typing support somehow? maybe make IRIS importable?
+      // TODO: Move tool should always be the first item.
+      // @ts-ignore
+      const firstRealTool = window.IRIS.tools.list()[1].id;
       return {
         status: "success",
         saving: 0,
@@ -229,7 +233,8 @@ const projectSlice = createSlice({
         categories: payload.annotations.labels,
         annotations: payload.annotations.annotations,
         ui: {
-          selectedTool: "rect",
+          // NOTE: Should be the first tool after the move tool.
+          selectedTool: firstRealTool,
           selectedCategory: payload.annotations.labels[0],
           selectedImages: [firstImage],
         },
@@ -246,4 +251,20 @@ const projectSlice = createSlice({
 });
 
 export default projectSlice.reducer;
+export const {
+  addAnnotations,
+  addCategory,
+  addImages,
+  decrementSaving,
+  deleteAnnotations,
+  deleteCategory,
+  deleteImages,
+  highlightBox,
+  incrementSaving,
+  selectCategory,
+  selectImages,
+  selectTool,
+  setIntermediateBox,
+  toggleSelectedImage,
+} = projectSlice.actions;
 export * from "./types";
