@@ -383,30 +383,21 @@ function DrawingPanel({
             mode={selectedTool === "move" ? "move" : "draw"}
             image={`/api/projects/${projectID}/images/${activeImage}`}
             tool={selectedTool}
-            shapes={{ box: bb2 }}
+            shapes={{
+              box: bb2,
+            }}
             render={{
-              box: (c, blob) => {
-                const xMin = Math.min(...blob.targets.map((t: any) => t.x));
-                const yMin = Math.min(...blob.targets.map((t: any) => t.y));
-                const xMax = Math.max(...blob.targets.map((t: any) => t.x));
-                const yMax = Math.max(...blob.targets.map((t: any) => t.y));
-                const x = xMin;
-                const y = yMin;
-                const width = xMax - xMin;
-                const height = yMax - yMin;
-
-                c.drawBox(
-                  { x, y, width, height },
-                  { color: blob.color, highlight: blob.highlight }
-                );
-              },
+              box: window.IRIS.tools.get("box").canvasPlugin.render,
             }}
             actions={{
               box: {
-                onTargetMove: () => {},
-                onMouseDown: () => {},
-                onMouseMove: () => {},
-                onMouseUp: () => {},
+                onTargetMove: window.IRIS.tools.get("box").canvasPlugin
+                  .onTargetMove,
+                onMouseDown: window.IRIS.tools.get("box").canvasPlugin
+                  .onMouseDown,
+                onMouseMove: window.IRIS.tools.get("box").canvasPlugin
+                  .onMouseMove,
+                onMouseUp: window.IRIS.tools.get("box").canvasPlugin.onMouseUp,
               },
             }}
           />

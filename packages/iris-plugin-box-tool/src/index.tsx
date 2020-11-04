@@ -1,6 +1,7 @@
 import React from "react";
 
 import ActiveLabel from "./ActiveLabel";
+import BoxCanvasPlugin from "./BoxCanvasPlugin";
 import Counter from "./Counter";
 
 const moveStyle = {
@@ -28,6 +29,7 @@ const BoxToolPlugin = {
 
     const boxTool = iris.tools.register({
       id: "box",
+      canvasPlugin: new BoxCanvasPlugin(),
       icon: (
         <svg style={boxStyle} width="20" height="20" viewBox="0 0 40 40">
           <rect x="4" y="8" width="32" height="24" />

@@ -3,6 +3,7 @@ interface IRegisterToolOptions {
   icon: any;
   priority?: number;
   options?: IRegisterOptionOptions[];
+  canvasPlugin?: any;
 }
 
 interface ITool {
@@ -10,6 +11,7 @@ interface ITool {
   icon: any;
   priority: number;
   options: IOptions;
+  canvasPlugin: any;
 }
 
 interface ITools {
@@ -91,6 +93,7 @@ function init() {
       id: tool.id,
       icon: tool.icon,
       priority: tool.priority || 0,
+      canvasPlugin: tool.canvasPlugin,
       options: {
         register: registerOption,
         list: listOptions,

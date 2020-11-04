@@ -152,6 +152,27 @@ const projectSlice = createSlice({
         state.categories.push(payload.annotation.label);
       }
     },
+    editAnnotations(state, { payload }) {
+      if (state.annotations === undefined) {
+        state.annotations = {};
+      }
+      // add annotation to images
+      for (const image of payload.images) {
+        if (state.annotations[image] === undefined) {
+          state.annotations[image] = [];
+        }
+        // state.annotations[image].unshift(payload.annotation);
+        const index = state.annotations[image].findIndex((b) => b.id);
+        state.annotations[image][index] = payload.annotation;
+      }
+      if (state.categories === undefined) {
+        state.categories = [];
+      }
+      // create categories if it doesn't exist for some reason
+      if (!state.categories.includes(payload.annotation.label)) {
+        state.categories.push(payload.annotation.label);
+      }
+    },
     deleteAnnotations(state, { payload }) {
       if (state.annotations !== undefined) {
         for (const image of payload.images) {
