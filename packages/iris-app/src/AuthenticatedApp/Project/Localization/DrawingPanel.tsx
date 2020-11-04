@@ -306,7 +306,7 @@ function DrawingPanel({
   const bb2 = boxes.map((box) => {
     return {
       color: cmap[box.label],
-      highlight: false,
+      highlight: highlightedBox === box.id,
       id: box.id,
       connections: {
         [`${box.id}-0`]: {

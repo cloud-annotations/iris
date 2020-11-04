@@ -202,7 +202,7 @@ const projectSlice = createSlice({
     },
     highlightBox(state, { payload }) {
       if (state.ui !== undefined) {
-        state.ui.highlightedBox = payload;
+        state.ui.highlightedBox = payload?.id;
       }
     },
     setIntermediateBox(state, { payload }) {
