@@ -13,10 +13,18 @@ export interface IAnnotations {
   };
 }
 
+export interface ITarget {
+  id: string;
+  x: number;
+  y: number;
+}
+
 export interface IAnnotation {
-  x?: number;
-  y?: number;
-  x2?: number;
-  y2?: number;
+  id: string;
   label: string;
+  tool?: string;
+  targets?: ITarget[];
+
+  // plugins can specify extra keys.
+  [key: string]: any;
 }

@@ -1,5 +1,5 @@
 import CrispyCanvas from "@iris/components/dist/Canvas/CrispyCanvas";
-import { Annotation } from "@iris/store/dist/project";
+import { IAnnotation } from "@iris/store/dist/project";
 import produce from "immer";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
@@ -13,48 +13,19 @@ class CanvasPlugin {
 
   onMouseMove(coords: any) {}
 
-  onMouseUp(coords: any, xScale: any, yScale: any) {}
+  onMouseUp(coords: any, xScale: number, yScale: number) {}
 
-  render(c: CrispyCanvas, v: any) {}
+  render(c: CrispyCanvas, v: IAnnotation) {}
 }
 
-function boxToGraph(box: Annotation) {
-  return {
-    color: "red",
-    highlight: false,
-    id: box.id,
-    connections: {
-      [`${box.id}-0`]: {
-        x: `${box.id}-1`,
-        y: `${box.id}-3`,
-      },
-      [`${box.id}-1`]: {
-        x: `${box.id}-0`,
-        y: `${box.id}-2`,
-      },
-      [`${box.id}-2`]: {
-        x: `${box.id}-3`,
-        y: `${box.id}-1`,
-      },
-      [`${box.id}-3`]: {
-        x: `${box.id}-2`,
-        y: `${box.id}-0`,
-      },
-    },
-    targets: [
-      { id: `${box.id}-0`, x: box.x, y: box.y },
-      { id: `${box.id}-1`, x: box.x, y: box.y2 },
-      { id: `${box.id}-2`, x: box.x2, y: box.y2 },
-      { id: `${box.id}-3`, x: box.x2, y: box.y },
-    ],
-  };
-}
-
-function graphToBox(graph: any) {
-  const xMin = Math.min(...graph.targets.map((t: any) => t.x));
-  const yMin = Math.min(...graph.targets.map((t: any) => t.y));
-  const xMax = Math.max(...graph.targets.map((t: any) => t.x));
-  const yMax = Math.max(...graph.targets.map((t: any) => t.y));
+function graphToBox(graph: IAnnotation) {
+  if (graph.targets === undefined) {
+    return;
+  }
+  const xMin = Math.min(...graph.targets.map((t) => t.x));
+  const yMin = Math.min(...graph.targets.map((t) => t.y));
+  const xMax = Math.max(...graph.targets.map((t) => t.x));
+  const yMax = Math.max(...graph.targets.map((t) => t.y));
 
   return {
     x: xMin,
@@ -74,14 +45,12 @@ class BoxCanvasPlugin extends CanvasPlugin {
       return;
     }
 
-    const boxes = store.getState().project.annotations?.[image];
-    if (boxes === undefined) {
+    const graphs = store.getState().project.annotations?.[image];
+    if (graphs === undefined) {
       return;
     }
 
-    const graphs = boxes as any; //.map((box) => boxToGraph(box));
-
-    const shape = graphs.find((s: any) => s.id === shapeID);
+    const shape = graphs.find((s) => s.id === shapeID);
     if (shape === undefined) {
       // this should never happen.
       console.error("BOX.onMove: shape is undefined");
@@ -90,8 +59,13 @@ class BoxCanvasPlugin extends CanvasPlugin {
 
     const newShape = produce(shape, (draft) => {
       const { targets, connections } = draft;
+      if (targets === undefined || connections === undefined) {
+        // this should never happen.
+        console.error("BOX.onMove: missing stuff is undefined");
+        return;
+      }
 
-      const txy = targets.find((t: any) => t.id === targetID);
+      const txy = targets.find((t) => t.id === targetID);
 
       if (txy === undefined) {
         // this should never happen.
@@ -101,8 +75,8 @@ class BoxCanvasPlugin extends CanvasPlugin {
 
       const connect = connections[txy.id];
 
-      const tx = targets.find((t: any) => t.id === connect.x);
-      const ty = targets.find((t: any) => t.id === connect.y);
+      const tx = targets.find((t) => t.id === connect.x);
+      const ty = targets.find((t) => t.id === connect.y);
 
       if (tx !== undefined && ty !== undefined) {
         txy.x = coords.x;
@@ -126,13 +100,10 @@ class BoxCanvasPlugin extends CanvasPlugin {
   }
 
   onMouseDown() {
-    console.log("onMouseDown");
     this.dragging = true;
   }
 
   onMouseMove(coords: any) {
-    console.log("onMouseMove");
-    console.log(this.dragging);
     if (this.dragging === false) {
       return;
     }
@@ -186,15 +157,18 @@ class BoxCanvasPlugin extends CanvasPlugin {
       return;
     }
 
-    const boxes = store.getState().project.annotations?.[image];
-    if (boxes === undefined) {
+    const graphs = store.getState().project.annotations?.[image];
+    if (graphs === undefined) {
       return;
     }
 
-    const box = boxes.find((b) => b.id === this.editing) as any;
+    const box = graphs.find((b) => b.id === this.editing);
 
     if (box) {
       const newBox = produce(box, (draft) => {
+        if (draft.targets === undefined) {
+          return;
+        }
         draft.targets[1].y = coords.y;
 
         draft.targets[2].x = coords.x;
@@ -214,8 +188,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
     }
   }
 
-  onMouseUp(_coords: any, xScale: any, yScale: any) {
-    console.log("onMouseUp");
+  onMouseUp(_coords: any, xScale: number, yScale: number) {
     if (this.dragging === true && this.editing === null) {
       // click then click mode (vs drag to draw)
       return;
@@ -226,17 +199,17 @@ class BoxCanvasPlugin extends CanvasPlugin {
       return;
     }
 
-    const boxes = store.getState().project.annotations?.[image];
-    if (boxes === undefined) {
+    const graphs = store.getState().project.annotations?.[image];
+    if (graphs === undefined) {
       return;
     }
 
-    const box = boxes.find((b) => b.id === this.editing) as any;
-    if (box) {
-      const xMin = Math.min(...box.targets.map((t: any) => t.x));
-      const yMin = Math.min(...box.targets.map((t: any) => t.y));
-      const xMax = Math.max(...box.targets.map((t: any) => t.x));
-      const yMax = Math.max(...box.targets.map((t: any) => t.y));
+    const box = graphs.find((b) => b.id === this.editing);
+    if (box?.targets !== undefined) {
+      const xMin = Math.min(...box.targets.map((t) => t.x));
+      const yMin = Math.min(...box.targets.map((t) => t.y));
+      const xMax = Math.max(...box.targets.map((t) => t.x));
+      const yMax = Math.max(...box.targets.map((t) => t.y));
       const width = xMax - xMin;
       const height = yMax - yMin;
       if (width * xScale <= 4 && height * yScale <= 4) {
@@ -249,8 +222,12 @@ class BoxCanvasPlugin extends CanvasPlugin {
     this.editing = null;
   }
 
-  render(c: CrispyCanvas, graph: any) {
+  render(c: CrispyCanvas, graph: IAnnotation) {
     const box = graphToBox(graph);
+
+    if (box === undefined) {
+      return;
+    }
 
     c.drawBox(
       { x: box.x, y: box.y, width: box.x2 - box.x, height: box.y2 - box.y },

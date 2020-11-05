@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import API from "@iris/api";
 
 import { AppThunk, RootState } from "./..";
+import { IAnnotation } from "./types";
 
 const appstaticAPI = new API();
 
@@ -46,25 +47,11 @@ export function useProject(id: string) {
   return useSelector((state: RootState) => state.project);
 }
 
-interface UI {
+export interface UI {
   selectedTool: string;
   selectedCategory: string;
   selectedImages: string[];
   highlightedBox?: string;
-  intermediateBox?: Annotation;
-}
-
-export interface Annotation {
-  id: string;
-  label: string;
-  x: number;
-  x2: number;
-  y: number;
-  y2: number;
-}
-
-interface Annotations {
-  [key: string]: Annotation[];
 }
 
 export interface ProjectState {
@@ -75,7 +62,9 @@ export interface ProjectState {
   created?: string;
   error?: any;
   categories?: string[];
-  annotations?: Annotations;
+  annotations?: {
+    [key: string]: IAnnotation[];
+  };
   ui?: UI;
 }
 
@@ -228,11 +217,6 @@ const projectSlice = createSlice({
         state.ui.highlightedBox = payload?.id;
       }
     },
-    setIntermediateBox(state, { payload }) {
-      if (state.ui !== undefined) {
-        state.ui.intermediateBox = payload;
-      }
-    },
   },
   extraReducers: (builder) => {
     builder.addCase(load.pending, (_state, _action) => {
@@ -287,7 +271,6 @@ export const {
   selectCategory,
   selectImages,
   selectTool,
-  setIntermediateBox,
   toggleSelectedImage,
 } = projectSlice.actions;
 export * from "./types";
