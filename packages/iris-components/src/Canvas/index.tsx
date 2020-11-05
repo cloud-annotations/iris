@@ -20,7 +20,7 @@ interface Props {
   mode: "draw" | "move";
   tool: string;
   image: string;
-  shapes: { [key: string]: any[] };
+  shapes: any[];
   render: { [key: string]: (c: CrispyCanvas, v: any) => void };
   actions: {
     [key: string]: {
@@ -119,11 +119,9 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
 
       c.drawImage(imageData);
 
-      for (const [key, val] of Object.entries(shapes)) {
-        for (const v of val) {
-          c.setTargets(key, v);
-          render[key](c, v);
-        }
+      for (const shape of shapes) {
+        c.setTargets(shape.tool, shape);
+        render[shape.tool](c, shape);
       }
     }
   }, [height, imageData, mode, render, shapes, width]);

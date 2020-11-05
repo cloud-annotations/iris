@@ -12,24 +12,6 @@ import styles from "./DrawingPanel.module.css";
 const MOVE = "move";
 const BOX = "box";
 
-// const iou = (boxA: any, boxB: any) => {
-//   const xA = Math.max(boxA.bbox[0], boxB.x);
-//   const yA = Math.max(boxA.bbox[1], boxB.y);
-//   const xB = Math.min(boxA.bbox[0] + boxA.bbox[2], boxB.x2);
-//   const yB = Math.min(boxA.bbox[1] + boxA.bbox[3], boxB.y2);
-
-//   const interArea = (xB - xA) * (yB - yA);
-
-//   const boxAArea =
-//     (boxA.bbox[0] + boxA.bbox[2] - boxA.bbox[0]) *
-//     (boxA.bbox[1] + boxA.bbox[3] - boxA.bbox[1]);
-//   const boxBArea = (boxB.x2 - boxB.x) * (boxB.y2 - boxB.y);
-
-//   const iou = interArea / (boxAArea + boxBArea - interArea);
-
-//   return iou;
-// };
-
 const useIsControlPressed = (onCtrlChange: Function) => {
   const [isPressed, setIsPressed] = useState(false);
   const handleKeyDown = useCallback(
@@ -125,19 +107,10 @@ function partition<T>(array: T[], isValid: (item: T) => boolean) {
   );
 }
 
-function DrawingPanel({
-  headCount,
-  autoLabelActive,
-  predictions,
-  activePrediction,
-}: any) {
+function DrawingPanel({ headCount }: any) {
   const dispatch = useDispatch();
   const selectedTool =
     useSelector((state: RootState) => state.project.ui?.selectedTool) ?? "";
-
-  const intermediateBox = useSelector(
-    (state: RootState) => state.project.ui?.intermediateBox
-  );
 
   const highlightedBox =
     useSelector((state: RootState) => state.project.ui?.highlightedBox) ?? "";
@@ -159,56 +132,9 @@ function DrawingPanel({
   const labels =
     useSelector((state: RootState) => state.project.categories) ?? [];
 
-  //////////////////////////////////
-  // const latestImage = useRef(image);
-  // useEffect(() => {
-  //   let didCancel = false;
-  //   latestImage.current = image;
-  //   setPredictions([]);
-  //   if (autoLabelActive && model && image) {
-  //     const img = new Image();
-  //     img.onload = () => {
-  //       model.detect(img).then((predictions) => {
-  //         const scaledPredictions = predictions.map((prediction) => {
-  //           prediction.bbox[0] /= img.width;
-  //           prediction.bbox[1] /= img.height;
-  //           prediction.bbox[2] /= img.width;
-  //           prediction.bbox[3] /= img.height;
-  //           return prediction;
-  //         });
-  //         const bboxes = annotations[selectedImage] || [];
-  //         const filteredPredictions = scaledPredictions.filter(
-  //           (p) => !bboxes.some((b) => iou(p, b) > 0.5)
-  //         );
-  //         if (!didCancel && latestImage.current === image) {
-  //           setPredictions(filteredPredictions);
-  //         }
-  //       });
-  //     };
-  //     img.src = image;
-  //     return () => {
-  //       didCancel = true;
-  //     };
-  //   }
-  // }, [
-  //   annotations,
-  //   autoLabelActive,
-  //   image,
-  //   model,
-  //   selectedImage,
-  //   setPredictions,
-  // ]);
-  //////////////////////////////////
-
-  // const rawAnnotationsForImage = annotations[selectedImage] || [];
-
   const [bboxes, onlyLabels] = partition(
     boxes,
-    (box: any) =>
-      box.x !== undefined &&
-      box.y !== undefined &&
-      box.x2 !== undefined &&
-      box.y2 !== undefined
+    (box: any) => box.tool !== undefined
   );
 
   const handleControlChange = useCallback(
@@ -223,53 +149,6 @@ function DrawingPanel({
     dispatch({ type: "project/selectCategory", payload: label })
   );
 
-  const handleBoxStarted = useCallback(
-    (box) => {
-      dispatch({
-        type: "project/setIntermediateBox",
-        payload: box,
-      });
-    },
-    [dispatch]
-  );
-
-  const handleBoxChanged = useCallback(
-    (box) => {
-      dispatch({
-        type: "project/setIntermediateBox",
-        payload: box,
-      });
-    },
-    [dispatch]
-  );
-
-  const handleBoxFinished = useCallback(
-    (annotation) => {
-      const boxToUpdate = bboxes.find((b) => b.id === annotation.id);
-      if (boxToUpdate) {
-        dispatch(
-          sync({
-            type: "project/deleteAnnotations",
-            payload: { images: [activeImage], annotation: boxToUpdate },
-          })
-        );
-      }
-
-      dispatch(
-        sync({
-          type: "project/addAnnotations",
-          payload: { images: [activeImage], annotation: annotation },
-        })
-      );
-
-      dispatch({
-        type: "project/setIntermediateBox",
-        payload: undefined,
-      });
-    },
-    [dispatch, bboxes, activeImage]
-  );
-
   const handleDeleteLabel = useCallback(
     (annotation) => () => {
       dispatch(
@@ -281,13 +160,6 @@ function DrawingPanel({
     },
     [dispatch]
   );
-
-  // Remove the currently drawn box from the list of boxes
-  let mergedBoxes = [...bboxes];
-  if (intermediateBox) {
-    mergedBoxes = mergedBoxes.filter((box) => box.id !== intermediateBox.id);
-    mergedBoxes.unshift(intermediateBox);
-  }
 
   const cmap = labels.reduce((acc: any, label: string, i: number) => {
     acc[label] = uniqueColor(i, labels.length);
@@ -301,9 +173,7 @@ function DrawingPanel({
   const clippedCount = Math.min(othersCount, maxBubbles);
   const overflowCount = othersCount - maxBubbles;
 
-  console.log(boxes);
-
-  const bb2 = boxes.map((box) => {
+  const shapes = bboxes.map((box) => {
     return {
       color: cmap[box.label],
       highlight: highlightedBox === box.id,
@@ -359,46 +229,30 @@ function DrawingPanel({
             mode={selectedTool === "move" ? "move" : "draw"}
             image={`/api/projects/${projectID}/images/${activeImage}`}
             tool={selectedTool}
-            shapes={{
-              box: bb2,
-            }}
-            render={{
-              box: (...args) =>
-                window.IRIS.tools.get("box").canvasPlugin.render(...args),
-            }}
-            actions={{
-              box: {
-                onTargetMove: (...args) =>
-                  window.IRIS.tools
-                    .get("box")
-                    .canvasPlugin.onTargetMove(...args),
-                onMouseDown: (...args) =>
-                  window.IRIS.tools
-                    .get("box")
-                    .canvasPlugin.onMouseDown(...args),
-                onMouseMove: (...args) =>
-                  window.IRIS.tools
-                    .get("box")
-                    .canvasPlugin.onMouseMove(...args),
-                onMouseUp: (...args) =>
-                  window.IRIS.tools.get("box").canvasPlugin.onMouseUp(...args),
-              },
-            }}
+            shapes={shapes}
+            render={window.IRIS.tools
+              .list()
+              .reduce((acc: { [key: string]: any }, cur) => {
+                acc[cur.id] = (...args: any[]) =>
+                  cur.canvasPlugin.render(...args);
+                return acc;
+              }, {})}
+            actions={window.IRIS.tools
+              .list()
+              .reduce((acc: { [key: string]: any }, cur) => {
+                acc[cur.id] = {
+                  onTargetMove: (...args: any[]) =>
+                    cur.canvasPlugin.onTargetMove(...args),
+                  onMouseDown: (...args: any[]) =>
+                    cur.canvasPlugin.onMouseDown(...args),
+                  onMouseMove: (...args: any[]) =>
+                    cur.canvasPlugin.onMouseMove(...args),
+                  onMouseUp: (...args: any[]) =>
+                    cur.canvasPlugin.onMouseUp(...args),
+                };
+                return acc;
+              }, {})}
           />
-          {/* <Canvas
-                mode={selectedTool}
-                autoLabelActive={autoLabelActive}
-                activeLabel={activeLabel}
-                cmap={cmap}
-                bboxes={mergedBoxes}
-                image={`/api/projects/${projectID}/images/${activeImage}`}
-                hovered={highlightedBox}
-                onBoxStarted={handleBoxStarted}
-                onBoxChanged={handleBoxChanged}
-                onBoxFinished={handleBoxFinished}
-                predictions={predictions}
-                activePrediction={activePrediction}
-              /> */}
         </CrossHair>
       ) : (
         <EmptySet show />

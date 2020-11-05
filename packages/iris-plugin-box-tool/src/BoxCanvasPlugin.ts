@@ -155,6 +155,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
           annotation: {
             id: id,
             label: category,
+            tool: "box",
             connections: {
               [`${id}-0`]: {
                 x: `${id}-1`,
