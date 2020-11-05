@@ -162,7 +162,9 @@ const projectSlice = createSlice({
           state.annotations[image] = [];
         }
         // state.annotations[image].unshift(payload.annotation);
-        const index = state.annotations[image].findIndex((b) => b.id);
+        const index = state.annotations[image].findIndex(
+          (b) => b.id === payload.annotation.id
+        );
         state.annotations[image][index] = payload.annotation;
       }
       if (state.categories === undefined) {

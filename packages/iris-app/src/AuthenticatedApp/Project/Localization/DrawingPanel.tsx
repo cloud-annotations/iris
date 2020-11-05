@@ -307,31 +307,7 @@ function DrawingPanel({
     return {
       color: cmap[box.label],
       highlight: highlightedBox === box.id,
-      id: box.id,
-      connections: {
-        [`${box.id}-0`]: {
-          x: `${box.id}-1`,
-          y: `${box.id}-3`,
-        },
-        [`${box.id}-1`]: {
-          x: `${box.id}-0`,
-          y: `${box.id}-2`,
-        },
-        [`${box.id}-2`]: {
-          x: `${box.id}-3`,
-          y: `${box.id}-1`,
-        },
-        [`${box.id}-3`]: {
-          x: `${box.id}-2`,
-          y: `${box.id}-0`,
-        },
-      },
-      targets: [
-        { id: `${box.id}-0`, x: box.x, y: box.y },
-        { id: `${box.id}-1`, x: box.x, y: box.y2 },
-        { id: `${box.id}-2`, x: box.x2, y: box.y2 },
-        { id: `${box.id}-3`, x: box.x2, y: box.y },
-      ],
+      ...box,
     };
   });
 
@@ -387,17 +363,25 @@ function DrawingPanel({
               box: bb2,
             }}
             render={{
-              box: window.IRIS.tools.get("box").canvasPlugin.render,
+              box: (...args) =>
+                window.IRIS.tools.get("box").canvasPlugin.render(...args),
             }}
             actions={{
               box: {
-                onTargetMove: window.IRIS.tools.get("box").canvasPlugin
-                  .onTargetMove,
-                onMouseDown: window.IRIS.tools.get("box").canvasPlugin
-                  .onMouseDown,
-                onMouseMove: window.IRIS.tools.get("box").canvasPlugin
-                  .onMouseMove,
-                onMouseUp: window.IRIS.tools.get("box").canvasPlugin.onMouseUp,
+                onTargetMove: (...args) =>
+                  window.IRIS.tools
+                    .get("box")
+                    .canvasPlugin.onTargetMove(...args),
+                onMouseDown: (...args) =>
+                  window.IRIS.tools
+                    .get("box")
+                    .canvasPlugin.onMouseDown(...args),
+                onMouseMove: (...args) =>
+                  window.IRIS.tools
+                    .get("box")
+                    .canvasPlugin.onMouseMove(...args),
+                onMouseUp: (...args) =>
+                  window.IRIS.tools.get("box").canvasPlugin.onMouseUp(...args),
               },
             }}
           />
