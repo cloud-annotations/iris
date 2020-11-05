@@ -140,7 +140,12 @@ class BoxCanvasPlugin extends CanvasPlugin {
     if (image === undefined) {
       return;
     }
+
     if (this.editing === null) {
+      const category = store.getState().project.ui?.selectedCategory;
+      if (category === undefined) {
+        return;
+      }
       const id = uuidv4();
       this.editing = id;
       store.dispatch({
@@ -149,7 +154,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
           images: [image],
           annotation: {
             id: id,
-            label: "Water Bottle",
+            label: category,
             connections: {
               [`${id}-0`]: {
                 x: `${id}-1`,
