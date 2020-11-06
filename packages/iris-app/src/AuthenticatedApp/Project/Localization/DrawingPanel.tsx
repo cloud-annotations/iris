@@ -115,13 +115,14 @@ function DrawingPanel({ headCount }: any) {
   const highlightedBox =
     useSelector((state: RootState) => state.project.ui?.highlightedBox) ?? "";
 
-  const boxes = useSelector((state: RootState) => {
-    const image = state.project.ui?.selectedImages[0];
-    if (state.project.annotations && image) {
-      return state.project.annotations[image];
-    }
-    return [];
-  });
+  const boxes =
+    useSelector((state: RootState) => {
+      const image = state.project.ui?.selectedImages[0];
+      if (state.project.annotations && image) {
+        return state.project.annotations[image];
+      }
+      return;
+    }) || [];
 
   const projectID = useSelector((state: RootState) => state.project.id);
   const activeImage = useSelector(
@@ -134,7 +135,7 @@ function DrawingPanel({ headCount }: any) {
 
   const [bboxes, onlyLabels] = partition(
     boxes,
-    (box: any) => box.tool !== undefined
+    (box) => box.tool !== undefined
   );
 
   const handleControlChange = useCallback(

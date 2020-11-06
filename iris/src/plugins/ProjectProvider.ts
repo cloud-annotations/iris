@@ -25,6 +25,14 @@ class ProjectProvider {
       "utf-8"
     );
     project.annotations = JSON.parse(annotationsString);
+    // TODO: async
+    const files = fs.readdirSync(
+      path.join(process.cwd(), "sample-projects", projectID)
+    );
+    project.annotations.images = files.filter(
+      (f) =>
+        f.toLowerCase().endsWith(".jpg") || f.toLowerCase().endsWith(".jpeg")
+    );
     return project;
   }
 

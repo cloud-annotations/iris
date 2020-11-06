@@ -41,12 +41,10 @@ function ImagesPanel() {
   const dispatch = useDispatch();
 
   const projectID = useSelector((state: RootState) => state.project.id);
-  const images = useSelector((state: RootState) =>
-    Object.keys(state.project.annotations || {})
-  );
+  const images = useSelector((state: RootState) => state.project.images || []);
 
   const range = useSelector((state: RootState) => {
-    const images = Object.keys(state.project.annotations || {});
+    const images = state.project.images || [];
     const selection = state.project.ui?.selectedImages;
     if (selection) {
       return selection.map((s) => images.indexOf(s));
@@ -55,7 +53,7 @@ function ImagesPanel() {
   });
 
   const selectedIndex = useSelector((state: RootState) => {
-    const images = Object.keys(state.project.annotations || {});
+    const images = state.project.images || [];
     const selection = state.project.ui?.selectedImages;
     if (selection) {
       return images.indexOf(selection[0]);

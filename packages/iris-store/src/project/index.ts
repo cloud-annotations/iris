@@ -62,6 +62,7 @@ export interface ProjectState {
   created?: string;
   error?: any;
   categories?: string[];
+  images?: string[];
   annotations?: {
     [key: string]: IAnnotation[];
   };
@@ -239,6 +240,7 @@ const projectSlice = createSlice({
         created: payload.created,
         categories: payload.annotations.labels,
         annotations: payload.annotations.annotations,
+        images: payload.annotations.images,
         ui: {
           // NOTE: Should be the first tool after the move tool.
           selectedTool: firstRealTool,
