@@ -1,11 +1,23 @@
 import React, { useEffect, useRef, useCallback } from "react";
 
+import {
+  filterByLabel,
+  showAllImages,
+  showLabeledImages,
+  showUnlabeledImages,
+} from "@iris/store/dist/project";
 import { useDispatch, useSelector } from "react-redux";
 
 import { HorizontalListController, ImageTile } from "@iris/components";
 import { RootState } from "@iris/store";
 
 import styles from "./ImagesPanel.module.css";
+
+const filterMap = {
+  all: "All Images",
+  labeled: "Labeled",
+  unlabeled: "Unlabeled",
+};
 
 const blockSwipeBack = (element: any) => (e: any) => {
   e.stopPropagation();
@@ -35,16 +47,24 @@ const useBlockSwipeBack = (ref: any) => {
 };
 
 function ImagesPanel() {
-  const imageFilter: any = true;
-  const allImageCount = 0;
+  // const imageFilter: any = true;
+  // const allImageCount = 0;
 
   const dispatch = useDispatch();
 
   const projectID = useSelector((state: RootState) => state.project.id);
-  const images = useSelector((state: RootState) => state.project.images || []);
+  const images = useSelector((state: RootState) => state.project.images ?? []);
+
+  const filterMode = useSelector(
+    (state: RootState) => state.project.ui?.imageFilter.mode
+  );
+
+  const filter = useSelector(
+    (state: RootState) => state.project.ui?.imageFilter.label
+  );
 
   const range = useSelector((state: RootState) => {
-    const images = state.project.images || [];
+    const images = state.project.images ?? [];
     const selection = state.project.ui?.selectedImages;
     if (selection) {
       return selection.map((s) => images.indexOf(s));
@@ -53,7 +73,7 @@ function ImagesPanel() {
   });
 
   const selectedIndex = useSelector((state: RootState) => {
-    const images = state.project.images || [];
+    const images = state.project.images ?? [];
     const selection = state.project.ui?.selectedImages;
     if (selection) {
       return images.indexOf(selection[0]);
@@ -61,12 +81,23 @@ function ImagesPanel() {
     return 0;
   });
 
-  const labels: { [key: string]: string } = {
-    dog: (10).toLocaleString(),
-    cat: (20).toLocaleString(),
-  };
+  const labels = useSelector((state: RootState) => {
+    const categories: { [key: string]: number } = {};
+    for (const c of state.project.categories ?? []) {
+      categories[c] = 0;
+    }
+    for (const imageAnnotations of Object.values(
+      state.project.annotations ?? []
+    )) {
+      for (const a of imageAnnotations) {
+        categories[a.label] += 1;
+      }
+    }
+    return categories;
+  });
+
   const cells = images.map((i) => {
-    // TODO we need to find a better way to inject props
+    // TODO: we need to find a better way to inject props
     // @ts-ignore
     return <ImageTile url={`/api/projects/${projectID}/images/${i}`} />;
   });
@@ -90,61 +121,89 @@ function ImagesPanel() {
     [dispatch, images]
   );
 
-  //////////
-
   const scrollElementRef = useRef(null);
   useBlockSwipeBack(scrollElementRef);
 
   const handleDelete = useCallback(
-    (_label) => (e: any) => {
+    (label) => (e: any) => {
       e.stopPropagation();
-      // const deleteTheLabel = window.confirm(
-      //   `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`
-      // );
-      // if (deleteTheLabel) {
-      //   syncAction(deleteLabel, [label]);
-      // }
+      const deleteTheLabel = window.confirm(
+        `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`
+      );
+      if (deleteTheLabel) {
+        // TODO: delete the label
+        // syncAction(deleteLabel, [label]);
+      }
     },
     []
+  );
+
+  const handleFilterChange = useCallback(
+    (e) => {
+      switch (e.target.value) {
+        case "all":
+          dispatch(showAllImages());
+          break;
+        case "labeled":
+          dispatch(showLabeledImages());
+          break;
+        case "unlabeled":
+          dispatch(showUnlabeledImages());
+          break;
+      }
+    },
+    [dispatch]
   );
 
   const handleClickLabel = useCallback(
-    (_label) => () => {
-      // handleImageFilterChange({ target: { value: label } });
+    (label) => () => {
+      dispatch(filterByLabel(label));
     },
-    []
+    [dispatch]
   );
 
-  const actualLabelMode =
-    imageFilter !== true && imageFilter !== false && imageFilter !== undefined;
+  const filterImageModeCount = useSelector((state: RootState) => {
+    const all = state.project.images?.length ?? 0;
+    const labeled = Object.keys(state.project.annotations ?? {}).length ?? 0;
+    switch (state.project.ui?.imageFilter.mode) {
+      case "all":
+        return all;
+      case "labeled":
+        return labeled;
+      case "unlabeled":
+        return all - labeled;
+    }
+    return 0;
+  });
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.labelFilterWrapper}>
-        {actualLabelMode ? (
+        {filter !== undefined ? (
           <>
             <div className={styles.labelCount}>
-              {allImageCount.toLocaleString()}
+              {filterImageModeCount.toLocaleString()}
             </div>
             <div
-              onClick={handleClickLabel("all")}
+              onClick={handleClickLabel(undefined)}
               className={styles.filterNotSelected}
             >
-              All Images
+              {filterMap[filterMode ?? "all"]}
             </div>
           </>
         ) : (
           <>
             <div className={styles.labelCount}>
-              {images.length.toLocaleString()}
+              {filterImageModeCount.toLocaleString()}
             </div>
             <select
               className={styles.filter}
-              // onChange={handleImageFilterChange}
+              onChange={handleFilterChange}
+              value={filterMode}
             >
-              <option value="all">All Images</option>
-              <option value="labeled">Labeled</option>
-              <option value="unlabeled">Unlabeled</option>
+              <option value="all">{filterMap["all"]}</option>
+              <option value="labeled">{filterMap["labeled"]}</option>
+              <option value="unlabeled">{filterMap["unlabeled"]}</option>
             </select>
           </>
         )}
@@ -154,14 +213,14 @@ function ImagesPanel() {
             <div
               key={label}
               className={
-                imageFilter === label
-                  ? styles.selectedLabelItem
-                  : styles.labelItem
+                filter === label ? styles.selectedLabelItem : styles.labelItem
               }
               onClick={handleClickLabel(label)}
             >
               <div>{label}</div>
-              <div className={styles.labelItemCount}>{labels[label]}</div>
+              <div className={styles.labelItemCount}>
+                {labels[label].toLocaleString()}
+              </div>
               <div onClick={handleDelete(label)} className={styles.deleteIcon}>
                 <svg height="12px" width="12px" viewBox="2 2 36 36">
                   <g>

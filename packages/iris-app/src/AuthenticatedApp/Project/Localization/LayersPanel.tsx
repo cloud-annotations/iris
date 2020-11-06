@@ -1,6 +1,6 @@
 import React from "react";
 
-import { Annotation, sync } from "@iris/store/dist/project";
+import { ITarget, sync } from "@iris/store/dist/project";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -18,34 +18,18 @@ const transition = {
   duration: 0.225,
 };
 
-// interface Box {
-//   id: string;
-//   x: number;
-//   x2: number;
-//   y: number;
-//   y2: number;
-//   label: string;
-// }
-
-function calculateCrop(
-  targets: any,
-  // x1: number,
-  // x2: number,
-  // y1: number,
-  // y2: number,
-  imageSize: number[]
-) {
-  const xMin = Math.min(...targets.map((t: any) => t.x));
-  const yMin = Math.min(...targets.map((t: any) => t.y));
-  const xMax = Math.max(...targets.map((t: any) => t.x));
-  const yMax = Math.max(...targets.map((t: any) => t.y));
+function calculateCrop(targets: ITarget[], imageSize: number[]) {
+  const xMin = Math.min(...targets.map((t) => t.x));
+  const yMin = Math.min(...targets.map((t) => t.y));
+  const xMax = Math.max(...targets.map((t) => t.x));
+  const yMax = Math.max(...targets.map((t) => t.y));
   const width = xMax - xMin;
   const height = yMax - yMin;
-  // If the boxes are still being dragged, the values might not be in the right order.
-  const relativeXOffset = xMin; //Math.min(x1, x2);
-  const relativeYOffset = yMin; //Math.min(y1, y2);
-  const relativeBoxWidth = width; //Math.abs(x2 - x1);
-  const relativeBoxHeight = height; //Math.abs(y2 - y1);
+
+  const relativeXOffset = xMin;
+  const relativeYOffset = yMin;
+  const relativeBoxWidth = width;
+  const relativeBoxHeight = height;
 
   const pixelBoxWidth = relativeBoxWidth * imageSize[0];
   const pixelBoxHeight = relativeBoxHeight * imageSize[1];
@@ -105,6 +89,7 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
   }, [box, dispatch, imageID]);
 
   const handleLabelChosen = React.useCallback((_label) => {
+    // TODO:
     //   if (!labels.includes(newActiveLabel)) {
     //     syncAction(createLabel, [newActiveLabel]);
     //   }
@@ -181,7 +166,7 @@ function LayersPanel() {
         return state.project.annotations[image];
       }
       return;
-    }) || [];
+    }) ?? [];
 
   const [imageDims, setImageDims] = React.useState([0, 0]);
 

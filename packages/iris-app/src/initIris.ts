@@ -62,8 +62,8 @@ function init() {
     const toolIDs = Object.keys(_iris_internals.tools);
     toolIDs.sort(
       (a, b) =>
-        (_iris_internals.tools[b].priority || 0) -
-        (_iris_internals.tools[a].priority || 0)
+        (_iris_internals.tools[b].priority ?? 0) -
+        (_iris_internals.tools[a].priority ?? 0)
     );
     return toolIDs.map((id) => getTool(id));
   }
@@ -79,10 +79,10 @@ function init() {
     }
 
     function listOptions() {
-      const options = (tool.options || []).map((o) => {
+      const options = (tool.options ?? []).map((o) => {
         return {
           component: o.component,
-          priority: o.priority || 0,
+          priority: o.priority ?? 0,
         };
       });
       options.sort((a, b) => b.priority - a.priority);
@@ -92,7 +92,7 @@ function init() {
     return {
       id: tool.id,
       icon: tool.icon,
-      priority: tool.priority || 0,
+      priority: tool.priority ?? 0,
       canvasPlugin: tool.canvasPlugin,
       options: {
         register: registerOption,

@@ -182,7 +182,7 @@ function LabelSelect({ labels, activeLabel, onChange, onFocusChange }: Props) {
     [onChange, setFocus]
   );
 
-  const query = (labelEditingValue || "").trim();
+  const query = (labelEditingValue ?? "").trim();
   const filteredLabels =
     query === ""
       ? labels
@@ -237,7 +237,7 @@ function LabelSelect({ labels, activeLabel, onChange, onFocusChange }: Props) {
         value={
           labelEditingValue !== undefined
             ? labelEditingValue
-            : activeLabel || "" // If active label happens to be undefined the component will become uncontrolled.
+            : activeLabel ?? "" // If active label happens to be undefined the component will become uncontrolled.
         }
         type="text"
       />

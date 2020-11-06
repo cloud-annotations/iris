@@ -221,7 +221,7 @@ class CrispyCanvas {
   }
 
   drawAnchor(point: Point, options?: any) {
-    const { color, debug } = options || {};
+    const { color, debug } = options ?? {};
     if (debug) {
       this.point(point, { color: "red", size: 5 });
       return;

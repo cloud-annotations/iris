@@ -52,6 +52,10 @@ export interface UI {
   selectedCategory: string;
   selectedImages: string[];
   highlightedBox?: string;
+  imageFilter: {
+    mode: "all" | "unlabeled" | "labeled";
+    label?: string;
+  };
 }
 
 export interface ProjectState {
@@ -75,6 +79,26 @@ const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
+    showAllImages(state) {
+      if (state.ui) {
+        state.ui.imageFilter.mode = "all";
+      }
+    },
+    showLabeledImages(state) {
+      if (state.ui) {
+        state.ui.imageFilter.mode = "labeled";
+      }
+    },
+    showUnlabeledImages(state) {
+      if (state.ui) {
+        state.ui.imageFilter.mode = "unlabeled";
+      }
+    },
+    filterByLabel(state, { payload }) {
+      if (state.ui) {
+        state.ui.imageFilter.label = payload;
+      }
+    },
     addCategory(state, { payload }) {
       if (state.categories === undefined) {
         state.categories = [];
@@ -246,6 +270,9 @@ const projectSlice = createSlice({
           selectedTool: firstRealTool,
           selectedCategory: payload.annotations.labels[0],
           selectedImages: [firstImage],
+          imageFilter: {
+            mode: "all",
+          },
         },
       };
     });
@@ -274,5 +301,9 @@ export const {
   selectImages,
   selectTool,
   toggleSelectedImage,
+  showAllImages,
+  showLabeledImages,
+  showUnlabeledImages,
+  filterByLabel,
 } = projectSlice.actions;
 export * from "./types";
