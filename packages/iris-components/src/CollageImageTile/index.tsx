@@ -64,6 +64,7 @@ const useStyles = makeStyles((theme: Theme) => {
       opacity: 0,
     },
     image: {
+      display: "flex",
       position: "relative",
       height: "100%",
       backgroundColor: theme.palette.action.hover,
@@ -99,6 +100,16 @@ const useStyles = makeStyles((theme: Theme) => {
       backgroundColor: "red",
       borderRadius: 0,
       overflow: "hidden",
+      "&:first-of-type": {
+        margin: 0,
+        borderRadius: " 2px 1px 1px 2px",
+      },
+      "&:last-of-type": {
+        borderRadius: "1px 2px 2px 1px",
+      },
+      "&:only-of-type": {
+        borderRadius: 2,
+      },
     },
   });
 });
