@@ -91,12 +91,12 @@ const useStyles = makeStyles((theme: Theme) => {
   });
 });
 
-interface ImageTileV4Props {
+interface ImageTileProps {
   state: "active" | "selected" | "normal";
   url: string;
 }
 
-function ImageTileV4({ state, url }: ImageTileV4Props) {
+function ImageTile({ state, url }: ImageTileProps) {
   const classes = useStyles();
 
   return (
@@ -116,4 +116,4 @@ function ImageTileV4({ state, url }: ImageTileV4Props) {
     </div>
   );
 }
-export default ImageTileV4;
+export default ImageTile;

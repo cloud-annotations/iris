@@ -8,7 +8,11 @@ import {
 } from "@iris/store/dist/project";
 import { useDispatch, useSelector } from "react-redux";
 
-import { HorizontalListController, ImageTile } from "@iris/components";
+import {
+  HorizontalListController,
+  ImageTile,
+  CollageImageTile,
+} from "@iris/components";
 import { RootState } from "@iris/store";
 
 import styles from "./ImagesPanel.module.css";
@@ -47,9 +51,6 @@ const useBlockSwipeBack = (ref: any) => {
 };
 
 function ImagesPanel() {
-  // const imageFilter: any = true;
-  // const allImageCount = 0;
-
   const dispatch = useDispatch();
 
   const projectID = useSelector((state: RootState) => state.project.id);
@@ -96,8 +97,21 @@ function ImagesPanel() {
     return categories;
   });
 
+  const annotations = useSelector((state: RootState) => {
+    return state.project.annotations ?? {};
+  });
+
+  // TODO: we need to find a better way to inject props
   const cells = images.map((i) => {
-    // TODO: we need to find a better way to inject props
+    if (filter !== undefined) {
+      return (
+        // @ts-ignore
+        <CollageImageTile
+          targets={annotations[i].map((a) => a.targets)}
+          url={`/api/projects/${projectID}/images/${i}`}
+        />
+      );
+    }
     // @ts-ignore
     return <ImageTile url={`/api/projects/${projectID}/images/${i}`} />;
   });
