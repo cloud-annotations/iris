@@ -115,19 +115,74 @@ function DrawingPanel({ headCount }: any) {
   const highlightedBox =
     useSelector((state: RootState) => state.project.ui?.highlightedBox) ?? "";
 
+  // TODO: de-dupe this code
+  const images = useSelector((state: RootState) => {
+    if (state.project.ui === undefined) {
+      return [];
+    }
+    const all = state.project.images ?? [];
+    const annotatedImages = new Set(
+      Object.keys(state.project.annotations ?? {})
+    );
+
+    const _labeled = new Set<string>();
+    const _unlabeled = new Set<string>();
+    for (let elem of all) {
+      if (annotatedImages.has(elem)) {
+        _labeled.add(elem);
+      } else {
+        _unlabeled.add(elem);
+      }
+    }
+
+    const labeled = Array.from(_labeled);
+    const unlabeled = Array.from(_unlabeled);
+
+    const filterLabel = state.project.ui.imageFilter.label;
+    if (filterLabel === undefined) {
+      switch (state.project.ui.imageFilter.mode) {
+        case "all":
+          return all;
+        case "labeled":
+          return labeled;
+        case "unlabeled":
+          return unlabeled;
+      }
+    }
+
+    return labeled.filter((image) => {
+      const annotations = state.project.annotations?.[image];
+      if (annotations === undefined) {
+        return false;
+      }
+      return annotations.find((a) => a.label === filterLabel) !== undefined;
+    });
+  });
+
+  const activeImage = useSelector((state: RootState) => {
+    const selection = state.project.ui?.selectedImages;
+    let realIndex = 0;
+    if (selection) {
+      // TODO: this makes sure we don't select negative one, but not sure if this
+      // is really what we want? changing availabled images should reset selection, maybe?
+      // this seems to work but should probably extracted everywhere we are always using the same image
+      // could be dangerous when deleting things...
+      realIndex = Math.max(0, images.indexOf(selection[0]));
+    }
+
+    return images[realIndex];
+  });
+
   const boxes =
     useSelector((state: RootState) => {
-      const image = state.project.ui?.selectedImages[0];
-      if (state.project.annotations && image) {
-        return state.project.annotations[image];
+      if (state.project.annotations && activeImage) {
+        return state.project.annotations[activeImage];
       }
       return;
     }) || [];
 
   const projectID = useSelector((state: RootState) => state.project.id);
-  const activeImage = useSelector(
-    (state: RootState) => state.project.ui?.selectedImages[0]
-  );
+
   const activeLabel =
     useSelector((state: RootState) => state.project.ui?.selectedCategory) ?? "";
   const labels =

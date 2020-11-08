@@ -54,7 +54,49 @@ function ImagesPanel() {
   const dispatch = useDispatch();
 
   const projectID = useSelector((state: RootState) => state.project.id);
-  const images = useSelector((state: RootState) => state.project.images ?? []);
+
+  const images = useSelector((state: RootState) => {
+    if (state.project.ui === undefined) {
+      return [];
+    }
+    const all = state.project.images ?? [];
+    const annotatedImages = new Set(
+      Object.keys(state.project.annotations ?? {})
+    );
+
+    const _labeled = new Set<string>();
+    const _unlabeled = new Set<string>();
+    for (let elem of all) {
+      if (annotatedImages.has(elem)) {
+        _labeled.add(elem);
+      } else {
+        _unlabeled.add(elem);
+      }
+    }
+
+    const labeled = Array.from(_labeled);
+    const unlabeled = Array.from(_unlabeled);
+
+    const filterLabel = state.project.ui.imageFilter.label;
+    if (filterLabel === undefined) {
+      switch (state.project.ui.imageFilter.mode) {
+        case "all":
+          return all;
+        case "labeled":
+          return labeled;
+        case "unlabeled":
+          return unlabeled;
+      }
+    }
+
+    return labeled.filter((image) => {
+      const annotations = state.project.annotations?.[image];
+      if (annotations === undefined) {
+        return false;
+      }
+      return annotations.find((a) => a.label === filterLabel) !== undefined;
+    });
+  });
 
   const filterMode = useSelector(
     (state: RootState) => state.project.ui?.imageFilter.mode
@@ -65,7 +107,7 @@ function ImagesPanel() {
   );
 
   const range = useSelector((state: RootState) => {
-    const images = state.project.images ?? [];
+    // const images = state.project.images ?? [];
     const selection = state.project.ui?.selectedImages;
     if (selection) {
       return selection.map((s) => images.indexOf(s));
@@ -74,10 +116,14 @@ function ImagesPanel() {
   });
 
   const selectedIndex = useSelector((state: RootState) => {
-    const images = state.project.images ?? [];
+    // const images = state.project.images ?? [];
     const selection = state.project.ui?.selectedImages;
     if (selection) {
-      return images.indexOf(selection[0]);
+      // TODO: this makes sure we don't select negative one, but not sure if this
+      // is really what we want? changing availabled images should reset selection, maybe?
+      // this seems to work but should probably extracted everywhere we are always using the same image
+      // could be dangerous when deleting things...
+      return Math.max(0, images.indexOf(selection[0]));
     }
     return 0;
   });
@@ -178,7 +224,9 @@ function ImagesPanel() {
 
   const filterImageModeCount = useSelector((state: RootState) => {
     const all = state.project.images?.length ?? 0;
-    const labeled = Object.keys(state.project.annotations ?? {}).length ?? 0;
+    const labeled = Object.keys(state.project.annotations ?? {}).length;
+    // TODO: this logic isn't necessarily sound if an annotation exists, but the
+    // file is missing.
     switch (state.project.ui?.imageFilter.mode) {
       case "all":
         return all;
