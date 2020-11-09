@@ -5,7 +5,10 @@ import produce from "immer";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
-import store, { visibleSelectedImagesSelector } from "@iris/store";
+import store, {
+  selectedCategorySelector,
+  visibleSelectedImagesSelector,
+} from "@iris/store";
 
 class CanvasPlugin {
   onTargetMove(coords: any, target: any) {}
@@ -114,11 +117,8 @@ class BoxCanvasPlugin extends CanvasPlugin {
 
     if (this.editing === null) {
       const category =
-        store.getState().ui.selectedCategory ??
-        store.getState().data.categories[0];
-      if (category === undefined) {
-        return;
-      }
+        selectedCategorySelector(store.getState()) ?? "Untitled Label";
+
       const id = uuidv4();
       this.editing = id;
       store.dispatch(

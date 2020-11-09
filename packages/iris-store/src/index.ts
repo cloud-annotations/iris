@@ -83,4 +83,14 @@ export function visibleSelectedImagesSelector(state: RootState) {
   return selection;
 }
 
+export function selectedCategorySelector(state: RootState) {
+  if (
+    state.ui.selectedCategory &&
+    state.data.categories.includes(state.ui.selectedCategory)
+  ) {
+    return state.ui.selectedCategory;
+  }
+  return state.data.categories[0];
+}
+
 export default store;

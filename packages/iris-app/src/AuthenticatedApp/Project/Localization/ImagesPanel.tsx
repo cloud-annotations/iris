@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
 
+import { deleteCategory } from "@iris/store/dist/project/data";
 import {
   filterByLabel,
   selectImages,
@@ -127,11 +128,10 @@ function ImagesPanel() {
         `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`
       );
       if (deleteTheLabel) {
-        // TODO: delete the label
-        // syncAction(deleteLabel, [label]);
+        dispatch(deleteCategory(label));
       }
     },
-    []
+    [dispatch]
   );
 
   const handleFilterChange = useCallback(

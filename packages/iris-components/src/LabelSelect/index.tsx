@@ -112,11 +112,18 @@ const useStyles = makeStyles((theme: Theme) =>
 export interface Props {
   labels: string[];
   activeLabel: string;
+  placeholder?: string;
   onChange: (label: string) => any;
   onFocusChange?: (focused: boolean) => any;
 }
 
-function LabelSelect({ labels, activeLabel, onChange, onFocusChange }: Props) {
+function LabelSelect({
+  labels,
+  activeLabel,
+  placeholder,
+  onChange,
+  onFocusChange,
+}: Props) {
   const classes = useStyles();
 
   const [labelOpen, setLabelOpen] = useState(false);
@@ -224,6 +231,7 @@ function LabelSelect({ labels, activeLabel, onChange, onFocusChange }: Props) {
           ))}
         </div>
       )}
+
       <input
         ref={inputRef}
         className={
@@ -239,8 +247,10 @@ function LabelSelect({ labels, activeLabel, onChange, onFocusChange }: Props) {
             ? labelEditingValue
             : activeLabel ?? "" // If active label happens to be undefined the component will become uncontrolled.
         }
+        placeholder={placeholder}
         type="text"
       />
+
       <svg
         onClick={(e) => {
           if (labelOpen) {

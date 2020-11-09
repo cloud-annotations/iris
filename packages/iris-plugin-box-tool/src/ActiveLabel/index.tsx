@@ -5,14 +5,12 @@ import { selectCategory } from "@iris/store/dist/project/ui";
 import { useSelector, useDispatch } from "react-redux";
 
 import { LabelSelect } from "@iris/components";
-import { RootState } from "@iris/store";
+import { RootState, selectedCategorySelector } from "@iris/store";
 
 function ActiveLabel() {
   const dispatch = useDispatch();
   const labels = useSelector((state: RootState) => state.data.categories);
-  const activeLabel = useSelector(
-    (state: RootState) => state.ui.selectedCategory ?? state.data.categories[0]
-  );
+  const activeLabel = useSelector(selectedCategorySelector);
 
   const handleLabelChosen = useCallback(
     (label) => {
@@ -27,6 +25,7 @@ function ActiveLabel() {
     <LabelSelect
       labels={labels}
       activeLabel={activeLabel}
+      placeholder="Create new label"
       onChange={handleLabelChosen}
     />
   );

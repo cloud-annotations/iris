@@ -5,7 +5,11 @@ import { selectCategory, selectTool } from "@iris/store/dist/project/ui";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Canvas, CrossHair, EmptySet } from "@iris/components";
-import { RootState, visibleSelectedImagesSelector } from "@iris/store";
+import {
+  RootState,
+  selectedCategorySelector,
+  visibleSelectedImagesSelector,
+} from "@iris/store";
 
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
@@ -127,9 +131,7 @@ function DrawingPanel({ headCount }: any) {
 
   const projectID = useSelector((state: RootState) => state.project.id);
 
-  const activeLabel = useSelector(
-    (state: RootState) => state.ui.selectedCategory ?? state.data.categories[0]
-  );
+  const activeLabel = useSelector(selectedCategorySelector);
   const labels = useSelector((state: RootState) => state.data.categories);
 
   const [bboxes, onlyLabels] = partition(
