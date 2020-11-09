@@ -59,9 +59,9 @@ const projectSlice = createSlice({
 
       state.selectedImages = newRange;
     },
-    // TODO: why not just pass the id? and why could payload be null?
-    highlightBox(state, { payload }: PayloadAction<{ id?: string }>) {
-      state.highlightedBox = payload?.id;
+
+    highlightBox(state, { payload }: PayloadAction<string | undefined>) {
+      state.highlightedBox = payload;
     },
   },
   extraReducers: (builder) => {
@@ -96,4 +96,3 @@ export const {
   showUnlabeledImages,
   filterByLabel,
 } = projectSlice.actions;
-export * from "./types";

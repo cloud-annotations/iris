@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useCallback } from "react";
 
 import {
   filterByLabel,
+  selectImages,
   showAllImages,
   showLabeledImages,
   showUnlabeledImages,
+  toggleSelectedImage,
 } from "@iris/store/dist/project/ui";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -118,15 +120,9 @@ function ImagesPanel() {
       if (key.shiftKey) {
         // TODO
       } else if (key.ctrlKey) {
-        dispatch({
-          type: "project/toggleSelectedImage",
-          payload: images[selection],
-        });
+        dispatch(toggleSelectedImage(images[selection]));
       } else {
-        dispatch({
-          type: "project/selectImages",
-          payload: images[selection],
-        });
+        dispatch(selectImages(images[selection]));
       }
     },
     [dispatch, images]

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { load } from "..";
-import { IAnnotation } from "./types";
+import { IAnnotation } from "../types";
 
 export interface ProjectState {
   categories: string[];
@@ -120,4 +120,3 @@ export const {
   editAnnotations,
   deleteAnnotations,
 } = projectSlice.actions;
-export * from "./types";

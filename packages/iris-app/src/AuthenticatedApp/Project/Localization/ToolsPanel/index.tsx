@@ -1,5 +1,6 @@
 import React from "react";
 
+import { selectTool } from "@iris/store/dist/project/ui";
 import { useDispatch, useSelector } from "react-redux";
 
 import { RootState } from "@iris/store";
@@ -15,9 +16,7 @@ function ToolsPanel() {
       {window.IRIS.tools.list().map((t) => {
         return (
           <div
-            onClick={() =>
-              dispatch({ type: "project/selectTool", payload: t.id })
-            }
+            onClick={() => dispatch(selectTool(t.id))}
             className={tool === t.id ? styles.toolActive : styles.tool}
           >
             {t.icon}

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import { ITarget } from "@iris/store/dist/project";
 import { deleteAnnotations } from "@iris/store/dist/project/data";
+import { highlightBox } from "@iris/store/dist/project/ui";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -95,13 +96,13 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
 
   const handleBoxEnter = useCallback(
     (box) => () => {
-      dispatch({ type: "project/highlightBox", payload: box });
+      dispatch(highlightBox(box.id));
     },
     [dispatch]
   );
 
   const handleBoxLeave = useCallback(() => {
-    dispatch({ type: "project/highlightBox", payload: undefined });
+    dispatch(highlightBox(undefined));
   }, [dispatch]);
 
   const {

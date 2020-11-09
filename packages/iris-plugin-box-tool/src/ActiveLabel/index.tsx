@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 
+import { selectCategory } from "@iris/store/dist/project/ui";
 import { useSelector, useDispatch } from "react-redux";
 
 import { LabelSelect } from "@iris/components";
@@ -14,10 +15,7 @@ function ActiveLabel() {
 
   const handleLabelChosen = useCallback(
     (label) => {
-      dispatch({
-        type: "project/selectCategory",
-        payload: label,
-      });
+      dispatch(selectCategory(label));
     },
     [dispatch]
   );
