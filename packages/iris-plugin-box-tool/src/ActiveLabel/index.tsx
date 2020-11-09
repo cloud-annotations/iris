@@ -14,6 +14,7 @@ function ActiveLabel() {
 
   const handleLabelChosen = useCallback(
     (label) => {
+      // only create new label if it doesn't exist to prevent unnecessary save.
       if (!labels.includes(label)) {
         dispatch(addCategory(label));
       }
