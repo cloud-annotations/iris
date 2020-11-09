@@ -23,7 +23,7 @@ const initialState: UI = {
 };
 
 const projectSlice = createSlice({
-  name: "project",
+  name: "ui",
   initialState,
   reducers: {
     showAllImages(state) {

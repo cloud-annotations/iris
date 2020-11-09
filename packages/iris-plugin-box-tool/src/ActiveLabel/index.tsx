@@ -14,11 +14,13 @@ function ActiveLabel() {
 
   const handleLabelChosen = useCallback(
     (label) => {
-      // will only create a new category if it doesn't exist
-      dispatch(addCategory(label));
+      if (!labels.includes(label)) {
+        dispatch(addCategory(label));
+      }
+
       dispatch(selectCategory(label));
     },
-    [dispatch]
+    [dispatch, labels]
   );
 
   return (

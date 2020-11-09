@@ -81,7 +81,7 @@ function stateDeleteAnnotations(state: ProjectState, payload: AnnotationEdit) {
 }
 
 const projectSlice = createSlice({
-  name: "project",
+  name: "data",
   initialState,
   reducers: {
     addCategory(state, { payload }: PayloadAction<string>) {

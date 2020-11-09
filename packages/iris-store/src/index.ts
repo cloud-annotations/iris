@@ -1,13 +1,32 @@
 import { useEffect } from "react";
 
-import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
+import {
+  Action,
+  AnyAction,
+  configureStore,
+  Middleware,
+  ThunkAction,
+} from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 
-import project, { load } from "./project";
+import project, { decrementSaving, incrementSaving, load } from "./project";
 import data from "./project/data";
 import ui from "./project/ui";
 
+const persist: Middleware = (storeAPI) => (next) => (action) => {
+  const result = next(action);
+  // only persist data changes
+  if (action.type && action.type.startsWith("data/")) {
+    storeAPI.dispatch(incrementSaving());
+    setTimeout(() => {
+      storeAPI.dispatch(decrementSaving());
+    }, 3000);
+  }
+  return result;
+};
+
 const store = configureStore({
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(persist),
   reducer: { project, ui, data },
   // @ts-ignore
   devTools: process.env.NODE_ENV !== "production",
