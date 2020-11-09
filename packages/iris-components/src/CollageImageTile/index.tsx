@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
@@ -116,7 +116,12 @@ const useStyles = makeStyles((theme: Theme) => {
 
 const MAX_HEIGHT = 80;
 
-const calculateCrop = (targets, imageSize) => {
+interface ITarget {
+  x: number;
+  y: number;
+}
+
+const calculateCrop = (targets: ITarget[], imageSize: number[]) => {
   const xMin = Math.min(...targets.map((t) => t.x));
   const yMin = Math.min(...targets.map((t) => t.y));
   const xMax = Math.max(...targets.map((t) => t.x));
@@ -159,7 +164,13 @@ const calculateCrop = (targets, imageSize) => {
   };
 };
 
-function ListItem({ targets, url, imageDims }) {
+interface ListItemProps {
+  targets: ITarget[];
+  url: string;
+  imageSize: number[];
+}
+
+function ListItem({ targets, url, imageSize }: ListItemProps) {
   const classes = useStyles();
 
   const {
@@ -169,7 +180,7 @@ function ListItem({ targets, url, imageDims }) {
     yOffset,
     fullWidth,
     fullHeight,
-  } = calculateCrop(targets, imageDims);
+  } = calculateCrop(targets, imageSize);
 
   return (
     <div className={classes.thumbnail}>
@@ -196,7 +207,7 @@ const CollageImageTile = ({ state, targets, url }: CollageImageTileProps) => {
   const classes = useStyles();
 
   const imageRef = useRef<HTMLDivElement>(null);
-  const [imageDims, setImageDims] = useState([0, 0]);
+  const [imageSize, setImageSize] = useState([0, 0]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -206,7 +217,7 @@ const CollageImageTile = ({ state, targets, url }: CollageImageTileProps) => {
             observer.unobserve(entry.target);
             const img = new Image();
             img.onload = () => {
-              setImageDims([img.width, img.height]);
+              setImageSize([img.width, img.height]);
             };
             img.src = url;
           }
@@ -232,7 +243,7 @@ const CollageImageTile = ({ state, targets, url }: CollageImageTileProps) => {
       <div className={classes.highlight} />
       <div ref={imageRef} className={classes.image}>
         {targets.map((t) => (
-          <ListItem targets={t} url={url} imageDims={imageDims} />
+          <ListItem targets={t} url={url} imageSize={imageSize} />
         ))}
       </div>
       <div className={classes.iconWrapper}>
