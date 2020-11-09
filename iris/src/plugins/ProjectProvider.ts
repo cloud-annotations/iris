@@ -25,8 +25,8 @@ class ProjectProvider {
       "utf-8"
     );
     project.annotations = JSON.parse(annotationsString);
-    // TODO: async
-    const files = fs.readdirSync(
+
+    const files = await fs2.readdir(
       path.join(process.cwd(), "sample-projects", projectID)
     );
     project.annotations.images = files.filter(
@@ -34,6 +34,19 @@ class ProjectProvider {
         f.toLowerCase().endsWith(".jpg") || f.toLowerCase().endsWith(".jpeg")
     );
     return project;
+  }
+
+  async persist(projectID: string, annotations: any) {
+    await fs2.writeFile(
+      path.join(
+        process.cwd(),
+        "sample-projects",
+        projectID,
+        "_annotations.json"
+      ),
+      JSON.stringify(annotations),
+      "utf-8"
+    );
   }
 
   async getImage(projectID: string, imageID: string) {

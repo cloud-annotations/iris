@@ -16,6 +16,11 @@ router.get("/projects/:projectID", async (req, res) => {
   res.json(project);
 });
 
+router.post("/projects/:projectID", async (req, res) => {
+  provider.persist(req.params.projectID, req.body);
+  res.end();
+});
+
 router.get("/projects/:projectID/images/:imageID", async (req, res) => {
   const { projectID, imageID } = req.params;
   const s = await provider.getImage(projectID, imageID);

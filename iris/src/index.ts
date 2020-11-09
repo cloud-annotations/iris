@@ -22,6 +22,7 @@ app.disable("x-powered-by");
 app.use(gzip());
 app.use(security());
 app.use(logger());
+app.use(express.json());
 
 app.use("/api", apiRouter);
 app.use("/auth", authRouter);

@@ -2,7 +2,6 @@ import { useEffect } from "react";
 
 import {
   Action,
-  AnyAction,
   configureStore,
   Middleware,
   ThunkAction,
@@ -18,9 +17,22 @@ const persist: Middleware = (storeAPI) => (next) => (action) => {
   // only persist data changes
   if (action.type && action.type.startsWith("data/")) {
     storeAPI.dispatch(incrementSaving());
-    setTimeout(() => {
+
+    const state = storeAPI.getState() as RootState;
+
+    fetch(`/api/projects/${state.project.id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        version: "v2",
+        labels: state.data.categories,
+        annotations: state.data.annotations,
+      }),
+    }).finally(() => {
       storeAPI.dispatch(decrementSaving());
-    }, 3000);
+    });
   }
   return result;
 };
