@@ -1,5 +1,10 @@
 import CrispyCanvas from "@iris/components/dist/Canvas/CrispyCanvas";
-import { IAnnotation } from "@iris/store/dist/project";
+import {
+  addAnnotations,
+  editAnnotations,
+  IAnnotation,
+  sync,
+} from "@iris/store/dist/project";
 import produce from "immer";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
@@ -87,15 +92,16 @@ class BoxCanvasPlugin extends CanvasPlugin {
       }
     });
 
-    store.dispatch({
-      type: "project/editAnnotations",
-      payload: {
-        images: [image],
-        annotation: {
-          ...newShape,
-        },
-      },
-    });
+    store.dispatch(
+      sync(
+        editAnnotations({
+          images: [image],
+          annotation: {
+            ...newShape,
+          },
+        })
+      )
+    );
     return;
   }
 
@@ -119,41 +125,42 @@ class BoxCanvasPlugin extends CanvasPlugin {
       }
       const id = uuidv4();
       this.editing = id;
-      store.dispatch({
-        type: "project/addAnnotations",
-        payload: {
-          images: [image],
-          annotation: {
-            id: id,
-            label: category,
-            tool: "box",
-            connections: {
-              [`${id}-0`]: {
-                x: `${id}-1`,
-                y: `${id}-3`,
+      store.dispatch(
+        sync(
+          addAnnotations({
+            images: [image],
+            annotation: {
+              id: id,
+              label: category,
+              tool: "box",
+              connections: {
+                [`${id}-0`]: {
+                  x: `${id}-1`,
+                  y: `${id}-3`,
+                },
+                [`${id}-1`]: {
+                  x: `${id}-0`,
+                  y: `${id}-2`,
+                },
+                [`${id}-2`]: {
+                  x: `${id}-3`,
+                  y: `${id}-1`,
+                },
+                [`${id}-3`]: {
+                  x: `${id}-2`,
+                  y: `${id}-0`,
+                },
               },
-              [`${id}-1`]: {
-                x: `${id}-0`,
-                y: `${id}-2`,
-              },
-              [`${id}-2`]: {
-                x: `${id}-3`,
-                y: `${id}-1`,
-              },
-              [`${id}-3`]: {
-                x: `${id}-2`,
-                y: `${id}-0`,
-              },
+              targets: [
+                { id: `${id}-0`, x: coords.x, y: coords.y },
+                { id: `${id}-1`, x: coords.x, y: coords.y },
+                { id: `${id}-2`, x: coords.x, y: coords.y },
+                { id: `${id}-3`, x: coords.x, y: coords.y },
+              ],
             },
-            targets: [
-              { id: `${id}-0`, x: coords.x, y: coords.y },
-              { id: `${id}-1`, x: coords.x, y: coords.y },
-              { id: `${id}-2`, x: coords.x, y: coords.y },
-              { id: `${id}-3`, x: coords.x, y: coords.y },
-            ],
-          },
-        },
-      });
+          })
+        )
+      );
       return;
     }
 
@@ -176,15 +183,16 @@ class BoxCanvasPlugin extends CanvasPlugin {
 
         draft.targets[3].x = coords.x;
       });
-      store.dispatch({
-        type: "project/editAnnotations",
-        payload: {
-          images: [image],
-          annotation: {
-            ...newBox,
-          },
-        },
-      });
+      store.dispatch(
+        sync(
+          editAnnotations({
+            images: [image],
+            annotation: {
+              ...newBox,
+            },
+          })
+        )
+      );
     }
   }
 

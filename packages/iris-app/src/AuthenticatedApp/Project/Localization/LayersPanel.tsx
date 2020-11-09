@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { ITarget, sync } from "@iris/store/dist/project";
+import { deleteAnnotations, ITarget, sync } from "@iris/store/dist/project";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -80,12 +80,7 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
   const dispatch = useDispatch();
 
   const handleDelete = useCallback(() => {
-    dispatch(
-      sync({
-        type: "project/deleteAnnotations",
-        payload: { images: [imageID], annotation: box },
-      })
-    );
+    dispatch(sync(deleteAnnotations({ images: [imageID], annotation: box })));
   }, [box, dispatch, imageID]);
 
   const handleLabelChosen = useCallback((_label) => {
