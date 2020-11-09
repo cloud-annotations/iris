@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import { ITarget } from "@iris/store/dist/project";
-import { deleteAnnotations } from "@iris/store/dist/project/data";
+import {
+  deleteAnnotations,
+  editAnnotations,
+} from "@iris/store/dist/project/data";
 import { highlightBox } from "@iris/store/dist/project/ui";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
@@ -85,14 +88,20 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
     dispatch(deleteAnnotations({ images: [imageID], annotation: box }));
   }, [box, dispatch, imageID]);
 
-  const handleLabelChosen = useCallback((_label) => {
-    // TODO:
-    //   if (!labels.includes(newActiveLabel)) {
-    //     syncAction(createLabel, [newActiveLabel]);
-    //   }
-    // syncAction(deleteBox, [imageName, box]);
-    // syncAction(createBox, [imageName, { ...box, label: label }]);
-  }, []);
+  const handleLabelChosen = useCallback(
+    (label) => {
+      dispatch(
+        editAnnotations({
+          images: [imageID],
+          annotation: {
+            ...box,
+            label: label,
+          },
+        })
+      );
+    },
+    [box, dispatch, imageID]
+  );
 
   const handleBoxEnter = useCallback(
     (box) => () => {

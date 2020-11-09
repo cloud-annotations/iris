@@ -1,5 +1,6 @@
 import React, { useCallback } from "react";
 
+import { addCategory } from "@iris/store/dist/project/data";
 import { selectCategory } from "@iris/store/dist/project/ui";
 import { useSelector, useDispatch } from "react-redux";
 
@@ -15,6 +16,8 @@ function ActiveLabel() {
 
   const handleLabelChosen = useCallback(
     (label) => {
+      // will only create a new category if it doesn't exist
+      dispatch(addCategory(label));
       dispatch(selectCategory(label));
     },
     [dispatch]
