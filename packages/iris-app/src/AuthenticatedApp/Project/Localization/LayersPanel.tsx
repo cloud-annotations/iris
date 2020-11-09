@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { deleteAnnotations, ITarget, sync } from "@iris/store/dist/project";
+import { ITarget } from "@iris/store/dist/project";
+import { deleteAnnotations } from "@iris/store/dist/project/data";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -80,7 +81,7 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
   const dispatch = useDispatch();
 
   const handleDelete = useCallback(() => {
-    dispatch(sync(deleteAnnotations({ images: [imageID], annotation: box })));
+    dispatch(deleteAnnotations({ images: [imageID], annotation: box }));
   }, [box, dispatch, imageID]);
 
   const handleLabelChosen = useCallback((_label) => {
@@ -149,19 +150,17 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
 function LayersPanel() {
   const projectID = useSelector((state: RootState) => state.project.id);
   const activeImage = useSelector(
-    (state: RootState) => state.project.ui?.selectedImages[0]
+    (state: RootState) => state.ui.selectedImages[0]
   );
-  const labels =
-    useSelector((state: RootState) => state.project.categories) ?? [];
+  const labels = useSelector((state: RootState) => state.data.categories);
 
-  const boxes =
-    useSelector((state: RootState) => {
-      const image = state.project.ui?.selectedImages[0];
-      if (image !== undefined && state.project.annotations?.[image]) {
-        return state.project.annotations[image];
-      }
-      return;
-    }) ?? [];
+  const boxes = useSelector((state: RootState) => {
+    const image = state.ui.selectedImages[0];
+    if (image !== undefined && state.data.annotations[image]) {
+      return state.data.annotations[image];
+    }
+    return [];
+  });
 
   const [imageDims, setImageDims] = useState([0, 0]);
 

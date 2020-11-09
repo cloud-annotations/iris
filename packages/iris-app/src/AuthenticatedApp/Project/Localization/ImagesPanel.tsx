@@ -5,7 +5,7 @@ import {
   showAllImages,
   showLabeledImages,
   showUnlabeledImages,
-} from "@iris/store/dist/project";
+} from "@iris/store/dist/project/ui";
 import { useDispatch, useSelector } from "react-redux";
 
 import {
@@ -13,7 +13,7 @@ import {
   ImageTile,
   CollageImageTile,
 } from "@iris/components";
-import { RootState } from "@iris/store";
+import { imageSelector, RootState } from "@iris/store";
 
 import styles from "./ImagesPanel.module.css";
 
@@ -55,60 +55,16 @@ function ImagesPanel() {
 
   const projectID = useSelector((state: RootState) => state.project.id);
 
-  const images = useSelector((state: RootState) => {
-    if (state.project.ui === undefined) {
-      return [];
-    }
-    const all = state.project.images ?? [];
-    const annotatedImages = new Set(
-      Object.keys(state.project.annotations ?? {})
-    );
-
-    const _labeled = new Set<string>();
-    const _unlabeled = new Set<string>();
-    for (let elem of all) {
-      if (annotatedImages.has(elem)) {
-        _labeled.add(elem);
-      } else {
-        _unlabeled.add(elem);
-      }
-    }
-
-    const labeled = Array.from(_labeled);
-    const unlabeled = Array.from(_unlabeled);
-
-    const filterLabel = state.project.ui.imageFilter.label;
-    if (filterLabel === undefined) {
-      switch (state.project.ui.imageFilter.mode) {
-        case "all":
-          return all;
-        case "labeled":
-          return labeled;
-        case "unlabeled":
-          return unlabeled;
-      }
-    }
-
-    return labeled.filter((image) => {
-      const annotations = state.project.annotations?.[image];
-      if (annotations === undefined) {
-        return false;
-      }
-      return annotations.find((a) => a.label === filterLabel) !== undefined;
-    });
-  });
+  const images = useSelector(imageSelector);
 
   const filterMode = useSelector(
-    (state: RootState) => state.project.ui?.imageFilter.mode
+    (state: RootState) => state.ui.imageFilter.mode
   );
 
-  const filter = useSelector(
-    (state: RootState) => state.project.ui?.imageFilter.label
-  );
+  const filter = useSelector((state: RootState) => state.ui.imageFilter.label);
 
   const range = useSelector((state: RootState) => {
-    // const images = state.project.images ?? [];
-    const selection = state.project.ui?.selectedImages;
+    const selection = state.ui.selectedImages;
     if (selection) {
       return selection.map((s) => images.indexOf(s));
     }
@@ -116,8 +72,7 @@ function ImagesPanel() {
   });
 
   const selectedIndex = useSelector((state: RootState) => {
-    // const images = state.project.images ?? [];
-    const selection = state.project.ui?.selectedImages;
+    const selection = state.ui.selectedImages;
     if (selection) {
       // TODO: this makes sure we don't select negative one, but not sure if this
       // is really what we want? changing availabled images should reset selection, maybe?
@@ -130,12 +85,10 @@ function ImagesPanel() {
 
   const labels = useSelector((state: RootState) => {
     const categories: { [key: string]: number } = {};
-    for (const c of state.project.categories ?? []) {
+    for (const c of state.data.categories) {
       categories[c] = 0;
     }
-    for (const imageAnnotations of Object.values(
-      state.project.annotations ?? []
-    )) {
+    for (const imageAnnotations of Object.values(state.data.annotations)) {
       for (const a of imageAnnotations) {
         categories[a.label] += 1;
       }
@@ -143,9 +96,7 @@ function ImagesPanel() {
     return categories;
   });
 
-  const annotations = useSelector((state: RootState) => {
-    return state.project.annotations ?? {};
-  });
+  const annotations = useSelector((state: RootState) => state.data.annotations);
 
   // TODO: we need to find a better way to inject props
   const cells = images.map((i) => {
@@ -224,10 +175,10 @@ function ImagesPanel() {
 
   const filterImageModeCount = useSelector((state: RootState) => {
     const all = state.project.images?.length ?? 0;
-    const labeled = Object.keys(state.project.annotations ?? {}).length;
+    const labeled = Object.keys(state.data.annotations).length;
     // TODO: this logic isn't necessarily sound if an annotation exists, but the
     // file is missing.
-    switch (state.project.ui?.imageFilter.mode) {
+    switch (state.ui.imageFilter.mode) {
       case "all":
         return all;
       case "labeled":
@@ -235,7 +186,6 @@ function ImagesPanel() {
       case "unlabeled":
         return all - labeled;
     }
-    return 0;
   });
 
   return (

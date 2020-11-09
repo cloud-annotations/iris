@@ -7,8 +7,7 @@ import { RootState } from "@iris/store";
 import styles from "./ToolOptionsPanel.module.css";
 
 function ToolOptionsPanel() {
-  const tool =
-    useSelector((state: RootState) => state.project.ui?.selectedTool) ?? "";
+  const tool = useSelector((state: RootState) => state.ui.selectedTool);
 
   return (
     <div className={styles.wrapper}>

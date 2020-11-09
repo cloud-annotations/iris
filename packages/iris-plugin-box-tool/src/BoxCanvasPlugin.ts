@@ -1,10 +1,6 @@
 import CrispyCanvas from "@iris/components/dist/Canvas/CrispyCanvas";
-import {
-  addAnnotations,
-  editAnnotations,
-  IAnnotation,
-  sync,
-} from "@iris/store/dist/project";
+import { IAnnotation } from "@iris/store/dist/project";
+import { addAnnotations, editAnnotations } from "@iris/store/dist/project/data";
 import produce from "immer";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
@@ -45,12 +41,12 @@ class BoxCanvasPlugin extends CanvasPlugin {
   dragging = false;
 
   onTargetMove(coords: any, { shapeID, targetID }: any) {
-    const image = store.getState().project.ui?.selectedImages[0];
+    const image = store.getState().ui.selectedImages[0];
     if (image === undefined) {
       return;
     }
 
-    const graphs = store.getState().project.annotations?.[image];
+    const graphs = store.getState().data.annotations[image];
     if (graphs === undefined) {
       return;
     }
@@ -93,14 +89,12 @@ class BoxCanvasPlugin extends CanvasPlugin {
     });
 
     store.dispatch(
-      sync(
-        editAnnotations({
-          images: [image],
-          annotation: {
-            ...newShape,
-          },
-        })
-      )
+      editAnnotations({
+        images: [image],
+        annotation: {
+          ...newShape,
+        },
+      })
     );
     return;
   }
@@ -113,58 +107,56 @@ class BoxCanvasPlugin extends CanvasPlugin {
     if (this.dragging === false) {
       return;
     }
-    const image = store.getState().project.ui?.selectedImages[0];
+    const image = store.getState().ui.selectedImages[0];
     if (image === undefined) {
       return;
     }
 
     if (this.editing === null) {
-      const category = store.getState().project.ui?.selectedCategory;
+      const category = store.getState().ui.selectedCategory;
       if (category === undefined) {
         return;
       }
       const id = uuidv4();
       this.editing = id;
       store.dispatch(
-        sync(
-          addAnnotations({
-            images: [image],
-            annotation: {
-              id: id,
-              label: category,
-              tool: "box",
-              connections: {
-                [`${id}-0`]: {
-                  x: `${id}-1`,
-                  y: `${id}-3`,
-                },
-                [`${id}-1`]: {
-                  x: `${id}-0`,
-                  y: `${id}-2`,
-                },
-                [`${id}-2`]: {
-                  x: `${id}-3`,
-                  y: `${id}-1`,
-                },
-                [`${id}-3`]: {
-                  x: `${id}-2`,
-                  y: `${id}-0`,
-                },
+        addAnnotations({
+          images: [image],
+          annotation: {
+            id: id,
+            label: category,
+            tool: "box",
+            connections: {
+              [`${id}-0`]: {
+                x: `${id}-1`,
+                y: `${id}-3`,
               },
-              targets: [
-                { id: `${id}-0`, x: coords.x, y: coords.y },
-                { id: `${id}-1`, x: coords.x, y: coords.y },
-                { id: `${id}-2`, x: coords.x, y: coords.y },
-                { id: `${id}-3`, x: coords.x, y: coords.y },
-              ],
+              [`${id}-1`]: {
+                x: `${id}-0`,
+                y: `${id}-2`,
+              },
+              [`${id}-2`]: {
+                x: `${id}-3`,
+                y: `${id}-1`,
+              },
+              [`${id}-3`]: {
+                x: `${id}-2`,
+                y: `${id}-0`,
+              },
             },
-          })
-        )
+            targets: [
+              { id: `${id}-0`, x: coords.x, y: coords.y },
+              { id: `${id}-1`, x: coords.x, y: coords.y },
+              { id: `${id}-2`, x: coords.x, y: coords.y },
+              { id: `${id}-3`, x: coords.x, y: coords.y },
+            ],
+          },
+        })
       );
       return;
     }
 
-    const graphs = store.getState().project.annotations?.[image];
+    const graphs = store.getState().data.annotations[image];
     if (graphs === undefined) {
       return;
     }
@@ -184,14 +176,12 @@ class BoxCanvasPlugin extends CanvasPlugin {
         draft.targets[3].x = coords.x;
       });
       store.dispatch(
-        sync(
-          editAnnotations({
-            images: [image],
-            annotation: {
-              ...newBox,
-            },
-          })
-        )
+        editAnnotations({
+          images: [image],
+          annotation: {
+            ...newBox,
+          },
+        })
       );
     }
   }
@@ -202,12 +192,12 @@ class BoxCanvasPlugin extends CanvasPlugin {
       return;
     }
 
-    const image = store.getState().project.ui?.selectedImages[0];
+    const image = store.getState().ui.selectedImages[0];
     if (image === undefined) {
       return;
     }
 
-    const graphs = store.getState().project.annotations?.[image];
+    const graphs = store.getState().data.annotations[image];
     if (graphs === undefined) {
       return;
     }

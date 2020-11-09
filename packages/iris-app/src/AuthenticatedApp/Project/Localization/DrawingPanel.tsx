@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { sync } from "@iris/store/dist/project";
+import { deleteAnnotations } from "@iris/store/dist/project/data";
+import { selectCategory, selectTool } from "@iris/store/dist/project/ui";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Canvas, CrossHair, EmptySet } from "@iris/components";
-import { RootState } from "@iris/store";
+import { imageSelector, RootState } from "@iris/store";
 
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
@@ -109,58 +110,16 @@ function partition<T>(array: T[], isValid: (item: T) => boolean) {
 
 function DrawingPanel({ headCount }: any) {
   const dispatch = useDispatch();
-  const selectedTool =
-    useSelector((state: RootState) => state.project.ui?.selectedTool) ?? "";
+  const selectedTool = useSelector((state: RootState) => state.ui.selectedTool);
 
-  const highlightedBox =
-    useSelector((state: RootState) => state.project.ui?.highlightedBox) ?? "";
+  const highlightedBox = useSelector(
+    (state: RootState) => state.ui.highlightedBox
+  );
 
-  // TODO: de-dupe this code
-  const images = useSelector((state: RootState) => {
-    if (state.project.ui === undefined) {
-      return [];
-    }
-    const all = state.project.images ?? [];
-    const annotatedImages = new Set(
-      Object.keys(state.project.annotations ?? {})
-    );
-
-    const _labeled = new Set<string>();
-    const _unlabeled = new Set<string>();
-    for (let elem of all) {
-      if (annotatedImages.has(elem)) {
-        _labeled.add(elem);
-      } else {
-        _unlabeled.add(elem);
-      }
-    }
-
-    const labeled = Array.from(_labeled);
-    const unlabeled = Array.from(_unlabeled);
-
-    const filterLabel = state.project.ui.imageFilter.label;
-    if (filterLabel === undefined) {
-      switch (state.project.ui.imageFilter.mode) {
-        case "all":
-          return all;
-        case "labeled":
-          return labeled;
-        case "unlabeled":
-          return unlabeled;
-      }
-    }
-
-    return labeled.filter((image) => {
-      const annotations = state.project.annotations?.[image];
-      if (annotations === undefined) {
-        return false;
-      }
-      return annotations.find((a) => a.label === filterLabel) !== undefined;
-    });
-  });
+  const images = useSelector(imageSelector);
 
   const activeImage = useSelector((state: RootState) => {
-    const selection = state.project.ui?.selectedImages;
+    const selection = state.ui.selectedImages;
     let realIndex = 0;
     if (selection) {
       // TODO: this makes sure we don't select negative one, but not sure if this
@@ -173,20 +132,19 @@ function DrawingPanel({ headCount }: any) {
     return images[realIndex];
   });
 
-  const boxes =
-    useSelector((state: RootState) => {
-      if (state.project.annotations && activeImage) {
-        return state.project.annotations[activeImage];
-      }
-      return;
-    }) || [];
+  const boxes = useSelector((state: RootState) => {
+    if (state.data.annotations && activeImage) {
+      return state.data.annotations[activeImage] ?? [];
+    }
+    return [];
+  });
 
   const projectID = useSelector((state: RootState) => state.project.id);
 
-  const activeLabel =
-    useSelector((state: RootState) => state.project.ui?.selectedCategory) ?? "";
-  const labels =
-    useSelector((state: RootState) => state.project.categories) ?? [];
+  const activeLabel = useSelector(
+    (state: RootState) => state.ui.selectedCategory
+  );
+  const labels = useSelector((state: RootState) => state.data.categories);
 
   const [bboxes, onlyLabels] = partition(
     boxes,
@@ -195,24 +153,19 @@ function DrawingPanel({ headCount }: any) {
 
   const handleControlChange = useCallback(
     (isPressed) => {
-      dispatch({ type: "project/selectTool", payload: isPressed ? MOVE : BOX });
+      dispatch(selectTool(isPressed ? MOVE : BOX));
     },
     [dispatch]
   );
 
   useIsControlPressed(handleControlChange);
   useToggleLabel(activeLabel, labels, (label) =>
-    dispatch({ type: "project/selectCategory", payload: label })
+    dispatch(selectCategory(label))
   );
 
   const handleDeleteLabel = useCallback(
     (annotation) => () => {
-      dispatch(
-        sync({
-          type: "project/deleteAnnotation",
-          payload: annotation,
-        })
-      );
+      dispatch(deleteAnnotations(annotation));
     },
     [dispatch]
   );
