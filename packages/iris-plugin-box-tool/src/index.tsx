@@ -2,7 +2,6 @@ import React from "react";
 
 import ActiveLabel from "./ActiveLabel";
 import BoxCanvasPlugin from "./BoxCanvasPlugin";
-import Counter from "./Counter";
 
 const moveStyle = {
   fill: "white",
@@ -38,27 +37,8 @@ const BoxToolPlugin = {
     });
 
     boxTool.options.register({
-      component: <div>bye</div>,
-    });
-
-    boxTool.options.register({
-      component: <div>hello world</div>,
-      priority: 10,
-    });
-
-    boxTool.options.register({
-      component: <Counter />,
-      priority: 12,
-    });
-
-    boxTool.options.register({
       component: <ActiveLabel />,
       priority: 100,
-    });
-
-    boxTool.options.register({
-      component: <div>hello world bloo</div>,
-      priority: 9,
     });
   },
 };

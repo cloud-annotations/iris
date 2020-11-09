@@ -238,6 +238,14 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
         ref={canvasRef}
         onMouseDown={handleMouseDown}
         onTouchStart={handleMouseDown}
+        onContextMenu={(e) => {
+          // prevent context menu when ctrl clicking only.
+          if (e.button === 0) {
+            e.preventDefault();
+            return false;
+          }
+          return true;
+        }}
       />
     </div>
   );
