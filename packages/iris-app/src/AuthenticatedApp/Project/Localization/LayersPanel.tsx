@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
 import { LabelSelect } from "@iris/components";
-import { imageSelector, RootState } from "@iris/store";
+import { RootState, visibleSelectedImagesSelector } from "@iris/store";
 
 import styles from "./LayersPanel.module.css";
 
@@ -150,19 +150,12 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
 
 function LayersPanel() {
   const projectID = useSelector((state: RootState) => state.project.id);
-  const activeImage = useSelector(
-    (state: RootState) =>
-      state.ui.selectedImages?.[0] ?? imageSelector(state)[0]
-  );
+  const activeImage = useSelector(visibleSelectedImagesSelector)[0];
   const labels = useSelector((state: RootState) => state.data.categories);
 
-  const boxes = useSelector((state: RootState) => {
-    const image = state.ui.selectedImages?.[0] ?? imageSelector(state)[0];
-    if (image !== undefined && state.data.annotations[image]) {
-      return state.data.annotations[image];
-    }
-    return [];
-  });
+  const boxes = useSelector(
+    (state: RootState) => state.data.annotations[activeImage] ?? []
+  );
 
   const [imageDims, setImageDims] = useState([0, 0]);
 

@@ -5,7 +5,7 @@ import { selectCategory, selectTool } from "@iris/store/dist/project/ui";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Canvas, CrossHair, EmptySet } from "@iris/components";
-import { imageSelector, RootState } from "@iris/store";
+import { RootState, visibleSelectedImagesSelector } from "@iris/store";
 
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
@@ -119,27 +119,10 @@ function DrawingPanel({ headCount }: any) {
     (state: RootState) => state.ui.highlightedBox
   );
 
-  const images = useSelector(imageSelector);
-
-  const activeImage = useSelector((state: RootState) => {
-    const selection = state.ui.selectedImages;
-    let realIndex = 0;
-    if (selection) {
-      // TODO: this makes sure we don't select negative one, but not sure if this
-      // is really what we want? changing availabled images should reset selection, maybe?
-      // this seems to work but should probably extracted everywhere we are always using the same image
-      // could be dangerous when deleting things...
-      realIndex = Math.max(0, images.indexOf(selection[0]));
-    }
-
-    return images[realIndex];
-  });
+  const activeImage = useSelector(visibleSelectedImagesSelector)[0];
 
   const boxes = useSelector((state: RootState) => {
-    if (state.data.annotations && activeImage) {
-      return state.data.annotations[activeImage] ?? [];
-    }
-    return [];
+    return state.data.annotations[activeImage] ?? [];
   });
 
   const projectID = useSelector((state: RootState) => state.project.id);

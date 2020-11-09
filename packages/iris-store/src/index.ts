@@ -27,7 +27,7 @@ export function useProject(id: string) {
   return useSelector((state: RootState) => state.project);
 }
 
-export function imageSelector(state: RootState) {
+export function visibleImagesSelector(state: RootState) {
   const all = state.project.images ?? [];
   const annotatedImages = new Set(Object.keys(state.data.annotations));
 
@@ -63,6 +63,24 @@ export function imageSelector(state: RootState) {
     }
     return annotations.find((a) => a.label === filterLabel) !== undefined;
   });
+}
+
+export function visibleSelectedImagesSelector(state: RootState) {
+  const visibleImages = visibleImagesSelector(state);
+
+  if (state.ui.selectedImages === undefined) {
+    return [visibleImages[0]];
+  }
+
+  const selection = visibleImages.filter((image) =>
+    state.ui.selectedImages?.includes(image)
+  );
+
+  if (selection.length === 0) {
+    return [visibleImages[0]];
+  }
+
+  return selection;
 }
 
 export default store;

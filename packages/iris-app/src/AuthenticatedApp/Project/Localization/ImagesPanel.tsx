@@ -15,7 +15,11 @@ import {
   ImageTile,
   CollageImageTile,
 } from "@iris/components";
-import { imageSelector, RootState } from "@iris/store";
+import {
+  RootState,
+  visibleImagesSelector,
+  visibleSelectedImagesSelector,
+} from "@iris/store";
 
 import styles from "./ImagesPanel.module.css";
 
@@ -57,33 +61,18 @@ function ImagesPanel() {
 
   const projectID = useSelector((state: RootState) => state.project.id);
 
-  const images = useSelector(imageSelector);
-
   const filterMode = useSelector(
     (state: RootState) => state.ui.imageFilter.mode
   );
 
   const filter = useSelector((state: RootState) => state.ui.imageFilter.label);
 
-  const range = useSelector((state: RootState) => {
-    const selection = state.ui.selectedImages;
-    if (selection) {
-      return selection.map((s) => images.indexOf(s));
-    }
-    return [];
-  });
+  const images = useSelector(visibleImagesSelector);
+  const selection = useSelector(visibleSelectedImagesSelector);
 
-  const selectedIndex = useSelector((state: RootState) => {
-    const selection = state.ui.selectedImages;
-    if (selection) {
-      // TODO: this makes sure we don't select negative one, but not sure if this
-      // is really what we want? changing availabled images should reset selection, maybe?
-      // this seems to work but should probably extracted everywhere we are always using the same image
-      // could be dangerous when deleting things...
-      return Math.max(0, images.indexOf(selection[0]));
-    }
-    return 0;
-  });
+  const range = selection.map((s) => images.indexOf(s));
+
+  const selectedIndex = images.indexOf(selection[0]);
 
   const labels = useSelector((state: RootState) => {
     const categories: { [key: string]: number } = {};
