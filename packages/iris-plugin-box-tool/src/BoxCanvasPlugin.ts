@@ -5,7 +5,7 @@ import produce from "immer";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
-import store from "@iris/store";
+import store, { imageSelector } from "@iris/store";
 
 class CanvasPlugin {
   onTargetMove(coords: any, target: any) {}
@@ -41,7 +41,9 @@ class BoxCanvasPlugin extends CanvasPlugin {
   dragging = false;
 
   onTargetMove(coords: any, { shapeID, targetID }: any) {
-    const image = store.getState().ui.selectedImages[0];
+    const image =
+      store.getState().ui.selectedImages?.[0] ??
+      imageSelector(store.getState())[0];
     if (image === undefined) {
       return;
     }
@@ -107,7 +109,9 @@ class BoxCanvasPlugin extends CanvasPlugin {
     if (this.dragging === false) {
       return;
     }
-    const image = store.getState().ui.selectedImages[0];
+    const image =
+      store.getState().ui.selectedImages?.[0] ??
+      imageSelector(store.getState())[0];
     if (image === undefined) {
       return;
     }
@@ -192,7 +196,9 @@ class BoxCanvasPlugin extends CanvasPlugin {
       return;
     }
 
-    const image = store.getState().ui.selectedImages[0];
+    const image =
+      store.getState().ui.selectedImages?.[0] ??
+      imageSelector(store.getState())[0];
     if (image === undefined) {
       return;
     }

@@ -10,7 +10,7 @@ function ActiveLabel() {
   const dispatch = useDispatch();
   const labels = useSelector((state: RootState) => state.data.categories);
   const activeLabel = useSelector(
-    (state: RootState) => state.ui.selectedCategory
+    (state: RootState) => state.ui.selectedCategory ?? state.data.categories[0]
   );
 
   const handleLabelChosen = useCallback(

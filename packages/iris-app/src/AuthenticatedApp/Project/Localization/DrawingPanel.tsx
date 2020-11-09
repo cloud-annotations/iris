@@ -110,7 +110,10 @@ function partition<T>(array: T[], isValid: (item: T) => boolean) {
 
 function DrawingPanel({ headCount }: any) {
   const dispatch = useDispatch();
-  const selectedTool = useSelector((state: RootState) => state.ui.selectedTool);
+  const selectedTool = useSelector(
+    (state: RootState) =>
+      state.ui.selectedTool ?? window.IRIS.tools.list()[1].id
+  );
 
   const highlightedBox = useSelector(
     (state: RootState) => state.ui.highlightedBox
@@ -142,7 +145,7 @@ function DrawingPanel({ headCount }: any) {
   const projectID = useSelector((state: RootState) => state.project.id);
 
   const activeLabel = useSelector(
-    (state: RootState) => state.ui.selectedCategory
+    (state: RootState) => state.ui.selectedCategory ?? state.data.categories[0]
   );
   const labels = useSelector((state: RootState) => state.data.categories);
 

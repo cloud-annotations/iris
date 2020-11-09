@@ -1,11 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { load } from "..";
-
 export interface UI {
-  selectedTool: string;
-  selectedCategory: string;
-  selectedImages: string[];
+  selectedTool?: string;
+  selectedCategory?: string;
+  selectedImages?: string[];
   highlightedBox?: string;
   imageFilter: {
     mode: "all" | "unlabeled" | "labeled";
@@ -14,9 +12,9 @@ export interface UI {
 }
 
 const initialState: UI = {
-  selectedTool: "",
-  selectedCategory: "",
-  selectedImages: [],
+  selectedTool: undefined,
+  selectedCategory: undefined,
+  selectedImages: undefined,
   highlightedBox: undefined,
   imageFilter: {
     mode: "all",
@@ -50,37 +48,21 @@ const projectSlice = createSlice({
       state.selectedImages = [payload];
     },
     toggleSelectedImage(state, { payload }: PayloadAction<string>) {
-      const rangeHasImage = state.selectedImages.includes(payload);
+      if (state.selectedImages) {
+        const rangeHasImage = state.selectedImages.includes(payload);
 
-      // Add or remove the new image.
-      const newRange = rangeHasImage
-        ? state.selectedImages.filter((i) => i !== payload)
-        : [payload, ...state.selectedImages];
+        // Add or remove the new image.
+        const newRange = rangeHasImage
+          ? state.selectedImages.filter((i) => i !== payload)
+          : [payload, ...state.selectedImages];
 
-      state.selectedImages = newRange;
+        state.selectedImages = newRange;
+      }
     },
 
     highlightBox(state, { payload }: PayloadAction<string | undefined>) {
       state.highlightedBox = payload;
     },
-  },
-  extraReducers: (builder) => {
-    builder.addCase(load.fulfilled, (_state, { payload }) => {
-      const firstImage = Object.keys(payload.annotations.annotations)[0];
-      // TODO: get typing support somehow? maybe make IRIS importable?
-      // TODO: Move tool should always be the first item.
-      // @ts-ignore
-      const firstRealTool = window.IRIS.tools.list()[1].id;
-      return {
-        // NOTE: Should be the first tool after the move tool.
-        selectedTool: firstRealTool,
-        selectedCategory: payload.annotations.labels[0],
-        selectedImages: [firstImage],
-        imageFilter: {
-          mode: "all",
-        },
-      };
-    });
   },
 });
 

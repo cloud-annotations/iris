@@ -7,7 +7,10 @@ import { RootState } from "@iris/store";
 import styles from "./ToolOptionsPanel.module.css";
 
 function ToolOptionsPanel() {
-  const tool = useSelector((state: RootState) => state.ui.selectedTool);
+  const tool = useSelector(
+    (state: RootState) =>
+      state.ui.selectedTool ?? window.IRIS.tools.list()[1].id
+  );
 
   return (
     <div className={styles.wrapper}>
