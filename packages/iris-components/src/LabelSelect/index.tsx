@@ -124,7 +124,7 @@ function LabelSelect({ labels, activeLabel, onChange, onFocusChange }: Props) {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const setFocus = React.useCallback(
+  const setFocus = useCallback(
     (f) => {
       setLabelOpen(f);
       if (onFocusChange) {

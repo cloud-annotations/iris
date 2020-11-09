@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Story } from "@storybook/react/types-6-0";
 
@@ -10,7 +10,7 @@ export default {
 };
 
 const Template: Story<Props> = (args) => {
-  const [active, setActive] = React.useState(args.labels[0]);
+  const [active, setActive] = useState(args.labels[0]);
   return (
     <Select
       {...args}

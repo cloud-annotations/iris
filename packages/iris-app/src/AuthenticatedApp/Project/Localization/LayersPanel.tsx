@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { ITarget, sync } from "@iris/store/dist/project";
 import { motion } from "framer-motion";
@@ -76,19 +76,19 @@ interface ListItemProps {
 }
 
 function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
-  const [focused, setFocused] = React.useState(false);
+  const [focused, setFocused] = useState(false);
   const dispatch = useDispatch();
 
-  const handleDelete = React.useCallback(() => {
-    sync(
-      dispatch({
+  const handleDelete = useCallback(() => {
+    dispatch(
+      sync({
         type: "project/deleteAnnotations",
         payload: { images: [imageID], annotation: box },
       })
     );
   }, [box, dispatch, imageID]);
 
-  const handleLabelChosen = React.useCallback((_label) => {
+  const handleLabelChosen = useCallback((_label) => {
     // TODO:
     //   if (!labels.includes(newActiveLabel)) {
     //     syncAction(createLabel, [newActiveLabel]);
@@ -97,14 +97,14 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
     // syncAction(createBox, [imageName, { ...box, label: label }]);
   }, []);
 
-  const handleBoxEnter = React.useCallback(
+  const handleBoxEnter = useCallback(
     (box) => () => {
       dispatch({ type: "project/highlightBox", payload: box });
     },
     [dispatch]
   );
 
-  const handleBoxLeave = React.useCallback(() => {
+  const handleBoxLeave = useCallback(() => {
     dispatch({ type: "project/highlightBox", payload: undefined });
   }, [dispatch]);
 
@@ -168,9 +168,9 @@ function LayersPanel() {
       return;
     }) ?? [];
 
-  const [imageDims, setImageDims] = React.useState([0, 0]);
+  const [imageDims, setImageDims] = useState([0, 0]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const img = new Image();
     img.onload = () => {
       setImageDims([img.width, img.height]);

@@ -144,7 +144,7 @@ function Header({ name, saving }: Props) {
 
 function HeaderController() {
   const name = useSelector((state: RootState) => state.project.name);
-  const saving = 0;
+  const saving = useSelector((state: RootState) => state.project.saving);
   return <Header name={name ?? ""} saving={saving} />;
 }
 

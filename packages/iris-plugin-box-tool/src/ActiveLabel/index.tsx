@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -11,7 +11,7 @@ function ActiveLabel() {
     (state: any) => state.project.ui.selectedCategory
   );
 
-  const handleLabelChosen = React.useCallback(
+  const handleLabelChosen = useCallback(
     (label) => {
       dispatch({
         type: "project/selectCategory",

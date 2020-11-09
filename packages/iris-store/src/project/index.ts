@@ -18,6 +18,12 @@ export const sync = (action: any): AppThunk => async (dispatch, getState) => {
     console.log(state);
     // TODO: persist state;
     // TODO: emit socket message;
+    // simulate network
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 3000);
+    });
   } catch (err) {
     // TODO: handle error
   } finally {

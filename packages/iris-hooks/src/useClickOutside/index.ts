@@ -1,11 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 const useClickOutside = (
   ref: React.MutableRefObject<any>,
   handler: EventListener,
   hideOnBlur?: boolean
 ) => {
-  React.useEffect(() => {
+  useEffect(() => {
     const listener: EventListenerOrEventListenerObject = (e) => {
       // Do nothing if clicking ref's element or descendent elements
       if (!ref.current || ref.current.contains(e.target)) {
