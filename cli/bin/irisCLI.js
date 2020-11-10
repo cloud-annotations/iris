@@ -1,17 +1,25 @@
 "use strict";
 
-const execSync = require("child_process").execSync;
+const spawn = require("child_process").spawn;
 
 function init() {
   if (process.argv[2] === "start") {
     console.log("starting...");
-    execSync("node /usr/local/.iris/iris/dist/index.js");
+
+    const iris = spawn("node", ["/usr/local/.iris/iris/dist/index.js"], {
+      env: {
+        ...process.env,
+        SPA_ROOT: "/usr/local/.iris/packages/iris-app/build",
+      },
+    });
+
+    iris.stdout.on("data", (data) => {
+      console.log(`stdout: ${data}`);
+    });
   }
 
   if (process.argv[2] === "dev") {
     console.log("starting in dev mode...");
-    const boop = execSync("cd /usr/local/.iris && make start");
-    console.log(boop);
   }
 
   if (process.argv[2] === "build") {

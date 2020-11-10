@@ -3,7 +3,7 @@
 
 # Allow `/ui-frontend`, /ui-backend` and `Dockerfile`.
 !/Dockerfile
-!/iris/**
+!/cli/**
 # !/ui-backend/**
 # !/ui-frontend/**
 
