@@ -4,9 +4,6 @@
     "packages": [
       "packages/*",
       "iris"
-    ],
-    "nohoist": [
-      "**"
     ]
   },
   "devDependencies": {

@@ -27,6 +27,13 @@ start:
 	yarn lerna run build --stream --ignore @iris/app
 	FORCE_COLOR=true yarn lerna run start --parallel --stream
 
+
+
+# Add this back to the package.json to get storybook working again...
+# installs took wayyy to long so temporary dissabled (30s to 3m)
+# "nohoist": [
+#   "**"
+# ]
 .PHONY: storybook
 storybook:
 	yarn lerna exec "rm -rf node_modules/html-webpack-plugin/node_modules/webpack" --scope @iris/components

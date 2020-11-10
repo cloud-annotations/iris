@@ -3,8 +3,9 @@
 
 # Allow `/ui-frontend`, /ui-backend` and `Dockerfile`.
 !/Dockerfile
-!/ui-backend/**
-!/ui-frontend/**
+!/iris/**
+# !/ui-backend/**
+# !/ui-frontend/**
 
 ################################################################################
 # Ignore things inside of `/src`. (esentially Node .gitignore)

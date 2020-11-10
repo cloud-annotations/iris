@@ -1,35 +1,22 @@
 #!/usr/bin/env node
 
-if (process.argv[2] === "start") {
-  console.log("starting...");
+"use strict";
+
+var currentNodeVersion = process.versions.node;
+var semver = currentNodeVersion.split(".");
+var major = semver[0];
+
+if (major < 10) {
+  console.error(
+    "You are running Node " +
+      currentNodeVersion +
+      ".\n" +
+      "Iris requires Node 10 or higher. \n" +
+      "Please update your version of Node."
+  );
+  process.exit(1);
 }
 
-if (process.argv[2] === "dev") {
-  console.log("starting in dev mode...");
-}
+const { init } = require("./irisCLI");
 
-if (process.argv[2] === "build") {
-  console.log("building...");
-}
-
-if (
-  process.argv[2] === "ui" &&
-  process.argv[3] === "install" &&
-  process.argv[4]
-) {
-  console.log(`installing UI plugin: ${process.argv[4]}...`);
-  if (process.argv[5] !== "--no-build") {
-    console.log("building...");
-  }
-}
-
-if (
-  process.argv[2] === "server" &&
-  process.argv[3] === "install" &&
-  process.argv[4]
-) {
-  console.log(`installing server plugin: ${process.argv[4]}...`);
-  if (process.argv[5] !== "--no-build") {
-    console.log("building...");
-  }
-}
+init();

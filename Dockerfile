@@ -1,30 +1,21 @@
-############################
-# Stage 1
-############################
-# @sha256:3d5b19ec04fd3600df7fe014c7301a53a5437c9677c27baeee4247b6a1670ed3
-FROM node:12.18.4-slim as ui-builder
+FROM node:12.18.4
 
-# Build the UI
-COPY src/client .
-RUN yarn && yarn build
+WORKDIR /iris
 
+COPY iris .
 
-############################
-# Stage 2
-############################
-FROM node:12.18.4-slim
+RUN npm install -g .
 
-# Install packages
-COPY src/package.json src/yarn.lock ./
-RUN yarn install --only=production
+RUN git clone https://github.com/cloud-annotations/iris.git /usr/local/.iris
 
-# Copy in source files
-COPY --from=ui-builder build client
-COPY src/server.js ./
+WORKDIR /usr/local/.iris
 
-# Set server env
-ENV PORT 8080
-ENV NODE_ENV production
+RUN git checkout helm
 
-EXPOSE  8080
-CMD node server.js
+RUN yarn install
+RUN make build
+
+ENV SPA_ROOT=/usr/local/.iris/packages/iris-app/build
+
+ENTRYPOINT [ "iris" ]
+CMD [ "dev" ]
