@@ -2,57 +2,64 @@ import { promises as fs2 } from "fs";
 import fs from "fs";
 import path from "path";
 
-let projects = [
-  { id: "project1", name: "project1", created: new Date() },
-  { id: "my-first-project", name: "My first Project", created: new Date() },
-  { id: "num-3", name: "num 3", created: new Date() },
-];
-
 class ProjectProvider {
   async getProjects() {
-    return projects;
+    return [];
   }
 
-  async getProject(projectID: string) {
-    const project = projects.find((p) => p.id === projectID) as any;
-    const annotationsString = await fs2.readFile(
-      path.join(
-        process.cwd(),
-        "sample-projects",
-        projectID,
-        "_annotations.json"
-      ),
-      "utf-8"
-    );
-    project.annotations = JSON.parse(annotationsString);
+  async getProject(projectID: string | undefined) {
+    const project = {
+      id: path.basename(process.cwd()),
+      name: path.basename(process.cwd()),
+      created: new Date(),
+      annotations: {
+        version: "v2",
+        labels: [],
+        annotations: {},
+        images: [],
+      },
+    } as any;
 
-    const files = await fs2.readdir(
-      path.join(process.cwd(), "sample-projects", projectID)
-    );
+    try {
+      const annotationsString = await fs2.readFile(
+        path.join(process.cwd(), "_annotations.json"),
+        "utf-8"
+      );
+      project.annotations = JSON.parse(annotationsString);
+    } catch {}
+
+    let files;
+    if (projectID) {
+      files = await fs2.readdir(path.join(process.cwd(), projectID));
+    } else {
+      files = await fs2.readdir(path.join(process.cwd()));
+    }
+
     project.annotations.images = files.filter(
       (f) =>
         f.toLowerCase().endsWith(".jpg") || f.toLowerCase().endsWith(".jpeg")
     );
+
     return project;
   }
 
-  async persist(projectID: string, annotations: any) {
-    await fs2.writeFile(
-      path.join(
-        process.cwd(),
-        "sample-projects",
-        projectID,
-        "_annotations.json"
-      ),
-      JSON.stringify(annotations),
-      "utf-8"
-    );
+  async persist(projectID: string | undefined, annotations: any) {
+    let output;
+    if (projectID) {
+      output = path.join(process.cwd(), projectID, "_annotations.json");
+    } else {
+      output = path.join(process.cwd(), "_annotations.json");
+    }
+
+    await fs2.writeFile(output, JSON.stringify(annotations), "utf-8");
   }
 
-  async getImage(projectID: string, imageID: string) {
-    return fs.createReadStream(
-      path.join(process.cwd(), "sample-projects", projectID, imageID)
-    );
+  async getImage(projectID: string | undefined, imageID: string) {
+    if (projectID) {
+      return fs.createReadStream(path.join(process.cwd(), projectID, imageID));
+    } else {
+      return fs.createReadStream(path.join(process.cwd(), imageID));
+    }
   }
 }
 

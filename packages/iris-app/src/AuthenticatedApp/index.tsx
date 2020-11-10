@@ -2,11 +2,13 @@ import React from "react";
 
 import { Redirect, Route, Switch } from "react-router-dom";
 
+import { useMode } from "@iris/api";
+
 import NotFound from "./NotFound";
 import Project from "./Project";
 import Projects from "./Projects";
 
-function Router() {
+function ProjectsMode() {
   return (
     <Switch>
       <Route path="/" exact>
@@ -23,6 +25,24 @@ function Router() {
       </Route>
     </Switch>
   );
+}
+
+function SingleDocumentMode() {
+  return (
+    <Switch>
+      <Project />
+    </Switch>
+  );
+}
+
+function Router() {
+  const { mode } = useMode();
+
+  if (mode && mode.singleDocument === false) {
+    return <ProjectsMode />;
+  }
+
+  return <SingleDocumentMode />;
 }
 
 export default Router;

@@ -24,18 +24,20 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: theme.palette.primary.main,
+      // backgroundColor: theme.palette.primary.main,
       height: "100%",
       width: 64,
-      cursor: "pointer",
-      "&:hover": {
-        backgroundColor: theme.palette.primary.dark,
-      },
+      // cursor: "pointer",
+      // "&:hover": {
+      //   backgroundColor: theme.palette.primary.dark,
+      // },
     },
     projectIcon: {
-      fill: "white",
-      width: 32,
-      height: 32,
+      background: "black",
+      borderRadius: 4,
+      padding: 6,
+      width: 46,
+      height: 44,
     },
     project: {
       marginLeft: 6,
@@ -124,11 +126,23 @@ function Header({ name, saving }: Props) {
 
   return (
     <div className={classes.root}>
-      <Link to="/projects" className={classes.projectButton}>
+      <div className={classes.projectButton}>
+        <svg className={classes.projectIcon} viewBox="0 0 200 200">
+          <rect fill="white" x="35" y="35" width="20" height="20" />
+          <rect fill="white" x="145" y="35" width="20" height="20" />
+          <rect fill="white" x="35" y="145" width="20" height="20" />
+          <rect fill="white" x="145" y="145" width="20" height="20" />
+          <rect fill="white" x="45" y="55" width="10" height="90" />
+          <rect fill="white" x="145" y="55" width="10" height="90" />
+          <rect fill="white" x="55" y="45" width="90" height="10" />
+          <rect fill="white" x="55" y="145" width="90" height="10" />
+        </svg>
+      </div>
+      {/* <Link to="/projects" className={classes.projectButton}>
         <svg className={classes.projectIcon} viewBox="0 0 32 32">
           <path d="M11.17 6l3.42 3.41.58.59H28v16H4V6h7.17m0-2H4a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2H16l-3.41-3.41A2 2 0 0 0 11.17 4z" />
         </svg>
-      </Link>
+      </Link> */}
       <div className={classes.project}>
         <div className={classes.projectName}>{name}</div>
         <div className={classes.menus}>

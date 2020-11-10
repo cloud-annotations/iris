@@ -6,23 +6,46 @@ const router = Router();
 
 const provider = new ProjectProvider();
 
+const SINGLE_DOCUMENT_MODE = true;
+
+router.get("/mode", async (_req, res) => {
+  res.json({ singleDocument: SINGLE_DOCUMENT_MODE });
+});
+
 router.get("/projects", async (_req, res) => {
-  const projects = await provider.getProjects();
-  res.json(projects);
+  if (!SINGLE_DOCUMENT_MODE) {
+    const projects = await provider.getProjects();
+    res.json(projects);
+  }
+  res.end();
 });
 
 router.get("/projects/:projectID", async (req, res) => {
-  const project = await provider.getProject(req.params.projectID);
+  let projectID;
+  if (!SINGLE_DOCUMENT_MODE) {
+    projectID = req.params.projectID;
+  }
+  const project = await provider.getProject(projectID);
   res.json(project);
 });
 
 router.post("/projects/:projectID", async (req, res) => {
-  provider.persist(req.params.projectID, req.body);
+  let projectID;
+  if (!SINGLE_DOCUMENT_MODE) {
+    projectID = req.params.projectID;
+  }
+  provider.persist(projectID, req.body);
   res.end();
 });
 
 router.get("/projects/:projectID/images/:imageID", async (req, res) => {
-  const { projectID, imageID } = req.params;
+  const { imageID } = req.params;
+
+  let projectID;
+  if (!SINGLE_DOCUMENT_MODE) {
+    projectID = req.params.projectID;
+  }
+
   const s = await provider.getImage(projectID, imageID);
   s.on("open", () => {
     res.set("Content-Type", "image/jpeg");

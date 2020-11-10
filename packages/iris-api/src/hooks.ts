@@ -15,6 +15,17 @@ export function useAuthentication() {
   return authenticated;
 }
 
+export function useMode() {
+  const getMode = appstaticAPI.endpoint("/api/mode");
+  const { data, mutate, error } = useSWR(getMode.key, fetcher);
+
+  return {
+    mode: data,
+    error,
+    mutate,
+  };
+}
+
 export function useProjects() {
   const getProjects = appstaticAPI.endpoint("/api/projects");
   const { data, mutate, error } = useSWR<any[]>(getProjects.key, fetcher);

@@ -25,7 +25,7 @@ build:
 .PHONY: start
 start:
 	yarn lerna run build --stream --ignore @iris/app
-	FORCE_COLOR=true yarn lerna run start --parallel --stream
+	FORCE_COLOR=true yarn lerna run start --parallel --stream --ignore @iris/server
 
 
 
