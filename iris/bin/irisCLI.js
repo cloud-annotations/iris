@@ -10,7 +10,8 @@ function init() {
 
   if (process.argv[2] === "dev") {
     console.log("starting in dev mode...");
-    execSync("cd /usr/local/.iris && make start");
+    const boop = execSync("cd /usr/local/.iris && make start");
+    console.log(boop);
   }
 
   if (process.argv[2] === "build") {

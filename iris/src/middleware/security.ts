@@ -1,7 +1,7 @@
 import helmet from "helmet";
 
 function security() {
-  return helmet();
+  return helmet({ contentSecurityPolicy: false });
 }
 
 export default security;
