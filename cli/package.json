@@ -1,6 +1,6 @@
 {
   "name": "@iris/cli",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "bin": {
     "iris": "./bin/index.js"
   },
