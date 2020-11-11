@@ -1,7 +1,9 @@
 import React, { useCallback } from "react";
 
+import { uploadImages } from "@iris/store/dist/project";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
+import { useDispatch } from "react-redux";
 
 import { videoToJPEGs, imageToJPEG } from "./image-utils";
 import Localization from "./Localization";
@@ -102,18 +104,31 @@ async function createJPEGs(files: File[]) {
 function Main() {
   const classes = useStyles();
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const jpegs = await createJPEGs(acceptedFiles);
-    console.log(jpegs);
-    for (const jpeg of jpegs) {
-      const formData = new FormData();
-      formData.append(jpeg.name, jpeg.blob);
-      fetch(`/api/projects/x/images`, {
-        method: "POST",
-        body: formData,
+  const dispatch = useDispatch();
+
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      const jpegs = await createJPEGs(acceptedFiles);
+      // TODO: this is garbage...
+      // console.log(jpegs);
+      // dispatch(uploadImages(jpegs.map((j) => j.name)));
+      let promises = [];
+      for (const jpeg of jpegs) {
+        const formData = new FormData();
+        formData.append(jpeg.name, jpeg.blob);
+        promises.push(
+          fetch(`/api/projects/x/images`, {
+            method: "POST",
+            body: formData,
+          })
+        );
+      }
+      Promise.all(promises).then(() => {
+        dispatch(uploadImages(jpegs.map((j) => j.name)));
       });
-    }
-  }, []);
+    },
+    [dispatch]
+  );
 
   const { getRootProps, isDragActive } = useDropzone({
     onDrop,

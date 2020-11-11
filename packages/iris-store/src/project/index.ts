@@ -32,6 +32,11 @@ const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
+    uploadImages(state, { payload }) {
+      if (state.images) {
+        state.images = [...payload, ...state.images];
+      }
+    },
     incrementSaving(state) {
       state.saving += 1;
     },
@@ -67,5 +72,9 @@ const projectSlice = createSlice({
 });
 
 export default projectSlice.reducer;
-export const { decrementSaving, incrementSaving } = projectSlice.actions;
+export const {
+  decrementSaving,
+  incrementSaving,
+  uploadImages,
+} = projectSlice.actions;
 export * from "./types";
