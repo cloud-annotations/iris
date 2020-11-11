@@ -61,6 +61,12 @@ class ProjectProvider {
       return fs.createReadStream(path.join(process.cwd(), imageID));
     }
   }
+
+  async saveImage(filename: string, stream: any) {
+    const output = path.join(process.cwd(), filename);
+    const writeStream = fs.createWriteStream(output);
+    stream.pipe(writeStream);
+  }
 }
 
 export default ProjectProvider;

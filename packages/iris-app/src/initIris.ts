@@ -37,6 +37,10 @@ interface IOptions {
 
 declare global {
   interface Window {
+    FPS: number;
+    MAX_IMAGE_WIDTH: number;
+    MAX_IMAGE_HEIGHT: number;
+    IMAGE_SCALE_MODE: "aspectFit" | "scaleFill";
     IRIS: {
       tools: ITools;
       store: any;
@@ -101,6 +105,9 @@ function init() {
     };
   }
 
+  window.MAX_IMAGE_WIDTH = 1500;
+  window.MAX_IMAGE_HEIGHT = 1500;
+  window.IMAGE_SCALE_MODE = "aspectFit";
   window.IRIS = {
     tools: {
       register: registerTool,

@@ -10,7 +10,6 @@ import security from "./middleware/security";
 import apiRouter from "./routes/api";
 import authRouter from "./routes/auth";
 import spaRouter from "./routes/spa";
-import hotReload from "./util/hot-reload";
 
 const app = express();
 const server = http.createServer(app);
@@ -34,5 +33,3 @@ app.use(errorHandler);
 server.listen(port, () => {
   console.log("listening on port " + port);
 });
-
-hotReload(module, server);
