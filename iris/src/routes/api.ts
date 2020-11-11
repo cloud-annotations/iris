@@ -64,35 +64,14 @@ router.post("/projects/:projectID/images", async (req, res) => {
     headers: req.headers,
   });
 
-  busboy.on("file", (fieldname: string, file: any) => {
+  busboy.on("file", (fieldname, file) => {
     console.log(`Uploading ${fieldname}...`);
     provider.saveImage(fieldname, file);
   });
 
   req.pipe(busboy);
+
+  res.end();
 });
-
-// router.post("/projects/:projectID/images", async (req, res) => {
-//   const busboy = new Busboy({
-//     headers: req.headers,
-//   });
-
-//   busboy.on("file", (fieldname: string, file: any) => {
-//     console.log(`Uploading ${fieldname}...`);
-//     const bufs: Buffer[] = [];
-//     file.on("data", (data: Buffer) => {
-//       console.log(`File [${fieldname}] got ${data.length} bytes`);
-//       bufs.push(data);
-//     });
-//     file.on("end", () => {
-//       console.log(`File [${fieldname}] Finished`);
-//       const image = Buffer.concat(bufs);
-//       const output = path.join(process.cwd(), fieldname);
-//       fs2.writeFile(output, image);
-//     });
-//   });
-
-//   req.pipe(busboy);
-// });
 
 export default router;

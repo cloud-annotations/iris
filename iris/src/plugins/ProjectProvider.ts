@@ -62,7 +62,7 @@ class ProjectProvider {
     }
   }
 
-  async saveImage(filename: string, stream: any) {
+  async saveImage(filename: string, stream: NodeJS.ReadableStream) {
     const output = path.join(process.cwd(), filename);
     const writeStream = fs.createWriteStream(output);
     stream.pipe(writeStream);
