@@ -6,10 +6,10 @@ function init() {
   if (process.argv[2] === "start") {
     console.log("starting...");
 
-    const iris = spawn("node", ["/usr/local/.iris/iris/dist/index.js"], {
+    const iris = spawn("node", ["/usr/local/lib/.iris/iris/dist/index.js"], {
       env: {
         ...process.env,
-        SPA_ROOT: "/usr/local/.iris/packages/iris-app/build",
+        SPA_ROOT: "/usr/local/lib/.iris/packages/iris-app/build",
       },
     });
 
