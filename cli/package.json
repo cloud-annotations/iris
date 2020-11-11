@@ -1,11 +1,11 @@
 {
   "name": "@iris/cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "bin": {
     "iris": "./bin/index.js"
   },
   "scripts": {
-    "postinstall": "git clone https://github.com/cloud-annotations/iris.git /usr/local/.iris && cd /usr/local/.iris && git checkout helm && yarn install && make build"
+    "postinstall": "pwd && git clone https://github.com/cloud-annotations/iris.git /usr/local/.iris && cd /usr/local/.iris && git checkout helm && yarn install && make build"
   },
   "publishConfig": {
     "access": "public"
