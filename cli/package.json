@@ -1,12 +1,12 @@
 {
   "name": "@iris/cli",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "bin": {
     "iris": "./bin/index.js"
   },
   "scripts": {
-    "postinstall": "rm -rf /usr/local/lib/iris && git clone https://github.com/cloud-annotations/iris.git /usr/local/lib/iris && cd /usr/local/lib/.iris && git checkout helm && yarn install && make build",
-    "postuninstall": "rm -rf /usr/local/lib/iris"
+    "install": "rm -rf /usr/local/lib/iris && git clone https://github.com/cloud-annotations/iris.git /usr/local/lib/iris && cd /usr/local/lib/iris && git checkout helm && yarn install && make build",
+    "uninstall": "rm -rf /usr/local/lib/iris"
   },
   "publishConfig": {
     "access": "public"
