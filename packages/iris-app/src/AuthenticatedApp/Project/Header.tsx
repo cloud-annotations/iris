@@ -104,7 +104,12 @@ function Header({ name, saving }: Props) {
         {
           name: 'Mark as "negative"',
           action: () => {
-            console.log('Mark as "negative"');
+            dispatch(
+              addAnnotations({
+                images: selected.map((i) => i.id),
+                annotation: { id: uuidv4(), label: "negative" },
+              })
+            );
           },
         },
         {
@@ -113,7 +118,6 @@ function Header({ name, saving }: Props) {
           items: categories.map((c) => ({
             name: c,
             action: () => {
-              console.log("Mark as", c);
               dispatch(
                 addAnnotations({
                   images: selected.map((i) => i.id),
