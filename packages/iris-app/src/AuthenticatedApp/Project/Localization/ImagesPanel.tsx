@@ -96,13 +96,13 @@ function ImagesPanel() {
       return (
         // @ts-ignore
         <CollageImageTile
-          targets={annotations[i].map((a) => a.targets)}
-          url={`/api/projects/${projectID}/images/${i}`}
+          targets={annotations[i.id].map((a) => a.targets)}
+          url={`/api/projects/${projectID}/images/${i.id}`}
         />
       );
     }
     // @ts-ignore
-    return <ImageTile url={`/api/projects/${projectID}/images/${i}`} />;
+    return <ImageTile url={`/api/projects/${projectID}/images/${i.id}`} />;
   });
 
   const handleSelectionChanged = useCallback(
@@ -110,9 +110,9 @@ function ImagesPanel() {
       if (key.shiftKey) {
         // TODO
       } else if (key.ctrlKey) {
-        dispatch(toggleSelectedImage(images[selection]));
+        dispatch(toggleSelectedImage(images[selection].id));
       } else {
-        dispatch(selectImages(images[selection]));
+        dispatch(selectImages(images[selection].id));
       }
     },
     [dispatch, images]

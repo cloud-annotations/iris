@@ -8,11 +8,16 @@ import {
 } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 
-import project, { decrementSaving, incrementSaving, load } from "./project";
+import project, {
+  decrementSaving,
+  Image,
+  incrementSaving,
+  load,
+} from "./project";
 import data from "./project/data";
 import ui from "./project/ui";
 
-const persist: Middleware = (storeAPI) => (next) => (action) => {
+const persist: Middleware<{}, {}> = (storeAPI) => (next) => (action) => {
   const result = next(action);
   // only persist data changes
   if (action.type && action.type.startsWith("data/")) {
@@ -62,10 +67,10 @@ export function visibleImagesSelector(state: RootState) {
   const all = state.project.images ?? [];
   const annotatedImages = new Set(Object.keys(state.data.annotations));
 
-  const _labeled = new Set<string>();
-  const _unlabeled = new Set<string>();
+  const _labeled = new Set<Image>();
+  const _unlabeled = new Set<Image>();
   for (let elem of all) {
-    if (annotatedImages.has(elem)) {
+    if (annotatedImages.has(elem.id)) {
       _labeled.add(elem);
     } else {
       _unlabeled.add(elem);
@@ -88,7 +93,7 @@ export function visibleImagesSelector(state: RootState) {
   }
 
   return labeled.filter((image) => {
-    const annotations = state.data.annotations[image];
+    const annotations = state.data.annotations[image.id];
     if (annotations === undefined) {
       return false;
     }
@@ -104,7 +109,7 @@ export function visibleSelectedImagesSelector(state: RootState) {
   }
 
   const selection = visibleImages.filter((image) =>
-    state.ui.selectedImages?.includes(image)
+    state.ui.selectedImages?.includes(image.id)
   );
 
   if (selection.length === 0) {
@@ -112,6 +117,11 @@ export function visibleSelectedImagesSelector(state: RootState) {
   }
 
   return selection;
+}
+
+export function activeImageSelector(state: RootState): Image | undefined {
+  const selection = visibleSelectedImagesSelector(state);
+  return selection[0];
 }
 
 export function selectedCategorySelector(state: RootState) {

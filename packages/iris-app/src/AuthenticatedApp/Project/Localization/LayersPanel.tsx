@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
 import { LabelSelect } from "@iris/components";
-import { RootState, visibleSelectedImagesSelector } from "@iris/store";
+import { RootState, activeImageSelector } from "@iris/store";
 
 import styles from "./LayersPanel.module.css";
 
@@ -159,21 +159,26 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
 
 function LayersPanel() {
   const projectID = useSelector((state: RootState) => state.project.id);
-  const activeImage = useSelector(visibleSelectedImagesSelector)[0];
+  const activeImage = useSelector(activeImageSelector);
   const labels = useSelector((state: RootState) => state.data.categories);
 
-  const boxes = useSelector(
-    (state: RootState) => state.data.annotations[activeImage] ?? []
-  );
+  const boxes = useSelector((state: RootState) => {
+    if (activeImage) {
+      return state.data.annotations[activeImage.id] ?? [];
+    }
+    return [];
+  });
 
   const [imageDims, setImageDims] = useState([0, 0]);
 
   useEffect(() => {
-    const img = new Image();
-    img.onload = () => {
-      setImageDims([img.width, img.height]);
-    };
-    img.src = `/api/projects/${projectID}/images/${activeImage}`;
+    if (activeImage) {
+      const img = new Image();
+      img.onload = () => {
+        setImageDims([img.width, img.height]);
+      };
+      img.src = `/api/projects/${projectID}/images/${activeImage.id}`;
+    }
   }, [projectID, activeImage]);
 
   return (
@@ -188,8 +193,8 @@ function LayersPanel() {
           <ListItem
             box={box}
             labels={labels}
-            image={`/api/projects/${projectID}/images/${activeImage}`}
-            imageID={activeImage ?? ""}
+            image={`/api/projects/${projectID}/images/${activeImage?.id}`}
+            imageID={activeImage?.id ?? ""}
             imageDims={imageDims}
           />
         </motion.div>

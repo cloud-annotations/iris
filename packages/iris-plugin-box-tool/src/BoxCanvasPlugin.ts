@@ -49,7 +49,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
       return;
     }
 
-    const graphs = store.getState().data.annotations[image];
+    const graphs = store.getState().data.annotations[image.id];
     if (graphs === undefined) {
       return;
     }
@@ -93,7 +93,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
 
     store.dispatch(
       editAnnotations({
-        images: [image],
+        images: [image.id],
         annotation: {
           ...newShape,
         },
@@ -123,7 +123,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
       this.editing = id;
       store.dispatch(
         addAnnotations({
-          images: [image],
+          images: [image.id],
           annotation: {
             id: id,
             label: category,
@@ -158,7 +158,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
       return;
     }
 
-    const graphs = store.getState().data.annotations[image];
+    const graphs = store.getState().data.annotations[image.id];
     if (graphs === undefined) {
       return;
     }
@@ -179,7 +179,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
       });
       store.dispatch(
         editAnnotations({
-          images: [image],
+          images: [image.id],
           annotation: {
             ...newBox,
           },
@@ -199,7 +199,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
       return;
     }
 
-    const graphs = store.getState().data.annotations[image];
+    const graphs = store.getState().data.annotations[image.id];
     if (graphs === undefined) {
       return;
     }

@@ -47,16 +47,20 @@ router.get("/projects/:projectID/images/:imageID", async (req, res) => {
     projectID = req.params.projectID;
   }
 
-  const s = await provider.getImage(projectID, imageID);
-  s.on("open", () => {
-    res.set("Content-Type", "image/jpeg");
-    s.pipe(res);
-  });
-  s.on("error", (e) => {
+  try {
+    const s = await provider.getImage(projectID, imageID);
+    s.on("open", () => {
+      res.set("Content-Type", "image/jpeg");
+      s.pipe(res);
+    });
+    s.on("error", (e) => {
+      console.log(e);
+      res.sendStatus(404);
+    });
+  } catch (e) {
     console.log(e);
-    res.set("Content-Type", "text/plain");
-    res.status(404).end("Not found");
-  });
+    res.sendStatus(404);
+  }
 });
 
 router.post("/projects/:projectID/images", async (req, res) => {
@@ -66,12 +70,12 @@ router.post("/projects/:projectID/images", async (req, res) => {
 
   busboy.on("file", (fieldname, file) => {
     console.log(`Uploading ${fieldname}...`);
-    provider.saveImage(fieldname, file);
+    provider.saveImage(fieldname, file).then(() => {
+      res.end();
+    });
   });
 
   req.pipe(busboy);
-
-  res.end();
 });
 
 export default router;

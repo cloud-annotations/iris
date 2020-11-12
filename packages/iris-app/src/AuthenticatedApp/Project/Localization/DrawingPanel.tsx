@@ -8,7 +8,7 @@ import { Canvas, CrossHair, EmptySet } from "@iris/components";
 import {
   RootState,
   selectedCategorySelector,
-  visibleSelectedImagesSelector,
+  activeImageSelector,
 } from "@iris/store";
 
 import { uniqueColor } from "./color-utils";
@@ -123,10 +123,13 @@ function DrawingPanel({ headCount }: any) {
     (state: RootState) => state.ui.highlightedBox
   );
 
-  const activeImage = useSelector(visibleSelectedImagesSelector)[0];
+  const activeImage = useSelector(activeImageSelector);
 
   const boxes = useSelector((state: RootState) => {
-    return state.data.annotations[activeImage] ?? [];
+    if (activeImage) {
+      return state.data.annotations[activeImage.id] ?? [];
+    }
+    return [];
   });
 
   const projectID = useSelector((state: RootState) => state.project.id);
@@ -224,7 +227,7 @@ function DrawingPanel({ headCount }: any) {
         <CrossHair color={activeColor} active={selectedTool === BOX}>
           <Canvas
             mode={selectedTool === "move" ? "move" : "draw"}
-            image={`/api/projects/${projectID}/images/${activeImage}`}
+            image={`/api/projects/${projectID}/images/${activeImage.id}`}
             tool={selectedTool}
             shapes={shapes}
             render={window.IRIS.tools

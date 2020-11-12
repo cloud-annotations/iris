@@ -97,7 +97,6 @@ const useStyles = makeStyles((theme: Theme) => {
       justifyContent: "center",
       width: "auto",
       height: "100%",
-      backgroundColor: "red",
       borderRadius: 0,
       overflow: "hidden",
       "&:first-of-type": {

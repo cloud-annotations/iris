@@ -109,23 +109,7 @@ function Main() {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const jpegs = await createJPEGs(acceptedFiles);
-      // TODO: this is garbage...
-      // console.log(jpegs);
-      // dispatch(uploadImages(jpegs.map((j) => j.name)));
-      let promises = [];
-      for (const jpeg of jpegs) {
-        const formData = new FormData();
-        formData.append(jpeg.name, jpeg.blob);
-        promises.push(
-          fetch(`/api/projects/x/images`, {
-            method: "POST",
-            body: formData,
-          })
-        );
-      }
-      Promise.all(promises).then(() => {
-        dispatch(uploadImages(jpegs.map((j) => j.name)));
-      });
+      dispatch(uploadImages(jpegs));
     },
     [dispatch]
   );
