@@ -70,7 +70,10 @@ function Item({ id, item, open, onMouseEnter }: ItemProps) {
       }
       onMouseEnter={onMouseEnter}
     >
-      <div className={item.disabled ? styles.disabled : styles.listItem}>
+      <div
+        className={item.disabled ? styles.disabled : styles.listItem}
+        onClick={item.action}
+      >
         {item.name}
         {isSubMenuItem(item) && <Chevron className={styles.chevronRightIcon} />}
         {isTooltipMenuItem(item) && (

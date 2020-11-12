@@ -125,19 +125,40 @@ function Header({ name, saving }: Props) {
   const menus: Menu[] = [
     {
       name: "File",
-      items: [{ name: "Upload media", action: () => {} }],
+      items: [
+        {
+          name: "Upload media",
+          action: () => {
+            console.log("Upload media");
+          },
+        },
+      ],
     },
     {
       name: selected > 1 ? `Images (${selected})` : "Image",
       items: [
-        { name: "Delete", action: () => {} },
+        {
+          name: "Delete",
+          action: () => {
+            console.log("Delete");
+          },
+        },
         { divider: true },
-        { name: 'Mark as "negative"', action: () => {} },
+        {
+          name: 'Mark as "negative"',
+          action: () => {
+            console.log('Mark as "negative"');
+          },
+        },
         {
           name: "Mark as",
-          action: () => {},
           disabled: categories.length === 0,
-          items: categories.map((c) => ({ name: c, action: () => {} })),
+          items: categories.map((c) => ({
+            name: c,
+            action: () => {
+              console.log("Mark as", c);
+            },
+          })),
         },
       ],
     },
