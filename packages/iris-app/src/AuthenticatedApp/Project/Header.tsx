@@ -2,11 +2,11 @@ import React from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 
-import { RootState } from "@iris/store";
+import { RootState, visibleSelectedImagesSelector } from "@iris/store";
 
 import ToolbarMenus from "./ToolbarMenus";
+import { Menu } from "./ToolbarMenus/types";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -24,13 +24,8 @@ const useStyles = makeStyles((theme: Theme) =>
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      // backgroundColor: theme.palette.primary.main,
       height: "100%",
       width: 64,
-      // cursor: "pointer",
-      // "&:hover": {
-      //   backgroundColor: theme.palette.primary.dark,
-      // },
     },
     projectIcon: {
       background: "black",
@@ -68,53 +63,53 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const menus = [
-  {
-    name: "File",
-    items: [
-      { name: "Upload media", action: () => {} },
-      { name: "Upload model zip", action: () => {} },
-      { divider: true },
-      { name: "Import dataset", action: () => {} },
-      { divider: true },
-      { name: "Export as YOLO", action: () => {} },
-      { name: "Export as Create ML", action: () => {} },
-      { name: "Export as Pascal VOC", action: () => {} },
-      {
-        name: "Export as Maximo Visual Inspection",
-        action: () => {},
-        tooltip: {
-          title: "IBM Maximo Visual Inspection",
-          description:
-            "A platform tailored for domain experts to label, train and deploy models for variety of industrial use cases. Quickly build solutions at the edge, monitor assets and inspect production lines for quality.",
-          link: "https://www.ibm.com/products/ibm-maximo-visual-inspection",
-        },
-      },
-      { name: "Export as zip", action: () => {} },
-      {
-        name: "Export as Notebook (.ipynb)",
-        action: () => {},
-        disabled: true,
-      },
-    ],
-  },
-  {
-    name: "Image", // Images (3)
-    items: [
-      { name: "Delete", action: () => {} },
-      { divider: true },
-      { name: 'Mark as "negative"', action: () => {} },
-      {
-        name: "Mark as",
-        action: () => {},
-        items: [
-          { name: "up", action: () => {} }, // dynamic
-          { name: "down", action: () => {} }, // dynamic
-        ],
-      },
-    ],
-  },
-];
+// const menus = [
+//   {
+//     name: "File",
+//     items: [
+//       { name: "Upload media", action: () => {} },
+//       { name: "Upload model zip", action: () => {} },
+//       { divider: true },
+//       { name: "Import dataset", action: () => {} },
+//       { divider: true },
+//       { name: "Export as YOLO", action: () => {} },
+//       { name: "Export as Create ML", action: () => {} },
+//       { name: "Export as Pascal VOC", action: () => {} },
+//       {
+//         name: "Export as Maximo Visual Inspection",
+//         action: () => {},
+//         tooltip: {
+//           title: "IBM Maximo Visual Inspection",
+//           description:
+//             "A platform tailored for domain experts to label, train and deploy models for variety of industrial use cases. Quickly build solutions at the edge, monitor assets and inspect production lines for quality.",
+//           link: "https://www.ibm.com/products/ibm-maximo-visual-inspection",
+//         },
+//       },
+//       { name: "Export as zip", action: () => {} },
+//       {
+//         name: "Export as Notebook (.ipynb)",
+//         action: () => {},
+//         disabled: true,
+//       },
+//     ],
+//   },
+//   {
+//     name: "Image", // Images (3)
+//     items: [
+//       { name: "Delete", action: () => {} },
+//       { divider: true },
+//       { name: 'Mark as "negative"', action: () => {} },
+//       {
+//         name: "Mark as",
+//         action: () => {},
+//         items: [
+//           { name: "up", action: () => {} }, // dynamic
+//           { name: "down", action: () => {} }, // dynamic
+//         ],
+//       },
+//     ],
+//   },
+// ];
 
 interface Props {
   name: string;
@@ -123,6 +118,30 @@ interface Props {
 
 function Header({ name, saving }: Props) {
   const classes = useStyles();
+
+  const selected = useSelector(visibleSelectedImagesSelector).length;
+  const categories = useSelector((state: RootState) => state.data.categories);
+
+  const menus: Menu[] = [
+    {
+      name: "File",
+      items: [{ name: "Upload media", action: () => {} }],
+    },
+    {
+      name: selected > 1 ? `Images (${selected})` : "Image",
+      items: [
+        { name: "Delete", action: () => {} },
+        { divider: true },
+        { name: 'Mark as "negative"', action: () => {} },
+        {
+          name: "Mark as",
+          action: () => {},
+          disabled: categories.length === 0,
+          items: categories.map((c) => ({ name: c, action: () => {} })),
+        },
+      ],
+    },
+  ];
 
   return (
     <div className={classes.root}>
@@ -138,11 +157,6 @@ function Header({ name, saving }: Props) {
           <rect fill="white" x="55" y="145" width="90" height="10" />
         </svg>
       </div>
-      {/* <Link to="/projects" className={classes.projectButton}>
-        <svg className={classes.projectIcon} viewBox="0 0 32 32">
-          <path d="M11.17 6l3.42 3.41.58.59H28v16H4V6h7.17m0-2H4a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2H16l-3.41-3.41A2 2 0 0 0 11.17 4z" />
-        </svg>
-      </Link> */}
       <div className={classes.project}>
         <div className={classes.projectName}>{name}</div>
         <div className={classes.menus}>
