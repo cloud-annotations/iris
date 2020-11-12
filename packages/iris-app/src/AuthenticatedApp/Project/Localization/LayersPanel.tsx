@@ -183,22 +183,24 @@ function LayersPanel() {
 
   return (
     <div className={styles.wrapper}>
-      {boxes.map((box) => (
-        <motion.div
-          key={box.id}
-          transition={transition}
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0, transition: transition }}
-        >
-          <ListItem
-            box={box}
-            labels={labels}
-            image={`/api/projects/${projectID}/images/${activeImage?.id}`}
-            imageID={activeImage?.id ?? ""}
-            imageDims={imageDims}
-          />
-        </motion.div>
-      ))}
+      {boxes
+        .filter((b) => b.targets !== undefined)
+        .map((box) => (
+          <motion.div
+            key={box.id}
+            transition={transition}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0, transition: transition }}
+          >
+            <ListItem
+              box={box}
+              labels={labels}
+              image={`/api/projects/${projectID}/images/${activeImage?.id}`}
+              imageID={activeImage?.id ?? ""}
+              imageDims={imageDims}
+            />
+          </motion.div>
+        ))}
     </div>
   );
 }

@@ -121,7 +121,10 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
 
       for (const shape of shapes) {
         c.setTargets(shape.tool, shape);
-        render[shape.tool](c, shape);
+        const renderFunc = render[shape.tool];
+        if (renderFunc) {
+          renderFunc(c, shape);
+        }
       }
     }
   }, [height, imageData, mode, render, shapes, width]);

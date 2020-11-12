@@ -156,9 +156,11 @@ function DrawingPanel({ headCount }: any) {
 
   const handleDeleteLabel = useCallback(
     (annotation) => () => {
-      dispatch(deleteAnnotations(annotation));
+      if (activeImage) {
+        dispatch(deleteAnnotations({ images: [activeImage.id], annotation }));
+      }
     },
-    [dispatch]
+    [activeImage, dispatch]
   );
 
   const cmap = labels.reduce((acc: any, label: string, i: number) => {

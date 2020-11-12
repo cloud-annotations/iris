@@ -120,7 +120,19 @@ interface ITarget {
   y: number;
 }
 
+// TODO: not perfect...
 const calculateCrop = (targets: ITarget[], imageSize: number[]) => {
+  if (targets === undefined) {
+    const scale = MAX_HEIGHT / imageSize[1];
+    return {
+      cropWidth: imageSize[0] * scale,
+      cropHeight: MAX_HEIGHT,
+      xOffset: 0,
+      yOffset: 0,
+      fullWidth: imageSize[0] * scale,
+      fullHeight: imageSize[1] * scale,
+    };
+  }
   const xMin = Math.min(...targets.map((t) => t.x));
   const yMin = Math.min(...targets.map((t) => t.y));
   const xMax = Math.max(...targets.map((t) => t.x));

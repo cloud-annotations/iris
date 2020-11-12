@@ -1,7 +1,10 @@
 import React from "react";
 
+import { addAnnotations } from "@iris/store/dist/project/data";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+// @ts-ignore
+import { v4 as uuidv4 } from "uuid";
 
 import { RootState, visibleSelectedImagesSelector } from "@iris/store";
 
@@ -63,54 +66,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-// const menus = [
-//   {
-//     name: "File",
-//     items: [
-//       { name: "Upload media", action: () => {} },
-//       { name: "Upload model zip", action: () => {} },
-//       { divider: true },
-//       { name: "Import dataset", action: () => {} },
-//       { divider: true },
-//       { name: "Export as YOLO", action: () => {} },
-//       { name: "Export as Create ML", action: () => {} },
-//       { name: "Export as Pascal VOC", action: () => {} },
-//       {
-//         name: "Export as Maximo Visual Inspection",
-//         action: () => {},
-//         tooltip: {
-//           title: "IBM Maximo Visual Inspection",
-//           description:
-//             "A platform tailored for domain experts to label, train and deploy models for variety of industrial use cases. Quickly build solutions at the edge, monitor assets and inspect production lines for quality.",
-//           link: "https://www.ibm.com/products/ibm-maximo-visual-inspection",
-//         },
-//       },
-//       { name: "Export as zip", action: () => {} },
-//       {
-//         name: "Export as Notebook (.ipynb)",
-//         action: () => {},
-//         disabled: true,
-//       },
-//     ],
-//   },
-//   {
-//     name: "Image", // Images (3)
-//     items: [
-//       { name: "Delete", action: () => {} },
-//       { divider: true },
-//       { name: 'Mark as "negative"', action: () => {} },
-//       {
-//         name: "Mark as",
-//         action: () => {},
-//         items: [
-//           { name: "up", action: () => {} }, // dynamic
-//           { name: "down", action: () => {} }, // dynamic
-//         ],
-//       },
-//     ],
-//   },
-// ];
-
 interface Props {
   name: string;
   saving: number;
@@ -119,7 +74,9 @@ interface Props {
 function Header({ name, saving }: Props) {
   const classes = useStyles();
 
-  const selected = useSelector(visibleSelectedImagesSelector).length;
+  const dispatch = useDispatch();
+
+  const selected = useSelector(visibleSelectedImagesSelector);
   const categories = useSelector((state: RootState) => state.data.categories);
 
   const menus: Menu[] = [
@@ -135,7 +92,7 @@ function Header({ name, saving }: Props) {
       ],
     },
     {
-      name: selected > 1 ? `Images (${selected})` : "Image",
+      name: selected.length > 1 ? `Images (${selected.length})` : "Image",
       items: [
         {
           name: "Delete",
@@ -157,6 +114,12 @@ function Header({ name, saving }: Props) {
             name: c,
             action: () => {
               console.log("Mark as", c);
+              dispatch(
+                addAnnotations({
+                  images: selected.map((i) => i.id),
+                  annotation: { id: uuidv4(), label: c },
+                })
+              );
             },
           })),
         },
