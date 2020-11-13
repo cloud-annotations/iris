@@ -2,10 +2,10 @@ import { createMuiTheme } from "@material-ui/core";
 
 declare module "@material-ui/core/styles/createPalette" {
   interface Palette {
-    danger?: PaletteColorOptions;
+    danger: Palette["primary"];
   }
   interface PaletteOptions {
-    danger?: PaletteColorOptions;
+    danger: PaletteOptions["primary"];
   }
 }
 

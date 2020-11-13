@@ -17,8 +17,6 @@ import ReactDOM from "react-dom";
 
 import theme from "@iris/theme";
 
-import useStyles from "src/CrossHair/styles";
-
 export function showDialog<T>(Dialog: any, props: any): Promise<T | undefined> {
   return new Promise((resolve) => {
     const dialogRoot = document.getElementById("dialog-root")!;

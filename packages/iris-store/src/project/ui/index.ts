@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { visibleSelectedImagesSelector } from "src";
 
 export interface UI {
   selectedTool?: string;
@@ -57,6 +58,8 @@ const projectSlice = createSlice({
           : [payload, ...state.selectedImages];
 
         state.selectedImages = newRange;
+      } else {
+        state.selectedImages = [payload];
       }
     },
 
