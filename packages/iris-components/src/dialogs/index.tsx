@@ -9,10 +9,15 @@ import {
   Button,
   CssBaseline,
   ThemeProvider,
+  makeStyles,
+  Theme,
+  createStyles,
 } from "@material-ui/core";
 import ReactDOM from "react-dom";
 
 import theme from "@iris/theme";
+
+import useStyles from "src/CrossHair/styles";
 
 export function showDialog<T>(Dialog: any, props: any): Promise<T | undefined> {
   return new Promise((resolve) => {
@@ -40,6 +45,17 @@ export function showDialog<T>(Dialog: any, props: any): Promise<T | undefined> {
   });
 }
 
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    danger: {
+      backgroundColor: theme.palette.danger.main,
+      "&:hover": {
+        backgroundColor: theme.palette.danger.dark,
+      },
+    },
+  })
+);
+
 interface Props {
   title: string;
   body: string;
@@ -48,6 +64,7 @@ interface Props {
   onClose: () => any;
   onAction: (value: boolean) => any;
 }
+
 function ConfirmDialog({
   title,
   body,
@@ -56,6 +73,7 @@ function ConfirmDialog({
   onClose,
   onAction,
 }: Props) {
+  const classes = useStyles();
   return (
     <Dialog
       open
@@ -70,8 +88,20 @@ function ConfirmDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onAction(false)}>Cancel</Button>
-        <Button onClick={() => onAction(true)} autoFocus>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => onAction(false)}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          className={danger ? classes.danger : undefined}
+          onClick={() => onAction(true)}
+          autoFocus
+        >
           {primary}
         </Button>
       </DialogActions>

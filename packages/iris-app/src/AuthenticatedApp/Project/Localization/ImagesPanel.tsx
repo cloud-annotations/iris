@@ -126,8 +126,8 @@ function ImagesPanel() {
     (label) => async (e: any) => {
       e.stopPropagation();
       const deleteTheLabel = await showConfirmDialog({
-        title: "Boop",
-        body: `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`,
+        title: "Delete label?",
+        body: `This will also delete any bounding boxes with the label "${label}".`,
         primary: "Delete",
         danger: true,
       });
