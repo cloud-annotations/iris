@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
+import { showConfirmDialog } from "@iris/components";
 import { RootState, visibleSelectedImagesSelector } from "@iris/store";
 
 import ToolbarMenus from "./ToolbarMenus";
@@ -86,7 +87,7 @@ function Header({ name, saving }: Props) {
         {
           name: "Upload media",
           action: () => {
-            console.log("Upload media");
+            // TODO: Upload media.
           },
         },
       ],
@@ -96,8 +97,18 @@ function Header({ name, saving }: Props) {
       items: [
         {
           name: "Delete",
-          action: () => {
-            console.log("Delete");
+          action: async () => {
+            const deleteImages = await showConfirmDialog({
+              title:
+                selected.length > 1
+                  ? `Delete ${selected.length} images?`
+                  : "Delete image?",
+              primary: "Delete",
+              danger: true,
+            });
+            if (deleteImages) {
+              // TODO: Delete images.
+            }
           },
         },
         { divider: true },

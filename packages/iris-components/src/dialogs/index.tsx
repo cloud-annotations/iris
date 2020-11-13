@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   title: string;
-  body: string;
+  body?: string;
   primary: string;
   danger?: boolean;
   onClose: () => any;
@@ -82,11 +82,15 @@ function ConfirmDialog({
       aria-describedby="alert-dialog-description"
     >
       <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+
       <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          {body}
-        </DialogContentText>
+        {body && (
+          <DialogContentText id="alert-dialog-description">
+            {body}
+          </DialogContentText>
+        )}
       </DialogContent>
+
       <DialogActions>
         <Button
           variant="contained"
@@ -111,8 +115,8 @@ function ConfirmDialog({
 
 interface ConfirmOptions {
   title: string;
-  body: string;
   primary: string;
+  body?: string;
   danger?: boolean;
 }
 
