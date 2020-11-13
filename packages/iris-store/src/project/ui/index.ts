@@ -12,7 +12,7 @@ export interface UI {
 }
 
 const initialState: UI = {
-  selectedTool: undefined,
+  selectedTool: "box",
   selectedCategory: undefined,
   selectedImages: undefined,
   highlightedBox: undefined,

@@ -15,6 +15,7 @@ import {
   HorizontalListController,
   ImageTile,
   CollageImageTile,
+  showConfirmDialog,
 } from "@iris/components";
 import {
   RootState,
@@ -122,11 +123,14 @@ function ImagesPanel() {
   useBlockSwipeBack(scrollElementRef);
 
   const handleDelete = useCallback(
-    (label) => (e: any) => {
+    (label) => async (e: any) => {
       e.stopPropagation();
-      const deleteTheLabel = window.confirm(
-        `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`
-      );
+      const deleteTheLabel = await showConfirmDialog({
+        title: "Boop",
+        body: `Are you sure you want to delete the label "${label}"? This action will delete any bounding boxes associated with this label.`,
+        primary: "Delete",
+        danger: true,
+      });
       if (deleteTheLabel) {
         dispatch(deleteCategory(label));
       }

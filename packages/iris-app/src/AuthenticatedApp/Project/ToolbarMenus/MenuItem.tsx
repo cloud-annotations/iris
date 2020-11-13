@@ -8,8 +8,9 @@ import { isDivider, isSubMenuItem, isTooltipMenuItem, MenuItem } from "./types";
 
 interface FlyOutProps {
   item: MenuItem;
+  onClose: any;
 }
-function FlyOut({ item }: FlyOutProps) {
+function FlyOut({ item, onClose }: FlyOutProps) {
   if (isSubMenuItem(item)) {
     return (
       <div className={styles.popoutOpen}>
@@ -21,7 +22,11 @@ function FlyOut({ item }: FlyOutProps) {
           return (
             <div
               className={subItem.disabled ? styles.disabled : styles.listItem}
-              onClick={subItem.action}
+              onClick={(e) => {
+                e.stopPropagation();
+                subItem.action?.();
+                onClose();
+              }}
             >
               {subItem.name}
             </div>
@@ -59,9 +64,10 @@ interface ItemProps {
   id: string;
   item: MenuItem;
   onMouseEnter: any;
+  onClose: any;
   open: boolean;
 }
-function Item({ id, item, open, onMouseEnter }: ItemProps) {
+function Item({ id, item, open, onMouseEnter, onClose }: ItemProps) {
   return (
     <div
       id={id}
@@ -72,7 +78,14 @@ function Item({ id, item, open, onMouseEnter }: ItemProps) {
     >
       <div
         className={item.disabled ? styles.disabled : styles.listItem}
-        onClick={item.action}
+        onClick={(e) => {
+          if (isSubMenuItem(item) || isTooltipMenuItem(item)) {
+            return;
+          }
+          e.stopPropagation();
+          item.action?.();
+          onClose();
+        }}
       >
         {item.name}
         {isSubMenuItem(item) && <Chevron className={styles.chevronRightIcon} />}
@@ -81,7 +94,7 @@ function Item({ id, item, open, onMouseEnter }: ItemProps) {
         )}
       </div>
 
-      {open && !item.disabled && <FlyOut item={item} />}
+      {open && !item.disabled && <FlyOut item={item} onClose={onClose} />}
     </div>
   );
 }

@@ -26,6 +26,7 @@ function initReactApp() {
           <Provider store={store}>
             <SWRConfig value={swrOptions}>
               <App />
+              <div id="dialog-root" />
             </SWRConfig>
           </Provider>
         </Router>

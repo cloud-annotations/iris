@@ -22,7 +22,8 @@ function ToolbarMenus({ menus }: Props) {
     setOptionsOpen(true);
   }, []);
 
-  const handleClickOutside = useCallback(() => {
+  const handleClose = useCallback(() => {
+    setLastHoveredOption(undefined);
     setLastHoveredSubOption(undefined);
     setOptionsOpen(false);
   }, []);
@@ -37,7 +38,7 @@ function ToolbarMenus({ menus }: Props) {
     setLastHoveredSubOption(e.currentTarget.id);
   }, []);
 
-  useClickOutside(optionsRef, handleClickOutside, true);
+  useClickOutside(optionsRef, handleClose, true);
 
   return (
     <div ref={optionsRef} className={styles.options}>
@@ -75,6 +76,7 @@ function ToolbarMenus({ menus }: Props) {
                     open={open}
                     item={item}
                     onMouseEnter={handleSubOptionHover}
+                    onClose={handleClose}
                   />
                 );
               })}
