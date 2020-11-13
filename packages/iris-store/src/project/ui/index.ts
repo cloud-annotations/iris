@@ -49,6 +49,8 @@ const projectSlice = createSlice({
       state.selectedImages = [payload];
     },
     toggleSelectedImage(state, { payload }: PayloadAction<string>) {
+      // TODO: This isn't perfect, if selectedImages is undefined, a toggle click
+      // will not consider the derived selection.
       if (state.selectedImages) {
         const rangeHasImage = state.selectedImages.includes(payload);
 
