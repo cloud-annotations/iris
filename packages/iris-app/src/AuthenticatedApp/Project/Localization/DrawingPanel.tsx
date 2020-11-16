@@ -300,7 +300,7 @@ function DrawingPanel({ headCount }: any) {
           ))}
         </div>
         {/* TODO: add multiuser support */}
-        {/* {[...new Array(clippedCount)].map(() => (
+        {[...new Array(clippedCount)].map(() => (
           <div className={styles.chatHead}>
             <div>
               <svg
@@ -319,7 +319,7 @@ function DrawingPanel({ headCount }: any) {
           <div className={styles.chatHeadOverflow}>
             <div>+{overflowCount}</div>
           </div>
-        )} */}
+        )}
       </div>
       <CanvasWrapper
         activeImage={activeImage}

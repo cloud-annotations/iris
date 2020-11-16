@@ -282,37 +282,37 @@ function Tile({ status, url, targets, onError }: TileProps) {
   const [imageSize, setImageSize] = useState([0, 0]);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries, observer) => {
-        entries.forEach(async (entry) => {
-          if (entry.isIntersecting) {
-            observer.unobserve(entry.target);
-            const img = new Image();
-            img.onload = () => {
-              setImageSize([img.width, img.height]);
-            };
-            img.src = url;
-          }
-        });
-      },
-      {
-        root: null,
-        rootMargin: "0px",
-        threshold: 0.0,
-      }
-    );
+    // ensure this gets recalled if targets change.
+    if (targets !== undefined) {
+      const observer = new IntersectionObserver(
+        (entries, observer) => {
+          entries.forEach(async (entry) => {
+            if (entry.isIntersecting) {
+              observer.unobserve(entry.target);
+              const img = new Image();
+              img.onload = () => {
+                setImageSize([img.width, img.height]);
+              };
+              img.src = url;
+            }
+          });
+        },
+        {
+          root: null,
+          rootMargin: "0px",
+          threshold: 0.0,
+        }
+      );
 
-    const target = imageRef.current;
-    if (target) {
+      const target = imageRef.current!;
       observer.observe(target);
+      return () => {
+        observer.unobserve(target);
+      };
     }
 
-    return () => {
-      if (target) {
-        observer.unobserve(target);
-      }
-    };
-  }, [url]);
+    return;
+  }, [targets, url]);
 
   return (
     <React.Fragment>
