@@ -109,8 +109,7 @@ const HorizontalListController = ({
         return (
           <HorizontalListItem
             index={i}
-            id={items[i]}
-            key={items[i]}
+            key={items[i].id}
             state={
               selection === i
                 ? "active"
@@ -118,8 +117,6 @@ const HorizontalListController = ({
                 ? "selected"
                 : "normal"
             }
-            // selected={selection === i}
-            // secondarySelected={range.includes(i)}
             onItemSelected={handleItemSelected}
             listItem={cell}
           />

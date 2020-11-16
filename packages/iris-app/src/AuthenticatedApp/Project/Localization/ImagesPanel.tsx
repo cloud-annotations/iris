@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
 
+import { updateImage } from "@iris/store/dist/project";
 import { deleteCategory } from "@iris/store/dist/project/data";
 import {
   filterByLabel,
@@ -14,7 +15,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   HorizontalListController,
   ImageTile,
-  CollageImageTile,
   showConfirmDialog,
 } from "@iris/components";
 import {
@@ -91,20 +91,26 @@ function ImagesPanel() {
 
   const annotations = useSelector((state: RootState) => state.data.annotations);
 
-  // TODO: we need to find a better way to inject props
-  const cells = images.map((i) => {
-    if (filter !== undefined) {
-      return (
-        // @ts-ignore
-        <CollageImageTile
-          targets={annotations[i.id].map((a) => a.targets)}
-          url={`/api/projects/${projectID}/images/${i.id}`}
-        />
-      );
-    }
-    // @ts-ignore
-    return <ImageTile url={`/api/projects/${projectID}/images/${i.id}`} />;
-  });
+  const cells = images.map((i) => (
+    <ImageTile
+      status={i.status}
+      url={`/api/projects/${projectID}/images/${i.id}`}
+      targets={
+        filter !== undefined
+          ? annotations[i.id].map((a) => a.targets)
+          : undefined
+      }
+      onError={() => {
+        dispatch(
+          updateImage({
+            id: i.id,
+            status: "error",
+            date: "",
+          })
+        );
+      }}
+    />
+  ));
 
   const handleSelectionChanged = useCallback(
     (selection, key) => {

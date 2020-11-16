@@ -18,9 +18,9 @@ function ToolOptionsPanel() {
       {window.IRIS.tools
         .get(tool)
         .options.list()
-        .map((option) => {
+        .map((option, i) => {
           return (
-            <React.Fragment>
+            <React.Fragment key={i}>
               {option.component}
               <div className={styles.divider} />
             </React.Fragment>

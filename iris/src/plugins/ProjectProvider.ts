@@ -83,8 +83,8 @@ class ProjectProvider {
     const writeStream = fs.createWriteStream(output);
     stream.pipe(writeStream);
     return new Promise((resolve) => {
-      stream.on("close", () => {
-        release();
+      stream.on("close", async () => {
+        await release();
         resolve();
       });
     });

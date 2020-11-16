@@ -187,8 +187,8 @@ function DrawingPanel({ headCount }: any) {
     <div className={styles.wrapper}>
       <div className={styles.roomHolder}>
         <div className={styles.labelHolder}>
-          {onlyLabels.map((box: any) => (
-            <div className={styles.label}>
+          {onlyLabels.map((box) => (
+            <div key={box.id} className={styles.label}>
               {box.label}
               <svg
                 height="12px"
@@ -204,7 +204,8 @@ function DrawingPanel({ headCount }: any) {
             </div>
           ))}
         </div>
-        {[...new Array(clippedCount)].map(() => (
+        {/* TODO: add multiuser support */}
+        {/* {[...new Array(clippedCount)].map(() => (
           <div className={styles.chatHead}>
             <div>
               <svg
@@ -223,7 +224,7 @@ function DrawingPanel({ headCount }: any) {
           <div className={styles.chatHeadOverflow}>
             <div>+{overflowCount}</div>
           </div>
-        )}
+        )} */}
       </div>
       {activeImage ? (
         <CrossHair color={activeColor} active={selectedTool === BOX}>

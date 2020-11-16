@@ -29,7 +29,7 @@ async function uploadImage(jpeg: any, dispatch: any) {
     dispatch(
       updateImage({
         id: jpeg.name,
-        status: "complete",
+        status: "success",
         date: "",
       })
     );

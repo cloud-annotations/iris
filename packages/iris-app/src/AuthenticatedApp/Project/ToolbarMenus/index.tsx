@@ -45,6 +45,7 @@ function ToolbarMenus({ menus }: Props) {
       {menus.map((menu) => {
         return (
           <div
+            key={menu.name}
             id={menu.name}
             className={
               optionsOpen && lastHoveredOption === menu.name
@@ -62,9 +63,9 @@ function ToolbarMenus({ menus }: Props) {
                   : styles.optionCard
               }
             >
-              {menu.items.map((item) => {
+              {menu.items.map((item, i) => {
                 if (isDivider(item)) {
-                  return <Divider />;
+                  return <Divider key={menu.name + "---divider" + i} />;
                 }
 
                 const id = menu.name + "---" + item.name;
@@ -72,6 +73,7 @@ function ToolbarMenus({ menus }: Props) {
 
                 return (
                   <MenuItem
+                    key={id}
                     id={id}
                     open={open}
                     item={item}

@@ -13,16 +13,15 @@ function ToolsPanel() {
 
   return (
     <div className={styles.wrapper}>
-      {window.IRIS.tools.list().map((t) => {
-        return (
-          <div
-            onClick={() => dispatch(selectTool(t.id))}
-            className={tool === t.id ? styles.toolActive : styles.tool}
-          >
-            {t.icon}
-          </div>
-        );
-      })}
+      {window.IRIS.tools.list().map((t) => (
+        <div
+          key={t.id}
+          onClick={() => dispatch(selectTool(t.id))}
+          className={tool === t.id ? styles.toolActive : styles.tool}
+        >
+          {t.icon}
+        </div>
+      ))}
     </div>
   );
 }
