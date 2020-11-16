@@ -2,8 +2,6 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import API from "@iris/api";
 
-import { AppThunk } from "..";
-
 const appstaticAPI = new API();
 
 export const load = createAsyncThunk(
@@ -18,51 +16,6 @@ export const load = createAsyncThunk(
   }
 );
 
-async function uploadImage(jpeg: any, dispatch: any) {
-  const formData = new FormData();
-  formData.append(jpeg.name, jpeg.blob);
-  try {
-    await fetch(`/api/projects/x/images`, {
-      method: "POST",
-      body: formData,
-    });
-    dispatch(
-      updateImage({
-        id: jpeg.name,
-        status: "success",
-        date: "",
-      })
-    );
-  } catch {
-    dispatch(updateImage({ id: jpeg.name, status: "error", date: "" }));
-  }
-}
-
-export const uploadImages = (jpegs: any): AppThunk => async (dispatch) => {
-  dispatch(incrementSaving());
-  dispatch(
-    setImages(
-      jpegs.map((j: any) => ({
-        id: j.name,
-        data: "",
-        status: "pending",
-      }))
-    )
-  );
-
-  const promises = jpegs.map((jpeg: any) => uploadImage(jpeg, dispatch));
-
-  await Promise.all(promises).then(() => {
-    dispatch(decrementSaving());
-  });
-};
-
-export interface Image {
-  id: string;
-  status: "idle" | "pending" | "success" | "error";
-  date: string;
-}
-
 export interface ProjectState {
   status: "idle" | "pending" | "success" | "error";
   saving: number;
@@ -70,22 +23,14 @@ export interface ProjectState {
   name?: string;
   created?: string;
   error?: any;
-  images: Image[];
 }
 
-const initialState: ProjectState = { saving: 0, status: "idle", images: [] };
+const initialState: ProjectState = { saving: 0, status: "idle" };
 
 const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {
-    updateImage(state, { payload }) {
-      const index = state.images.findIndex((i) => i.id === payload.id);
-      state.images[index] = payload;
-    },
-    setImages(state, { payload }) {
-      state.images = [...payload, ...state.images];
-    },
     incrementSaving(state) {
       state.saving += 1;
     },
@@ -108,13 +53,6 @@ const projectSlice = createSlice({
         id: payload.id,
         name: payload.name,
         created: payload.created,
-        images: payload.annotations.images.map(
-          (i: any): Image => ({
-            id: i.id,
-            date: i.date,
-            status: "success",
-          })
-        ),
       };
     });
     builder.addCase(load.rejected, (_state, { payload }) => {
@@ -129,10 +67,5 @@ const projectSlice = createSlice({
 });
 
 export default projectSlice.reducer;
-export const {
-  decrementSaving,
-  incrementSaving,
-  setImages,
-  updateImage,
-} = projectSlice.actions;
+export const { decrementSaving, incrementSaving } = projectSlice.actions;
 export * from "./types";

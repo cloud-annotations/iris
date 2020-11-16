@@ -8,13 +8,13 @@ import {
 } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
 
-import project, {
-  decrementSaving,
-  Image,
-  incrementSaving,
-  load,
-} from "./project";
-import data from "./project/data";
+import project, { decrementSaving, incrementSaving, load } from "./project";
+import data, {
+  addImages,
+  editImage,
+  ProjectImage,
+  removeImages,
+} from "./project/data";
 import ui from "./project/ui";
 
 const persist: Middleware<{}, {}> = (storeAPI) => (next) => (action) => {
@@ -53,6 +53,54 @@ export type RootState = ReturnType<typeof store.getState>;
 
 export type AppThunk = ThunkAction<void, RootState, null, Action<string>>;
 
+async function uploadImage(jpeg: any, dispatch: any) {
+  const formData = new FormData();
+  formData.append(jpeg.name, jpeg.blob);
+  try {
+    await fetch(`/api/projects/x/images`, {
+      method: "POST",
+      body: formData,
+    });
+    dispatch(
+      editImage({
+        id: jpeg.name,
+        status: "success",
+        date: "",
+      })
+    );
+  } catch {
+    dispatch(editImage({ id: jpeg.name, status: "error", date: "" }));
+  }
+}
+
+export const uploadImages = (jpegs: any): AppThunk => async (dispatch) => {
+  dispatch(incrementSaving());
+  dispatch(
+    addImages(
+      jpegs.map((j: any) => ({
+        id: j.name,
+        data: "",
+        status: "pending",
+      }))
+    )
+  );
+
+  const promises = jpegs.map((jpeg: any) => uploadImage(jpeg, dispatch));
+
+  await Promise.all(promises).then(() => {
+    dispatch(decrementSaving());
+  });
+};
+
+export const deleteImages = (images: string[]): AppThunk => async (
+  dispatch
+) => {
+  dispatch(incrementSaving());
+  dispatch(removeImages(images));
+  // TODO: Actually delete images.
+  dispatch(decrementSaving());
+};
+
 export function useProject(id: string) {
   const dispatch = useDispatch();
 
@@ -64,11 +112,11 @@ export function useProject(id: string) {
 }
 
 export function visibleImagesSelector(state: RootState) {
-  const all = state.project.images ?? [];
+  const all = state.data.images ?? [];
   const annotatedImages = new Set(Object.keys(state.data.annotations));
 
-  const _labeled = new Set<Image>();
-  const _unlabeled = new Set<Image>();
+  const _labeled = new Set<ProjectImage>();
+  const _unlabeled = new Set<ProjectImage>();
   for (let elem of all) {
     if (annotatedImages.has(elem.id)) {
       _labeled.add(elem);
@@ -119,7 +167,9 @@ export function visibleSelectedImagesSelector(state: RootState) {
   return selection;
 }
 
-export function activeImageSelector(state: RootState): Image | undefined {
+export function activeImageSelector(
+  state: RootState
+): ProjectImage | undefined {
   const selection = visibleSelectedImagesSelector(state);
   return selection[0];
 }

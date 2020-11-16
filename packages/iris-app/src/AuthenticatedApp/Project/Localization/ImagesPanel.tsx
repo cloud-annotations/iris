@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useCallback } from "react";
 
-import { updateImage } from "@iris/store/dist/project";
-import { deleteCategory } from "@iris/store/dist/project/data";
+import { deleteCategory, editImage } from "@iris/store/dist/project/data";
 import {
   filterByLabel,
   selectImages,
@@ -102,7 +101,7 @@ function ImagesPanel() {
       }
       onError={() => {
         dispatch(
-          updateImage({
+          editImage({
             id: i.id,
             status: "error",
             date: "",
@@ -169,7 +168,7 @@ function ImagesPanel() {
   );
 
   const filterImageModeCount = useSelector((state: RootState) => {
-    const all = state.project.images?.length ?? 0;
+    const all = state.data.images?.length ?? 0;
     const labeled = Object.keys(state.data.annotations).length;
     // TODO: this logic isn't necessarily sound if an annotation exists, but the
     // file is missing.

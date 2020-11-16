@@ -1,6 +1,5 @@
 import React from "react";
 
-import { uploadImages } from "@iris/store/dist/project";
 import { addAnnotations } from "@iris/store/dist/project/data";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,7 +7,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
 import { showConfirmDialog, showFileDialog } from "@iris/components";
-import { RootState, visibleSelectedImagesSelector } from "@iris/store";
+import { uploadImages } from "@iris/store";
+import {
+  RootState,
+  visibleSelectedImagesSelector,
+  deleteImages,
+} from "@iris/store";
 
 import { createJPEGs } from "./image-utils";
 import ToolbarMenus from "./ToolbarMenus";
@@ -105,7 +109,7 @@ function Header({ name, saving }: Props) {
         {
           name: "Delete",
           action: async () => {
-            const deleteImages = await showConfirmDialog({
+            const shouldDeleteImages = await showConfirmDialog({
               title:
                 selected.length > 1
                   ? `Delete ${selected.length} images?`
@@ -113,8 +117,8 @@ function Header({ name, saving }: Props) {
               primary: "Delete",
               danger: true,
             });
-            if (deleteImages) {
-              // TODO: Delete images.
+            if (shouldDeleteImages) {
+              dispatch(deleteImages(selected.map((i) => i.id)));
             }
           },
         },

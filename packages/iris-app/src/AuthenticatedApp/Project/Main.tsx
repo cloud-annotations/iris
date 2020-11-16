@@ -1,11 +1,12 @@
 import React, { useCallback } from "react";
 
-import { uploadImages } from "@iris/store/dist/project";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
 import { useDispatch } from "react-redux";
 
-import { videoToJPEGs, imageToJPEG, createJPEGs } from "./image-utils";
+import { uploadImages } from "@iris/store";
+
+import { createJPEGs } from "./image-utils";
 import Localization from "./Localization";
 
 const useStyles = makeStyles((theme: Theme) =>

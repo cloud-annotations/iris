@@ -3,11 +3,18 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { load } from "..";
 import { IAnnotation } from "../types";
 
+export interface ProjectImage {
+  id: string;
+  status: "idle" | "pending" | "success" | "error";
+  date: string;
+}
+
 export interface ProjectState {
   categories: string[];
   annotations: {
     [key: string]: IAnnotation[];
   };
+  images: ProjectImage[];
 }
 
 interface AnnotationEdit {
@@ -18,6 +25,7 @@ interface AnnotationEdit {
 const initialState: ProjectState = {
   categories: [],
   annotations: {},
+  images: [],
 };
 
 function stateAddCategory(state: ProjectState, category: string) {
@@ -101,12 +109,32 @@ const projectSlice = createSlice({
     deleteAnnotations(state, { payload }: PayloadAction<AnnotationEdit>) {
       stateDeleteAnnotations(state, payload);
     },
+    addImages(state, { payload }) {
+      state.images = [...payload, ...state.images];
+    },
+    editImage(state, { payload }) {
+      const index = state.images.findIndex((i) => i.id === payload.id);
+      state.images[index] = payload;
+    },
+    removeImages(state, { payload }) {
+      state.images = state.images.filter((i) => !payload.includes(i.id));
+      for (const image of payload) {
+        delete state.annotations[image];
+      }
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(load.fulfilled, (_state, { payload }) => {
       return {
         categories: payload.annotations.labels,
         annotations: payload.annotations.annotations,
+        images: payload.annotations.images.map(
+          (i: any): ProjectImage => ({
+            id: i.id,
+            date: i.date,
+            status: "success",
+          })
+        ),
       };
     });
   },
@@ -119,4 +147,7 @@ export const {
   addAnnotations,
   editAnnotations,
   deleteAnnotations,
+  addImages,
+  editImage,
+  removeImages,
 } = projectSlice.actions;
