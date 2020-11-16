@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import { deleteAnnotations } from "@iris/store/dist/project/data";
 import { selectCategory, selectTool } from "@iris/store/dist/project/ui";
+import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 
 import { Canvas, CrossHair, EmptySet } from "@iris/components";
@@ -110,6 +111,100 @@ function partition<T>(array: T[], isValid: (item: T) => boolean) {
     },
     [[], []]
   );
+}
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    wrapper: {
+      position: "absolute",
+      top: 0,
+      bottom: 0,
+      left: 0,
+      right: 0,
+      display: "flex",
+      userSelect: "none",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    textContainer: {
+      position: "absolute",
+      height: 54,
+      width: 430,
+    },
+    largeText: {
+      marginBottom: 8,
+      textAlign: "center",
+      color: theme.palette.text.secondary,
+      fontSize: 18,
+    },
+    smallText: {
+      marginBottom: 8,
+      textAlign: "center",
+      color: theme.palette.text.hint,
+      fontSize: 14,
+    },
+  })
+);
+
+function CanvasWrapper({
+  activeImage,
+  activeColor,
+  selectedTool,
+  projectID,
+  shapes,
+}: any) {
+  const classes = useStyles();
+
+  switch (activeImage?.status) {
+    case "success":
+      return (
+        <CrossHair color={activeColor} active={selectedTool === BOX}>
+          <Canvas
+            mode={selectedTool === "move" ? "move" : "draw"}
+            image={`/api/projects/${projectID}/images/${activeImage.id}`}
+            tool={selectedTool}
+            shapes={shapes}
+            render={window.IRIS.tools
+              .list()
+              .reduce((acc: { [key: string]: any }, cur) => {
+                acc[cur.id] = (...args: any[]) =>
+                  cur.canvasPlugin.render(...args);
+                return acc;
+              }, {})}
+            actions={window.IRIS.tools
+              .list()
+              .reduce((acc: { [key: string]: any }, cur) => {
+                acc[cur.id] = {
+                  onTargetMove: (...args: any[]) =>
+                    cur.canvasPlugin.onTargetMove(...args),
+                  onMouseDown: (...args: any[]) =>
+                    cur.canvasPlugin.onMouseDown(...args),
+                  onMouseMove: (...args: any[]) =>
+                    cur.canvasPlugin.onMouseMove(...args),
+                  onMouseUp: (...args: any[]) =>
+                    cur.canvasPlugin.onMouseUp(...args),
+                };
+                return acc;
+              }, {})}
+          />
+        </CrossHair>
+      );
+    case "error":
+      return (
+        <div className={classes.wrapper}>
+          <div className={classes.textContainer}>
+            <div className={classes.largeText}>
+              An error occurred while loading the image
+            </div>
+            <div className={classes.smallText}>
+              Try refreshing the page and make sure the image file is valid.
+            </div>
+          </div>
+        </div>
+      );
+    default:
+      return <EmptySet show />;
+  }
 }
 
 function DrawingPanel({ headCount }: any) {
@@ -226,40 +321,13 @@ function DrawingPanel({ headCount }: any) {
           </div>
         )} */}
       </div>
-      {activeImage ? (
-        <CrossHair color={activeColor} active={selectedTool === BOX}>
-          <Canvas
-            mode={selectedTool === "move" ? "move" : "draw"}
-            image={`/api/projects/${projectID}/images/${activeImage.id}`}
-            tool={selectedTool}
-            shapes={shapes}
-            render={window.IRIS.tools
-              .list()
-              .reduce((acc: { [key: string]: any }, cur) => {
-                acc[cur.id] = (...args: any[]) =>
-                  cur.canvasPlugin.render(...args);
-                return acc;
-              }, {})}
-            actions={window.IRIS.tools
-              .list()
-              .reduce((acc: { [key: string]: any }, cur) => {
-                acc[cur.id] = {
-                  onTargetMove: (...args: any[]) =>
-                    cur.canvasPlugin.onTargetMove(...args),
-                  onMouseDown: (...args: any[]) =>
-                    cur.canvasPlugin.onMouseDown(...args),
-                  onMouseMove: (...args: any[]) =>
-                    cur.canvasPlugin.onMouseMove(...args),
-                  onMouseUp: (...args: any[]) =>
-                    cur.canvasPlugin.onMouseUp(...args),
-                };
-                return acc;
-              }, {})}
-          />
-        </CrossHair>
-      ) : (
-        <EmptySet show />
-      )}
+      <CanvasWrapper
+        activeImage={activeImage}
+        activeColor={activeColor}
+        selectedTool={selectedTool}
+        projectID={projectID}
+        shapes={shapes}
+      />
     </div>
   );
 }
