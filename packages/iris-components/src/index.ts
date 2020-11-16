@@ -5,4 +5,6 @@ export { default as HorizontalListController } from "./HorizontalListController"
 export { default as ImageTile } from "./ImageTile";
 export { default as LabelSelect } from "./LabelSelect";
 export { default as CollageImageTile } from "./CollageImageTile";
-export * from "./dialogs";
+export { default as Dialog } from "./Dialog";
+
+export * from "./Dialog";

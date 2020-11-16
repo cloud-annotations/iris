@@ -6,6 +6,7 @@ import { Provider } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
 import { SWRConfig } from "swr";
 
+import { Dialog } from "@iris/components";
 import store from "@iris/store";
 import theme from "@iris/theme";
 
@@ -26,7 +27,7 @@ function initReactApp() {
           <Provider store={store}>
             <SWRConfig value={swrOptions}>
               <App />
-              <div id="dialog-root" />
+              <Dialog />
             </SWRConfig>
           </Provider>
         </Router>

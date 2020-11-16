@@ -33,7 +33,7 @@ module.exports = {
         ],
         pathGroups: [
           {
-            pattern: "react",
+            pattern: "react?(-dom)",
             group: "external",
             position: "before",
           },

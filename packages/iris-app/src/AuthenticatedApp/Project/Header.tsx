@@ -1,14 +1,16 @@
 import React from "react";
 
+import { uploadImages } from "@iris/store/dist/project";
 import { addAnnotations } from "@iris/store/dist/project/data";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
-import { showConfirmDialog } from "@iris/components";
+import { showConfirmDialog, showFileDialog } from "@iris/components";
 import { RootState, visibleSelectedImagesSelector } from "@iris/store";
 
+import { createJPEGs } from "./image-utils";
 import ToolbarMenus from "./ToolbarMenus";
 import { Menu } from "./ToolbarMenus/types";
 
@@ -86,8 +88,13 @@ function Header({ name, saving }: Props) {
       items: [
         {
           name: "Upload media",
-          action: () => {
-            // TODO: Upload media.
+          action: async () => {
+            const files = await showFileDialog({
+              accept: "image/*,video/*",
+              multiple: true,
+            });
+            const jpegs = await createJPEGs(files);
+            dispatch(uploadImages(jpegs));
           },
         },
       ],

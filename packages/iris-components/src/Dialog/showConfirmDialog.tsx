@@ -7,41 +7,12 @@ import {
   DialogContentText,
   DialogActions,
   Button,
-  CssBaseline,
-  ThemeProvider,
   makeStyles,
   Theme,
   createStyles,
 } from "@material-ui/core";
-import ReactDOM from "react-dom";
 
-import theme from "@iris/theme";
-
-export function showDialog<T>(Dialog: any, props: any): Promise<T | undefined> {
-  return new Promise((resolve) => {
-    const dialogRoot = document.getElementById("dialog-root")!;
-
-    const handleClose = () => {
-      ReactDOM.unmountComponentAtNode(dialogRoot);
-      resolve(undefined);
-    };
-
-    const handleAction = (value: T) => {
-      ReactDOM.unmountComponentAtNode(dialogRoot);
-      resolve(value);
-    };
-
-    ReactDOM.render(
-      <React.StrictMode>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Dialog onClose={handleClose} onAction={handleAction} {...props} />
-        </ThemeProvider>
-      </React.StrictMode>,
-      dialogRoot
-    );
-  });
-}
+import { showDialog } from "./showDialog";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

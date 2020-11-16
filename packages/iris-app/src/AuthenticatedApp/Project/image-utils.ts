@@ -16,6 +16,34 @@ interface VideoOptions {
   scaleMode: ScaleMode;
 }
 
+export async function createJPEGs(files: File[]) {
+  const images = files
+    .filter(({ type }) => type.startsWith("image/"))
+    .map(async (file) => {
+      return await imageToJPEG(file, {
+        maxWidth: window.MAX_IMAGE_WIDTH,
+        maxHeight: window.MAX_IMAGE_HEIGHT,
+        scaleMode: window.IMAGE_SCALE_MODE,
+      });
+    });
+
+  const videos = files
+    .filter(({ type }) => type.startsWith("video/"))
+    .map(async (file) => {
+      return await videoToJPEGs(file, {
+        fps: window.FPS,
+        maxWidth: window.MAX_IMAGE_WIDTH,
+        maxHeight: window.MAX_IMAGE_HEIGHT,
+        scaleMode: window.IMAGE_SCALE_MODE,
+      });
+    });
+
+  const nestedJPEGArray = await Promise.all(videos);
+  const jpegArray = await Promise.all(images);
+
+  return [...jpegArray, ...nestedJPEGArray.flat()];
+}
+
 function dataURItoBlob(dataURI: string) {
   const byteString = atob(dataURI.split(",")[1]);
   const mimeString = dataURI.split(",")[0].split(":")[1].split(";")[0];
