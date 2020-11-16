@@ -1,5 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { visibleSelectedImagesSelector } from "src";
 
 export interface UI {
   selectedTool?: string;

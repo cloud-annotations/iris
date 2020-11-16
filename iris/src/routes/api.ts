@@ -1,7 +1,7 @@
 import Busboy from "busboy";
 import { Router } from "express";
 
-import ProjectProvider from "./../plugins/ProjectProvider";
+import ProjectProvider from "../plugins/ProjectProvider";
 
 const router = Router();
 

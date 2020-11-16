@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { AppThunk } from "src";
 
 import API from "@iris/api";
+
+import { AppThunk } from "..";
 
 const appstaticAPI = new API();
 

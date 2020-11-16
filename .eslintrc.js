@@ -64,7 +64,6 @@ module.exports = {
     },
   ],
   settings: {
-    "import/internal-regex": "^src/",
     "import/extensions": allExtensions,
     "import/external-module-folders": ["node_modules", "node_modules/@types"],
     "import/parsers": {

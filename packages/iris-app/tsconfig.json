@@ -3,8 +3,6 @@
   "compilerOptions": {
     "noEmit": true,
 
-    "baseUrl": ".",
-
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
