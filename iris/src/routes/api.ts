@@ -63,6 +63,23 @@ router.get("/projects/:projectID/images/:imageID", async (req, res) => {
   }
 });
 
+router.delete("/projects/:projectID/images/:imageID", async (req, res) => {
+  const { imageID } = req.params;
+
+  let projectID;
+  if (!SINGLE_DOCUMENT_MODE) {
+    projectID = req.params.projectID;
+  }
+
+  try {
+    await provider.deleteImage(projectID, imageID);
+    res.end();
+  } catch (e) {
+    console.log(e);
+    res.sendStatus(404);
+  }
+});
+
 router.post("/projects/:projectID/images", async (req, res) => {
   const busboy = new Busboy({
     headers: req.headers,

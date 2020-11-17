@@ -92,13 +92,25 @@ export const uploadImages = (jpegs: any): AppThunk => async (dispatch) => {
   });
 };
 
+async function deleteImage(image: string) {
+  try {
+    await fetch(`/api/projects/x/images/${image}`, { method: "DELETE" });
+  } catch {
+    // TODO
+  }
+}
+
 export const deleteImages = (images: string[]): AppThunk => async (
   dispatch
 ) => {
   dispatch(incrementSaving());
   dispatch(removeImages(images));
-  // TODO: Actually delete images.
-  dispatch(decrementSaving());
+
+  const promises = images.map((image) => deleteImage(image));
+
+  await Promise.all(promises).then(() => {
+    dispatch(decrementSaving());
+  });
 };
 
 export function useProject(id: string) {

@@ -76,6 +76,16 @@ class ProjectProvider {
     throw new Error("file is locked");
   }
 
+  async deleteImage(projectID: string | undefined, imageID: string) {
+    let output;
+    if (projectID) {
+      output = path.join(process.cwd(), projectID, imageID);
+    } else {
+      output = path.join(process.cwd(), imageID);
+    }
+    await fs2.unlink(output);
+  }
+
   async saveImage(filename: string, stream: NodeJS.ReadableStream) {
     const output = path.join(process.cwd(), filename);
     await fs3.ensureFile(output);
