@@ -1,6 +1,8 @@
 import http from "http";
 
+import { RedisClient } from "redis";
 import { Server, Socket } from "socket.io";
+import { createAdapter } from "socket.io-redis";
 
 interface CustomSocket extends Socket {
   room?: string;
@@ -8,6 +10,24 @@ interface CustomSocket extends Socket {
 
 function multiuser(server: http.Server) {
   const io = new Server(server);
+
+  const pubClient = new RedisClient({ host: "redis", port: 6379 });
+
+  pubClient.on("ready", () => {
+    console.log("pub client ready");
+    const subClient = pubClient.duplicate();
+    subClient.on("ready", () => {
+      console.log("sub client ready");
+      console.log("creating addapter");
+      io.adapter(createAdapter({ pubClient, subClient }));
+    });
+    subClient.on("error", () => {
+      // do nothing
+    });
+  });
+  pubClient.on("error", () => {
+    // do nothing
+  });
 
   function broadcastRoomCount(room: string) {
     const namespace = io.in(room);
