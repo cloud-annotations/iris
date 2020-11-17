@@ -207,7 +207,7 @@ function CanvasWrapper({
   }
 }
 
-function DrawingPanel({ headCount }: any) {
+function DrawingPanel() {
   const dispatch = useDispatch();
   const selectedTool = useSelector(
     (state: RootState) =>
@@ -264,6 +264,8 @@ function DrawingPanel({ headCount }: any) {
   }, {});
 
   const activeColor = cmap[activeLabel] ?? "white";
+
+  const headCount = useSelector((state: RootState) => state.ui.roomSize ?? 0);
 
   const maxBubbles = 3;
   const othersCount = Math.max(headCount - 1, 0);

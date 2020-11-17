@@ -5,6 +5,7 @@ export interface UI {
   selectedCategory?: string;
   selectedImages?: string[];
   highlightedBox?: string;
+  roomSize?: number;
   imageFilter: {
     mode: "all" | "unlabeled" | "labeled";
     label?: string;
@@ -16,6 +17,7 @@ const initialState: UI = {
   selectedCategory: undefined,
   selectedImages: undefined,
   highlightedBox: undefined,
+  roomSize: undefined,
   imageFilter: {
     mode: "all",
     label: undefined,
@@ -26,6 +28,9 @@ const projectSlice = createSlice({
   name: "ui",
   initialState,
   reducers: {
+    setRoomSize(state, { payload }: PayloadAction<number>) {
+      state.roomSize = payload;
+    },
     showAllImages(state) {
       state.imageFilter.mode = "all";
     },
@@ -81,4 +86,5 @@ export const {
   showLabeledImages,
   showUnlabeledImages,
   filterByLabel,
+  setRoomSize,
 } = projectSlice.actions;

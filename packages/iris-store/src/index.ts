@@ -7,6 +7,7 @@ import {
   ThunkAction,
 } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
+import { Manager } from "socket.io-client";
 
 import project, { decrementSaving, incrementSaving, load } from "./project";
 import data, {
@@ -15,15 +16,36 @@ import data, {
   ProjectImage,
   removeImages,
 } from "./project/data";
-import ui from "./project/ui";
+import ui, { setRoomSize } from "./project/ui";
+
+const manager = new Manager();
+const socket = manager.socket("/");
+
+socket.on("roomSize", (res: number) => {
+  store.dispatch(setRoomSize(res));
+});
+
+socket.on("patch", (res: any) => {
+  store.dispatch({ type: "socket", action: res });
+});
+
+socket.emit("join", { image: "boop" });
 
 const persist: Middleware<{}, {}> = (storeAPI) => (next) => (action) => {
-  const result = next(action);
+  let result;
+  if (action.type === "socket") {
+    result = next(action.action);
+  } else {
+    result = next(action);
+  }
+
   // only persist data changes
   if (action.type && action.type.startsWith("data/")) {
     storeAPI.dispatch(incrementSaving());
 
     const state = storeAPI.getState() as RootState;
+
+    socket.emit("patch", action);
 
     fetch(`/api/projects/${state.project.id}`, {
       method: "POST",

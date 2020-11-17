@@ -8,11 +8,12 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@iris/api": "^0.0.1",
+    "@reduxjs/toolkit": "^1.4.0",
     "@types/react": "^16.9.53",
     "@types/react-redux": "^7.1.9",
-    "@iris/api": "^0.0.1",
     "react": "^17.0.1",
     "react-redux": "^7.2.1",
-    "@reduxjs/toolkit": "^1.4.0"
+    "socket.io-client": "^3.0.1"
   }
 }

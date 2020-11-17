@@ -12,14 +12,7 @@ function Localization() {
     <Layout
       top={<ToolOptionsPanel />}
       left={<ToolsPanel />}
-      content={
-        <DrawingPanel
-          headCount={6}
-          autoLabelActive={false}
-          predictions={[]}
-          activePrediction={undefined}
-        />
-      }
+      content={<DrawingPanel />}
       right={<LayersPanel />}
       bottom={<ImagesPanel />}
     />

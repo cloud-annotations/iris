@@ -7,6 +7,7 @@ import notFoundHandler from "./handlers/not-found";
 import gzip from "./middleware/gzip";
 import logger from "./middleware/logger";
 import security from "./middleware/security";
+import multiuser from "./multiuser";
 import apiRouter from "./routes/api";
 import authRouter from "./routes/auth";
 import spaRouter from "./routes/spa";
@@ -17,6 +18,8 @@ const port = process.env.PORT || 9000;
 
 app.enable("trust proxy");
 app.disable("x-powered-by");
+
+multiuser(server);
 
 app.use(gzip());
 app.use(security());
