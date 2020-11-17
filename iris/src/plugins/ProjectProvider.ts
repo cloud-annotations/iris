@@ -104,6 +104,26 @@ class ProjectProvider {
       console.log("stream", e);
     });
     console.log("saveImage() -- writing...");
+
+    stream.on("close", () => {
+      console.log("read close");
+    });
+    stream.on("end", () => {
+      console.log("read end");
+    });
+    stream.on("finish", () => {
+      console.log("read finish");
+    });
+
+    writeStream.on("close", () => {
+      console.log("write close");
+    });
+    writeStream.on("end", () => {
+      console.log("write end");
+    });
+    writeStream.on("finish", () => {
+      console.log("write finish");
+    });
     return new Promise((resolve) => {
       stream.on("close", async () => {
         console.log("saveImage() -- done.");
