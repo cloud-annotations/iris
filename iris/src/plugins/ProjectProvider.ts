@@ -92,6 +92,9 @@ class ProjectProvider {
     const release = await lockfile.lock(output);
     const writeStream = fs.createWriteStream(output);
     stream.pipe(writeStream);
+    stream.on("error", (e) => {
+      console.log(e);
+    });
     return new Promise((resolve) => {
       stream.on("close", async () => {
         await release();
