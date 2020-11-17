@@ -89,12 +89,19 @@ class ProjectProvider {
   async saveImage(filename: string, stream: NodeJS.ReadableStream) {
     console.log("saveImage()");
     const output = path.join(process.cwd(), filename);
-    await fs3.ensureFile(output);
+    try {
+      await fs3.ensureFile(output);
+    } catch (e) {
+      console.log("ensure file", e);
+    }
     const release = await lockfile.lock(output);
     const writeStream = fs.createWriteStream(output);
+    writeStream.on("error", (e) => {
+      console.log("write stream", e);
+    });
     stream.pipe(writeStream);
     stream.on("error", (e) => {
-      console.log(e);
+      console.log("stream", e);
     });
     console.log("saveImage() -- writing...");
     return new Promise((resolve) => {
