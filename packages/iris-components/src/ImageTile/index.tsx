@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) => {
   return createStyles({
     normal: {
       ...base.root,
-      "&:hover $image": {
+      "&:hover $image, &:hover $thumbnailImage": {
         border: `2px solid ${theme.palette.primary.main}`,
       },
       "&:hover $iconWrapper": {
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) => {
     },
     active: {
       ...base.root,
-      "& $image": {
+      "& $image, $thumbnailImage": {
         height: "71.4%",
         margin: "0 20.328px",
         border: `2px solid ${theme.palette.primary.main}`,
@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) => {
     },
     selected: {
       ...base.root,
-      "& $image": {
+      "& $image, $thumbnailImage": {
         height: "71.4%",
         margin: " 0 20.328px",
         border: `2px solid ${theme.palette.primary.main}`,
@@ -173,26 +173,80 @@ function StatusIcon({ status }: StatusIconProps) {
   }
 }
 
-const MAX_HEIGHT = 80;
-
 interface ITarget {
   x: number;
   y: number;
 }
 
-// TODO: not perfect...
-const calculateCrop = (targets: ITarget[], imageSize: number[]) => {
+interface ListItemProps {
+  targets: ITarget[];
+  url: string;
+}
+
+function useThumbnail(url: string, targets: ITarget[]) {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  const [imageSize, setImageSize] = useState([0, 0]);
+  const [elHeight, setElHeight] = useState(0);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach(async (entry) => {
+          if (entry.isIntersecting) {
+            observer.unobserve(entry.target);
+            const img = new Image();
+            img.onload = () => {
+              setImageSize([img.width, img.height]);
+            };
+            img.src = url;
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: "0px",
+        threshold: 0.0,
+      }
+    );
+
+    const target = rootRef.current!;
+    observer.observe(target);
+    return () => {
+      observer.unobserve(target);
+    };
+  }, [url]);
+
+  useEffect(() => {
+    if (rootRef.current) {
+      // @ts-ignore
+      const observer = new ResizeObserver(() => {
+        console.log("The element was resized");
+        if (rootRef.current) {
+          console.log(rootRef.current.clientHeight);
+          setElHeight(rootRef.current.clientHeight);
+        }
+      });
+
+      observer.observe(rootRef.current);
+    }
+  }, []);
+
   if (targets === undefined) {
-    const scale = MAX_HEIGHT / imageSize[1];
     return {
-      cropWidth: imageSize[0] * scale,
-      cropHeight: MAX_HEIGHT,
-      xOffset: 0,
-      yOffset: 0,
-      fullWidth: imageSize[0] * scale,
-      fullHeight: imageSize[1] * scale,
+      getRootProps: () => ({
+        ref: rootRef,
+        style: {
+          backgroundImage: `url(${url})`,
+          width: `${elHeight * (imageSize[0] / imageSize[1])}px`,
+          height: `${100}%`,
+          backgroundPosition: "0 0",
+          backgroundSize: "100% 100%",
+        },
+      }),
     };
   }
+
   const xMin = Math.min(...targets.map((t) => t.x));
   const yMin = Math.min(...targets.map((t) => t.y));
   const xMax = Math.max(...targets.map((t) => t.x));
@@ -200,70 +254,35 @@ const calculateCrop = (targets: ITarget[], imageSize: number[]) => {
   const width = xMax - xMin;
   const height = yMax - yMin;
 
-  const relativeXOffset = xMin;
-  const relativeYOffset = yMin;
-  const relativeBoxWidth = width;
-  const relativeBoxHeight = height;
+  const xSize = (1 / width) * 100;
+  const ySize = (1 / height) * 100;
 
-  const pixelBoxWidth = relativeBoxWidth * imageSize[0];
-  const pixelBoxHeight = relativeBoxHeight * imageSize[1];
-  const pixelXOffset = relativeXOffset * imageSize[0];
-  const pixelYOffset = relativeYOffset * imageSize[1];
-
-  // To prevent division by zero.
-  const safeBoxWidth = Math.max(pixelBoxWidth, 1);
-  const safeBoxHeight = Math.max(pixelBoxHeight, 1);
-
-  let scale;
-  let actualWidth;
-  let actualHeight;
-
-  scale = MAX_HEIGHT / safeBoxHeight;
-  actualWidth = safeBoxWidth * scale;
-  actualHeight = MAX_HEIGHT;
-
-  const xOffset = -scale * pixelXOffset;
-  const yOffset = -scale * pixelYOffset;
-
+  const xPosition = (xMin / (1 - width)) * 100;
+  const yPosition = (yMin / (1 - height)) * 100;
   return {
-    cropWidth: actualWidth,
-    cropHeight: actualHeight,
-    xOffset: xOffset,
-    yOffset: yOffset,
-    fullWidth: scale * imageSize[0],
-    fullHeight: scale * imageSize[1],
+    getRootProps: () => ({
+      ref: rootRef,
+      style: {
+        backgroundImage: `url(${url})`,
+        width: `${
+          elHeight * ((imageSize[0] * width) / (imageSize[1] * height))
+        }px`,
+        height: `${100}%`,
+        backgroundPosition: `${xPosition}% ${yPosition}%`,
+        backgroundSize: `${xSize}% ${ySize}%`,
+      },
+    }),
   };
-};
-
-interface ListItemProps {
-  targets: ITarget[];
-  url: string;
-  imageSize: number[];
 }
 
-function ListItem({ targets, url, imageSize }: ListItemProps) {
+function ListItem({ targets, url }: ListItemProps) {
   const classes = useStyles();
 
-  const {
-    cropWidth,
-    cropHeight,
-    xOffset,
-    yOffset,
-    fullWidth,
-    fullHeight,
-  } = calculateCrop(targets, imageSize);
+  const { getRootProps } = useThumbnail(url, targets);
 
   return (
     <div className={classes.thumbnail}>
-      <div
-        style={{
-          backgroundImage: `url(${url})`,
-          width: `${cropWidth}px`,
-          height: `${cropHeight}px`,
-          backgroundPosition: `${xOffset}px ${yOffset}px`,
-          backgroundSize: `${fullWidth}px ${fullHeight}px`,
-        }}
-      />
+      <div {...getRootProps()} />
     </div>
   );
 }
@@ -278,48 +297,12 @@ interface TileProps {
 function Tile({ status, url, targets, onError }: TileProps) {
   const classes = useStyles();
 
-  const imageRef = useRef<HTMLDivElement>(null);
-  const [imageSize, setImageSize] = useState([0, 0]);
-
-  useEffect(() => {
-    // ensure this gets recalled if targets change.
-    if (targets !== undefined) {
-      const observer = new IntersectionObserver(
-        (entries, observer) => {
-          entries.forEach(async (entry) => {
-            if (entry.isIntersecting) {
-              observer.unobserve(entry.target);
-              const img = new Image();
-              img.onload = () => {
-                setImageSize([img.width, img.height]);
-              };
-              img.src = url;
-            }
-          });
-        },
-        {
-          root: null,
-          rootMargin: "0px",
-          threshold: 0.0,
-        }
-      );
-
-      const target = imageRef.current!;
-      observer.observe(target);
-      return () => {
-        observer.unobserve(target);
-      };
-    }
-
-    return;
-  }, [targets, url]);
-
   return (
     <React.Fragment>
       {targets !== undefined ? (
-        <div ref={imageRef} className={classes.thumbnailImage}>
-          {targets.map((t) => (
-            <ListItem targets={t} url={url} imageSize={imageSize} />
+        <div className={classes.thumbnailImage}>
+          {targets.map((t, i) => (
+            <ListItem key={i} targets={t} url={url} />
           ))}
         </div>
       ) : (
