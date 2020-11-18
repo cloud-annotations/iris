@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme: Theme) => {
   return createStyles({
     normal: {
       ...base.root,
-      "&:hover $image, &:hover $thumbnailImage": {
+      "&:hover $image": {
         border: `2px solid ${theme.palette.primary.main}`,
       },
       "&:hover $iconWrapper": {
@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme: Theme) => {
     },
     active: {
       ...base.root,
-      "& $image, $thumbnailImage": {
+      "& $image": {
         height: "71.4%",
         margin: "0 20.328px",
         border: `2px solid ${theme.palette.primary.main}`,
@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme: Theme) => {
     },
     selected: {
       ...base.root,
-      "& $image, $thumbnailImage": {
+      "& $image": {
         height: "71.4%",
         margin: " 0 20.328px",
         border: `2px solid ${theme.palette.primary.main}`,
@@ -63,16 +63,8 @@ const useStyles = makeStyles((theme: Theme) => {
       borderRadius: 4,
       opacity: 0,
     },
-    thumbnailImage: {
-      display: "flex",
-      position: "relative",
-      height: "100%",
-      backgroundColor: theme.palette.action.hover,
-      verticalAlign: "middle",
-      border: "2px solid transparent",
-      borderRadius: 4,
-    },
     image: {
+      display: "flex",
       position: "relative",
       height: "100%",
       backgroundColor: theme.palette.action.hover,
@@ -300,7 +292,7 @@ function Tile({ status, url, targets, onError }: TileProps) {
   return (
     <React.Fragment>
       {targets !== undefined ? (
-        <div className={classes.thumbnailImage}>
+        <div className={classes.image}>
           {targets.map((t, i) => (
             <ListItem key={i} targets={t} url={url} />
           ))}
