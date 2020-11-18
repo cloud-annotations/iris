@@ -96,7 +96,9 @@ function ImagesPanel() {
       url={`/api/projects/${projectID}/images/${i.id}`}
       targets={
         filter !== undefined
-          ? annotations[i.id].map((a) => a.targets)
+          ? annotations[i.id]
+              .filter((a) => a.label === filter)
+              .map((a) => a.targets)
           : undefined
       }
       onError={() => {
