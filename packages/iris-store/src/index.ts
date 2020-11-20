@@ -9,6 +9,8 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Manager } from "socket.io-client";
 
+import API from "@iris/api";
+
 import project, { decrementSaving, incrementSaving, load } from "./project";
 import data, {
   addImages,
@@ -31,6 +33,8 @@ socket.on("patch", (res: any) => {
 
 socket.emit("join", { image: "boop" });
 
+const api = new API();
+
 const persist: Middleware<{}, {}> = (storeAPI) => (next) => (action) => {
   let result;
   if (action.type === "socket") {
@@ -47,8 +51,12 @@ const persist: Middleware<{}, {}> = (storeAPI) => (next) => (action) => {
 
     socket.emit("patch", action);
 
-    fetch(`/api/projects/${state.project.id}`, {
-      method: "POST",
+    const endpoint = api.endpoint("/api/project", {
+      query: { projectID: state.project.id },
+    }).uri;
+
+    fetch(endpoint, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
@@ -79,7 +87,7 @@ async function uploadImage(jpeg: any, dispatch: any) {
   const formData = new FormData();
   formData.append(jpeg.name, jpeg.blob);
   try {
-    await fetch(`/api/projects/x/images`, {
+    await fetch(`/api/images`, {
       method: "POST",
       body: formData,
     });
@@ -116,7 +124,7 @@ export const uploadImages = (jpegs: any): AppThunk => async (dispatch) => {
 
 async function deleteImage(image: string) {
   try {
-    await fetch(`/api/projects/x/images/${image}`, { method: "DELETE" });
+    await fetch(`/api/images/${image}`, { method: "DELETE" });
   } catch {
     // TODO
   }

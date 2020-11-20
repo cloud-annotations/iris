@@ -11,6 +11,7 @@ import {
 } from "@iris/store/dist/project/ui";
 import { useDispatch, useSelector } from "react-redux";
 
+import API from "@iris/api";
 import {
   HorizontalListController,
   ImageTile,
@@ -57,6 +58,8 @@ const useBlockSwipeBack = (ref: any) => {
   }, [ref]);
 };
 
+const api = new API();
+
 function ImagesPanel() {
   const dispatch = useDispatch();
 
@@ -93,7 +96,12 @@ function ImagesPanel() {
   const cells = images.map((i) => (
     <ImageTile
       status={i.status}
-      url={`/api/projects/${projectID}/images/${i.id}`}
+      url={
+        api.endpoint("/api/images/:imageID", {
+          path: { imageID: i.id },
+          query: { projectID: projectID },
+        }).uri
+      }
       targets={
         filter !== undefined
           ? annotations[i.id]

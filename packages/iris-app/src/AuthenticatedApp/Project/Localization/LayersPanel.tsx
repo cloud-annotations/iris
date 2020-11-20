@@ -9,6 +9,7 @@ import { highlightBox } from "@iris/store/dist/project/ui";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 
+import API from "@iris/api";
 import { LabelSelect } from "@iris/components";
 import { RootState, activeImageSelector } from "@iris/store";
 
@@ -157,6 +158,8 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
   );
 }
 
+const api = new API();
+
 function LayersPanel() {
   const projectID = useSelector((state: RootState) => state.project.id);
   const activeImage = useSelector(activeImageSelector);
@@ -171,15 +174,21 @@ function LayersPanel() {
 
   const [imageDims, setImageDims] = useState([0, 0]);
 
+  const imageUrl = api.endpoint("/api/images/:imageID", {
+    path: { imageID: activeImage?.id },
+    query: { projectID: projectID },
+  }).uri;
+
   useEffect(() => {
-    if (activeImage) {
+    if (imageUrl) {
       const img = new Image();
       img.onload = () => {
         setImageDims([img.width, img.height]);
       };
-      img.src = `/api/projects/${projectID}/images/${activeImage.id}`;
+
+      img.src = imageUrl;
     }
-  }, [projectID, activeImage]);
+  }, [imageUrl]);
 
   return (
     <div className={styles.wrapper}>
@@ -195,7 +204,7 @@ function LayersPanel() {
             <ListItem
               box={box}
               labels={labels}
-              image={`/api/projects/${projectID}/images/${activeImage?.id}`}
+              image={imageUrl}
               imageID={activeImage?.id ?? ""}
               imageDims={imageDims}
             />

@@ -38,8 +38,8 @@ export function useProjects() {
 }
 
 export function useProject(id: string) {
-  const getProject = appstaticAPI.endpoint("/api/projects/:id", {
-    path: { id },
+  const getProject = appstaticAPI.endpoint("/api/project", {
+    query: { projectID: id },
   });
   const { data, mutate, error } = useSWR<any>(getProject.key, fetcher);
 

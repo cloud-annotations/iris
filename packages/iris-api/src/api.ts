@@ -9,6 +9,7 @@ interface Options {
 }
 
 interface Request {
+  uri: string;
   key: keyInterface;
   do: () => Promise<any>;
 }
@@ -34,9 +35,17 @@ class API {
 
     if (reject === true) {
       return {
+        uri: "",
         key: null,
         do: async () => {},
       };
+    }
+
+    // Strip undefined keys
+    if (query) {
+      Object.keys(query).forEach(
+        (key) => query[key] === undefined && delete query[key]
+      );
     }
 
     const queryParams = new URLSearchParams(query);
@@ -48,6 +57,7 @@ class API {
     }
 
     return {
+      uri: url,
       key: [url, auth],
       do: async () => {
         return await fetcher(url, auth);

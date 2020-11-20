@@ -1,19 +1,48 @@
-import { promises as fs2 } from "fs";
-import fs from "fs";
 import path from "path";
 
-import fs3 from "fs-extra";
+import fs from "fs-extra";
 import lockfile from "proper-lockfile";
 
+interface IImage {
+  id: string;
+  date: string;
+}
+
+interface IProject {
+  id?: string;
+  name: string;
+  created: Date;
+  annotations: {
+    version: string;
+    labels: string[];
+    annotations: {}; // TODO
+    images: IImage[];
+  };
+}
+
+interface IOptions {
+  name: string;
+  projectID?: string;
+}
+
 class ProjectProvider {
+  private _dir(projectID: string | undefined) {
+    if (projectID) {
+      return path.join(process.cwd(), projectID);
+    }
+    return process.cwd();
+  }
+
   async getProjects() {
     return [];
   }
 
-  async getProject(projectID: string | undefined) {
-    const project = {
-      id: path.basename(process.cwd()),
-      name: path.basename(process.cwd()),
+  async getProject(options: Pick<IOptions, "projectID">) {
+    const { projectID } = options;
+
+    const project: IProject = {
+      id: projectID,
+      name: projectID ?? path.basename(process.cwd()),
       created: new Date(),
       annotations: {
         version: "v2",
@@ -21,22 +50,15 @@ class ProjectProvider {
         annotations: {},
         images: [],
       },
-    } as any;
+    };
 
-    try {
-      const annotationsString = await fs2.readFile(
-        path.join(process.cwd(), "_annotations.json"),
-        "utf-8"
-      );
-      project.annotations = JSON.parse(annotationsString);
-    } catch {}
+    const annotationsString = await fs.readFile(
+      path.join(this._dir(projectID), "_annotations.json"),
+      "utf-8"
+    );
+    project.annotations = JSON.parse(annotationsString);
 
-    let files;
-    if (projectID) {
-      files = await fs2.readdir(path.join(process.cwd(), projectID));
-    } else {
-      files = await fs2.readdir(path.join(process.cwd()));
-    }
+    const files = await fs.readdir(this._dir(projectID));
 
     project.annotations.images = files
       .filter(
@@ -48,51 +70,49 @@ class ProjectProvider {
     return project;
   }
 
-  async persist(projectID: string | undefined, annotations: any) {
-    let output;
-    if (projectID) {
-      output = path.join(process.cwd(), projectID, "_annotations.json");
-    } else {
-      output = path.join(process.cwd(), "_annotations.json");
-    }
+  async persist(annotations: any, options: Pick<IOptions, "projectID">) {
+    const { projectID } = options;
 
-    // TODO: This probably isn't safe
-    await fs2.writeFile(output, JSON.stringify(annotations), "utf-8");
+    const output = path.join(this._dir(projectID), "_annotations.json");
+
+    // TODO: This probably isn't safe:
+    // "It is unsafe to call fsPromises.writeFile() multiple times on the same
+    // file without waiting for the Promise to be resolved (or rejected)."
+    await fs.writeFile(output, JSON.stringify(annotations), "utf-8");
   }
 
-  async getImage(projectID: string | undefined, imageID: string) {
-    let output;
-    if (projectID) {
-      output = path.join(process.cwd(), projectID, imageID);
-    } else {
-      output = path.join(process.cwd(), imageID);
-    }
+  async getImage(imageID: string, options: Pick<IOptions, "projectID">) {
+    const { projectID } = options;
+
+    const output = path.join(this._dir(projectID), imageID);
 
     const isLocked = await lockfile.check(output);
     if (!isLocked) {
-      const stream = fs.createReadStream(output);
-      return stream;
+      return fs.createReadStream(output);
     }
+
     throw new Error("file is locked");
   }
 
-  async deleteImage(projectID: string | undefined, imageID: string) {
-    let output;
-    if (projectID) {
-      output = path.join(process.cwd(), projectID, imageID);
-    } else {
-      output = path.join(process.cwd(), imageID);
-    }
-    await fs2.unlink(output);
+  async deleteImage(imageID: string, options: Pick<IOptions, "projectID">) {
+    const { projectID } = options;
+    const output = path.join(this._dir(projectID), imageID);
+    await fs.unlink(output);
   }
 
-  async saveImage(filename: string, stream: NodeJS.ReadableStream) {
-    const output = path.join(process.cwd(), filename);
-    await fs3.ensureFile(output);
+  async saveImage(file: NodeJS.ReadableStream, options: IOptions) {
+    const { projectID, name } = options;
+    const output = path.join(this._dir(projectID), name);
+
+    await fs.ensureFile(output);
     const release = await lockfile.lock(output);
     const writeStream = fs.createWriteStream(output);
-    stream.pipe(writeStream);
-    return new Promise((resolve) => {
+    file.pipe(writeStream);
+    return new Promise((resolve, reject) => {
+      writeStream.on("error", async (e) => {
+        await release();
+        reject(e);
+      });
       writeStream.on("finish", async () => {
         await release();
         resolve();

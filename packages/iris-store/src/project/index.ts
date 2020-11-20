@@ -7,9 +7,9 @@ const appstaticAPI = new API();
 export const load = createAsyncThunk(
   "project/load",
   async (projectID: string, _thunkAPI) => {
-    const request = appstaticAPI.endpoint("/api/projects/:id", {
-      path: {
-        id: projectID,
+    const request = appstaticAPI.endpoint("/api/project", {
+      query: {
+        projectID: projectID,
       },
     });
     return await request.do();

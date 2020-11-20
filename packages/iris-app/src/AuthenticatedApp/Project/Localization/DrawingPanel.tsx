@@ -5,6 +5,7 @@ import { selectCategory, selectTool } from "@iris/store/dist/project/ui";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 
+import API from "@iris/api";
 import { Canvas, CrossHair, EmptySet } from "@iris/components";
 import {
   RootState,
@@ -146,6 +147,8 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+const api = new API();
+
 function CanvasWrapper({
   activeImage,
   activeColor,
@@ -155,13 +158,18 @@ function CanvasWrapper({
 }: any) {
   const classes = useStyles();
 
+  const imageUrl = api.endpoint("/api/images/:imageID", {
+    path: { imageID: activeImage.id },
+    query: { projectID: projectID },
+  }).uri;
+
   switch (activeImage?.status) {
     case "success":
       return (
         <CrossHair color={activeColor} active={selectedTool === BOX}>
           <Canvas
             mode={selectedTool === "move" ? "move" : "draw"}
-            image={`/api/projects/${projectID}/images/${activeImage.id}`}
+            image={imageUrl}
             tool={selectedTool}
             shapes={shapes}
             render={window.IRIS.tools
