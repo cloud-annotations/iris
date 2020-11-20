@@ -34,7 +34,14 @@ class ProjectProvider {
   }
 
   async getProjects() {
-    return [];
+    const x = await fs.readdir(process.cwd(), { withFileTypes: true });
+    return x
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => ({
+        id: dirent.name,
+        name: dirent.name,
+        created: new Date(),
+      }));
   }
 
   async getProject(options: Pick<IOptions, "projectID">) {
@@ -52,11 +59,15 @@ class ProjectProvider {
       },
     };
 
-    const annotationsString = await fs.readFile(
-      path.join(this._dir(projectID), "_annotations.json"),
-      "utf-8"
-    );
-    project.annotations = JSON.parse(annotationsString);
+    try {
+      const annotationsString = await fs.readFile(
+        path.join(this._dir(projectID), "_annotations.json"),
+        "utf-8"
+      );
+      project.annotations = JSON.parse(annotationsString);
+    } catch {
+      // we don't care if there's no annotations file.
+    }
 
     const files = await fs.readdir(this._dir(projectID));
 

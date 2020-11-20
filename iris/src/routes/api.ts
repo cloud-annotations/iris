@@ -34,7 +34,7 @@ function ensureProjectMode() {
  * GET /api/mode
  */
 router.get("/mode", async (_req, res) => {
-  res.json({ singleDocument: process.env.SINGLE_DOCUMENT_MODE });
+  res.json({ singleDocument: !!process.env.SINGLE_DOCUMENT_MODE });
 });
 
 /**

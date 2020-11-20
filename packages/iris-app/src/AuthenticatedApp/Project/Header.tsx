@@ -3,6 +3,7 @@ import React from "react";
 import { addAnnotations } from "@iris/store/dist/project/data";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
+import { Link, useLocation } from "react-router-dom";
 // @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
@@ -81,6 +82,8 @@ interface Props {
 function Header({ name, saving }: Props) {
   const classes = useStyles();
 
+  const { pathname } = useLocation();
+
   const dispatch = useDispatch();
 
   const selected = useSelector(visibleSelectedImagesSelector);
@@ -155,18 +158,36 @@ function Header({ name, saving }: Props) {
 
   return (
     <div className={classes.root}>
-      <div className={classes.projectButton}>
-        <svg className={classes.projectIcon} viewBox="0 0 200 200">
-          <rect fill="white" x="35" y="35" width="20" height="20" />
-          <rect fill="white" x="145" y="35" width="20" height="20" />
-          <rect fill="white" x="35" y="145" width="20" height="20" />
-          <rect fill="white" x="145" y="145" width="20" height="20" />
-          <rect fill="white" x="45" y="55" width="10" height="90" />
-          <rect fill="white" x="145" y="55" width="10" height="90" />
-          <rect fill="white" x="55" y="45" width="90" height="10" />
-          <rect fill="white" x="55" y="145" width="90" height="10" />
-        </svg>
-      </div>
+      {pathname.startsWith("/projects/") ? (
+        <Link to="/projects">
+          <div className={classes.projectButton}>
+            <svg className={classes.projectIcon} viewBox="0 0 200 200">
+              <rect fill="white" x="35" y="35" width="20" height="20" />
+              <rect fill="white" x="145" y="35" width="20" height="20" />
+              <rect fill="white" x="35" y="145" width="20" height="20" />
+              <rect fill="white" x="145" y="145" width="20" height="20" />
+              <rect fill="white" x="45" y="55" width="10" height="90" />
+              <rect fill="white" x="145" y="55" width="10" height="90" />
+              <rect fill="white" x="55" y="45" width="90" height="10" />
+              <rect fill="white" x="55" y="145" width="90" height="10" />
+            </svg>
+          </div>
+        </Link>
+      ) : (
+        <div className={classes.projectButton}>
+          <svg className={classes.projectIcon} viewBox="0 0 200 200">
+            <rect fill="white" x="35" y="35" width="20" height="20" />
+            <rect fill="white" x="145" y="35" width="20" height="20" />
+            <rect fill="white" x="35" y="145" width="20" height="20" />
+            <rect fill="white" x="145" y="145" width="20" height="20" />
+            <rect fill="white" x="45" y="55" width="10" height="90" />
+            <rect fill="white" x="145" y="55" width="10" height="90" />
+            <rect fill="white" x="55" y="45" width="90" height="10" />
+            <rect fill="white" x="55" y="145" width="90" height="10" />
+          </svg>
+        </div>
+      )}
+
       <div className={classes.project}>
         <div className={classes.projectName}>{name}</div>
         <div className={classes.menus}>

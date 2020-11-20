@@ -159,7 +159,7 @@ function CanvasWrapper({
   const classes = useStyles();
 
   const imageUrl = api.endpoint("/api/images/:imageID", {
-    path: { imageID: activeImage.id },
+    path: { imageID: activeImage?.id },
     query: { projectID: projectID },
   }).uri;
 
