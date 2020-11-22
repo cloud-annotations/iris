@@ -9,6 +9,8 @@ import {
   Theme,
 } from "@material-ui/core";
 
+import { showConfirmDialog } from "@iris/components";
+
 function CreateIcon(props: SvgIconProps) {
   return (
     <SvgIcon {...props} viewBox="0 0 32 32">
@@ -184,6 +186,9 @@ function Connections() {
           // variant="contained"
           // color="secondary"
           endIcon={<CreateIcon />}
+          onClick={async () => {
+            await showConfirmDialog({ title: "Bloop", primary: "Mkay" });
+          }}
         >
           Add a connection
         </Button>
