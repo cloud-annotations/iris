@@ -38,7 +38,7 @@ module.exports = {
             position: "before",
           },
           {
-            pattern: "@iris/*",
+            pattern: "@iris/**",
             group: "external",
             position: "after",
           },

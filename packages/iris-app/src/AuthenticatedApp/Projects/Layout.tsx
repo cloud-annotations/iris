@@ -3,7 +3,8 @@ import React from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 
 const appBarHeight = 64;
-const leftPanelWidth = 256;
+// const leftPanelWidth = 256;
+const leftPanelWidth = 240;
 const divider = 1;
 
 interface Props {
