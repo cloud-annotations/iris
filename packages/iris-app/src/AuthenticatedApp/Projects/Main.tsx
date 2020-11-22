@@ -43,13 +43,13 @@ function getComparator(order: Order, orderBy: any): (a: any, b: any) => number {
 }
 
 function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
-  const stabilizedThis = array.map((el, index) => [el, index] as any);
+  const stabilizedThis = array.map((el, index) => ({ el, index }));
   stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
+    const order = comparator(a.el, b.el);
     if (order !== 0) return order;
-    return a[1] - b[1];
+    return a.index - b.index;
   });
-  return stabilizedThis.map((el) => el[0]);
+  return stabilizedThis.map(({ el }) => el);
 }
 
 interface HeadCell {
