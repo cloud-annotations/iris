@@ -6,6 +6,7 @@ import { RootState } from "..";
 
 const appstaticAPI = new API();
 
+let previous: AbortController;
 export const loadProjects = createAsyncThunk(
   "projects/loadProjects",
   async (connectionID: string, thunkAPI) => {
@@ -19,7 +20,16 @@ export const loadProjects = createAsyncThunk(
         connectionID: connection.id,
       },
     });
-    return await request.do();
+
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    if (previous) {
+      previous.abort();
+    }
+    previous = controller;
+
+    return await fetch(request.uri, { signal }).then((r) => r.json());
   }
 );
 
@@ -51,10 +61,13 @@ const projectSlice = createSlice({
         projects: payload,
       };
     });
-    builder.addCase(loadProjects.rejected, (_state, { payload }) => {
+    builder.addCase(loadProjects.rejected, (state, action) => {
+      if (action.error.name === "AbortError") {
+        return state;
+      }
       return {
         status: "error",
-        error: payload,
+        error: action.error,
         projects: [],
       };
     });

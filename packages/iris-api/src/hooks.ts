@@ -26,28 +26,6 @@ export function useMode() {
   };
 }
 
-export function useConnections() {
-  const getConnections = appstaticAPI.endpoint("/api/connections");
-  const { data, mutate, error } = useSWR<any[]>(getConnections.key, fetcher);
-
-  return {
-    connections: data,
-    error,
-    mutate,
-  };
-}
-
-export function useProjects() {
-  const getProjects = appstaticAPI.endpoint("/api/projects");
-  const { data, mutate, error } = useSWR<any[]>(getProjects.key, fetcher);
-
-  return {
-    projects: data,
-    error,
-    mutate,
-  };
-}
-
 export function useProject(id: string) {
   const getProject = appstaticAPI.endpoint("/api/project", {
     query: { projectID: id },
