@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import {
   Button,
@@ -8,8 +8,11 @@ import {
   SvgIconProps,
   Theme,
 } from "@material-ui/core";
+import { useDispatch, useSelector } from "react-redux";
 
 import { showConfirmDialog } from "@iris/components";
+import { selectedConnectionSelector } from "@iris/store";
+import { select } from "@iris/store/dist/connections";
 
 function CreateIcon(props: SvgIconProps) {
   return (
@@ -125,17 +128,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const connections = [
-  { name: "File System", type: "file" },
-  { name: "bee-travels", type: "cos" },
-  { name: "Cloud Object Storage-nick", type: "cos" },
-  { name: "Nick B", type: "random" },
-];
-
-function Connections() {
+function Connections({ connections }: any) {
   const classes = useStyles();
 
-  const [selected, setSelected] = useState<string>("bee-travels");
+  const dispatch = useDispatch();
+  const selected = useSelector(selectedConnectionSelector);
 
   return (
     <div className={classes.root}>
@@ -155,19 +152,21 @@ function Connections() {
       {connections.map((connection) => (
         <div
           onClick={() => {
-            setSelected(connection.name);
+            dispatch(select(connection.id));
           }}
           className={
             classes.item +
             " " +
-            (connection.name === selected ? classes.selected : "")
+            (connection.id === selected ? classes.selected : "")
           }
         >
           <div className={classes.icon}>
-            {connection.type === "file" ? (
-              <FileSystemIcon />
-            ) : connection.type === "cos" ? (
-              <COSIcon />
+            {connection.icon !== undefined ? (
+              <img
+                alt=""
+                height="20px"
+                src={`data:image/svg+xml;utf8,${connection.icon}`}
+              />
             ) : (
               <ConnectionIcon />
             )}

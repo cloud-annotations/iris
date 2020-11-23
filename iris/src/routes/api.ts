@@ -1,11 +1,89 @@
 import Busboy from "busboy";
 import { Request, Router } from "express";
+import fs from "fs-extra";
 
-import ProjectProvider from "../plugins/ProjectProvider";
+////////////////////////////////////////////////////////////////////////////////
+interface IImage {
+  id: string;
+  date: string;
+}
+
+interface IProject {
+  id: string;
+  name: string;
+  created?: Date;
+  modified?: Date;
+  opened?: Date;
+  labels?: string[];
+  images?: number;
+}
+
+interface IProjectDetails {
+  id?: string;
+  name: string;
+  created: Date;
+  annotations: {
+    version: string;
+    labels: string[];
+    annotations: {}; // TODO
+    images: IImage[];
+  };
+}
+
+interface IOptions {
+  name: string;
+  projectID?: string;
+}
+
+interface IConnection {
+  id: string;
+  name: string;
+  icon?: string;
+}
+
+interface Provider {
+  getConnections: () => Promise<IConnection[]>;
+  getProjects: ({
+    connectionID,
+  }: {
+    connectionID: string;
+  }) => Promise<IProject[]>;
+  getProject: (
+    options: Pick<IOptions, "projectID">
+  ) => Promise<IProjectDetails>;
+  persist: (annotations: any, options: Pick<IOptions, "projectID">) => any;
+  getImage: (
+    imageID: string,
+    options: Pick<IOptions, "projectID">
+  ) => Promise<fs.ReadStream>;
+  deleteImage: (imageID: string, options: Pick<IOptions, "projectID">) => any;
+  saveImage: (file: NodeJS.ReadableStream, options: IOptions) => any;
+}
+
+// TODO: pull from package.json
+let extensions = [
+  "../plugins/iris-server-plugin-file-system",
+  "../plugins/iris-server-plugin-cos",
+];
+let providers: { [key: string]: Provider } = {};
+const iris = {
+  providers: {
+    register: ({ id, provider }: any) => {
+      providers[id] = provider;
+    },
+  },
+};
+for (const extension of extensions) {
+  try {
+    const provider = require(extension).default;
+    provider.activate(iris);
+  } catch (e) {
+    console.log(e);
+  }
+}
+////////////////////////////////////////////////////////////////////////////////
 
 const router = Router();
-
-const provider = new ProjectProvider();
 
 function getProjectID(req: Request) {
   const { projectID } = req.query;
@@ -24,6 +102,17 @@ function getProjectID(req: Request) {
   );
 }
 
+function requiredQuery(req: Request, param: string) {
+  const x = req.query[param];
+  if (x === undefined) {
+    throw new Error(`${param} is undefined`);
+  }
+  if (typeof x === "string") {
+    return x;
+  }
+  throw new Error(`${param} "${x}" of type "${typeof x}" is not allowed`);
+}
+
 function ensureProjectMode() {
   if (process.env.SINGLE_DOCUMENT_MODE) {
     throw new Error("Projects not available in single document mode");
@@ -38,12 +127,31 @@ router.get("/mode", async (_req, res) => {
 });
 
 /**
- * GET /api/projects
+ * GET /api/connections
  */
-router.get("/projects", async (_req, res, next) => {
+router.get("/connections", async (_req, res, next) => {
   try {
     ensureProjectMode();
-    const projects = await provider.getProjects();
+    let connections: IConnection[] = [];
+    for (const provider of Object.values(providers)) {
+      const c = await provider.getConnections();
+      connections.push(...c);
+    }
+    res.json(connections);
+  } catch (e) {
+    next(e);
+  }
+});
+
+/**
+ * GET /api/projects
+ */
+router.get("/projects", async (req, res, next) => {
+  try {
+    ensureProjectMode();
+    const providerID = requiredQuery(req, "providerID");
+    const connectionID = requiredQuery(req, "connectionID");
+    const projects = await providers[providerID].getProjects({ connectionID });
     res.json(projects);
   } catch (e) {
     next(e);
@@ -57,7 +165,7 @@ router.get("/projects", async (_req, res, next) => {
 router.get("/project", async (req, res, next) => {
   try {
     const projectID = getProjectID(req);
-    const project = await provider.getProject({ projectID });
+    const project = await providers["file-system"].getProject({ projectID });
     res.json(project);
   } catch (e) {
     next(e);
@@ -71,7 +179,7 @@ router.get("/project", async (req, res, next) => {
 router.put("/project", async (req, res, next) => {
   try {
     const projectID = getProjectID(req);
-    await provider.persist(req.body, { projectID });
+    await providers["file-system"].persist(req.body, { projectID });
     res.sendStatus(200);
   } catch (e) {
     next(e);
@@ -88,7 +196,9 @@ router.get("/images/:imageID", async (req, res, next) => {
 
   try {
     const projectID = getProjectID(req);
-    const image = await provider.getImage(imageID, { projectID });
+    const image = await providers["file-system"].getImage(imageID, {
+      projectID,
+    });
 
     image.on("error", (e) => {
       throw e;
@@ -111,7 +221,7 @@ router.delete("/images/:imageID", async (req, res, next) => {
 
   try {
     const projectID = getProjectID(req);
-    await provider.deleteImage(imageID, { projectID });
+    await providers["file-system"].deleteImage(imageID, { projectID });
     res.sendStatus(200);
   } catch (e) {
     next(e);
@@ -133,7 +243,7 @@ router.post("/images", async (req, res, next) => {
     });
 
     busboy.on("file", async (name, file) => {
-      await provider.saveImage(file, { name, projectID });
+      await providers["file-system"].saveImage(file, { name, projectID });
       res.sendStatus(200);
     });
 

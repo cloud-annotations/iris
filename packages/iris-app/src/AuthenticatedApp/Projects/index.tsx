@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useProjects } from "@iris/api";
+import { useProjects } from "@iris/store";
 import { IProject } from "@iris/store/dist/project";
 
 import Connections from "./Connections";
@@ -10,26 +10,32 @@ import Main from "./Main";
 
 interface ProjectProps {
   projects: IProject[];
+  connections: any[];
 }
 
-function ProjectsView({ projects }: ProjectProps) {
+function ProjectsView({ projects, connections }: ProjectProps) {
   return (
     <Layout
       header={<Header />}
-      left={<Connections />}
+      left={<Connections connections={connections} />}
       main={<Main projects={projects} />}
     />
   );
 }
 
 function ProjectsController() {
-  const { projects, error } = useProjects();
+  // const { connections, error: err2 } = useConnections();
+  // console.log(connections);
 
-  if (projects !== undefined) {
-    return <ProjectsView projects={projects} />;
+  const { projects, connections } = useProjects();
+
+  if (connections.data !== undefined && projects.data !== undefined) {
+    return (
+      <ProjectsView projects={projects.data} connections={connections.data} />
+    );
   }
 
-  if (error === undefined) {
+  if (connections.status === "error" && projects.status !== "error") {
     return <div>LOADING...</div>;
   }
 

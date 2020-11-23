@@ -11,6 +11,7 @@ import { Manager } from "socket.io-client";
 
 import API from "@iris/api";
 
+import connections, { loadConnections } from "./connections";
 import project, { decrementSaving, incrementSaving, load } from "./project";
 import data, {
   addImages,
@@ -19,6 +20,7 @@ import data, {
   removeImages,
 } from "./project/data";
 import ui, { setRoomSize } from "./project/ui";
+import projects, { loadProjects } from "./projects";
 
 const manager = new Manager();
 const socket = manager.socket("/");
@@ -74,7 +76,7 @@ const persist: Middleware<{}, {}> = (storeAPI) => (next) => (action) => {
 
 const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(persist),
-  reducer: { project, ui, data },
+  reducer: { connections, projects, project, ui, data },
   // @ts-ignore
   devTools: process.env.NODE_ENV !== "production",
 });
@@ -151,6 +153,54 @@ export function useProject(id: string) {
   }, [dispatch, id]);
 
   return useSelector((state: RootState) => state.project);
+}
+
+export function selectedConnectionSelector(state: RootState) {
+  if (state.connections.selected) {
+    return state.connections.selected;
+  }
+  if (state.connections.connections.length > 0) {
+    return state.connections.connections[0].id;
+  }
+  return;
+}
+
+export function useProjects() {
+  const dispatch = useDispatch();
+
+  const connectionID = useSelector(selectedConnectionSelector);
+
+  const connectionsStatus = useSelector(
+    (state: RootState) => state.connections.status
+  );
+  const connections = useSelector(
+    (state: RootState) => state.connections.connections
+  );
+  const projectsStatus = useSelector(
+    (state: RootState) => state.projects.status
+  );
+  const projects = useSelector((state: RootState) => state.projects.projects);
+
+  useEffect(() => {
+    dispatch(loadConnections());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (connectionID) {
+      dispatch(loadProjects(connectionID));
+    }
+  }, [dispatch, connectionID, connections]);
+
+  return {
+    connections: {
+      status: connectionsStatus,
+      data: connections,
+    },
+    projects: {
+      status: projectsStatus,
+      data: projects,
+    },
+  };
 }
 
 export function visibleImagesSelector(state: RootState) {

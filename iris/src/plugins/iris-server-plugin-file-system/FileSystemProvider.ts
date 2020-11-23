@@ -25,12 +25,26 @@ interface IOptions {
   projectID?: string;
 }
 
-class ProjectProvider {
+class FileSystemProvider {
   private _dir(projectID: string | undefined) {
     if (projectID) {
       return path.join(process.cwd(), projectID);
     }
     return process.cwd();
+  }
+
+  async getConnections() {
+    return Promise.resolve([
+      {
+        id: "file-system",
+        providerID: "file-system",
+        name: "File System",
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" version="1.2" viewBox="0 0 32 32" fill="white">
+          <rect x="14" y="19" width="4" height="2" />
+          <path d="M6,2V28a2,2,0,0,0,2,2H24a2,2,0,0,0,2-2V2ZM24,28H8V16H24Zm0-14H8V10H24ZM8,8V4H24V8Z" />
+        </svg>`,
+      },
+    ]);
   }
 
   async getProjects() {
@@ -68,7 +82,6 @@ class ProjectProvider {
             stats.created = s.birthtime;
             stats.modified = s.mtime;
             stats.opened = s.atime;
-            console.log(s);
           } catch {}
 
           return {
@@ -172,4 +185,4 @@ class ProjectProvider {
   }
 }
 
-export default ProjectProvider;
+export default FileSystemProvider;
