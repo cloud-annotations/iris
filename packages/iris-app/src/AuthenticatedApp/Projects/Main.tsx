@@ -21,8 +21,26 @@ interface Props {
 
 interface Data {
   name: string;
-  created: string;
+  images?: number;
+  labels?: string[];
+  created?: Date;
+  modified?: Date;
 }
+
+const months = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -52,21 +70,23 @@ function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
   return stabilizedThis.map(({ el }) => el);
 }
 
+const cellSize: { [key: string]: number } = {
+  name: -1,
+  labels: 350,
+  images: 140,
+  modified: 200,
+};
+
 interface HeadCell {
-  disablePadding: boolean;
   id: keyof Data;
   label: string;
-  numeric: boolean;
 }
 
 const headCells: HeadCell[] = [
-  {
-    id: "name",
-    numeric: false,
-    disablePadding: true,
-    label: "Name",
-  },
-  { id: "created", numeric: false, disablePadding: true, label: "Created" },
+  { id: "name", label: "Name" },
+  { id: "labels", label: "Labels" },
+  { id: "images", label: "Images" },
+  { id: "modified", label: "Modified" },
 ];
 
 interface EnhancedTableProps {
@@ -94,8 +114,17 @@ function EnhancedTableHead(props: EnhancedTableProps) {
           <TableCell
             className={classes.tableHeadCell}
             key={headCell.id}
-            align={headCell.numeric ? "right" : "left"}
-            padding={headCell.disablePadding ? "none" : "default"}
+            style={
+              cellSize[headCell.id] >= 0
+                ? {
+                    flexGrow: 0,
+                    flexShrink: 0,
+                    flexBasis: cellSize[headCell.id],
+                  }
+                : { flexGrow: 1, flexShrink: 1, flexBasis: "auto" }
+            }
+            align="left"
+            padding="none"
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -107,6 +136,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             </TableSortLabel>
           </TableCell>
         ))}
+        <TableCell padding="none" style={{ width: 16 }}></TableCell>
       </TableRow>
     </TableHead>
   );
@@ -149,10 +179,7 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: "0 8px",
       display: "flex",
       alignItems: "center",
-      flex: 1,
-      "&:last-child": {
-        paddingRight: 16,
-      },
+
       "& .MuiTableSortLabel-active": {
         color: "rgba(255, 255, 255, 0.76)",
       },
@@ -194,7 +221,6 @@ const useStyles = makeStyles((theme: Theme) =>
       },
     },
     tableCell: {
-      flex: 1,
       display: "flex",
       alignItems: "center",
       padding: "0 8px",
@@ -207,13 +233,44 @@ const useStyles = makeStyles((theme: Theme) =>
       right: 0,
       backgroundColor: "var(--bg)",
     },
+    tags: {
+      display: "flex",
+    },
+    tagOverflow: {
+      fontSize: 12,
+      marginRight: 8,
+      padding: "4px 4px",
+      color: "#ffffff",
+      // backgroundColor: "#273142",
+      // backgroundColor: "#263245",
+      // backgroundColor: "#212e46",
+      backgroundColor: "#263040",
+
+      borderRadius: "6px",
+    },
+    tag: {
+      fontSize: 12,
+      marginRight: 8,
+      padding: "4px 8px",
+      color: "#ffffff",
+      // backgroundColor: "#273142",
+      // backgroundColor: "#263245",
+      // backgroundColor: "#212e46",
+      backgroundColor: "#263040",
+
+      borderRadius: "20px",
+    },
   })
 );
 
+function formatDate(d: Date) {
+  return `${months[d.getMonth()]} ${d.getDate()}, ${d.getUTCFullYear()}`;
+}
+
 function EnhancedTable({ rows }: { rows: Data[] }) {
   const classes = useStyles();
-  const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<keyof Data>("created");
+  const [order, setOrder] = React.useState<Order>("desc");
+  const [orderBy, setOrderBy] = React.useState<keyof Data>("modified");
   const [selected, setSelected] = React.useState<string[]>([]);
 
   const history = useHistory();
@@ -284,6 +341,15 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
                   >
                     <TableCell
                       className={classes.tableCell}
+                      style={
+                        cellSize.name >= 0
+                          ? {
+                              flexGrow: 0,
+                              flexShrink: 0,
+                              flexBasis: cellSize.name,
+                            }
+                          : { flexGrow: 1, flexShrink: 1, flexBasis: "auto" }
+                      }
                       component="th"
                       id={labelId}
                       scope="row"
@@ -291,8 +357,59 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
                     >
                       {row.name}
                     </TableCell>
-                    <TableCell className={classes.tableCell} align="left">
-                      {row.created}
+                    <TableCell
+                      style={
+                        cellSize.labels >= 0
+                          ? {
+                              flexGrow: 0,
+                              flexShrink: 0,
+                              flexBasis: cellSize.labels,
+                            }
+                          : { flexGrow: 1, flexShrink: 1, flexBasis: "auto" }
+                      }
+                      className={classes.tableCell}
+                      align="left"
+                    >
+                      {row.labels && row.labels.length > 0 ? (
+                        <div className={classes.tags}>
+                          {row.labels.map((l) => (
+                            <div className={classes.tag}>{l}</div>
+                          ))}
+                          {/* <div className={classes.tagOverflow}>+2</div> */}
+                        </div>
+                      ) : (
+                        "—"
+                      )}
+                    </TableCell>
+                    <TableCell
+                      style={
+                        cellSize.images >= 0
+                          ? {
+                              flexGrow: 0,
+                              flexShrink: 0,
+                              flexBasis: cellSize.images,
+                            }
+                          : { flexGrow: 1, flexShrink: 1, flexBasis: "auto" }
+                      }
+                      className={classes.tableCell}
+                      align="left"
+                    >
+                      {row.images ? row.images.toLocaleString() : "—"}
+                    </TableCell>
+                    <TableCell
+                      style={
+                        cellSize.modified >= 0
+                          ? {
+                              flexGrow: 0,
+                              flexShrink: 0,
+                              flexBasis: cellSize.modified,
+                            }
+                          : { flexGrow: 1, flexShrink: 1, flexBasis: "auto" }
+                      }
+                      className={classes.tableCell}
+                      align="left"
+                    >
+                      {row.modified ? formatDate(row.modified) : "—"}
                     </TableCell>
                   </TableRow>
                 );
@@ -309,36 +426,22 @@ function Main({ projects }: Props) {
   return (
     <EnhancedTable
       rows={[
-        ...projects,
-        { name: "boop1", created: "bop" },
-        { name: "boop2", created: "bop" },
-        { name: "boop3", created: "bop" },
-        { name: "boop4", created: "bop" },
-        { name: "boop5", created: "bop" },
-        { name: "boop6", created: "bop" },
-        { name: "boop7", created: "bop" },
-        { name: "boop8", created: "bop" },
-        { name: "boop9", created: "bop" },
-        { name: "213412r", created: "bop" },
-        { name: "453655435765", created: "bop" },
-        { name: "bofsop", created: "bop" },
-        { name: "dasjor822", created: "bop" },
-        { name: "boa6sdop", created: "bop" },
-        { name: "boasfop", created: "bop" },
-        { name: "boq32553eop", created: "bop" },
-        { name: "bodf345op", created: "bop" },
-        { name: "bo435ewrop", created: "bop" },
-        { name: "bosadasop", created: "bop" },
-        { name: "bo234rfop", created: "bop" },
-        { name: "borwefdop", created: "bop" },
-        { name: "bsdfoop", created: "bop" },
-        { name: "boo2p", created: "bop" },
-        { name: "bowdf2op", created: "bop" },
-        { name: "bo2efop", created: "bop" },
-        { name: "boc345dsdsgop", created: "bop" },
-        { name: "boe3rop", created: "bop" },
-        { name: "boo456trp", created: "bop" },
-        { name: "boe3rfop", created: "bop" },
+        ...projects.map((p) => ({
+          name: p.name,
+          labels: p.labels,
+          images: p.images,
+          created: p.created ? new Date(p.created) : undefined,
+          modified: p.modified ? new Date(p.modified) : undefined,
+        })),
+        // { name: "boop1", created: new Date() },
+        // { name: "boop2", created: new Date() },
+        // { name: "boop3", created: new Date() },
+        // { name: "boop4", created: new Date() },
+        // { name: "boop5", created: new Date() },
+        // { name: "boop6", created: new Date() },
+        // { name: "boop7", created: new Date() },
+        // { name: "boop8", created: new Date() },
+        // { name: "boop9", created: new Date() },
       ]}
     />
   );

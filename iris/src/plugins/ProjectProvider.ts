@@ -35,13 +35,53 @@ class ProjectProvider {
 
   async getProjects() {
     const x = await fs.readdir(process.cwd(), { withFileTypes: true });
-    return x
-      .filter((dirent) => dirent.isDirectory())
-      .map((dirent) => ({
-        id: dirent.name,
-        name: dirent.name,
-        created: new Date(),
-      }));
+
+    return await Promise.all(
+      x
+        .filter((dir) => dir.isDirectory())
+        .map(async (dir) => {
+          const stats: { created?: Date; modified?: Date; opened?: Date } = {
+            created: undefined,
+            modified: undefined,
+            opened: undefined,
+          };
+
+          const files = await fs.readdir(dir.name);
+
+          const images = files.filter(
+            (f) =>
+              f.toLowerCase().endsWith(".jpg") ||
+              f.toLowerCase().endsWith(".jpeg")
+          );
+
+          let labels: string[] = [];
+          try {
+            const a = await fs.readFile(
+              path.join(dir.name, "_annotations.json"),
+              "utf-8"
+            );
+            labels = JSON.parse(a).labels;
+          } catch {}
+
+          try {
+            const s = await fs.stat(path.join(dir.name, "_annotations.json"));
+            stats.created = s.birthtime;
+            stats.modified = s.mtime;
+            stats.opened = s.atime;
+            console.log(s);
+          } catch {}
+
+          return {
+            id: dir.name,
+            name: dir.name,
+            created: stats.created,
+            modified: stats.modified,
+            opened: stats.opened,
+            labels: labels,
+            images: images.length,
+          };
+        })
+    );
   }
 
   async getProject(options: Pick<IOptions, "projectID">) {

@@ -1,7 +1,10 @@
 export interface IProject {
   id: string;
   name: string;
-  created: string;
+  images?: number;
+  labels?: string[];
+  created?: string;
+  modified?: string;
 }
 
 export interface IAnnotations {
