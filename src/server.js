@@ -199,12 +199,12 @@ const setToken = (res, json) => {
   res
     .cookie('access_token', access_token, {
       expires: new Date(expiration * 1000),
-      sameSite: 'strict',
+      sameSite: 'lax',
       secure: secure,
     })
     .cookie('refresh_token', refresh_token, {
       expires: new Date(expiration * 1000),
-      sameSite: 'strict',
+      sameSite: 'lax',
       secure: secure,
     })
 }
