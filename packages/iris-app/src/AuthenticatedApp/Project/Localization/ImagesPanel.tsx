@@ -1,17 +1,8 @@
 import React, { useEffect, useRef, useCallback } from "react";
 
-import { deleteCategory, editImage } from "@iris/store/dist/project/data";
-import {
-  filterByLabel,
-  selectImages,
-  showAllImages,
-  showLabeledImages,
-  showUnlabeledImages,
-  toggleSelectedImage,
-} from "@iris/store/dist/project/ui";
 import { useDispatch, useSelector } from "react-redux";
 
-import API from "@iris/api";
+import { endpoint } from "@iris/api";
 import {
   HorizontalListController,
   ImageTile,
@@ -22,6 +13,15 @@ import {
   visibleImagesSelector,
   visibleSelectedImagesSelector,
 } from "@iris/store";
+import { deleteCategory, editImage } from "@iris/store/dist/project/data";
+import {
+  filterByLabel,
+  selectImages,
+  showAllImages,
+  showLabeledImages,
+  showUnlabeledImages,
+  toggleSelectedImage,
+} from "@iris/store/dist/project/ui";
 
 import styles from "./ImagesPanel.module.css";
 
@@ -57,8 +57,6 @@ const useBlockSwipeBack = (ref: any) => {
     };
   }, [ref]);
 };
-
-const api = new API();
 
 function ImagesPanel() {
   const dispatch = useDispatch();
@@ -96,12 +94,10 @@ function ImagesPanel() {
   const cells = images.map((i) => (
     <ImageTile
       status={i.status}
-      url={
-        api.endpoint("/api/images/:imageID", {
-          path: { imageID: i.id },
-          query: { projectID: projectID },
-        }).uri
-      }
+      url={endpoint("/images/:imageID", {
+        path: { imageID: i.id },
+        query: { projectID: projectID },
+      })}
       targets={
         filter !== undefined
           ? annotations[i.id]

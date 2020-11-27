@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-import { deleteAnnotations } from "@iris/store/dist/project/data";
-import { selectCategory, selectTool } from "@iris/store/dist/project/ui";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 
-import API from "@iris/api";
+import { endpoint } from "@iris/api";
 import { Canvas, CrossHair, EmptySet } from "@iris/components";
 import {
   RootState,
   selectedCategorySelector,
   activeImageSelector,
 } from "@iris/store";
+import { deleteAnnotations } from "@iris/store/dist/project/data";
+import { selectCategory, selectTool } from "@iris/store/dist/project/ui";
 
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
@@ -147,8 +147,6 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const api = new API();
-
 function CanvasWrapper({
   activeImage,
   activeColor,
@@ -158,10 +156,10 @@ function CanvasWrapper({
 }: any) {
   const classes = useStyles();
 
-  const imageUrl = api.endpoint("/api/images/:imageID", {
+  const imageUrl = endpoint("/images/:imageID", {
     path: { imageID: activeImage?.id },
     query: { projectID: projectID },
-  }).uri;
+  });
 
   switch (activeImage?.status) {
     case "success":

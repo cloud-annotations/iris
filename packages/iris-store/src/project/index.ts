@@ -1,18 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import API from "@iris/api";
-
-const appstaticAPI = new API();
+import { api } from "@iris/api";
 
 export const load = createAsyncThunk(
   "project/load",
   async (projectID: string, _thunkAPI) => {
-    const request = appstaticAPI.endpoint("/api/project", {
+    return await api.get("/project", {
       query: {
         projectID: projectID,
       },
     });
-    return await request.do();
   }
 );
 

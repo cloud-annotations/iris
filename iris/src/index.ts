@@ -8,9 +8,8 @@ import gzip from "./middleware/gzip";
 import logger from "./middleware/logger";
 import security from "./middleware/security";
 import multiuser from "./multiuser";
-import apiRouter from "./routes/api";
-import authRouter from "./routes/auth";
 import spaRouter from "./routes/spa";
+import v2Router from "./routes/v2";
 
 const app = express();
 const server = http.createServer(app);
@@ -26,8 +25,7 @@ app.use(security());
 app.use(logger());
 app.use(express.json());
 
-app.use("/api", apiRouter);
-app.use("/auth", authRouter);
+app.use("/api/v2", v2Router);
 app.use("/", spaRouter);
 
 app.use(notFoundHandler);

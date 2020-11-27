@@ -16,6 +16,8 @@ function ProjectController() {
   const { id } = useParams<{ id: string }>();
   const { status } = useProject(id);
 
+  console.log("HOW??!?!?!");
+
   switch (status) {
     case "idle":
     case "pending":

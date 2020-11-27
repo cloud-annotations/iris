@@ -1,10 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import API from "@iris/api";
+import { api } from "@iris/api";
 
 import { RootState } from "..";
-
-const appstaticAPI = new API();
 
 let previous: AbortController;
 export const loadProjects = createAsyncThunk(
@@ -14,12 +12,6 @@ export const loadProjects = createAsyncThunk(
     const connection = state.connections.connections.find(
       (c) => c.id === connectionID
     );
-    const request = appstaticAPI.endpoint("/api/projects", {
-      query: {
-        providerID: connection.providerID,
-        connectionID: connection.id,
-      },
-    });
 
     const controller = new AbortController();
     const signal = controller.signal;
@@ -29,7 +21,13 @@ export const loadProjects = createAsyncThunk(
     }
     previous = controller;
 
-    return await fetch(request.uri, { signal }).then((r) => r.json());
+    return await api.get("/projects", {
+      signal,
+      query: {
+        providerID: connection.providerID,
+        connectionID: connection.id,
+      },
+    });
   }
 );
 

@@ -1,6 +1,8 @@
 import React, { Suspense, lazy } from "react";
 
-import { useAuthentication } from "@iris/api";
+import useSWR from "swr";
+
+import { fetcher, endpoint } from "@iris/api";
 
 // This will result in `<link rel="prefetch" href="login-modal-chunk.js">` being
 // appended in the head of the page, which will instruct the browser to prefetch
@@ -11,7 +13,12 @@ const AuthenticatedApp = React.lazy(() =>
 const UnauthenticatedApp = lazy(() => import("./UnauthenticatedApp"));
 
 function App() {
-  const authenticated = useAuthentication();
+  const { error } = useSWR(endpoint("/auth/status"), fetcher);
+
+  // NOTE: pretends to be logged out if it returns any kind of error.
+  // const authenticated = error?.status !== 401;
+  const authenticated = error?.status === undefined;
+
   return (
     <Suspense fallback={<div>loading...</div>}>
       {authenticated ? <AuthenticatedApp /> : <UnauthenticatedApp />}

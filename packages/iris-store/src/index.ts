@@ -9,7 +9,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Manager } from "socket.io-client";
 
-import API from "@iris/api";
+import { api } from "@iris/api";
 
 import connections, { loadConnections } from "./connections";
 import project, { decrementSaving, incrementSaving, load } from "./project";
@@ -35,9 +35,7 @@ socket.on("patch", (res: any) => {
 
 socket.emit("join", { image: "boop" });
 
-const api = new API();
-
-const persist: Middleware<{}, {}> = (storeAPI) => (next) => (action) => {
+const persist: Middleware<{}, {}> = (storeAPI) => (next) => async (action) => {
   let result;
   if (action.type === "socket") {
     result = next(action.action);
@@ -53,23 +51,21 @@ const persist: Middleware<{}, {}> = (storeAPI) => (next) => (action) => {
 
     socket.emit("patch", action);
 
-    const endpoint = api.endpoint("/api/project", {
-      query: { projectID: state.project.id },
-    }).uri;
+    try {
+      await api.put("/project", {
+        query: { projectID: state.project.id },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: {
+          version: "v2",
+          labels: state.data.categories,
+          annotations: state.data.annotations,
+        },
+      });
+    } catch {}
 
-    fetch(endpoint, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        version: "v2",
-        labels: state.data.categories,
-        annotations: state.data.annotations,
-      }),
-    }).finally(() => {
-      storeAPI.dispatch(decrementSaving());
-    });
+    storeAPI.dispatch(decrementSaving());
   }
   return result;
 };
@@ -89,9 +85,8 @@ async function uploadImage(jpeg: any, dispatch: any) {
   const formData = new FormData();
   formData.append(jpeg.name, jpeg.blob);
   try {
-    await fetch(`/api/images`, {
-      method: "POST",
-      body: formData,
+    await api.post("/images", {
+      data: formData,
     });
     dispatch(
       editImage({
@@ -126,7 +121,9 @@ export const uploadImages = (jpegs: any): AppThunk => async (dispatch) => {
 
 async function deleteImage(image: string) {
   try {
-    await fetch(`/api/images/${image}`, { method: "DELETE" });
+    await api.del("/images/:imageID", {
+      path: { imageID: image },
+    });
   } catch {
     // TODO
   }

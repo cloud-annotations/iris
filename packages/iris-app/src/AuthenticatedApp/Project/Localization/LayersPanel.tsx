@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 
+import { motion } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+
+import { endpoint } from "@iris/api";
+import { LabelSelect } from "@iris/components";
+import { RootState, activeImageSelector } from "@iris/store";
 import { ITarget } from "@iris/store/dist/project";
 import {
   deleteAnnotations,
   editAnnotations,
 } from "@iris/store/dist/project/data";
 import { highlightBox } from "@iris/store/dist/project/ui";
-import { motion } from "framer-motion";
-import { useDispatch, useSelector } from "react-redux";
-
-import API from "@iris/api";
-import { LabelSelect } from "@iris/components";
-import { RootState, activeImageSelector } from "@iris/store";
 
 import styles from "./LayersPanel.module.css";
 
@@ -158,8 +158,6 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
   );
 }
 
-const api = new API();
-
 function LayersPanel() {
   const projectID = useSelector((state: RootState) => state.project.id);
   const activeImage = useSelector(activeImageSelector);
@@ -174,10 +172,10 @@ function LayersPanel() {
 
   const [imageDims, setImageDims] = useState([0, 0]);
 
-  const imageUrl = api.endpoint("/api/images/:imageID", {
+  const imageUrl = endpoint("/images/:imageID", {
     path: { imageID: activeImage?.id },
     query: { projectID: projectID },
-  }).uri;
+  });
 
   useEffect(() => {
     if (imageUrl) {

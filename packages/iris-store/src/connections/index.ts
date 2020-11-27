@@ -1,14 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import API from "@iris/api";
-
-const appstaticAPI = new API();
+import { api } from "@iris/api";
 
 export const loadConnections = createAsyncThunk(
   "projects/loadConnections",
   async (_, _thunkAPI) => {
-    const request = appstaticAPI.endpoint("/api/connections");
-    return await request.do();
+    return await api.get("/connections");
   }
 );
 

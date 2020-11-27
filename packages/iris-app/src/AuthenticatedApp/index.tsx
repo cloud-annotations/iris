@@ -1,8 +1,9 @@
 import React from "react";
 
 import { Redirect, Route, Switch } from "react-router-dom";
+import useSWR from "swr";
 
-import { useMode } from "@iris/api";
+import { endpoint, fetcher } from "@iris/api";
 
 import NotFound from "./NotFound";
 import Project from "./Project";
@@ -36,13 +37,21 @@ function SingleDocumentMode() {
 }
 
 function Router() {
-  const { mode } = useMode();
+  const { data: mode, error } = useSWR(endpoint("/mode"), fetcher);
 
   if (mode && mode.singleDocument === false) {
     return <ProjectsMode />;
   }
 
-  return <SingleDocumentMode />;
+  if (mode && mode.singleDocument === true) {
+    return <SingleDocumentMode />;
+  }
+
+  if (error === undefined) {
+    return "loading...";
+  }
+
+  return error;
 }
 
 export default Router;

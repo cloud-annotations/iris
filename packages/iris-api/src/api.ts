@@ -1,69 +1,53 @@
-import { keyInterface } from "swr";
+import endpoint from "./endpoint";
+import { APIOptions, HttpError, MethodOptions } from "./types";
+import { stripEmptyKeys } from "./utils";
 
-import { fetcher } from "./fetcher";
+export async function fetcher(endpoint: RequestInfo, options?: RequestInit) {
+  const res = await fetch(endpoint, options);
 
-interface Options {
-  auth?: string;
-  path?: { [key: string]: any };
-  query?: { [key: string]: any };
-}
-
-interface Request {
-  uri: string;
-  key: keyInterface;
-  do: () => Promise<any>;
-}
-
-class API {
-  private host: string;
-
-  constructor(host?: string) {
-    this.host = host !== undefined ? "https://" + host : "";
+  if (!res.ok) {
+    const error = new Error(res.statusText) as HttpError;
+    error.status = res.status;
+    throw error;
   }
 
-  endpoint(endpoint: string, options: Options = {}): Request {
-    const { path, query, auth } = options;
-
-    let reject;
-    const filledEndpoint = endpoint.replace(/\/:(\w+)/gi, (_match, group1) => {
-      const replacement = `/${path?.[group1]}`;
-      if (group1 === undefined) {
-        reject = true;
-      }
-      return replacement;
-    });
-
-    if (reject === true) {
-      return {
-        uri: "",
-        key: null,
-        do: async () => {},
-      };
-    }
-
-    // Strip undefined keys
-    if (query) {
-      Object.keys(query).forEach(
-        (key) => query[key] === undefined && delete query[key]
-      );
-    }
-
-    const queryParams = new URLSearchParams(query);
-
-    let url = this.host + filledEndpoint;
-    let queryString = queryParams.toString();
-    if (queryString !== "") {
-      url += "?" + queryString;
-    }
-
-    return {
-      uri: url,
-      key: [url, auth],
-      do: async () => {
-        return await fetcher(url, auth);
-      },
-    };
-  }
+  return await res.json();
 }
 
-export default API;
+export async function request(route: string, options: APIOptions) {
+  const { data, headers, method, signal, ...rest } = options;
+
+  const url = endpoint(route, rest);
+
+  return await fetcher(url, {
+    signal,
+    method,
+    headers: headers ? stripEmptyKeys(headers) : undefined,
+    body: JSON.stringify(data),
+  });
+}
+
+async function get(route: string, options: MethodOptions = {}) {
+  return await request(route, { ...options, method: "GET" });
+}
+
+async function post(route: string, options: MethodOptions = {}) {
+  return await request(route, { ...options, method: "POST" });
+}
+
+async function put(route: string, options: MethodOptions = {}) {
+  return await request(route, { ...options, method: "PUT" });
+}
+
+async function del(route: string, options: MethodOptions = {}) {
+  return await request(route, { ...options, method: "DELETE" });
+}
+
+const api = {
+  get,
+  post,
+  put,
+  del,
+};
+
+export default api;
