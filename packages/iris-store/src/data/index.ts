@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { load } from "..";
-import { IAnnotation } from "../types";
+import load from "../load";
+import { Annotation } from "../types";
 
 export interface ProjectImage {
   id: string;
@@ -9,32 +9,30 @@ export interface ProjectImage {
   date: string;
 }
 
-export interface ProjectState {
+export interface DataState {
   categories: string[];
-  annotations: {
-    [key: string]: IAnnotation[];
-  };
   images: ProjectImage[];
+  annotations: { [key: string]: Annotation[] };
 }
 
 interface AnnotationEdit {
   images: string[];
-  annotation: IAnnotation;
+  annotation: Annotation;
 }
 
-const initialState: ProjectState = {
+const initialState: DataState = {
   categories: [],
   annotations: {},
   images: [],
 };
 
-function stateAddCategory(state: ProjectState, category: string) {
+function stateAddCategory(state: DataState, category: string) {
   if (!state.categories.includes(category)) {
     state.categories.push(category);
   }
 }
 
-function stateDeleteCategory(state: ProjectState, category: string) {
+function stateDeleteCategory(state: DataState, category: string) {
   // Remove category.
   const labelIndex = state.categories.findIndex((c) => c === category);
   state.categories.splice(labelIndex, 1);
@@ -53,7 +51,7 @@ function stateDeleteCategory(state: ProjectState, category: string) {
   }
 }
 
-function stateAddAnnotations(state: ProjectState, payload: AnnotationEdit) {
+function stateAddAnnotations(state: DataState, payload: AnnotationEdit) {
   for (const image of payload.images) {
     if (state.annotations[image] === undefined) {
       state.annotations[image] = [];
@@ -62,7 +60,7 @@ function stateAddAnnotations(state: ProjectState, payload: AnnotationEdit) {
   }
 }
 
-function stateEditAnnotations(state: ProjectState, payload: AnnotationEdit) {
+function stateEditAnnotations(state: DataState, payload: AnnotationEdit) {
   for (const image of payload.images) {
     if (state.annotations[image] === undefined) {
       state.annotations[image] = [];
@@ -74,7 +72,7 @@ function stateEditAnnotations(state: ProjectState, payload: AnnotationEdit) {
   }
 }
 
-function stateDeleteAnnotations(state: ProjectState, payload: AnnotationEdit) {
+function stateDeleteAnnotations(state: DataState, payload: AnnotationEdit) {
   for (const image of payload.images) {
     const annotationIndex = state.annotations[image].findIndex((a) => {
       return a.id === payload.annotation.id;
@@ -88,8 +86,8 @@ function stateDeleteAnnotations(state: ProjectState, payload: AnnotationEdit) {
   }
 }
 
-const projectSlice = createSlice({
-  name: "data",
+const slice = createSlice({
+  name: "project",
   initialState,
   reducers: {
     addCategory(state, { payload }: PayloadAction<string>) {
@@ -124,23 +122,17 @@ const projectSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(load.fulfilled, (_state, { payload }) => {
-      return {
-        categories: payload.annotations.labels,
-        annotations: payload.annotations.annotations,
-        images: payload.annotations.images.map(
-          (i: any): ProjectImage => ({
-            id: i.id,
-            date: i.date,
-            status: "success",
-          })
-        ),
-      };
+    builder.addCase(load.fulfilled, (state, action) => {
+      state.categories = action.payload.annotations.labels;
+      state.annotations = action.payload.annotations.annotations;
+      state.images = action.payload.annotations.images.map(
+        (i: any): ProjectImage => ({ ...i, status: "success" })
+      );
     });
   },
 });
 
-export default projectSlice.reducer;
+export default slice.reducer;
 export const {
   addCategory,
   deleteCategory,
@@ -150,4 +142,4 @@ export const {
   addImages,
   editImage,
   removeImages,
-} = projectSlice.actions;
+} = slice.actions;

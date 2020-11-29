@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export interface UI {
+export interface UIState {
   selectedTool?: string;
   selectedCategory?: string;
   selectedImages?: string[];
@@ -12,7 +12,7 @@ export interface UI {
   };
 }
 
-const initialState: UI = {
+const initialState: UIState = {
   selectedTool: "box",
   selectedCategory: undefined,
   selectedImages: undefined,
@@ -24,7 +24,7 @@ const initialState: UI = {
   },
 };
 
-const projectSlice = createSlice({
+const slice = createSlice({
   name: "ui",
   initialState,
   reducers: {
@@ -75,7 +75,7 @@ const projectSlice = createSlice({
   },
 });
 
-export default projectSlice.reducer;
+export default slice.reducer;
 export const {
   highlightBox,
   selectCategory,
@@ -87,4 +87,4 @@ export const {
   showUnlabeledImages,
   filterByLabel,
   setRoomSize,
-} = projectSlice.actions;
+} = slice.actions;

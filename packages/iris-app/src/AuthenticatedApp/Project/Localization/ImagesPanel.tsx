@@ -12,16 +12,15 @@ import {
   RootState,
   visibleImagesSelector,
   visibleSelectedImagesSelector,
-} from "@iris/store";
-import { deleteCategory, editImage } from "@iris/store/dist/project/data";
-import {
   filterByLabel,
   selectImages,
   showAllImages,
   showLabeledImages,
   showUnlabeledImages,
   toggleSelectedImage,
-} from "@iris/store/dist/project/ui";
+  deleteCategory,
+  editImage,
+} from "@iris/store";
 
 import styles from "./ImagesPanel.module.css";
 
@@ -61,7 +60,7 @@ const useBlockSwipeBack = (ref: any) => {
 function ImagesPanel() {
   const dispatch = useDispatch();
 
-  const projectID = useSelector((state: RootState) => state.project.id);
+  const projectID = useSelector((state: RootState) => state.meta.id);
 
   const filterMode = useSelector(
     (state: RootState) => state.ui.imageFilter.mode

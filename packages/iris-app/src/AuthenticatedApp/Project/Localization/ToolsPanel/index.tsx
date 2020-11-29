@@ -1,9 +1,8 @@
 import React from "react";
 
-import { selectTool } from "@iris/store/dist/project/ui";
 import { useDispatch, useSelector } from "react-redux";
 
-import { RootState } from "@iris/store";
+import { selectTool, RootState } from "@iris/store";
 
 import styles from "./ToolsPanel.module.css";
 

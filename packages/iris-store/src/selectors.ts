@@ -1,15 +1,5 @@
-import { ProjectImage } from "./project/data";
+import { ProjectImage } from "./data";
 import { RootState } from "./store";
-
-// export function selectedConnectionSelector(state: RootState) {
-//   if (state.connections.selected) {
-//     return state.connections.selected;
-//   }
-//   if (state.connections.connections.length > 0) {
-//     return state.connections.connections[0].id;
-//   }
-//   return;
-// }
 
 export function visibleImagesSelector(state: RootState) {
   const all = state.data.images ?? [];

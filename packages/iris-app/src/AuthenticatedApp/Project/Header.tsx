@@ -1,18 +1,15 @@
 import React from "react";
 
-import { addAnnotations } from "@iris/store/dist/project/data";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
-// @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
 import { showConfirmDialog, showFileDialog } from "@iris/components";
-import { uploadImages } from "@iris/store";
 import {
   RootState,
   visibleSelectedImagesSelector,
-  deleteImages,
+  addAnnotations,
 } from "@iris/store";
 
 import { createJPEGs } from "./image-utils";
@@ -114,7 +111,7 @@ function Header({ name, saving }: Props) {
               multiple: true,
             });
             const jpegs = await createJPEGs(files);
-            dispatch(uploadImages(jpegs));
+            // dispatch(uploadImages(jpegs));
           },
         },
       ],
@@ -134,7 +131,7 @@ function Header({ name, saving }: Props) {
               danger: true,
             });
             if (shouldDeleteImages) {
-              dispatch(deleteImages(selected.map((i) => i.id)));
+              // dispatch(deleteImages(selected.map((i) => i.id)));
             }
           },
         },
@@ -213,8 +210,8 @@ function Header({ name, saving }: Props) {
 }
 
 function HeaderController() {
-  const name = useSelector((state: RootState) => state.project.name);
-  const saving = useSelector((state: RootState) => state.project.saving);
+  const name = useSelector((state: RootState) => state.meta.name);
+  const saving = useSelector((state: RootState) => state.meta.saving);
   return <Header name={name ?? ""} saving={saving} />;
 }
 

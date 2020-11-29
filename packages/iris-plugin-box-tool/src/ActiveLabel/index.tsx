@@ -3,9 +3,12 @@ import React, { useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import { LabelSelect } from "@iris/components";
-import { RootState, selectedCategorySelector } from "@iris/store";
-import { addCategory } from "@iris/store/dist/project/data";
-import { selectCategory } from "@iris/store/dist/project/ui";
+import {
+  RootState,
+  selectedCategorySelector,
+  addCategory,
+  selectCategory,
+} from "@iris/store";
 
 function ActiveLabel() {
   const dispatch = useDispatch();

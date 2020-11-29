@@ -9,9 +9,10 @@ import {
   RootState,
   selectedCategorySelector,
   activeImageSelector,
+  deleteAnnotations,
+  selectCategory,
+  selectTool,
 } from "@iris/store";
-import { deleteAnnotations } from "@iris/store/dist/project/data";
-import { selectCategory, selectTool } from "@iris/store/dist/project/ui";
 
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
@@ -233,7 +234,7 @@ function DrawingPanel() {
     return [];
   });
 
-  const projectID = useSelector((state: RootState) => state.project.id);
+  const projectID = useSelector((state: RootState) => state.meta.id);
 
   const activeLabel = useSelector(selectedCategorySelector);
   const labels = useSelector((state: RootState) => state.data.categories);

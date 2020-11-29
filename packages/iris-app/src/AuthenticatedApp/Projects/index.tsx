@@ -1,12 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import useSWR from "swr";
 
 import { endpoint, fetcher } from "@iris/api";
-import { fetchConnections, RootState } from "@iris/store";
-import { IProject } from "@iris/store/dist/project";
 
 import Connections from "./Connections";
 import Header from "./Header";
@@ -14,7 +11,7 @@ import Layout from "./Layout";
 import Main from "./Main";
 
 interface ProjectProps {
-  projects: IProject[];
+  projects: any[];
   connections: any[];
 }
 

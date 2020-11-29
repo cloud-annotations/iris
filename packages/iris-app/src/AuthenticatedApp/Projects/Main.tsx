@@ -15,10 +15,9 @@ import { useHistory, useParams } from "react-router-dom";
 
 import { useClickOutside } from "@iris/hooks";
 import { RootState } from "@iris/store";
-import { IProject } from "@iris/store/dist/project";
 
 interface Props {
-  projects: IProject[];
+  projects: any[];
 }
 
 interface Data {
@@ -277,14 +276,14 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
 
   const params = useParams<any>();
   console.log(params);
-  const connection = useSelector((state: RootState) => {
-    const { id } = params;
-    if (id && state.connections.status === "success") {
-      const connection = state.connections.connections.find((c) => c.id === id);
-      return connection.name;
-    }
-    return "";
-  });
+  // const connection = useSelector((state: RootState) => {
+  //   const { id } = params;
+  //   if (id && state.connections.status === "success") {
+  //     const connection = state.connections.connections.find((c) => c.id === id);
+  //     return connection.name;
+  //   }
+  //   return "";
+  // });
 
   const history = useHistory();
 
@@ -317,7 +316,7 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
   return (
     <div className={classes.root} ref={ref}>
       <div className={classes.header}>
-        <div className={classes.title}>{connection}</div>
+        <div className={classes.title}>FIX ME!!!! - CONNECTION NAME</div>
         {/* <Button variant="contained" color="primary">
           Start a new project
         </Button> */}

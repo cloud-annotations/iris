@@ -1,15 +1,12 @@
 import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
 
-import connections from "./connections/reducer";
-import project from "./project";
-import data from "./project/data";
-import ui from "./project/ui";
-import projects from "./projects";
+import data from "./data";
+import meta from "./meta";
+import ui from "./ui";
 
 const store = configureStore({
   middleware: (getDefaultMiddleware) => getDefaultMiddleware(),
-  reducer: { connections, projects, project, ui, data },
-  // @ts-ignore
+  reducer: { data, meta, ui },
   devTools: process.env.NODE_ENV !== "production",
 });
 

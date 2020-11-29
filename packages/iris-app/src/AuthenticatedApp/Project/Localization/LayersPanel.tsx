@@ -5,13 +5,14 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { endpoint } from "@iris/api";
 import { LabelSelect } from "@iris/components";
-import { RootState, activeImageSelector } from "@iris/store";
-import { ITarget } from "@iris/store/dist/project";
 import {
+  RootState,
+  activeImageSelector,
+  Target,
   deleteAnnotations,
   editAnnotations,
-} from "@iris/store/dist/project/data";
-import { highlightBox } from "@iris/store/dist/project/ui";
+  highlightBox,
+} from "@iris/store";
 
 import styles from "./LayersPanel.module.css";
 
@@ -24,7 +25,7 @@ const transition = {
   duration: 0.225,
 };
 
-function calculateCrop(targets: ITarget[], imageSize: number[]) {
+function calculateCrop(targets: Target[], imageSize: number[]) {
   const xMin = Math.min(...targets.map((t) => t.x));
   const yMin = Math.min(...targets.map((t) => t.y));
   const xMax = Math.max(...targets.map((t) => t.x));
@@ -159,7 +160,7 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
 }
 
 function LayersPanel() {
-  const projectID = useSelector((state: RootState) => state.project.id);
+  const projectID = useSelector((state: RootState) => state.meta.id);
   const activeImage = useSelector(activeImageSelector);
   const labels = useSelector((state: RootState) => state.data.categories);
 

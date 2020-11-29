@@ -4,7 +4,7 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
 import { useDispatch } from "react-redux";
 
-import { uploadImages } from "@iris/store";
+// import { uploadImages } from "@iris/store";
 
 import { createJPEGs } from "./image-utils";
 import Localization from "./Localization";
@@ -82,7 +82,7 @@ function Main() {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const jpegs = await createJPEGs(acceptedFiles);
-      dispatch(uploadImages(jpegs));
+      // dispatch(uploadImages(jpegs));
     },
     [dispatch]
   );

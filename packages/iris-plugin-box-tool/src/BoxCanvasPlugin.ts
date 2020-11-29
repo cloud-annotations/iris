@@ -6,9 +6,10 @@ import {
   store,
   selectedCategorySelector,
   visibleSelectedImagesSelector,
+  Annotation,
+  addAnnotations,
+  editAnnotations,
 } from "@iris/store";
-import { IAnnotation } from "@iris/store/dist/project";
-import { addAnnotations, editAnnotations } from "@iris/store/dist/project/data";
 
 class CanvasPlugin {
   onTargetMove(coords: any, target: any) {}
@@ -19,10 +20,10 @@ class CanvasPlugin {
 
   onMouseUp(coords: any, xScale: number, yScale: number) {}
 
-  render(c: CrispyCanvas, v: IAnnotation) {}
+  render(c: CrispyCanvas, v: Annotation) {}
 }
 
-function graphToBox(graph: IAnnotation) {
+function graphToBox(graph: Annotation) {
   if (graph.targets === undefined) {
     return;
   }
@@ -222,7 +223,7 @@ class BoxCanvasPlugin extends CanvasPlugin {
     this.editing = null;
   }
 
-  render(c: CrispyCanvas, graph: IAnnotation) {
+  render(c: CrispyCanvas, graph: Annotation) {
     const box = graphToBox(graph);
 
     if (box === undefined) {

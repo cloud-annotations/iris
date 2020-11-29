@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect } from "react";
 
+import { Provider, useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
-import { useProject } from "@iris/store";
+import { RootState, store } from "@iris/store";
+import load from "@iris/store/dist/load";
 
 import Header from "./Header";
 import Layout from "./Layout";
@@ -13,10 +15,7 @@ function ProjectsView() {
 }
 
 function ProjectController() {
-  const { id } = useParams<{ id: string }>();
-  const { status } = useProject(id);
-
-  console.log("HOW??!?!?!");
+  const status = useSelector((state: RootState) => state.meta.status);
 
   switch (status) {
     case "idle":
@@ -29,4 +28,18 @@ function ProjectController() {
   }
 }
 
-export default ProjectController;
+function Project() {
+  const { id } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    store.dispatch(load(id));
+  }, [id]);
+
+  return (
+    <Provider store={store}>
+      <ProjectController />
+    </Provider>
+  );
+}
+
+export default Project;
