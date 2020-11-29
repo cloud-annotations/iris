@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { endpoint } from "@iris/api";
 import { Canvas, CrossHair, EmptySet } from "@iris/components";
 import {
-  RootState,
+  ProjectState,
   selectedCategorySelector,
   activeImageSelector,
   deleteAnnotations,
@@ -217,27 +217,29 @@ function CanvasWrapper({
 function DrawingPanel() {
   const dispatch = useDispatch();
   const selectedTool = useSelector(
-    (state: RootState) =>
-      state.ui.selectedTool ?? window.IRIS.tools.list()[1].id
+    (project: ProjectState) =>
+      project.ui.selectedTool ?? window.IRIS.tools.list()[1].id
   );
 
   const highlightedBox = useSelector(
-    (state: RootState) => state.ui.highlightedBox
+    (project: ProjectState) => project.ui.highlightedBox
   );
 
   const activeImage = useSelector(activeImageSelector);
 
-  const boxes = useSelector((state: RootState) => {
+  const boxes = useSelector((project: ProjectState) => {
     if (activeImage) {
-      return state.data.annotations[activeImage.id] ?? [];
+      return project.data.annotations[activeImage.id] ?? [];
     }
     return [];
   });
 
-  const projectID = useSelector((state: RootState) => state.meta.id);
+  const projectID = useSelector((project: ProjectState) => project.meta.id);
 
   const activeLabel = useSelector(selectedCategorySelector);
-  const labels = useSelector((state: RootState) => state.data.categories);
+  const labels = useSelector(
+    (project: ProjectState) => project.data.categories
+  );
 
   const [bboxes, onlyLabels] = partition(
     boxes,
@@ -272,7 +274,9 @@ function DrawingPanel() {
 
   const activeColor = cmap[activeLabel] ?? "white";
 
-  const headCount = useSelector((state: RootState) => state.ui.roomSize ?? 0);
+  const headCount = useSelector(
+    (project: ProjectState) => project.ui.roomSize ?? 0
+  );
 
   const maxBubbles = 3;
   const othersCount = Math.max(headCount - 1, 0);

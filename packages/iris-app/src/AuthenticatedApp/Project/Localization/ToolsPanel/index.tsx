@@ -2,13 +2,13 @@ import React from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 
-import { selectTool, RootState } from "@iris/store";
+import { selectTool, ProjectState } from "@iris/store";
 
 import styles from "./ToolsPanel.module.css";
 
 function ToolsPanel() {
   const dispatch = useDispatch();
-  const tool = useSelector((state: RootState) => state.ui.selectedTool);
+  const tool = useSelector((project: ProjectState) => project.ui.selectedTool);
 
   return (
     <div className={styles.wrapper}>

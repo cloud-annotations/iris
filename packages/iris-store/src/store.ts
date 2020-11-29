@@ -1,4 +1,4 @@
-import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 
 import data from "./data";
 import meta from "./meta";
@@ -10,8 +10,6 @@ const store = configureStore({
   devTools: process.env.NODE_ENV !== "production",
 });
 
-export type RootState = ReturnType<typeof store.getState>;
-
-export type AppThunk = ThunkAction<void, RootState, null, Action<string>>;
+export type ProjectState = ReturnType<typeof store.getState>;
 
 export default store;

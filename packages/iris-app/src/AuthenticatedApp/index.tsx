@@ -1,11 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-import { useDispatch, useSelector } from "react-redux";
 import { Redirect, Route, Switch } from "react-router-dom";
 import useSWR from "swr";
 
 import { endpoint, fetcher } from "@iris/api";
-import { fetchConnections, RootState } from "@iris/store";
 
 import NotFound from "./NotFound";
 import Project from "./Project";
@@ -16,16 +14,6 @@ function ProjectsMode() {
     endpoint("/connections"),
     fetcher
   );
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   dispatch(fetchConnections());
-  // }, [dispatch]);
-
-  // const connections = useSelector(
-  //   (state: RootState) => state.connections.connections
-  // );
-
-  // const status = useSelector((state: RootState) => state.connections.status);
 
   return (
     <Switch>

@@ -1,9 +1,9 @@
 import { ProjectImage } from "./data";
-import { RootState } from "./store";
+import { ProjectState } from "./store";
 
-export function visibleImagesSelector(state: RootState) {
-  const all = state.data.images ?? [];
-  const annotatedImages = new Set(Object.keys(state.data.annotations));
+export function visibleImagesSelector(project: ProjectState) {
+  const all = project.data.images ?? [];
+  const annotatedImages = new Set(Object.keys(project.data.annotations));
 
   const _labeled = new Set<ProjectImage>();
   const _unlabeled = new Set<ProjectImage>();
@@ -18,9 +18,9 @@ export function visibleImagesSelector(state: RootState) {
   const labeled = Array.from(_labeled);
   const unlabeled = Array.from(_unlabeled);
 
-  const filterLabel = state.ui.imageFilter.label;
+  const filterLabel = project.ui.imageFilter.label;
   if (filterLabel === undefined) {
-    switch (state.ui.imageFilter.mode) {
+    switch (project.ui.imageFilter.mode) {
       case "all":
         return all;
       case "labeled":
@@ -31,7 +31,7 @@ export function visibleImagesSelector(state: RootState) {
   }
 
   return labeled.filter((image) => {
-    const annotations = state.data.annotations[image.id];
+    const annotations = project.data.annotations[image.id];
     if (annotations === undefined) {
       return false;
     }
@@ -39,15 +39,15 @@ export function visibleImagesSelector(state: RootState) {
   });
 }
 
-export function visibleSelectedImagesSelector(state: RootState) {
-  const visibleImages = visibleImagesSelector(state);
+export function visibleSelectedImagesSelector(project: ProjectState) {
+  const visibleImages = visibleImagesSelector(project);
 
-  if (state.ui.selectedImages === undefined) {
+  if (project.ui.selectedImages === undefined) {
     return [visibleImages[0]];
   }
 
   const selection = visibleImages.filter((image) =>
-    state.ui.selectedImages?.includes(image.id)
+    project.ui.selectedImages?.includes(image.id)
   );
 
   if (selection.length === 0) {
@@ -58,18 +58,18 @@ export function visibleSelectedImagesSelector(state: RootState) {
 }
 
 export function activeImageSelector(
-  state: RootState
+  project: ProjectState
 ): ProjectImage | undefined {
-  const selection = visibleSelectedImagesSelector(state);
+  const selection = visibleSelectedImagesSelector(project);
   return selection[0];
 }
 
-export function selectedCategorySelector(state: RootState) {
+export function selectedCategorySelector(project: ProjectState) {
   if (
-    state.ui.selectedCategory &&
-    state.data.categories.includes(state.ui.selectedCategory)
+    project.ui.selectedCategory &&
+    project.data.categories.includes(project.ui.selectedCategory)
   ) {
-    return state.ui.selectedCategory;
+    return project.ui.selectedCategory;
   }
-  return state.data.categories[0];
+  return project.data.categories[0];
 }

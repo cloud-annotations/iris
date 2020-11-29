@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 
-import { Provider, useDispatch, useSelector } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
-import { RootState, store } from "@iris/store";
+import { ProjectState, store } from "@iris/store";
 import load from "@iris/store/dist/load";
 
 import Header from "./Header";
@@ -15,7 +15,7 @@ function ProjectsView() {
 }
 
 function ProjectController() {
-  const status = useSelector((state: RootState) => state.meta.status);
+  const status = useSelector((project: ProjectState) => project.meta.status);
 
   switch (status) {
     case "idle":

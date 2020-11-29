@@ -2,14 +2,14 @@ import React from "react";
 
 import { useSelector } from "react-redux";
 
-import { RootState } from "@iris/store";
+import { ProjectState } from "@iris/store";
 
 import styles from "./ToolOptionsPanel.module.css";
 
 function ToolOptionsPanel() {
   const tool = useSelector(
-    (state: RootState) =>
-      state.ui.selectedTool ?? window.IRIS.tools.list()[1].id
+    (project: ProjectState) =>
+      project.ui.selectedTool ?? window.IRIS.tools.list()[1].id
   );
 
   return (

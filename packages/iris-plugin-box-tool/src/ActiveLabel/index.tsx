@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 
 import { LabelSelect } from "@iris/components";
 import {
-  RootState,
+  ProjectState,
   selectedCategorySelector,
   addCategory,
   selectCategory,
@@ -12,7 +12,9 @@ import {
 
 function ActiveLabel() {
   const dispatch = useDispatch();
-  const labels = useSelector((state: RootState) => state.data.categories);
+  const labels = useSelector(
+    (project: ProjectState) => project.data.categories
+  );
   const activeLabel = useSelector(selectedCategorySelector);
 
   const handleLabelChosen = useCallback(

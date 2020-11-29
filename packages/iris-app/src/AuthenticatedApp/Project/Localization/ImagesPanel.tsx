@@ -9,7 +9,7 @@ import {
   showConfirmDialog,
 } from "@iris/components";
 import {
-  RootState,
+  ProjectState,
   visibleImagesSelector,
   visibleSelectedImagesSelector,
   filterByLabel,
@@ -60,13 +60,15 @@ const useBlockSwipeBack = (ref: any) => {
 function ImagesPanel() {
   const dispatch = useDispatch();
 
-  const projectID = useSelector((state: RootState) => state.meta.id);
+  const projectID = useSelector((project: ProjectState) => project.meta.id);
 
   const filterMode = useSelector(
-    (state: RootState) => state.ui.imageFilter.mode
+    (project: ProjectState) => project.ui.imageFilter.mode
   );
 
-  const filter = useSelector((state: RootState) => state.ui.imageFilter.label);
+  const filter = useSelector(
+    (project: ProjectState) => project.ui.imageFilter.label
+  );
 
   const images = useSelector(visibleImagesSelector);
   const selection = useSelector(visibleSelectedImagesSelector);
@@ -75,12 +77,12 @@ function ImagesPanel() {
 
   const selectedIndex = images.indexOf(selection[0]);
 
-  const labels = useSelector((state: RootState) => {
+  const labels = useSelector((project: ProjectState) => {
     const categories: { [key: string]: number } = {};
-    for (const c of state.data.categories) {
+    for (const c of project.data.categories) {
       categories[c] = 0;
     }
-    for (const imageAnnotations of Object.values(state.data.annotations)) {
+    for (const imageAnnotations of Object.values(project.data.annotations)) {
       for (const a of imageAnnotations) {
         categories[a.label] += 1;
       }
@@ -88,7 +90,9 @@ function ImagesPanel() {
     return categories;
   });
 
-  const annotations = useSelector((state: RootState) => state.data.annotations);
+  const annotations = useSelector(
+    (project: ProjectState) => project.data.annotations
+  );
 
   const cells = images.map((i) => (
     <ImageTile
@@ -172,12 +176,12 @@ function ImagesPanel() {
     [dispatch]
   );
 
-  const filterImageModeCount = useSelector((state: RootState) => {
-    const all = state.data.images?.length ?? 0;
-    const labeled = Object.keys(state.data.annotations).length;
+  const filterImageModeCount = useSelector((project: ProjectState) => {
+    const all = project.data.images?.length ?? 0;
+    const labeled = Object.keys(project.data.annotations).length;
     // TODO: this logic isn't necessarily sound if an annotation exists, but the
     // file is missing.
-    switch (state.ui.imageFilter.mode) {
+    switch (project.ui.imageFilter.mode) {
       case "all":
         return all;
       case "labeled":

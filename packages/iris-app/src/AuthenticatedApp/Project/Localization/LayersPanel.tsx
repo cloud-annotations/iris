@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { endpoint } from "@iris/api";
 import { LabelSelect } from "@iris/components";
 import {
-  RootState,
+  ProjectState,
   activeImageSelector,
   Target,
   deleteAnnotations,
@@ -160,13 +160,15 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
 }
 
 function LayersPanel() {
-  const projectID = useSelector((state: RootState) => state.meta.id);
+  const projectID = useSelector((project: ProjectState) => project.meta.id);
   const activeImage = useSelector(activeImageSelector);
-  const labels = useSelector((state: RootState) => state.data.categories);
+  const labels = useSelector(
+    (project: ProjectState) => project.data.categories
+  );
 
-  const boxes = useSelector((state: RootState) => {
+  const boxes = useSelector((project: ProjectState) => {
     if (activeImage) {
-      return state.data.annotations[activeImage.id] ?? [];
+      return project.data.annotations[activeImage.id] ?? [];
     }
     return [];
   });

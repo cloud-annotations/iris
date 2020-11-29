@@ -10,11 +10,9 @@ import {
   TableSortLabel,
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import { useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 
 import { useClickOutside } from "@iris/hooks";
-import { RootState } from "@iris/store";
 
 interface Props {
   projects: any[];
@@ -273,17 +271,6 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
   const [order, setOrder] = React.useState<Order>("desc");
   const [orderBy, setOrderBy] = React.useState<keyof Data>("modified");
   const [selected, setSelected] = React.useState<string[]>([]);
-
-  const params = useParams<any>();
-  console.log(params);
-  // const connection = useSelector((state: RootState) => {
-  //   const { id } = params;
-  //   if (id && state.connections.status === "success") {
-  //     const connection = state.connections.connections.find((c) => c.id === id);
-  //     return connection.name;
-  //   }
-  //   return "";
-  // });
 
   const history = useHistory();
 

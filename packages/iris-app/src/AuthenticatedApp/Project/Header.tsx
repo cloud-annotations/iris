@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { showConfirmDialog, showFileDialog } from "@iris/components";
 import {
-  RootState,
+  ProjectState,
   visibleSelectedImagesSelector,
   addAnnotations,
 } from "@iris/store";
@@ -97,7 +97,9 @@ function Header({ name, saving }: Props) {
   const dispatch = useDispatch();
 
   const selected = useSelector(visibleSelectedImagesSelector);
-  const categories = useSelector((state: RootState) => state.data.categories);
+  const categories = useSelector(
+    (project: ProjectState) => project.data.categories
+  );
 
   const menus: Menu[] = [
     {
@@ -210,8 +212,8 @@ function Header({ name, saving }: Props) {
 }
 
 function HeaderController() {
-  const name = useSelector((state: RootState) => state.meta.name);
-  const saving = useSelector((state: RootState) => state.meta.saving);
+  const name = useSelector((project: ProjectState) => project.meta.name);
+  const saving = useSelector((project: ProjectState) => project.meta.saving);
   return <Header name={name ?? ""} saving={saving} />;
 }
 
