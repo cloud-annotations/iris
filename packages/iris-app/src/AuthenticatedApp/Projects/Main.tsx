@@ -11,10 +11,10 @@ import {
 } from "@material-ui/core";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import { useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 
 import { useClickOutside } from "@iris/hooks";
-import { RootState, selectedConnectionSelector } from "@iris/store";
+import { RootState } from "@iris/store";
 import { IProject } from "@iris/store/dist/project";
 
 interface Props {
@@ -275,9 +275,11 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
   const [orderBy, setOrderBy] = React.useState<keyof Data>("modified");
   const [selected, setSelected] = React.useState<string[]>([]);
 
+  const params = useParams<any>();
+  console.log(params);
   const connection = useSelector((state: RootState) => {
-    const id = selectedConnectionSelector(state);
-    if (id) {
+    const { id } = params;
+    if (id && state.connections.status === "success") {
       const connection = state.connections.connections.find((c) => c.id === id);
       return connection.name;
     }

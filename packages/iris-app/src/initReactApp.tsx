@@ -1,13 +1,13 @@
 import React from "react";
+import ReactDOM from "react-dom";
 
 import { ThemeProvider, CssBaseline } from "@material-ui/core";
-import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import { BrowserRouter as Router } from "react-router-dom";
 import { SWRConfig } from "swr";
 
 import { Dialog } from "@iris/components";
-import store from "@iris/store";
+import { store } from "@iris/store";
 import theme from "@iris/theme";
 
 import App from "./App";

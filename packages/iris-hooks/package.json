@@ -6,9 +6,9 @@
   "scripts": {
     "start": "tsc -w",
     "build": "tsc"
-  }
-  ,
+  },
   "dependencies": {
-    "@types/react": "^16.9.53"
+    "@types/react": "^16.9.53",
+    "@types/uuid": "^8.3.0"
   }
 }

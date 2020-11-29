@@ -1,14 +1,14 @@
-import CrispyCanvas from "@iris/components/dist/Canvas/CrispyCanvas";
-import { IAnnotation } from "@iris/store/dist/project";
-import { addAnnotations, editAnnotations } from "@iris/store/dist/project/data";
 import produce from "immer";
-// @ts-ignore
 import { v4 as uuidv4 } from "uuid";
 
-import store, {
+import CrispyCanvas from "@iris/components/dist/Canvas/CrispyCanvas";
+import {
+  store,
   selectedCategorySelector,
   visibleSelectedImagesSelector,
 } from "@iris/store";
+import { IAnnotation } from "@iris/store/dist/project";
+import { addAnnotations, editAnnotations } from "@iris/store/dist/project/data";
 
 class CanvasPlugin {
   onTargetMove(coords: any, target: any) {}
@@ -40,7 +40,7 @@ function graphToBox(graph: IAnnotation) {
 }
 
 class BoxCanvasPlugin extends CanvasPlugin {
-  editing = null;
+  editing: string | null = null;
   dragging = false;
 
   onTargetMove(coords: any, { shapeID, targetID }: any) {

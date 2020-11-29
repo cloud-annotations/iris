@@ -8,11 +8,9 @@ import {
   SvgIconProps,
   Theme,
 } from "@material-ui/core";
-import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
 
 import { showConfirmDialog } from "@iris/components";
-import { selectedConnectionSelector } from "@iris/store";
-import { select } from "@iris/store/dist/connections";
 
 function CreateIcon(props: SvgIconProps) {
   return (
@@ -131,8 +129,8 @@ const useStyles = makeStyles((theme: Theme) =>
 function Connections({ connections }: any) {
   const classes = useStyles();
 
-  const dispatch = useDispatch();
-  const selected = useSelector(selectedConnectionSelector);
+  const history = useHistory();
+  const params = useParams<any>();
 
   return (
     <div className={classes.root}>
@@ -149,15 +147,16 @@ function Connections({ connections }: any) {
         </Button> */}
       </div>
       <div className={classes.divider} />
-      {connections.map((connection) => (
+      {connections.map((connection: any) => (
         <div
           onClick={() => {
-            dispatch(select(connection.id));
+            history.replace(`/c/${connection.id}`);
+            // dispatch(select(connection.id));
           }}
           className={
             classes.item +
             " " +
-            (connection.id === selected ? classes.selected : "")
+            (connection.id === params.id ? classes.selected : "")
           }
         >
           <div className={classes.icon}>
