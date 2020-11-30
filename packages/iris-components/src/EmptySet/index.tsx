@@ -90,8 +90,8 @@ function EmptySet({ show }: Props) {
           viewBox="-19 -71 188 236"
           fill="#26292a"
           stroke="#929495"
-          stroke-width="6px"
-          stroke-linejoin="round"
+          strokeWidth="6px"
+          strokeLinejoin="round"
         >
           <polygon points="43 48 86 107 118 76.39 150 107 150 146 0 146 0 107 43 48" />
           <circle cx="113" cy="22" r="22" />

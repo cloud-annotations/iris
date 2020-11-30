@@ -6,10 +6,7 @@ import { persist } from "./persist";
 import ui from "./ui";
 
 const store = configureStore({
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false,
-    }).concat(persist),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(persist),
   reducer: { data, meta, ui },
   devTools: process.env.NODE_ENV !== "production",
 });
