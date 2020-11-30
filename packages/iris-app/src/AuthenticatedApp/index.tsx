@@ -15,23 +15,22 @@ function ProjectsMode() {
     fetcher
   );
 
+  const connection = connections?.[0];
+
   return (
     <Switch>
-      <Route path="/" exact>
-        {connections && !error ? (
-          <Redirect to={`/c/${connections[0].id}`} />
-        ) : null}
-      </Route>
-      <Route path="/c" exact>
-        {connections && !error ? (
-          <Redirect to={`/c/${connections[0].id}`} />
-        ) : null}
-      </Route>
-      <Route path="/c/:id" exact>
+      <Route path="/projects/:providerID/:connectionID" exact>
         <Projects connections={connections} />
       </Route>
-      <Route path="/projects/:id" exact>
+      <Route path="/projects/:providerID/:connectionID/:projectID" exact>
         <Project />
+      </Route>
+      <Route path="/">
+        {connection && !error ? (
+          <Redirect
+            to={`/projects/${connection.providerID}/${connection.id}`}
+          />
+        ) : null}
       </Route>
       <Route>
         <NotFound />

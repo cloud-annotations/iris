@@ -28,7 +28,7 @@ function ProjectsView({ projects, connections }: ProjectProps) {
 function ProjectsController({ connections }: { connections: any[] }) {
   const params = useParams<any>();
 
-  const connection = connections?.find((c) => c.id === params.id);
+  const connection = connections?.find((c) => c.id === params.connectionID);
 
   const { data: projects } = useSWR(
     connection

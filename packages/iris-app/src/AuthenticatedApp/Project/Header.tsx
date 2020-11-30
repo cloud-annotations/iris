@@ -174,7 +174,10 @@ function Header({ name, saving }: Props) {
     <div className={classes.root}>
       <div className={classes.projectButton}>
         {pathname.startsWith("/projects/") ? (
-          <Link to="/projects" className={classes.projectLink}>
+          <Link
+            to={pathname.split("/").slice(0, -1).join("/")}
+            className={classes.projectLink}
+          >
             <svg className={classes.projectIcon} viewBox="0 0 40 41">
               <rect fill="white" x="0" y="0" width="8" height="8" />
               <rect fill="white" x="32" y="0" width="8" height="8" />

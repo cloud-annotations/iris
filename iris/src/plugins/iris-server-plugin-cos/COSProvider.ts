@@ -7,7 +7,7 @@ interface IOptions {
 
 const connections = [
   {
-    id: "a",
+    id: "718b4cc1-1c5d-400b-b056-08244db75225",
     providerID: "cos",
     name: "bee-travels",
     credentials: {
@@ -17,7 +17,7 @@ const connections = [
     },
   },
   {
-    id: "b",
+    id: "48b970b2-c8c8-4b4e-bb0c-85b6338cd295",
     providerID: "cos",
     name: "Cloud Object Storage-nick",
     credentials: {

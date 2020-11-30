@@ -150,13 +150,15 @@ function Connections({ connections }: any) {
       {connections.map((connection: any) => (
         <div
           onClick={() => {
-            history.replace(`/c/${connection.id}`);
+            history.replace(
+              `/projects/${connection.providerID}/${connection.id}`
+            );
             // dispatch(select(connection.id));
           }}
           className={
             classes.item +
             " " +
-            (connection.id === params.id ? classes.selected : "")
+            (connection.id === params.connectionID ? classes.selected : "")
           }
         >
           <div className={classes.icon}>

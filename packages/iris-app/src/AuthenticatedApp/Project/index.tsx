@@ -28,11 +28,14 @@ function ProjectController() {
 }
 
 function Project() {
-  const { id } = useParams<{ id: string }>();
+  const { connectionID, projectID } = useParams<{
+    connectionID: string;
+    projectID: string;
+  }>();
 
   useEffect(() => {
-    store.dispatch(load(id));
-  }, [id]);
+    store.dispatch(load(projectID));
+  }, [projectID]);
 
   return (
     <Provider store={store}>

@@ -36,7 +36,7 @@ class FileSystemProvider {
   async getConnections() {
     return Promise.resolve([
       {
-        id: "file-system",
+        id: "default",
         providerID: "file-system",
         name: "File System",
         icon: `<svg xmlns="http://www.w3.org/2000/svg" version="1.2" viewBox="0 0 32 32" fill="white">

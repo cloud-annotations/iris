@@ -274,6 +274,8 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
 
   const history = useHistory();
 
+  const { providerID, connectionID } = useParams<any>();
+
   const ref = useRef<HTMLDivElement>(null);
 
   useClickOutside(ref, () => {
@@ -331,7 +333,11 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
                     className={classes.tableRow}
                     hover
                     onClick={(event) => handleClick(event, row.name)}
-                    onDoubleClick={(e) => history.push(`/projects/${row.name}`)}
+                    onDoubleClick={(e) =>
+                      history.push(
+                        `/projects/${providerID}/${connectionID}/${row.name}`
+                      )
+                    }
                     role="checkbox"
                     aria-checked={isItemSelected}
                     tabIndex={-1}
