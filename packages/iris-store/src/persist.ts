@@ -24,8 +24,6 @@ socket.emit("join", { image: "boop" });
 export const persist: Middleware = (storeAPI) => (next) => async (action) => {
   const result = next(action);
 
-  console.log(action.type);
-
   // only persist data changes
   if (action.type?.startsWith("data/") && action.meta?.doNotEmit !== true) {
     storeAPI.dispatch(incrementSaving());
