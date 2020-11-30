@@ -2,6 +2,7 @@ export * from "./store";
 export { default as store } from "./store";
 
 export * from "./load";
+export * from "./persist";
 
 export * from "./selectors";
 export * from "./types";

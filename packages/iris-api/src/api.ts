@@ -11,11 +11,15 @@ export async function fetcher(endpoint: RequestInfo, options?: RequestInit) {
     throw error;
   }
 
-  return await res.json();
+  // swallow json parse errors
+  // TODO: handle this better, what about `res.blob()` etc...
+  try {
+    return await res.json();
+  } catch {}
 }
 
 export async function request(route: string, options: APIOptions) {
-  const { data, headers, method, signal, ...rest } = options;
+  const { body, json, headers, method, signal, ...rest } = options;
 
   const url = endpoint(route, rest);
 
@@ -23,7 +27,7 @@ export async function request(route: string, options: APIOptions) {
     signal,
     method,
     headers: headers ? stripEmptyKeys(headers) : undefined,
-    body: JSON.stringify(data),
+    body: json ? JSON.stringify(json) : body,
   });
 }
 

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import load from "../load";
+import { load } from "../load";
 import { Annotation } from "../types";
 
 export interface ProjectImage {
@@ -87,7 +87,7 @@ function stateDeleteAnnotations(state: DataState, payload: AnnotationEdit) {
 }
 
 const slice = createSlice({
-  name: "project",
+  name: "data",
   initialState,
   reducers: {
     addCategory(state, { payload }: PayloadAction<string>) {
@@ -108,7 +108,14 @@ const slice = createSlice({
       stateDeleteAnnotations(state, payload);
     },
     addImages(state, { payload }) {
-      state.images = [...payload, ...state.images];
+      state.images = [
+        ...payload.map((j: any) => ({
+          id: j.name,
+          data: "",
+          status: "pending",
+        })),
+        ...state.images,
+      ];
     },
     editImage(state, { payload }) {
       const index = state.images.findIndex((i) => i.id === payload.id);

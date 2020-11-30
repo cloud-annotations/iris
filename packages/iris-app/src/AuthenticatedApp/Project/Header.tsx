@@ -10,6 +10,8 @@ import {
   ProjectState,
   visibleSelectedImagesSelector,
   addAnnotations,
+  addImages,
+  removeImages,
 } from "@iris/store";
 
 import { createJPEGs } from "./image-utils";
@@ -113,7 +115,7 @@ function Header({ name, saving }: Props) {
               multiple: true,
             });
             const jpegs = await createJPEGs(files);
-            // dispatch(uploadImages(jpegs));
+            dispatch(addImages(jpegs));
           },
         },
       ],
@@ -133,7 +135,7 @@ function Header({ name, saving }: Props) {
               danger: true,
             });
             if (shouldDeleteImages) {
-              // dispatch(deleteImages(selected.map((i) => i.id)));
+              dispatch(removeImages(selected.map((i) => i.id)));
             }
           },
         },

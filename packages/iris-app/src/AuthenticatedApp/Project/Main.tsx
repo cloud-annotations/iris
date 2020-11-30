@@ -6,6 +6,8 @@ import { useDispatch } from "react-redux";
 
 // import { uploadImages } from "@iris/store";
 
+import { addImages } from "@iris/store";
+
 import { createJPEGs } from "./image-utils";
 import Localization from "./Localization";
 
@@ -82,7 +84,7 @@ function Main() {
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
       const jpegs = await createJPEGs(acceptedFiles);
-      // dispatch(uploadImages(jpegs));
+      dispatch(addImages(jpegs));
     },
     [dispatch]
   );

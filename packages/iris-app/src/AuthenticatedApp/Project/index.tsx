@@ -3,8 +3,7 @@ import React, { useEffect } from "react";
 import { Provider, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
-import { ProjectState, store } from "@iris/store";
-import load from "@iris/store/dist/load";
+import { ProjectState, store, load } from "@iris/store";
 
 import Header from "./Header";
 import Layout from "./Layout";

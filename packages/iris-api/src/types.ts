@@ -18,7 +18,15 @@ export interface EndpointOptions {
 
 export interface MethodOptions extends EndpointOptions {
   headers?: Headers;
-  data?: any;
+  body?:
+    | string
+    | URLSearchParams
+    | FormData
+    | Blob
+    | ArrayBufferView
+    | ArrayBuffer
+    | ReadableStream<Uint8Array>;
+  json?: any;
   signal?: AbortSignal;
 }
 

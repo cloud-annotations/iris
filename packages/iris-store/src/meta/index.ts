@@ -1,6 +1,6 @@
 import { createSlice, SerializedError } from "@reduxjs/toolkit";
 
-import load from "../load";
+import { load } from "../load";
 
 export interface MetaState {
   status: "idle" | "pending" | "success" | "error";
@@ -23,7 +23,14 @@ const initialState: MetaState = {
 const slice = createSlice({
   name: "metadata",
   initialState,
-  reducers: {},
+  reducers: {
+    incrementSaving: (state) => {
+      state.saving += 1;
+    },
+    decrementSaving: (state) => {
+      state.saving -= 1;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(load.pending, (state, _action) => {
       state.status = "pending";
@@ -42,3 +49,4 @@ const slice = createSlice({
 });
 
 export default slice.reducer;
+export const { incrementSaving, decrementSaving } = slice.actions;
