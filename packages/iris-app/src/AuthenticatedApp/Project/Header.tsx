@@ -173,6 +173,7 @@ function Header({ name, saving }: Props) {
   return (
     <div className={classes.root}>
       <div className={classes.projectButton}>
+        {/* TODO: change this to check for path params instead (useParams() hook) */}
         {pathname.startsWith("/projects/") ? (
           <Link
             to={pathname.split("/").slice(0, -1).join("/")}
