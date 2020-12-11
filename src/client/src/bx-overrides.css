@@ -144,3 +144,19 @@ a:focus {
   color: var(--brightText);
   box-shadow: 0 3px var(--brightText);
 } */
+
+.small-loader {
+  width: 5.5rem;
+  height: 5.5rem;
+}
+
+.small-loader svg {
+  stroke: rgb(69 137 255);
+}
+
+.ca--header {
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 12px;
+  margin-top: 27px;
+}

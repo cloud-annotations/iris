@@ -46,6 +46,7 @@
 import produce, { immerable } from 'immer'
 import COS from './api/COSv2'
 import { generateUUID } from 'Utils'
+import watsonConvert from 'watsonConvert'
 
 const listAllObjects = async (cos, params) => {
   const recursivelyQuery = async (continuationToken, list = []) => {
@@ -104,12 +105,55 @@ export default class Collection {
 
     const objectListPromise = listAllObjects(cos, { Bucket: bucket })
 
-    const [collectionJson, objectList] = await Promise.all([
+    let [collectionJson, objectList] = await Promise.all([
       collectionPromise,
       objectListPromise,
     ])
 
     const fileList = objectList.map((object) => object.Key)
+
+    // If type is undefined the annotations don't exist.
+    if (collectionJson.type === undefined) {
+      // Look for watson annotations
+      console.log('Attemping to find Watson annotations')
+      const watsonAnnotationsPaths = fileList.filter((f) =>
+        f.startsWith('ai_training_definition/')
+      )
+      if (watsonAnnotationsPaths.length > 0) {
+        const promises = watsonAnnotationsPaths.map(async (p) => {
+          return await cos.getObjectAsJSON({
+            Bucket: bucket,
+            Key: p,
+          })
+        })
+
+        const files = await Promise.all(promises)
+
+        files.sort((a, b) => b.version - a.version)
+        console.log('Attemping Watson annotations conversion')
+        const coverted = watsonConvert(files[0])
+        if (coverted !== undefined) {
+          collectionJson = coverted
+          const string = JSON.stringify({
+            version: VERSION,
+            type: coverted.type,
+            labels: coverted.labels,
+            annotations: coverted.annotations,
+          })
+          // persist
+          const blob = new Blob([string], {
+            type: 'application/json;charset=utf-8;',
+          })
+          await cos.putObject({
+            Bucket: bucket,
+            Key: '_annotations.json',
+            Body: blob,
+          })
+          console.log('Watson annotations conversion success')
+        }
+      }
+    }
+
     const imageList = fileList.filter((fileName) => fileName.match(IMAGE_REGEX))
     const modelList = objectList
       .filter((obj) => obj.Key.match(MODEL_REGEX))

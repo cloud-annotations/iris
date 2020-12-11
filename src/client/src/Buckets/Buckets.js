@@ -1,32 +1,24 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { connect } from 'react-redux'
-import { Link } from 'react-router-dom'
+
 import { loadBuckets } from 'redux/buckets'
 
 import Table from './TableV2'
 import CreateModal from './CreateModal'
 import DeleteModal from './DeleteModal'
-import DropDown, { ProfileDropDown } from 'common/DropDown/DropDown'
+
 import COS from 'api/COSv2'
 import { defaultEndpoint } from 'endpoints'
 
 import history from 'globalHistory'
 import styles from './Buckets.module.css'
-import { setActiveResource } from 'redux/resources'
-import { setActiveAccount } from 'redux/accounts'
-import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
-const accountNameForAccount = (account) => {
-  if (account && account.softlayer) {
-    return `${account.softlayer} - ${account.name}`
-  } else if (account) {
-    return account.name
-  }
-}
+import { useGoogleAnalytics } from 'googleAnalyticsHook'
 
 const ConditionalTable = connect((state) => ({
   resources: state.resources.resources,
   loadingResources: state.resources.loading,
+  activeResource: state.resources.activeResource,
   accounts: state.accounts.accounts,
   loadingAccounts: state.accounts.loading,
   buckets: state.buckets,
@@ -35,6 +27,7 @@ const ConditionalTable = connect((state) => ({
     loadingAccounts,
     accounts,
     loadingResources,
+    activeResource,
     resources,
     buckets,
     listOfLoadingBuckets,
@@ -110,6 +103,7 @@ const ConditionalTable = connect((state) => ({
     return (
       <Table
         buckets={buckets}
+        activeResource={activeResource}
         listOfLoadingBuckets={listOfLoadingBuckets}
         onDeleteBucket={handleDeleteBucket}
         onCreateBucket={handleCreateBucket}
@@ -120,16 +114,7 @@ const ConditionalTable = connect((state) => ({
   }
 )
 
-const Buckets = ({
-  profile,
-  buckets,
-  resources,
-  activeResource,
-  accounts,
-  activeAccount,
-  dispatch,
-  loadingResources,
-}) => {
+const Buckets = ({ buckets, activeResource, dispatch }) => {
   const [isCreateBucketModalOpen, setIsCreateBucketModalOpen] = useState(false)
   const [bucketToDelete, setBucketToDelete] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -238,79 +223,8 @@ const Buckets = ({
     [activeResource, dispatchLoadBuckets]
   )
 
-  const handleAccountChosen = useCallback(
-    (item) => {
-      dispatch(setActiveAccount(item))
-    },
-    [dispatch]
-  )
-
-  const handleResourceChosen = useCallback(
-    (item) => {
-      dispatch(setActiveResource(item))
-    },
-    [dispatch]
-  )
-
-  const activeAccountObject = accounts.find(
-    (account) => activeAccount === account.accountId
-  )
-
-  const activeResourceObject = resources.find(
-    (resource) => activeResource === resource.id
-  )
-
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.titleBar}>
-        <div className={styles.title}>
-          <Link to="/" className={styles.linkOverride}>
-            <span className={styles.titlePrefix}>IBM</span>&nbsp;&nbsp;Cloud
-            Annotations
-          </Link>
-        </div>
-        <nav className={styles.mainLinks}>
-          <a className={styles.link} href="https://cloud.annotations.ai/docs">
-            Docs
-          </a>
-          <a
-            className={styles.link}
-            href="https://cloud.annotations.ai/workshops"
-          >
-            Workshops
-          </a>
-          <a className={styles.link} href="https://cloud.annotations.ai/demos">
-            Demos
-          </a>
-          <a className={styles.link} href="https://cloud.annotations.ai/sdks">
-            SDKs
-          </a>
-          {/* <Link to="/training" className={styles.link}>
-            Training runs
-          </Link> */}
-        </nav>
-        <DropDown
-          active={
-            !loadingResources &&
-            activeResourceObject &&
-            activeResourceObject.name
-          }
-          list={resources.map((resource) => ({
-            display: resource.name,
-            id: resource.id,
-          }))}
-          onChosen={handleResourceChosen}
-        />
-        <DropDown
-          active={accountNameForAccount(activeAccountObject)}
-          list={accounts.map((account) => ({
-            display: accountNameForAccount(account),
-            id: account.accountId,
-          }))}
-          onChosen={handleAccountChosen}
-        />
-        <ProfileDropDown profile={profile} />
-      </div>
+    <React.Fragment>
       <DeleteModal
         isOpen={bucketToDelete}
         onClose={handleCloseDeleteModal}
@@ -330,7 +244,7 @@ const Buckets = ({
         handleRowSelected={handleRowSelected}
         loading={loading}
       />
-    </div>
+    </React.Fragment>
   )
 }
 

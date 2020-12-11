@@ -1,2 +1,6 @@
 {
+	"workbench.editor.labelFormat": "short",
+  "eslint.workingDirectories": [
+		"src/client"
+	]
 }

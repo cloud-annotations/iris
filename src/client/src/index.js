@@ -5,7 +5,7 @@ import thunk from 'redux-thunk'
 import { createStore, applyMiddleware, compose } from 'redux'
 import { Provider } from 'react-redux'
 
-import Routing from './Routing'
+import App from './App'
 import { unregister } from './registerServiceWorker'
 import reducers from './redux/reducers'
 import { reset, updateHeadCount } from 'redux/editor'
@@ -24,8 +24,11 @@ import {
   uploadImages,
   labelImages,
   labelImagesV2,
-  clearLabels
+  clearLabels,
 } from 'redux/collection'
+
+import theme from './theme'
+import { ThemeProvider } from '@material-ui/core'
 
 // Global Settings:
 window.FPS = 3
@@ -35,52 +38,12 @@ window.IMAGE_SCALE_MODE = 'ASPECT_FIT' // || 'SCALE_FILL' || false
 
 GoogleAnalytics.initialize('UA-130502274-1')
 
-// Setup theme - should I even do light mode?
-const activateDarkMode = () => {
-  document.body.className = 'dark'
-}
-const activateLightMode = () => {
-  document.body.className = 'light'
-}
-if (
-  localStorage.getItem('darkMode') === 'true' ||
-  localStorage.getItem('darkMode') === 'false'
-) {
-  // If the user specified using the switch we obey.
-  const isDarkMode = localStorage.getItem('darkMode') === 'true'
-  if (isDarkMode) {
-    activateDarkMode()
-  } else {
-    activateLightMode()
-  }
-} else {
-  // if the user did nothing we try system preference.
-  const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
-  const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
-  window
-    .matchMedia('(prefers-color-scheme: dark)')
-    .addListener(e => e.matches && activateDarkMode())
-  window
-    .matchMedia('(prefers-color-scheme: light)')
-    .addListener(e => e.matches && activateLightMode())
-
-  if (isDarkMode) {
-    activateDarkMode()
-  }
-  if (isLightMode) {
-    activateLightMode()
-  }
-  if (!isDarkMode && !isLightMode) {
-    activateDarkMode()
-  }
-}
-
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 const store = createStore(reducers, composeEnhancers(applyMiddleware(thunk)))
 
 // Clear store on history change.
 history.listen(() => store.dispatch(reset()))
-socket.on('patch', res => {
+socket.on('patch', (res) => {
   const { op, value } = res
   const {
     clearAllLabels,
@@ -88,7 +51,7 @@ socket.on('patch', res => {
     bulkLabel,
     annotations,
     images,
-    labels
+    labels,
   } = value
 
   if (labels) {
@@ -144,14 +107,18 @@ socket.on('patch', res => {
   }
 })
 
-socket.on('theHeadCount', count => {
+socket.on('theHeadCount', (count) => {
   store.dispatch(updateHeadCount(count))
 })
 
 ReactDOM.render(
-  <Provider store={store}>
-    <Routing />
-  </Provider>,
+  <React.StrictMode>
+    <ThemeProvider theme={theme}>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </ThemeProvider>
+  </React.StrictMode>,
   document.getElementById('root')
 )
 unregister()

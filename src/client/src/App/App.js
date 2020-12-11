@@ -25,6 +25,7 @@ import styles from './App.module.css'
 import { convertToJpeg, videoToJpegs, checkLoginStatus } from 'Utils'
 import ClassificationV2 from './ClassificationV2/Classification'
 import { importDataset } from 'dataset-utils'
+import { useLocation, useParams } from 'react-router-dom'
 
 const generateFiles = async (images, videos) => {
   const imageFiles = images.map(
@@ -60,10 +61,6 @@ const AnnotationPanel = ({ bucket, location, type }) => {
 }
 
 const App = ({
-  match: {
-    params: { bucket },
-  },
-  location: { search },
   setCollection,
   clearCollection,
   syncAction,
@@ -74,6 +71,9 @@ const App = ({
 }) => {
   const [loading, setLoading] = useState(true)
   const [dropActive, setDropActive] = useState(false)
+
+  const { bucket } = useParams()
+  const { search } = useLocation()
 
   const location = queryString.parse(search).location
 

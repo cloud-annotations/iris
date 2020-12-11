@@ -2,7 +2,7 @@ body {
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
-  overflow: hidden;
+  /* overflow: hidden; */
   font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
   /* text-rendering: optimizelegibility; */
   background-color: var(--bg);
@@ -36,7 +36,8 @@ body.dark {
 
   --select-icon: #f4f4f4;
   --popup-bg: #262626;
-  --popup-overlay: rgba(38, 38, 38, 0.7);
+  /* --popup-overlay: rgba(38, 38, 38, 0.7); */
+  --popup-overlay: rgba(22, 22, 22, 0.93);
 
   --dissabledButton: rgba(255, 255, 255, 0.12);
   --dissabledButtonText: rgba(255, 255, 255, 0.2);

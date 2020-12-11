@@ -1,3 +1,16 @@
+.wrapper {
+  position: fixed;
+  /* top: 64px; */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: 64px;
+  /* z-index: -1; */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .titleBar {
   position: fixed;
   z-index: 100;
@@ -7,7 +20,7 @@
   height: 64px;
   display: flex;
   align-items: center;
-  box-shadow: 0 20px 20px 0 var(--bg);
+  /* box-shadow: 0 20px 20px 0 var(--bg); */
   background-color: var(--bg);
 }
 
@@ -16,7 +29,8 @@
 }
 
 .title {
-  margin-left: 32px;
+  margin-left: 16px;
+  /* margin-left: 32px; */
   /* margin-right: auto; */
   margin-right: 32px;
   font-size: 16px;

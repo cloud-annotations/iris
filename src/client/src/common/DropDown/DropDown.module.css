@@ -32,13 +32,14 @@
 }
 
 .chevronIcon {
+  flex-shrink: 0;
   height: 6px;
   margin-left: auto;
   fill: var(--detailText);
 }
 
 .droplist {
-  z-index: 10;
+  z-index: 1500;
   position: absolute;
   background-color: var(--secondaryBg);
   top: -1px;

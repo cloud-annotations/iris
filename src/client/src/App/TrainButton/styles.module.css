@@ -1,0 +1,71 @@
+.train {
+  position: relative;
+  display: flex;
+  margin-right: 20px;
+  height: 48px;
+}
+
+.button {
+  position: relative;
+  font: inherit;
+  height: 100%;
+  color: white;
+  font-size: 14px;
+  background-color: #24a148;
+  outline: none;
+  border: none;
+  padding: 0 40px 0 18px;
+}
+
+.caret {
+  composes: button;
+  padding: 0;
+  width: 48px;
+  fill: rgba(0, 0, 0, 0.6);
+}
+
+.button:hover {
+  background-color: #208a43;
+}
+
+.border {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  height: 32px;
+  width: 1px;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.dropdown {
+  z-index: 10;
+  position: absolute;
+  top: 48px;
+  right: 0;
+  background-color: var(--secondaryBg);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11);
+  border: 1px solid var(--dropDownBorder);
+  max-height: 80vh;
+  min-width: calc(100%);
+  overflow: auto;
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 18px;
+}
+
+.dropdownItemText {
+  font-size: 14px;
+  line-height: 18px;
+  margin-right: 40px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dropdownItem:hover {
+  background-color: var(--highlight);
+}

@@ -2,10 +2,11 @@ import React, { useCallback, useState, useEffect, useRef } from 'react'
 import {
   DataTable,
   DataTableSkeleton,
-  InlineLoading
+  InlineLoading,
 } from 'carbon-components-react'
 
 import styles from './Buckets.module.css'
+import StorageDropdown from 'StorageDropdown'
 
 const DeleteIcon = () => (
   <svg className={styles.deleteIcon} viewBox="0 0 12 16">
@@ -52,21 +53,22 @@ const CreateBucket = ({ handleClick }) => {
 
 const TableList = ({
   filter,
+  activeResource,
   buckets,
   listOfLoadingBuckets,
   onDeleteBucket,
   onRowSelected,
-  loading
+  loading,
 }) => {
   const headers = [
     { key: 'name', header: 'NAME' },
-    { key: 'created', header: 'CREATED' }
+    { key: 'created', header: 'CREATED' },
   ]
-  const handleRowClick = id => e => {
+  const handleRowClick = (id) => (e) => {
     e.stopPropagation()
     onRowSelected(id)
   }
-  const handleDeleteBucket = id => e => {
+  const handleDeleteBucket = (id) => (e) => {
     e.stopPropagation()
     onDeleteBucket(id)
   }
@@ -75,7 +77,9 @@ const TableList = ({
   let sortedBuckets
   if (buckets) {
     sortedBuckets = [...buckets]
-    sortedBuckets = sortedBuckets.filter(bucket => bucket.name.includes(filter))
+    sortedBuckets = sortedBuckets.filter((bucket) =>
+      bucket.name.includes(filter)
+    )
     sortedBuckets.sort((a, b) => new Date(b.created) - new Date(a.created))
   } else {
     sortedBuckets = []
@@ -121,27 +125,45 @@ const TableList = ({
                 <DataTable.Table zebra={false}>
                   <DataTable.TableHead>
                     <DataTable.TableRow>
-                      {headers.map(header => (
+                      {headers.map((header) => (
                         <DataTable.TableHeader {...getHeaderProps({ header })}>
                           {header.header}
                         </DataTable.TableHeader>
                       ))}
                       <DataTable.TableHeader isSortable={false} />
+                      <DataTable.TableHeader isSortable={false} />
                     </DataTable.TableRow>
                   </DataTable.TableHead>
                   <DataTable.TableBody>
                     {/* Draw each row */}
-                    {rows.map(row => (
+                    {rows.map((row) => (
                       <DataTable.TableRow
                         key={row.id}
                         onClick={handleRowClick(row.id)}
                       >
                         {/* Draw each column in each row */}
-                        {row.cells.map(cell => (
+                        {row.cells.map((cell) => (
                           <DataTable.TableCell key={cell.id}>
                             {cell.value}
                           </DataTable.TableCell>
                         ))}
+                        <DataTable.TableCell
+                          onClick={(e) => {
+                            e.stopPropagation()
+                          }}
+                        >
+                          <a
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={`https://cloud.ibm.com/objectstorage/${encodeURIComponent(
+                              activeResource
+                            )}?bucket=${
+                              row.cells[0].value
+                            }&paneId=bucket_overview`}
+                          >
+                            Open in IBM Cloud
+                          </a>
+                        </DataTable.TableCell>
                         {/* Draw delete button column */}
                         <DataTable.TableCell
                           className={styles.rowOverflow}
@@ -221,27 +243,30 @@ const Search = ({ onFilterResults }) => {
 }
 
 const Table = ({
+  activeResource,
   buckets,
   listOfLoadingBuckets,
   onDeleteBucket,
   onCreateBucket,
   onRowSelected,
-  loading
+  loading,
 }) => {
   const [filter, setFilter] = useState('')
 
-  const handleFilterResults = useCallback(e => {
+  const handleFilterResults = useCallback((e) => {
     setFilter(e.target.value)
   }, [])
 
   return (
     <div className={styles.table}>
-      <div className={styles.sectionTitle}>Buckets</div>
+      {/* <div className={styles.sectionTitle}>Buckets</div> */}
       <div className={styles.section}>
         <Search onFilterResults={handleFilterResults} />
+        <StorageDropdown />
         <CreateBucket handleClick={onCreateBucket} />
       </div>
       <TableList
+        activeResource={activeResource}
         filter={filter}
         buckets={buckets}
         listOfLoadingBuckets={listOfLoadingBuckets}

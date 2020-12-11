@@ -45,12 +45,49 @@
 }
 
 .listItemBase {
-  height: 48px;
+  /* height: 48px; */
   color: var(--secondaryText);
   border-top: 1px solid var(--highlight);
   display: flex;
-  align-items: center;
+  /* align-items: center; */
   border-left: 4px solid transparent;
+  line-height: 1.333;
+  flex-direction: column;
+
+  padding: 16px 0;
+}
+
+.clippedText {
+  color: var(--brightText);
+  font-size: 14px;
+  font-weight: 500;
+
+  line-height: 1.333;
+
+  margin-left: 8px;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.clippedText2 {
+  color: var(--detailText);
+  font-size: 14px;
+  font-weight: 400;
+
+  line-height: 1.333;
+
+  margin-left: 8px;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.boop {
+  display: flex;
+  align-items: center;
 }
 
 .listItem {
@@ -64,9 +101,13 @@
 }
 
 .listItemTextBase {
-  padding-left: 20px;
-  font-size: 14px;
+  padding: 0 20px;
+  /* font-size: 14px;
   font-weight: 600;
+
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis; */
 }
 
 .listItemSuccess {

@@ -23,7 +23,7 @@ const useOnBlur = (ref, onBlur) => {
   }, [ref, onBlur])
 }
 
-const DropDown = ({ active, list, onChosen }) => {
+const DropDown = ({ active, list, onChosen, style = {}, listStyle = {} }) => {
   const [open, setOpen] = useState(false)
 
   const blurListener = useCallback(() => {
@@ -38,7 +38,7 @@ const DropDown = ({ active, list, onChosen }) => {
   }, [])
 
   const handleChosen = useCallback(
-    item => e => {
+    (item) => (e) => {
       e.stopPropagation()
       onChosen(item)
       setOpen(false)
@@ -50,14 +50,15 @@ const DropDown = ({ active, list, onChosen }) => {
     <div
       tabIndex="0"
       className={open ? styles.open : styles.closed}
+      style={style}
       onClick={handleClick}
       ref={dropDownRef}
     >
       <div className={styles.active}>{active}</div>
       <Chevron />
       {open && (
-        <div className={styles.droplist}>
-          {list.map(item => (
+        <div className={styles.droplist} style={listStyle}>
+          {list.map((item) => (
             <div
               key={item.id}
               onClick={handleChosen(item.id)}
@@ -82,10 +83,10 @@ const ProfileImage = ({ photo }) => {
 
   useEffect(() => {
     const img = new Image()
-    img.onload = function() {
+    img.onload = function () {
       setValidImage(true)
     }
-    img.onerror = function() {
+    img.onerror = function () {
       setValidImage(false)
     }
     img.src = photo
