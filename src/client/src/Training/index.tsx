@@ -54,7 +54,7 @@ const StatusListItem = ({ name, status, date }: any) => {
     return (
       <div className={styles.listItemTextBase}>
         <div className={styles.boop}>
-          <svg
+          {/* <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 32 32"
             style={{ height: '14px', flexShrink: 0 }}
@@ -71,6 +71,15 @@ const StatusListItem = ({ name, status, date }: any) => {
               fill="#da1e28"
               d="M16,2A13.914,13.914,0,0,0,2,16,13.914,13.914,0,0,0,16,30,13.914,13.914,0,0,0,30,16,13.914,13.914,0,0,0,16,2Zm5.4449,21L9,10.5557,10.5557,9,23,21.4448Z"
             />
+          </svg> */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 12 12"
+            style={{ height: '14px', flexShrink: 0 }}
+          >
+            <circle fill="#da1e28" cx="6" cy="6" r="6"></circle>
+            <rect x="5" y="8" fill="#FFFFFF" width="2" height="2"></rect>
+            <rect x="5" y="2" fill="#FFFFFF" width="2" height="4"></rect>
           </svg>
           <div className={styles.clippedText}>{name}</div>
         </div>
@@ -272,7 +281,7 @@ function Training() {
       // setTimeout(() => {
       //   setModelList(dummyData)
       //   setModelListStatus('success')
-      // }, 3000)
+      // }, 1000)
     }
   }, [resolvedSpaceID])
 

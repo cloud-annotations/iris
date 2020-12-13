@@ -1,0 +1,79 @@
+def my_deployable_function():
+    try:
+        import subprocess
+
+        #subprocess.check_output(
+        #    "pip install -U pillow ibm-cos-sdk",
+        #    stderr=subprocess.STDOUT,
+        #    shell=True,
+        #)
+
+    except subprocess.CalledProcessError as e:
+        install_err = (
+            "subprocess.CalledProcessError:\n\n"
+            + "cmd:\n"
+            + e.cmd
+            + "\n\noutput:\n"
+            + e.output.decode()
+        )
+        raise Exception("Installing failed:\n" + install_err)
+
+    def score(function_payload):
+        try:
+            import io
+            from PIL import Image
+            import tensorflow as tf
+            import numpy as np
+
+            import ibm_boto3
+
+            cos = ibm_boto3.resource(
+                "s3",
+                aws_access_key_id="${ACCESS_KEY_ID}",
+                aws_secret_access_key="${SECRET_ACCESS_KEY}",
+                endpoint_url="${ENDPOINT_URL}",
+            )
+
+            cos.meta.client.download_file(
+                "${BUCKET}",
+                "${MODEL_LOCATION}",
+                "model.zip",
+            )
+
+            import zipfile
+
+            with zipfile.ZipFile("model.zip", "r") as zip_ref:
+                zip_ref.extractall("model")
+
+            im = Image.open(io.BytesIO(function_payload["input_data"][0]["values"][0]))
+
+            newsize = (224, 224)
+            im = im.resize(newsize)
+
+            loaded = tf.saved_model.load("model")
+
+            infer = loaded.signatures["serving_default"]
+
+            arr = np.array(im) / 255.0
+            arr = np.expand_dims(im, axis=0)
+
+            prediction = infer(tf.convert_to_tensor(arr, dtype=tf.float32))
+
+            raw_scores = prediction["dense"].numpy()[0]
+
+            with open("model/labels.txt", "r") as f:
+                class_names = f.read().strip().split("\n")
+
+            scores = {}
+            for i, name in enumerate(class_names):
+                scores[name] = raw_scores[i]
+
+            return scores
+
+        except Exception as e:
+            return {"error": repr(e)}
+
+    return score
+
+
+score = my_deployable_function()

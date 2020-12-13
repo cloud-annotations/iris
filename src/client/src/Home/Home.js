@@ -29,7 +29,7 @@ const Home = ({ attemptedPage }) => {
 
   useGoogleAnalytics('home')
 
-  const encodedState = encodeURIComponent(attemptedPage)
+  const encodedState = btoa(unescape(encodeURIComponent(attemptedPage)))
 
   const handleClick1 = useCallback(() => {
     window.location.href = `/auth/login?state=${encodedState}`
