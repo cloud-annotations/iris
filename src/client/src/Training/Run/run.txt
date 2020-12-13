@@ -1,12 +1,43 @@
-def my_deployable_function():
+ai_params = {
+    "wml_credentials": {
+        "apikey": "${API_KEY}",
+        "url": "${WML_ENDPOINT_URL}",
+    },
+    "bucket": "${BUCKET}",
+    "labels_location": "${LABELS_LOCATION}",
+    "cos_credentials": {
+        "access_key_id": "${COS_ACCESS_KEY_ID}",
+        "secret_access_key": "${COS_SECRET_ACCESS_KEY}",
+        "endpoint_url": "${COS_ENDPOINT_URL}",
+    },
+    "space_id": "${SPACE_ID}",
+    "model_deployment_id": "${DEPLOYMENT_ID}",
+}
+def my_deployable_function(params=ai_params):
     try:
         import subprocess
 
-        #subprocess.check_output(
-        #    "pip install -U pillow ibm-cos-sdk",
-        #    stderr=subprocess.STDOUT,
-        #    shell=True,
-        #)
+        subprocess.check_output(
+            "pip install -U pillow",
+            stderr=subprocess.STDOUT,
+            shell=True,
+        )
+
+        import ibm_boto3
+
+        cos = ibm_boto3.resource(
+            "s3",
+            aws_access_key_id=params["cos_credentials"]["access_key_id"],
+            aws_secret_access_key=params["cos_credentials"]["secret_access_key"],
+            endpoint_url=params["cos_credentials"]["endpoint_url"],
+        )
+
+        obj = cos.Object(
+            params["bucket"],
+            params["labels_location"],
+        ).get()["Body"]
+
+        class_names = obj.read().decode("utf-8").strip().split("\n")
 
     except subprocess.CalledProcessError as e:
         install_err = (
@@ -21,57 +52,43 @@ def my_deployable_function():
     def score(function_payload):
         try:
             import io
+            import base64
             from PIL import Image
-            import tensorflow as tf
             import numpy as np
 
-            import ibm_boto3
-
-            cos = ibm_boto3.resource(
-                "s3",
-                aws_access_key_id="${ACCESS_KEY_ID}",
-                aws_secret_access_key="${SECRET_ACCESS_KEY}",
-                endpoint_url="${ENDPOINT_URL}",
+            im = Image.open(
+                io.BytesIO(
+                    base64.decodebytes(
+                        function_payload["input_data"][0]["values"][0].encode("utf-8")
+                    )
+                )
             )
-
-            cos.meta.client.download_file(
-                "${BUCKET}",
-                "${MODEL_LOCATION}",
-                "model.zip",
-            )
-
-            import zipfile
-
-            with zipfile.ZipFile("model.zip", "r") as zip_ref:
-                zip_ref.extractall("model")
-
-            im = Image.open(io.BytesIO(function_payload["input_data"][0]["values"][0]))
 
             newsize = (224, 224)
             im = im.resize(newsize)
 
-            loaded = tf.saved_model.load("model")
-
-            infer = loaded.signatures["serving_default"]
-
             arr = np.array(im) / 255.0
             arr = np.expand_dims(im, axis=0)
 
-            prediction = infer(tf.convert_to_tensor(arr, dtype=tf.float32))
+            model_payload = {"input_data": [{"values": arr}]}
 
-            raw_scores = prediction["dense"].numpy()[0]
+            from ibm_watson_machine_learning import APIClient
 
-            with open("model/labels.txt", "r") as f:
-                class_names = f.read().strip().split("\n")
+            client = APIClient(params["wml_credentials"])
+            client.set.default_space(params["space_id"])
+            model_result = client.deployments.score(
+                params["model_deployment_id"], model_payload
+            )
+            prediction = model_result["predictions"][0]["values"][0]
 
             scores = {}
             for i, name in enumerate(class_names):
-                scores[name] = raw_scores[i]
+                scores[name] = prediction[i]
 
-            return scores
+            return {"predictions": [{"values": [{"scores": scores}]}]}
 
         except Exception as e:
-            return {"error": repr(e)}
+            return {"predictions": [{"values": [{"error": repr(e)}]}]}
 
     return score
 

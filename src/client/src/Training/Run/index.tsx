@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import styles from './styles.module.css'
 import Errors from './Errors'
@@ -6,174 +6,7 @@ import Logs from './Logs'
 import Deployments from './Deployments'
 import { Divider, Tab, Tabs } from '@material-ui/core'
 
-// import pako from 'pako'
-
-// // @ts-ignore
-// import scoringFunction from './run.txt'
-
-interface DeployOptions {
-  runID: string
-  spaceID: string
-  storage: any
-}
-
-// async function deployModel({ runID, spaceID, storage }: DeployOptions) {
-//   // TODO: don't hardcode region.
-//   const region = 'us-south'
-//   const bucket = storage.location.bucket
-
-//   const FUNCTION_PAYLOAD = {
-//     space_id: spaceID,
-//     name: bucket,
-//     type: 'python',
-//     software_spec: { name: 'default_py3.7' },
-//   }
-
-//   const createFunction = await fetch(
-//     `/api/proxy/${region}.ml.cloud.ibm.com/ml/v4/functions?version=2020-08-01`,
-//     {
-//       body: JSON.stringify(FUNCTION_PAYLOAD),
-//       headers: {
-//         Accept: 'application/json',
-//         'Content-Type': 'application/json',
-//       },
-//       method: 'POST',
-//     }
-//   ).then((r) => r.json())
-
-//   console.log(createFunction)
-
-//   console.log(storage)
-
-//   const functionText = await fetch(scoringFunction).then((r) => r.text())
-//   console.log(functionText)
-
-//   let injected = functionText
-//   injected = injected.replace(
-//     /\${ACCESS_KEY_ID}/g,
-//     storage.connection.access_key_id
-//   )
-//   injected = injected.replace(
-//     /\${SECRET_ACCESS_KEY}/g,
-//     storage.connection.secret_access_key
-//   )
-//   injected = injected.replace(
-//     /\${ENDPOINT_URL}/g,
-//     storage.connection.endpoint_url
-//   )
-//   injected = injected.replace(/\${BUCKET}/g, bucket)
-//   injected = injected.replace(
-//     /\${MODEL_LOCATION}/g,
-//     `${storage.location.assets_path.substring(1)}${
-//       storage.location.training
-//     }/resources/wml_model/${storage.location.logs}.zip`
-//   )
-//   console.log(injected)
-
-//   const functionGZipped = pako.deflate(injected, {
-//     // @ts-ignore
-//     gzip: true,
-//     header: {
-//       text: true,
-//       name: 'run.py',
-//     },
-//   })
-//   console.log(functionGZipped)
-
-//   const uploadFunctionCode = await fetch(
-//     `/api/proxy/${region}.ml.cloud.ibm.com/ml/v4/functions/${createFunction.metadata.id}/code?space_id=${spaceID}&version=2020-08-01`,
-//     {
-//       body: functionGZipped,
-//       headers: {
-//         Accept: 'application/json',
-//       },
-//       method: 'PUT',
-//     }
-//   ).then((r) => r.json())
-
-//   console.log(uploadFunctionCode)
-
-//   const DEPLOYMENT_PAYLOAD = {
-//     space_id: spaceID,
-//     name: bucket,
-//     tags: [`run:${runID}`],
-//     // description: 'TF model to predict had-written digits',
-//     online: {},
-//     hardware_spec: { name: 'S' }, // NOTE: This is NOT random lol...
-//     asset: { id: createFunction.metadata.id },
-//   }
-
-//   return await fetch(
-//     `/api/proxy/${region}.ml.cloud.ibm.com/ml/v4/deployments?version=2020-08-01`,
-//     {
-//       body: JSON.stringify(DEPLOYMENT_PAYLOAD),
-//       headers: {
-//         Accept: 'application/json',
-//         'Content-Type': 'application/json',
-//       },
-//       method: 'POST',
-//     }
-//   ).then((r) => r.json())
-// }
-
-async function deployModel({ runID, spaceID, storage }: DeployOptions) {
-  // TODO: don't hardcode region.
-  const region = 'us-south'
-  const bucket = storage.location.bucket
-  const MODEL_PAYLOAD = {
-    space_id: spaceID,
-    name: bucket,
-    // description: 'TF model to predict had-written digits',
-    type: 'tensorflow_2.1',
-    software_spec: { name: 'tensorflow_2.1-py3.7' },
-    content_location: {
-      type: 's3',
-      contents: [
-        {
-          content_format: 'native',
-          file_name: `${storage.location.logs}.zip`,
-          location: `${storage.location.assets_path}${storage.location.training}/resources/wml_model/${storage.location.logs}.zip`,
-        },
-      ],
-      connection: storage.connection,
-      location: { bucket: bucket },
-    },
-  }
-
-  const res1 = await fetch(
-    `/api/proxy/${region}.ml.cloud.ibm.com/ml/v4/models?version=2020-08-01`,
-    {
-      body: JSON.stringify(MODEL_PAYLOAD),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-    }
-  ).then((r) => r.json())
-
-  const DEPLOYMENT_PAYLOAD = {
-    space_id: spaceID,
-    name: bucket,
-    tags: [`run:${runID}`],
-    // description: 'TF model to predict had-written digits',
-    online: {},
-    hardware_spec: { name: 'S' }, // NOTE: This is NOT random lol...
-    asset: { id: res1.metadata.id },
-  }
-
-  return await fetch(
-    `/api/proxy/${region}.ml.cloud.ibm.com/ml/v4/deployments?version=2020-08-01`,
-    {
-      body: JSON.stringify(DEPLOYMENT_PAYLOAD),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      method: 'POST',
-    }
-  ).then((r) => r.json())
-}
+import WMLDialog from './WMLDialog'
 
 interface Props {
   run: any
@@ -220,25 +53,9 @@ const Training = ({ run }: Props) => {
     }
   }, [modelStatus])
 
-  const [deployStatus, setDeployStatus] = useState('idle')
-
   const [pending, setPending] = useState<any[]>([])
 
-  const deploy = useCallback(async () => {
-    setDeployStatus('pending')
-    const x = await deployModel({
-      runID: run.metadata.id,
-      spaceID: run.entity.space_id,
-      storage: run.entity.results_reference,
-    })
-    setDeployStatus('idle')
-    setPending([x, ...pending])
-  }, [
-    pending,
-    run.entity.results_reference,
-    run.entity.space_id,
-    run.metadata.id,
-  ])
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   return (
     <div className={styles.wrapper}>
@@ -247,11 +64,11 @@ const Training = ({ run }: Props) => {
 
         <div
           className={
-            modelStatus === 'completed' && deployStatus !== 'pending'
-              ? styles.button
-              : styles.buttonDisabled
+            modelStatus === 'completed' ? styles.button : styles.buttonDisabled
           }
-          onClick={deploy}
+          onClick={() => {
+            setDialogOpen(true)
+          }}
         >
           <div className={styles.buttonText}>Deploy</div>
         </div>
@@ -289,6 +106,17 @@ const Training = ({ run }: Props) => {
       <Errors failure={run?.entity?.status?.failure} />
 
       <Logs reference={run?.entity?.results_reference} />
+
+      <WMLDialog
+        run={run}
+        open={dialogOpen}
+        onClose={(deployment) => {
+          if (deployment !== undefined) {
+            setPending([deployment, ...pending])
+          }
+          setDialogOpen(false)
+        }}
+      />
     </div>
   )
 }

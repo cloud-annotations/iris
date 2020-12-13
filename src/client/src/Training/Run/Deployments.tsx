@@ -1,5 +1,6 @@
 import { formatDistance } from 'date-fns'
 import React, { useEffect, useState } from 'react'
+import StatusIcon from 'Training/StatusIcon'
 
 interface Props {
   run: any
@@ -34,43 +35,58 @@ function Deployments({ run, pending }: Props) {
     return null
   }
 
+  const items = [...pending, ...deployments]
+
+  items.sort(
+    (a, b) =>
+      Date.parse(b.metadata.created_at) - Date.parse(a.metadata.created_at)
+  )
+
   return (
     <div>
       <div className="ca--header">Deployments</div>
-      {pending.map((d: any) => {
+      {items.map((d: any) => {
         return (
           <div
             style={{
               border: '1px solid var(--listDivider)',
               display: 'flex',
-              justifyContent: 'space-between',
+              // justifyContent: 'space-between',
               padding: '16px',
               marginBottom: '8px',
+              fontSize: '14px',
+              // fontWeight: 500,
+              lineHeight: 1.333,
             }}
           >
-            <div>{d.metadata.id}</div>
-            <div>{d.entity.status.state}</div>
-            <div>
-              {formatDistance(Date.parse(d.metadata.created_at), new Date()) +
-                ' ago'}
+            <div style={{ flex: '2' }}>
+              <a
+                href={`https://dataplatform.cloud.ibm.com/ml-runtime/deployments/${d.metadata.id}?space_id=${d.entity.space_id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {d.metadata.id}
+              </a>
             </div>
-          </div>
-        )
-      })}
-      {deployments.map((d: any) => {
-        return (
-          <div
-            style={{
-              border: '1px solid var(--listDivider)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '16px',
-              marginBottom: '8px',
-            }}
-          >
-            <div>{d.metadata.id}</div>
-            <div>{d.entity.status.state}</div>
-            <div>
+            <div
+              style={{
+                flex: '1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+              }}
+            >
+              <StatusIcon status={d.entity.status.state} />
+              <div style={{ fontWeight: 500, marginLeft: '8px' }}>
+                {d.entity.status.state}
+              </div>
+            </div>
+            <div
+              style={{
+                flex: '1',
+                textAlign: 'end',
+              }}
+            >
               {formatDistance(Date.parse(d.metadata.created_at), new Date()) +
                 ' ago'}
             </div>

@@ -1,3 +1,13 @@
+a {
+  color: #78a9ff;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #a6c8ff;
+  text-decoration: underline;
+}
+
 .bx--modal-container {
   width: 100%;
 }
