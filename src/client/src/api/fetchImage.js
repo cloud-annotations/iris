@@ -11,7 +11,7 @@ const shrinkBlob = async (blob, height) => {
       canvas.height = height
       canvas.width = canvas.height * (img.width / img.height)
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-      ctx.canvas.toBlob(blob => {
+      ctx.canvas.toBlob((blob) => {
         resolve(blob)
       })
     }
@@ -36,17 +36,20 @@ export default async (endpoint, bucket, imageUrl, forcedHeight) => {
     ) {
       blob = await new COS({ endpoint: endpoint }).getObject({
         Bucket: bucket,
-        Key: imageUrl
+        Key: imageUrl,
       })
 
-      if (!blob.type.startsWith('image/')) {
+      if (
+        !blob.type.startsWith('image/') &&
+        !blob.type.startsWith('application/octet-stream')
+      ) {
         // If responce isn't an image, try 4 more times, 500, 1000, 2000, 3000.
         await new Promise((resolve, _) => {
           const recursiveRetry = (wait, tries) => {
             setTimeout(async () => {
               blob = await new COS({ endpoint: endpoint }).getObject({
                 Bucket: bucket,
-                Key: imageUrl
+                Key: imageUrl,
               })
               if (blob.type.startsWith('image/') || tries === 0) {
                 resolve()

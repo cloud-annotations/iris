@@ -13,7 +13,7 @@ const ImageTile = ({ selected, secondarySelected, endpoint, bucket, item }) => {
 
   const handleObserver = useCallback(
     (entries, observer) => {
-      entries.forEach(async entry => {
+      entries.forEach(async (entry) => {
         if (entry.isIntersecting) {
           observer.unobserve(entry.target)
           const res = await fetchImage(endpoint, bucket, item, 160)
@@ -28,7 +28,7 @@ const ImageTile = ({ selected, secondarySelected, endpoint, bucket, item }) => {
     const observer = new IntersectionObserver(handleObserver, {
       root: null,
       rootMargin: '0px',
-      threshold: 0.0
+      threshold: 0.0,
     })
     const target = imageRef.current
     observer.observe(target)

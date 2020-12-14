@@ -11,7 +11,7 @@ import {
   labelImagesV2,
   deleteImages,
   clearLabels,
-  createLabel
+  createLabel,
 } from 'redux/collection'
 
 import styles from './GridPanel.module.css'
@@ -19,9 +19,10 @@ import styles from './GridPanel.module.css'
 const GridControllerDelegate = (labels, images, bucket, endpoint) => {
   return {
     numberOfSections: labels.length,
-    numberOfItemsInSection: sectionIndex => images[labels[sectionIndex]].length,
-    keyForHeaderInSection: sectionIndex => labels[sectionIndex],
-    titleForHeaderInSection: sectionIndex => {
+    numberOfItemsInSection: (sectionIndex) =>
+      images[labels[sectionIndex]].length,
+    keyForHeaderInSection: (sectionIndex) => labels[sectionIndex],
+    titleForHeaderInSection: (sectionIndex) => {
       const label = labels[sectionIndex]
       return label === UNLABELED ? 'Unlabeled' : label
     },
@@ -39,7 +40,7 @@ const GridControllerDelegate = (labels, images, bucket, endpoint) => {
           item={images[section][index]}
         />
       )
-    }
+    },
   }
 }
 
@@ -58,7 +59,7 @@ const GridPanel = ({
   groupedImages,
   syncAction,
   selection,
-  onSelectionChange
+  onSelectionChange,
 }) => {
   const selectionCount = selection.filter(Boolean).length
 
@@ -79,7 +80,7 @@ const GridPanel = ({
   }
 
   const handleLabelChanged = useCallback(
-    label => {
+    (label) => {
       const selectedImages = getSelectedImages(
         selection,
         groupedImages,
@@ -102,7 +103,7 @@ const GridPanel = ({
       onSelectionChange,
       selection,
       syncAction,
-      visibleLabels
+      visibleLabels,
     ]
   )
 
@@ -131,7 +132,7 @@ const GridPanel = ({
   }, [onSelectionChange])
 
   const handleChangeSelection = useCallback(
-    selection => {
+    (selection) => {
       onSelectionChange(selection)
     },
     [onSelectionChange]
@@ -174,6 +175,6 @@ const GridPanel = ({
 
 const mapStateToProps = () => ({})
 const mapDispatchToProps = {
-  syncAction
+  syncAction,
 }
 export default connect(mapStateToProps, mapDispatchToProps)(GridPanel)

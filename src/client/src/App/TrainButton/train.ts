@@ -2,10 +2,10 @@ import { fullPrivateEndpointForLocationConstraint } from 'endpoints'
 
 const DEFAULT_GPU = 'k80'
 
-const train_epochs = 5
-const do_fine_tuning = false
-const batch_size = 32
-const learning_rate = 0.005
+const train_epochs = 500 // 5
+const do_fine_tuning = true // false
+const batch_size = 100 // 32
+const learning_rate = 0.005 // (original script we used had this set to 0.01)
 const momentum = 0.9
 const dropout_rate = 0.2
 const l1_regularizer = 0.0

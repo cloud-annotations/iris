@@ -2,23 +2,23 @@ import React, { Component } from 'react'
 import GridItem from './GridItem'
 import styles from './GridController.module.css'
 
-const SafetyNet = delegate => {
-  const fillWith = type => {
+const SafetyNet = (delegate) => {
+  const fillWith = (type) => {
     return [...Array(delegate.numberOfSections)].reduce((acc, _, i) => {
       return [
         ...acc,
-        ...[...Array(delegate.numberOfItemsInSection(i))].map(() => type)
+        ...[...Array(delegate.numberOfItemsInSection(i))].map(() => type),
       ]
     }, [])
   }
   const safeSelection = fillWith(false)
   return {
-    selection: selection =>
+    selection: (selection) =>
       selection && safeSelection.length === selection.length
         ? [...selection]
         : safeSelection,
     fullSelection: fillWith(true),
-    emptySelection: safeSelection
+    emptySelection: safeSelection,
   }
 }
 
@@ -28,7 +28,7 @@ export default class GridController extends Component {
     lastSelectedIndex: null,
     dragStartIndex: null,
     dragStartSection: null,
-    intermediateSelection: null
+    intermediateSelection: null,
   }
 
   componentDidMount() {
@@ -41,7 +41,7 @@ export default class GridController extends Component {
     document.removeEventListener('mouseup', this.handleDragEnd)
   }
 
-  handleKeyDown = e => {
+  handleKeyDown = (e) => {
     const char = e.key.toLowerCase()
     // For MAC we can use metaKey to detect cmd key
     if ((e.ctrlKey || e.metaKey) && char === 'a') {
@@ -57,7 +57,7 @@ export default class GridController extends Component {
     const safeSelection = SafetyNet(delegate).selection(selection)
 
     this.setState(
-      prevState => {
+      (prevState) => {
         let lastSelectedIndex = prevState.lastSelectedIndex
         if (shiftPressed && lastSelectedIndex !== null) {
           // The default sort for arrays in Javascript is alphabetical.
@@ -81,11 +81,11 @@ export default class GridController extends Component {
           lastSelectedIndex = index
         }
         // If nothing is selected clear the last selected index.
-        if (safeSelection.filter(item => item).length === 0) {
+        if (safeSelection.filter((item) => item).length === 0) {
           lastSelectedIndex = null
         }
         return {
-          lastSelectedIndex: lastSelectedIndex
+          lastSelectedIndex: lastSelectedIndex,
         }
       },
       () => {
@@ -98,7 +98,7 @@ export default class GridController extends Component {
     this.setState({
       dragging: true,
       dragStartIndex: index,
-      dragStartSection: section
+      dragStartSection: section,
     })
   }
 
@@ -148,7 +148,7 @@ export default class GridController extends Component {
     })
 
     this.setState({
-      intermediateSelection: intermediateSelection
+      intermediateSelection: intermediateSelection,
     })
   }
 
@@ -163,7 +163,7 @@ export default class GridController extends Component {
     const safeSelection = SafetyNet(delegate).selection(selection)
     const mergedSelection = this.state.intermediateSelection || safeSelection
     this.setState(
-      prevState => {
+      (prevState) => {
         // If we dragged a selection, we don't want a last selected for shift click.
         const lastSelectedIndex = prevState.intermediateSelection
           ? null
@@ -174,7 +174,7 @@ export default class GridController extends Component {
           dragStartIndex: null,
           dragEndIndex: null,
           lastSelectedIndex: lastSelectedIndex,
-          intermediateSelection: null
+          intermediateSelection: null,
         }
       },
       () => {
@@ -203,7 +203,7 @@ export default class GridController extends Component {
     const mergedSelection = this.state.intermediateSelection || selection
     return (
       <div className={className}>
-        {(i =>
+        {((i) =>
           [...Array(delegate.numberOfSections)].map((_, section) => {
             const sectionCount = delegate.numberOfItemsInSection(section)
             if (sectionCount === 0) {

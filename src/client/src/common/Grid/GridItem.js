@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
 
 export default class GridItem extends Component {
-  handleClick = e => {
+  handleClick = (e) => {
     const { onItemSelected, index } = this.props
     onItemSelected(e, index)
   }
 
-  handleMouseDown = e => {
+  handleMouseDown = (e) => {
     const { onDragStart, section, index } = this.props
     // Start drag if it was a left click.
     if (e.button === 0) {
@@ -14,7 +14,7 @@ export default class GridItem extends Component {
     }
   }
 
-  handleMouseEnter = e => {
+  handleMouseEnter = (e) => {
     const { onItemEntered, section, index } = this.props
     onItemEntered(section, index)
   }
