@@ -475,7 +475,7 @@ app.get('/api/wml-instances', (req, res) => {
 // Proxy any other request.
 app.all('/api/proxy/*', (req, res) => {
   const token = req.cookies.access_token
-  const url = `https://${req.params[0]}`
+  const url = `https://${encodeURI(req.params[0])}`
 
   const headers = {}
   if (token) {
