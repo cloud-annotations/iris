@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 
 import { createStyles, makeStyles } from "@material-ui/core";
 
-import CrispyCanvas from "./CrispyCanvas";
+import { Canvas } from "@iris/core";
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -21,7 +21,7 @@ interface Props {
   tool: string;
   image: string;
   shapes: any[];
-  render: { [key: string]: (c: CrispyCanvas, v: any) => void };
+  render: { [key: string]: (c: Canvas.Context, v: any) => void };
   actions: {
     [key: string]: {
       onTargetMove: (coords: { x: number; y: number }, target: any) => void;
@@ -97,7 +97,7 @@ function useImage(src: string) {
   return image;
 }
 
-function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
+function CanvasView({ mode, tool, image, shapes, render, actions }: Props) {
   const classes = useStyles();
 
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -106,7 +106,7 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
   const [width, height] = useWatchSize(viewportRef);
   const imageData = useImage(image);
 
-  const cRef = useRef<CrispyCanvas | null>(null);
+  const cRef = useRef<Canvas.Context | null>(null);
   const stateRef = useRef<{ dragging: boolean; target: any }>({
     dragging: false,
     target: undefined,
@@ -114,7 +114,7 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
 
   useEffect(() => {
     if (imageData && canvasRef.current) {
-      const c = new CrispyCanvas(canvasRef.current, { width, height, mode });
+      const c = new Canvas.Context(canvasRef.current, { width, height, mode });
       cRef.current = c;
 
       c.drawImage(imageData);
@@ -254,4 +254,4 @@ function Canvas({ mode, tool, image, shapes, render, actions }: Props) {
   );
 }
 
-export default Canvas;
+export default CanvasView;

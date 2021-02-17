@@ -8,6 +8,7 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@iris/core": "^0.0.1",
     "@iris/components": "^0.0.1",
     "@material-ui/core": "^4.11.0",
     "@types/react": "^16.9.53",

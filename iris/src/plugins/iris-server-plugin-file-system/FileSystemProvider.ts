@@ -3,21 +3,37 @@ import path from "path";
 import fs from "fs-extra";
 import lockfile from "proper-lockfile";
 
-interface IImage {
+interface Label {
+  id: string;
+  name: string;
+}
+
+interface Image {
   id: string;
   date: string;
+  annotations: string[];
+}
+
+interface Annotation {
+  id: string;
+  label: string;
+  tool?: string;
+  targets?: {
+    id: string;
+    x: number;
+    y: number;
+  }[];
+  [key: string]: any; // plugins can specify extra keys.
 }
 
 interface IProject {
   id?: string;
   name: string;
   created: Date;
-  annotations: {
-    version: string;
-    labels: string[];
-    annotations: {}; // TODO
-    images: IImage[];
-  };
+  version: string;
+  labels: { [key: string]: Label };
+  annotations: { [key: string]: Annotation };
+  images: { [key: string]: Image };
 }
 
 interface IOptions {
@@ -104,12 +120,10 @@ class FileSystemProvider {
       id: projectID,
       name: projectID ?? path.basename(process.cwd()),
       created: new Date(),
-      annotations: {
-        version: "v2",
-        labels: [],
-        annotations: {},
-        images: [],
-      },
+      version: "v2",
+      labels: {},
+      annotations: {},
+      images: {},
     };
 
     try {
@@ -117,19 +131,25 @@ class FileSystemProvider {
         path.join(this._dir(projectID), "_annotations.json"),
         "utf-8"
       );
-      project.annotations = JSON.parse(annotationsString);
+      // TODO: check version
+      const { labels, annotations, images } = JSON.parse(annotationsString);
+      project.labels = labels;
+      project.annotations = annotations;
+      project.images = images;
     } catch {
       // we don't care if there's no annotations file.
     }
 
     const files = await fs.readdir(this._dir(projectID));
 
-    project.annotations.images = files
-      .filter(
-        (f) =>
-          f.toLowerCase().endsWith(".jpg") || f.toLowerCase().endsWith(".jpeg")
-      )
-      .map((i) => ({ id: i, date: "" }));
+    for (const f of files) {
+      if (
+        f.toLowerCase().endsWith(".jpg") ||
+        f.toLowerCase().endsWith(".jpeg")
+      ) {
+        project.images[f] = { id: f, date: "", annotations: [] };
+      }
+    }
 
     return project;
   }
@@ -172,7 +192,7 @@ class FileSystemProvider {
     const release = await lockfile.lock(output);
     const writeStream = fs.createWriteStream(output);
     file.pipe(writeStream);
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       writeStream.on("error", async (e) => {
         await release();
         reject(e);

@@ -10,17 +10,14 @@ import {
 } from "@iris/components";
 import {
   ProjectState,
-  visibleImagesSelector,
-  visibleSelectedImagesSelector,
-  filterByLabel,
-  selectImages,
-  showAllImages,
-  showLabeledImages,
-  showUnlabeledImages,
-  toggleSelectedImage,
-  deleteCategory,
-  editImage,
-} from "@iris/store";
+  useActiveImageID,
+  useFilteredImageCount,
+  useFilterMode,
+  useImages,
+  useLabelCount,
+  useLabelFilter,
+  useSelectedImages,
+} from "@iris/core";
 
 import styles from "./ImagesPanel.module.css";
 
@@ -28,6 +25,7 @@ const filterMap = {
   all: "All Images",
   labeled: "Labeled",
   unlabeled: "Unlabeled",
+  byLabel: "",
 };
 
 const blockSwipeBack = (element: any) => (e: any) => {
@@ -62,72 +60,61 @@ function ImagesPanel() {
 
   const projectID = useSelector((project: ProjectState) => project.meta.id);
 
-  const filterMode = useSelector(
-    (project: ProjectState) => project.ui.imageFilter.mode
-  );
+  const filterMode = useFilterMode();
+  const filter = useLabelFilter();
 
-  const filter = useSelector(
-    (project: ProjectState) => project.ui.imageFilter.label
-  );
-
-  const images = useSelector(visibleImagesSelector);
-  const selection = useSelector(visibleSelectedImagesSelector);
+  const images = useImages();
+  const selection = useSelectedImages();
+  const activeImage = useActiveImageID();
 
   const range = selection.map((s) => images.indexOf(s));
 
-  const selectedIndex = images.indexOf(selection[0]);
+  const selectedIndex = images.findIndex((i) => i.id === activeImage);
 
-  const labels = useSelector((project: ProjectState) => {
-    const categories: { [key: string]: number } = {};
-    for (const c of project.data.categories) {
-      categories[c] = 0;
-    }
-    for (const imageAnnotations of Object.values(project.data.annotations)) {
-      for (const a of imageAnnotations) {
-        categories[a.label] += 1;
-      }
-    }
-    return categories;
+  const labels = useLabelCount();
+
+  // const annotations = useAnnotations();
+
+  const cells = images.map((i) => {
+    const e = endpoint("/images/:imageID", {
+      path: { imageID: i.id },
+      query: { projectID: projectID },
+    });
+    return (
+      <ImageTile
+        // TODO
+        status="success"
+        // status={i.status}
+        url={e}
+        targets={
+          undefined
+          // filter !== undefined
+          //   ? annotations[i.id]
+          //       .filter((a) => a.label === filter)
+          //       .map((a) => a.targets)
+          //   : undefined
+        }
+        onError={() => {
+          // dispatch(
+          //   editImage({
+          //     id: i.id,
+          //     status: "error",
+          //     date: "",
+          //   })
+          // );
+        }}
+      />
+    );
   });
-
-  const annotations = useSelector(
-    (project: ProjectState) => project.data.annotations
-  );
-
-  const cells = images.map((i) => (
-    <ImageTile
-      status={i.status}
-      url={endpoint("/images/:imageID", {
-        path: { imageID: i.id },
-        query: { projectID: projectID },
-      })}
-      targets={
-        filter !== undefined
-          ? annotations[i.id]
-              .filter((a) => a.label === filter)
-              .map((a) => a.targets)
-          : undefined
-      }
-      onError={() => {
-        dispatch(
-          editImage({
-            id: i.id,
-            status: "error",
-            date: "",
-          })
-        );
-      }}
-    />
-  ));
 
   const handleSelectionChanged = useCallback(
     (selection, key) => {
       if (key.shiftKey) {
         // TODO
       } else if (key.ctrlKey) {
-        dispatch(toggleSelectedImage(images[selection].id));
+        // dispatch(toggleSelectedImage(images[selection].id));
       } else {
-        dispatch(selectImages(images[selection].id));
+        // dispatch(selectImages(images[selection].id));
       }
     },
     [dispatch, images]
@@ -146,7 +133,7 @@ function ImagesPanel() {
         danger: true,
       });
       if (deleteTheLabel) {
-        dispatch(deleteCategory(label));
+        // dispatch(deleteCategory(label));
       }
     },
     [dispatch]
@@ -156,13 +143,13 @@ function ImagesPanel() {
     (e) => {
       switch (e.target.value) {
         case "all":
-          dispatch(showAllImages());
+          // dispatch(showAllImages());
           break;
         case "labeled":
-          dispatch(showLabeledImages());
+          // dispatch(showLabeledImages());
           break;
         case "unlabeled":
-          dispatch(showUnlabeledImages());
+          // dispatch(showUnlabeledImages());
           break;
       }
     },
@@ -171,25 +158,12 @@ function ImagesPanel() {
 
   const handleClickLabel = useCallback(
     (label) => () => {
-      dispatch(filterByLabel(label));
+      // dispatch(filterByLabel(label));
     },
     [dispatch]
   );
 
-  const filterImageModeCount = useSelector((project: ProjectState) => {
-    const all = project.data.images?.length ?? 0;
-    const labeled = Object.keys(project.data.annotations).length;
-    // TODO: this logic isn't necessarily sound if an annotation exists, but the
-    // file is missing.
-    switch (project.ui.imageFilter.mode) {
-      case "all":
-        return all;
-      case "labeled":
-        return labeled;
-      case "unlabeled":
-        return all - labeled;
-    }
-  });
+  const filterImageModeCount = useFilteredImageCount();
 
   return (
     <div className={styles.wrapper}>
@@ -203,7 +177,9 @@ function ImagesPanel() {
               onClick={handleClickLabel(undefined)}
               className={styles.filterNotSelected}
             >
-              {filterMap[filterMode ?? "all"]}
+              {filterMode === undefined
+                ? filterMap["all"]
+                : filterMap[filterMode]}
             </div>
           </>
         ) : (

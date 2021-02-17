@@ -10,7 +10,7 @@ export default {
 };
 
 const Template: Story<Props> = (args) => {
-  const [active, setActive] = useState(args.labels[0]);
+  const [active, setActive] = useState(args.labels[0].id);
   return (
     <Select
       {...args}
@@ -24,5 +24,9 @@ const Template: Story<Props> = (args) => {
 
 export const Primary = Template.bind({});
 Primary.args = {
-  labels: ["bloop", "blop", "bleep"],
+  labels: [
+    { name: "bloop", id: "0" },
+    { name: "blop", id: "1" },
+    { name: "bleep", id: "2" },
+  ],
 };

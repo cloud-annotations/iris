@@ -2,11 +2,6 @@ import React, { useCallback } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
-import { useDispatch } from "react-redux";
-
-// import { uploadImages } from "@iris/store";
-
-import { addImages } from "@iris/store";
 
 import { createJPEGs } from "./image-utils";
 import Localization from "./Localization";
@@ -79,15 +74,10 @@ const useStyles = makeStyles((theme: Theme) =>
 function Main() {
   const classes = useStyles();
 
-  const dispatch = useDispatch();
-
-  const onDrop = useCallback(
-    async (acceptedFiles: File[]) => {
-      const jpegs = await createJPEGs(acceptedFiles);
-      dispatch(addImages(jpegs));
-    },
-    [dispatch]
-  );
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const jpegs = await createJPEGs(acceptedFiles);
+    // dispatch(addImages(jpegs));
+  }, []);
 
   const { getRootProps, isDragActive } = useDropzone({
     onDrop,

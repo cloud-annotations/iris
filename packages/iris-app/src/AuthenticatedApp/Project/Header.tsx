@@ -3,16 +3,15 @@ import React from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
-import { v4 as uuidv4 } from "uuid";
 
 import { showConfirmDialog, showFileDialog } from "@iris/components";
 import {
   ProjectState,
-  visibleSelectedImagesSelector,
-  addAnnotations,
-  addImages,
-  removeImages,
-} from "@iris/store";
+  useSelectedImagesCount,
+  useLabels,
+  NEW_ANNOTATION,
+} from "@iris/core";
+import { IrisLogo } from "@iris/icons";
 
 import { createJPEGs } from "./image-utils";
 import ToolbarMenus from "./ToolbarMenus";
@@ -89,118 +88,22 @@ const useStyles = makeStyles((theme: Theme) =>
 interface Props {
   name: string;
   saving: number;
+  menus: Menu[];
+  backLink?: string;
 }
 
-function Header({ name, saving }: Props) {
+function Header({ name, saving, menus, backLink }: Props) {
   const classes = useStyles();
-
-  const { pathname } = useLocation();
-
-  const dispatch = useDispatch();
-
-  const selected = useSelector(visibleSelectedImagesSelector);
-  const categories = useSelector(
-    (project: ProjectState) => project.data.categories
-  );
-
-  const menus: Menu[] = [
-    {
-      name: "File",
-      items: [
-        {
-          name: "Upload media",
-          action: async () => {
-            const files = await showFileDialog({
-              accept: "image/*,video/*",
-              multiple: true,
-            });
-            const jpegs = await createJPEGs(files);
-            dispatch(addImages(jpegs));
-          },
-        },
-      ],
-    },
-    {
-      name: selected.length > 1 ? `Images (${selected.length})` : "Image",
-      items: [
-        {
-          name: "Delete",
-          action: async () => {
-            const shouldDeleteImages = await showConfirmDialog({
-              title:
-                selected.length > 1
-                  ? `Delete ${selected.length} images?`
-                  : "Delete image?",
-              primary: "Delete",
-              danger: true,
-            });
-            if (shouldDeleteImages) {
-              dispatch(removeImages(selected.map((i) => i.id)));
-            }
-          },
-        },
-        { divider: true },
-        {
-          name: 'Mark as "negative"',
-          action: () => {
-            dispatch(
-              addAnnotations({
-                images: selected.map((i) => i.id),
-                annotation: { id: uuidv4(), label: "negative" },
-              })
-            );
-          },
-        },
-        {
-          name: "Mark as",
-          disabled: categories.length === 0,
-          items: categories.map((c) => ({
-            name: c,
-            action: () => {
-              dispatch(
-                addAnnotations({
-                  images: selected.map((i) => i.id),
-                  annotation: { id: uuidv4(), label: c },
-                })
-              );
-            },
-          })),
-        },
-      ],
-    },
-  ];
 
   return (
     <div className={classes.root}>
       <div className={classes.projectButton}>
-        {/* TODO: change this to check for path params instead (useParams() hook) */}
-        {pathname.startsWith("/projects/") ? (
-          <Link
-            to={pathname.split("/").slice(0, -1).join("/")}
-            className={classes.projectLink}
-          >
-            <svg className={classes.projectIcon} viewBox="0 0 40 41">
-              <rect fill="white" x="0" y="0" width="8" height="8" />
-              <rect fill="white" x="32" y="0" width="8" height="8" />
-              <rect fill="white" x="0" y="33" width="8" height="8" />
-              <rect fill="white" x="32" y="33" width="8" height="8" />
-              <rect fill="white" x="4" y="8" width="4" height="25" />
-              <rect fill="white" x="32" y="8" width="4" height="25" />
-              <rect fill="white" x="8" y="5" width="24" height="3" />
-              <rect fill="white" x="8" y="33" width="24" height="3" />
-            </svg>
+        {backLink ? (
+          <Link to={backLink} className={classes.projectLink}>
+            <IrisLogo className={classes.projectIcon} />
           </Link>
         ) : (
-          <svg className={classes.projectIcon} viewBox="0 0 40 41">
-            <rect fill="white" x="0" y="0" width="8" height="8" />
-            <rect fill="white" x="32" y="0" width="8" height="8" />
-            <rect fill="white" x="0" y="33" width="8" height="8" />
-            <rect fill="white" x="32" y="33" width="8" height="8" />
-            <rect fill="white" x="4" y="8" width="4" height="25" />
-            <rect fill="white" x="32" y="8" width="4" height="25" />
-            <rect fill="white" x="8" y="5" width="24" height="3" />
-            <rect fill="white" x="8" y="33" width="24" height="3" />
-          </svg>
+          <IrisLogo className={classes.projectIcon} />
         )}
       </div>
 
@@ -220,7 +123,78 @@ function Header({ name, saving }: Props) {
 function HeaderController() {
   const name = useSelector((project: ProjectState) => project.meta.name);
   const saving = useSelector((project: ProjectState) => project.meta.saving);
-  return <Header name={name ?? ""} saving={saving} />;
+
+  const { pathname } = useLocation();
+
+  const dispatch = useDispatch();
+
+  const selected = useSelectedImagesCount();
+  const labels = useLabels();
+
+  const menus: Menu[] = [
+    {
+      name: "File",
+      items: [
+        {
+          name: "Upload media",
+          action: async () => {
+            const files = await showFileDialog({
+              accept: "image/*,video/*",
+              multiple: true,
+            });
+            const jpegs = await createJPEGs(files);
+            // dispatch(addImages(jpegs));
+          },
+        },
+      ],
+    },
+    {
+      name: selected > 1 ? `Images (${selected})` : "Image",
+      items: [
+        {
+          name: "Delete",
+          action: async () => {
+            const shouldDeleteImages = await showConfirmDialog({
+              title:
+                selected > 1 ? `Delete ${selected} images?` : "Delete image?",
+              primary: "Delete",
+              danger: true,
+            });
+            if (shouldDeleteImages) {
+              // dispatch(removeImages());
+            }
+          },
+        },
+        { divider: true },
+        {
+          name: 'Mark as "negative"',
+          action: () => {
+            // dispatch(NEW_ANNOTATION({ id: uuidv4(), label: "negative" }));
+          },
+        },
+        {
+          name: "Mark as",
+          disabled: labels.length === 0,
+          items: labels.map((l) => ({
+            name: l.name,
+            action: () => {
+              dispatch(NEW_ANNOTATION({ label: l.id }));
+            },
+          })),
+        },
+      ],
+    },
+  ];
+
+  const backLink = pathname.split("/").slice(0, -1).join("/");
+  return (
+    <Header
+      name={name ?? ""}
+      saving={saving}
+      menus={menus}
+      backLink={pathname.startsWith("/projects/") ? backLink : undefined}
+    />
+  );
 }
 
 export default HeaderController;

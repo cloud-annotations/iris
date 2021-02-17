@@ -1,18 +1,18 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import { motion } from "framer-motion";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { endpoint } from "@iris/api";
 import { LabelSelect } from "@iris/components";
 import {
-  ProjectState,
-  activeImageSelector,
-  Target,
-  deleteAnnotations,
-  editAnnotations,
-  highlightBox,
-} from "@iris/store";
+  useLabels,
+  useActiveImageID,
+  useProjectID,
+  useShapes,
+  Project,
+  DELETE_ANNOTATION,
+} from "@iris/core";
 
 import styles from "./LayersPanel.module.css";
 
@@ -25,7 +25,7 @@ const transition = {
   duration: 0.225,
 };
 
-function calculateCrop(targets: Target[], imageSize: number[]) {
+function calculateCrop(targets: Project.Target[], imageSize: number[]) {
   const xMin = Math.min(...targets.map((t) => t.x));
   const yMin = Math.min(...targets.map((t) => t.y));
   const xMax = Math.max(...targets.map((t) => t.x));
@@ -75,8 +75,8 @@ function calculateCrop(targets: Target[], imageSize: number[]) {
 }
 
 interface ListItemProps {
-  box: any;
-  labels: string[];
+  box: Project.AnnotationWithID;
+  labels: { name: string; id: string }[];
   imageID: string;
   image: string;
   imageDims: number[];
@@ -87,34 +87,43 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
   const dispatch = useDispatch();
 
   const handleDelete = useCallback(() => {
-    dispatch(deleteAnnotations({ images: [imageID], annotation: box }));
-  }, [box, dispatch, imageID]);
+    dispatch(DELETE_ANNOTATION(box.id));
+  }, [box.id, dispatch]);
 
-  const handleLabelChosen = useCallback(
-    (label) => {
-      dispatch(
-        editAnnotations({
-          images: [imageID],
-          annotation: {
-            ...box,
-            label: label,
-          },
-        })
-      );
-    },
-    [box, dispatch, imageID]
-  );
+  const handleLabelChosen = useCallback((label) => {
+    // dispatch(
+    //   editAnnotations({
+    //     images: [imageID],
+    //     annotation: {
+    //       ...box,
+    //       label: label,
+    //     },
+    //   })
+    // );
+  }, []);
+
+  const handleNewLabel = useCallback((label) => {
+    // dispatch(
+    //   editAnnotations({
+    //     images: [imageID],
+    //     annotation: {
+    //       ...box,
+    //       label: label,
+    //     },
+    //   })
+    // );
+  }, []);
 
   const handleBoxEnter = useCallback(
     (box) => () => {
-      dispatch(highlightBox(box.id));
+      // dispatch(highlightBox(box.id));
     },
-    [dispatch]
+    []
   );
 
   const handleBoxLeave = useCallback(() => {
-    dispatch(highlightBox(undefined));
-  }, [dispatch]);
+    // dispatch(highlightBox(undefined));
+  }, []);
 
   const {
     cropWidth,
@@ -123,7 +132,7 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
     yOffset,
     fullWidth,
     fullHeight,
-  } = calculateCrop(box.targets, imageDims);
+  } = calculateCrop(box.targets ?? [], imageDims);
 
   return (
     <div
@@ -146,6 +155,7 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
         labels={labels}
         activeLabel={box.label}
         onChange={handleLabelChosen}
+        onNew={handleNewLabel}
         onFocusChange={(f) => setFocused(f)}
       />
       <div onClick={handleDelete} className={styles.deleteIcon}>
@@ -160,23 +170,16 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
 }
 
 function LayersPanel() {
-  const projectID = useSelector((project: ProjectState) => project.meta.id);
-  const activeImage = useSelector(activeImageSelector);
-  const labels = useSelector(
-    (project: ProjectState) => project.data.categories
-  );
+  const projectID = useProjectID();
+  const activeImage = useActiveImageID();
+  const labels = useLabels();
 
-  const boxes = useSelector((project: ProjectState) => {
-    if (activeImage) {
-      return project.data.annotations[activeImage.id] ?? [];
-    }
-    return [];
-  });
+  const shapes = useShapes();
 
   const [imageDims, setImageDims] = useState([0, 0]);
 
   const imageUrl = endpoint("/images/:imageID", {
-    path: { imageID: activeImage?.id },
+    path: { imageID: activeImage },
     query: { projectID: projectID },
   });
 
@@ -193,7 +196,7 @@ function LayersPanel() {
 
   return (
     <div className={styles.wrapper}>
-      {boxes
+      {shapes
         .filter((b) => b.targets !== undefined)
         .map((box) => (
           <motion.div
@@ -206,7 +209,7 @@ function LayersPanel() {
               box={box}
               labels={labels}
               image={imageUrl}
-              imageID={activeImage?.id ?? ""}
+              imageID={activeImage}
               imageDims={imageDims}
             />
           </motion.div>

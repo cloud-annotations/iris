@@ -1,18 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { endpoint } from "@iris/api";
-import { Canvas, CrossHair, EmptySet } from "@iris/components";
+import { CanvasView, CrossHair, EmptySet } from "@iris/components";
 import {
-  ProjectState,
-  selectedCategorySelector,
-  activeImageSelector,
-  deleteAnnotations,
-  selectCategory,
-  selectTool,
-} from "@iris/store";
+  Project,
+  useActiveImageStatus,
+  useActiveImageID,
+  useActiveLabel,
+  useLabels,
+  useProjectID,
+  useActiveTool,
+  useShapes,
+} from "@iris/core";
 
 import { uniqueColor } from "./color-utils";
 import styles from "./DrawingPanel.module.css";
@@ -71,7 +73,7 @@ const useIsControlPressed = (onCtrlChange: Function) => {
 
 const useToggleLabel = (
   activeLabel: string,
-  labels: string[],
+  labels: Project.Label[],
   setActiveLabel: (label: string) => void
 ) => {
   const handleKeyDown = useCallback(
@@ -83,7 +85,9 @@ const useToggleLabel = (
       const char = e.key.toLowerCase();
       if (char === "q") {
         setActiveLabel(
-          labels[(labels.indexOf(activeLabel) + 1) % labels.length]
+          labels[
+            (labels.findIndex((l) => l.id === activeLabel) + 1) % labels.length
+          ].id
         );
       }
       let labelIndex = parseInt(char) - 1;
@@ -92,7 +96,7 @@ const useToggleLabel = (
         labelIndex = 9;
       }
       if (labelIndex < labels.length) {
-        setActiveLabel(labels[labelIndex]);
+        setActiveLabel(labels[labelIndex].id);
       }
     },
     [activeLabel, labels, setActiveLabel]
@@ -105,15 +109,6 @@ const useToggleLabel = (
     };
   }, [handleKeyDown]);
 };
-
-function partition<T>(array: T[], isValid: (item: T) => boolean) {
-  return array.reduce(
-    ([pass, fail]: T[][], item) => {
-      return isValid(item) ? [[...pass, item], fail] : [pass, [...fail, item]];
-    },
-    [[], []]
-  );
-}
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -149,7 +144,8 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 function CanvasWrapper({
-  activeImage,
+  image,
+  status,
   activeColor,
   selectedTool,
   projectID,
@@ -158,15 +154,15 @@ function CanvasWrapper({
   const classes = useStyles();
 
   const imageUrl = endpoint("/images/:imageID", {
-    path: { imageID: activeImage?.id },
+    path: { imageID: image },
     query: { projectID: projectID },
   });
 
-  switch (activeImage?.status) {
+  switch (status) {
     case "success":
       return (
         <CrossHair color={activeColor} active={selectedTool === BOX}>
-          <Canvas
+          <CanvasView
             mode={selectedTool === "move" ? "move" : "draw"}
             image={imageUrl}
             tool={selectedTool}
@@ -216,103 +212,64 @@ function CanvasWrapper({
 
 function DrawingPanel() {
   const dispatch = useDispatch();
-  const selectedTool = useSelector(
-    (project: ProjectState) =>
-      project.ui.selectedTool ?? window.IRIS.tools.list()[1].id
-  );
 
-  const highlightedBox = useSelector(
-    (project: ProjectState) => project.ui.highlightedBox
-  );
-
-  const activeImage = useSelector(activeImageSelector);
-
-  const boxes = useSelector((project: ProjectState) => {
-    if (activeImage) {
-      return project.data.annotations[activeImage.id] ?? [];
-    }
-    return [];
-  });
-
-  const projectID = useSelector((project: ProjectState) => project.meta.id);
-
-  const activeLabel = useSelector(selectedCategorySelector);
-  const labels = useSelector(
-    (project: ProjectState) => project.data.categories
-  );
-
-  const [bboxes, onlyLabels] = partition(
-    boxes,
-    (box) => box.tool !== undefined
-  );
+  const selectedTool = useActiveTool();
+  const highlightedBox = "";
+  const activeImageID = useActiveImageID();
+  const activeImageStatus = useActiveImageStatus();
+  const shapes = useShapes();
+  const projectID = useProjectID();
+  const activeLabel = useActiveLabel();
+  const labels = useLabels();
 
   const handleControlChange = useCallback(
     (isPressed) => {
-      dispatch(selectTool(isPressed ? MOVE : BOX));
+      // dispatch(selectTool(isPressed ? MOVE : BOX));
     },
     [dispatch]
   );
 
+  // TODO: move this to the toolbar component
   useIsControlPressed(handleControlChange);
-  useToggleLabel(activeLabel, labels, (label) =>
-    dispatch(selectCategory(label))
-  );
+
+  // TODO: move this to the tool options component
+  useToggleLabel(activeLabel, labels, (label) => {
+    // dispatch(selectCategory(label))
+  });
 
   const handleDeleteLabel = useCallback(
     (annotation) => () => {
-      if (activeImage) {
-        dispatch(deleteAnnotations({ images: [activeImage.id], annotation }));
+      if (activeImageID) {
+        // dispatch(deleteAnnotations({ images: [activeImage.id], annotation }));
       }
     },
-    [activeImage, dispatch]
+    [activeImageID, dispatch]
   );
 
-  const cmap = labels.reduce((acc: any, label: string, i: number) => {
-    acc[label] = uniqueColor(i, labels.length);
+  const cmap = labels.reduce((acc: { [key: string]: string }, label, i) => {
+    acc[label.id] = uniqueColor(i, labels.length);
     return acc;
   }, {});
 
   const activeColor = cmap[activeLabel] ?? "white";
 
-  const headCount = useSelector(
-    (project: ProjectState) => project.ui.roomSize ?? 0
-  );
-
+  const headCount = 10;
   const maxBubbles = 3;
   const othersCount = Math.max(headCount - 1, 0);
   const clippedCount = Math.min(othersCount, maxBubbles);
   const overflowCount = othersCount - maxBubbles;
 
-  const shapes = bboxes.map((box) => {
+  const modifiedShapes = shapes.map((shape) => {
     return {
-      color: cmap[box.label],
-      highlight: highlightedBox === box.id,
-      ...box,
+      color: cmap[shape.label],
+      highlight: highlightedBox === shape.id,
+      ...shape,
     };
   });
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.roomHolder}>
-        <div className={styles.labelHolder}>
-          {onlyLabels.map((box) => (
-            <div key={box.id} className={styles.label}>
-              {box.label}
-              <svg
-                height="12px"
-                width="12px"
-                viewBox="2 2 36 36"
-                className={styles.deleteIcon}
-                onClick={handleDeleteLabel(box)}
-              >
-                <g>
-                  <path d="m31.6 10.7l-9.3 9.3 9.3 9.3-2.3 2.3-9.3-9.3-9.3 9.3-2.3-2.3 9.3-9.3-9.3-9.3 2.3-2.3 9.3 9.3 9.3-9.3z" />
-                </g>
-              </svg>
-            </div>
-          ))}
-        </div>
-        {/* TODO: add multiuser support */}
         {[...new Array(clippedCount)].map(() => (
           <div className={styles.chatHead}>
             <div>
@@ -335,11 +292,14 @@ function DrawingPanel() {
         )}
       </div>
       <CanvasWrapper
-        activeImage={activeImage}
+        image={activeImageID}
+        // TODO
+        // status={activeImageStatus}
+        status={"success"}
         activeColor={activeColor}
         selectedTool={selectedTool}
         projectID={projectID}
-        shapes={shapes}
+        shapes={modifiedShapes}
       />
     </div>
   );

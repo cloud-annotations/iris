@@ -109,11 +109,17 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
+interface Label {
+  name: string;
+  id: string;
+}
+
 export interface Props {
-  labels: string[];
+  labels: Label[];
   activeLabel: string;
   placeholder?: string;
-  onChange: (label: string) => any;
+  onChange: (labelID: string) => any;
+  onNew: (labelName: string) => any;
   onFocusChange?: (focused: boolean) => any;
 }
 
@@ -122,12 +128,15 @@ function LabelSelect({
   activeLabel,
   placeholder,
   onChange,
+  onNew,
   onFocusChange,
 }: Props) {
   const classes = useStyles();
 
   const [labelOpen, setLabelOpen] = useState(false);
-  const [labelEditingValue, setEditingLabelValue] = useState(undefined);
+  const [labelEditingValue, setEditingLabelValue] = useState<
+    string | undefined
+  >(undefined);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -179,38 +188,46 @@ function LabelSelect({
     setFocus(true);
   }, [setFocus]);
 
+  const query = (labelEditingValue ?? "").trim();
+
   const handleLabelChosen = useCallback(
-    (label) => (e: any) => {
+    (labelID) => (e: any) => {
       e.stopPropagation();
-      onChange(label);
+      if (labelID === "freeform") {
+        onNew(query);
+      } else {
+        onChange(labelID);
+      }
       setEditingLabelValue(undefined);
       setFocus(false);
     },
-    [onChange, setFocus]
+    [onChange, onNew, query, setFocus]
   );
 
-  const query = (labelEditingValue ?? "").trim();
   const filteredLabels =
     query === ""
       ? labels
       : labels
           // If the query is at the begining of the label.
           .filter(
-            (item: any) => item.toLowerCase().indexOf(query.toLowerCase()) === 0
+            (item) => item.name.toLowerCase().indexOf(query.toLowerCase()) === 0
           )
           // Only sort the list when we filter, to make it easier to see diff.
-          .sort((a: any, b: any) => a.length - b.length);
+          .sort((a, b) => a.name.length - b.name.length);
 
   const items = filteredLabels.map((label) => {
     return {
-      label: label,
-      value: label,
+      label: label.name,
+      value: label.id,
     };
   });
 
   if (query) {
-    items.push({ label: `Create label "${query}"`, value: query });
+    items.push({ label: `Create label "${query}"`, value: "freeform" });
   }
+
+  const activeLabelObj = labels.find((l) => l.id === activeLabel);
+  const activeLabelName = activeLabelObj?.name;
 
   return (
     <div
@@ -245,7 +262,7 @@ function LabelSelect({
         value={
           labelEditingValue !== undefined
             ? labelEditingValue
-            : activeLabel ?? "" // If active label happens to be undefined the component will become uncontrolled.
+            : activeLabelName ?? "" // If active label happens to be undefined the component will become uncontrolled.
         }
         placeholder={placeholder}
         type="text"

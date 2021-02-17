@@ -157,11 +157,12 @@ function StatusIcon({ status }: StatusIconProps) {
   switch (status) {
     case "success":
       return <CheckIcon />;
+    case "error":
+      return <ErrorIcon />;
     case "pending":
     case "idle":
       return null;
-    case "error":
-      return <ErrorIcon />;
+    // if status isn't set things should break.
   }
 }
 

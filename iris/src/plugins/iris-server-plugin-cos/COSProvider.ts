@@ -27,6 +27,7 @@ const connections = [
     },
   },
 ];
+
 class COSProvider {
   async getConnections() {
     return Promise.resolve(connections);

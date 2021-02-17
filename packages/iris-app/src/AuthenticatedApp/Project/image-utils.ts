@@ -76,7 +76,7 @@ async function loadVideo(file: File): Promise<HTMLVideoElement> {
 }
 
 async function seek(video: HTMLVideoElement, to: number) {
-  return new Promise((resolve) => {
+  return new Promise<void>((resolve) => {
     video.onseeked = () => {
       resolve();
     };

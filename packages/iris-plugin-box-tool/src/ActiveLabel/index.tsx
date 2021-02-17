@@ -1,32 +1,30 @@
 import React, { useCallback } from "react";
 
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { LabelSelect } from "@iris/components";
-import {
-  ProjectState,
-  selectedCategorySelector,
-  addCategory,
-  selectCategory,
-} from "@iris/store";
+import { SELECT_LABEL, NEW_LABEL, useActiveLabel, useLabels } from "@iris/core";
 
 function ActiveLabel() {
   const dispatch = useDispatch();
-  const labels = useSelector(
-    (project: ProjectState) => project.data.categories
-  );
-  const activeLabel = useSelector(selectedCategorySelector);
+
+  const labels = useLabels();
+  const activeLabel = useActiveLabel();
 
   const handleLabelChosen = useCallback(
     (label) => {
-      // only create new label if it doesn't exist to prevent unnecessary save.
-      if (!labels.includes(label)) {
-        dispatch(addCategory(label));
-      }
-
-      dispatch(selectCategory(label));
+      dispatch(SELECT_LABEL(label));
     },
-    [dispatch, labels]
+    [dispatch]
+  );
+
+  const handleNewLabel = useCallback(
+    (label) => {
+      const labelAction = NEW_LABEL(label);
+      dispatch(labelAction);
+      dispatch(SELECT_LABEL(labelAction.payload.id));
+    },
+    [dispatch]
   );
 
   return (
@@ -35,6 +33,7 @@ function ActiveLabel() {
       activeLabel={activeLabel}
       placeholder="Create new label"
       onChange={handleLabelChosen}
+      onNew={handleNewLabel}
     />
   );
 }
