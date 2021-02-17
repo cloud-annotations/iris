@@ -4,7 +4,12 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 
-import { showConfirmDialog, showFileDialog } from "@iris/components";
+import {
+  showConfirmDialog,
+  showFileDialog,
+  ToolbarMenus,
+} from "@iris/components";
+import { Menu } from "@iris/components/dist/ToolbarMenus/types";
 import {
   ProjectState,
   useSelectedImagesCount,
@@ -14,8 +19,6 @@ import {
 import { IrisLogo } from "@iris/icons";
 
 import { createJPEGs } from "./image-utils";
-import ToolbarMenus from "./ToolbarMenus";
-import { Menu } from "./ToolbarMenus/types";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({

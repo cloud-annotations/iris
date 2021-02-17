@@ -1,17 +1,74 @@
 import React, { useState, useCallback, useRef } from "react";
 
+import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import clsx from "clsx";
+
 import { useClickOutside } from "@iris/hooks";
 
 import Divider from "./Divider";
-import styles from "./Header.module.css";
 import MenuItem from "./MenuItem";
 import { isDivider, Menu } from "./types";
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    options: {
+      display: "flex",
+      fontSize: 14,
+      color: theme.palette.text.secondary,
+      alignItems: "center",
+    },
+    baseOption: {
+      position: "relative",
+      marginTop: 2,
+      border: "1px solid transparent",
+      padding: "4px 6px",
+      cursor: "pointer",
+    },
+    optionOpen: {
+      backgroundColor: `var(--highlight)`,
+      borderRadius: "4px 4px 0 0",
+    },
+    optionClosed: {
+      "&:hover": {
+        backgroundColor: `var(--highlight)`,
+        borderRadius: "4px",
+      },
+    },
+    baseCard: {
+      position: "absolute",
+      zIndex: 10,
+      top: "calc(100% + 1px)",
+      left: -1,
+      padding: "6px 0",
+      color: theme.palette.text.secondary,
+      backgroundColor: theme.palette.grey[800], // NOTE: secondaryBg = 181c1e, this is closest match
+      maxHeight: "calc(80vh - 174px)",
+      minWidth: 185,
+      maxWidth: 314,
+      borderRadius: "0 4px 4px 4px",
+      // TODO: overflow: auto;
+      // This won't let us scroll, but should be okay HERE ONLY
+      overflow: "visible",
+      boxShadow:
+        "0 1px 3px 0 rgba(0, 0, 0, 0.23), 0 4px 8px 3px rgba(0, 0, 0, 0.11)",
+      border: `1px solid ${theme.palette.grey[600]}`, // dropDownBorder
+    },
+    cardOpen: {
+      visibility: "visible",
+    },
+    cardClosed: {
+      visibility: "hidden",
+    },
+  })
+);
 
 interface Props {
   menus: Menu[];
 }
 
 function ToolbarMenus({ menus }: Props) {
+  const classes = useStyles();
+
   const optionsRef = useRef<HTMLDivElement>(null);
 
   const [optionsOpen, setOptionsOpen] = useState(false);
@@ -41,27 +98,29 @@ function ToolbarMenus({ menus }: Props) {
   useClickOutside(optionsRef, handleClose, true);
 
   return (
-    <div ref={optionsRef} className={styles.options}>
+    <div ref={optionsRef} className={classes.options}>
       {menus.map((menu) => {
         return (
           <div
             key={menu.name}
             id={menu.name}
-            className={
+            className={clsx(
+              classes.baseOption,
               optionsOpen && lastHoveredOption === menu.name
-                ? styles.optionOpen
-                : styles.option
-            }
+                ? classes.optionOpen
+                : classes.optionClosed
+            )}
             onClick={handleOptionClick}
             onMouseEnter={handleOptionHover}
           >
             {menu.name}
             <div
-              className={
+              className={clsx(
+                classes.baseCard,
                 optionsOpen && lastHoveredOption === menu.name
-                  ? styles.optionCardOpen
-                  : styles.optionCard
-              }
+                  ? classes.cardOpen
+                  : classes.cardClosed
+              )}
             >
               {menu.items.map((item, i) => {
                 if (isDivider(item)) {
