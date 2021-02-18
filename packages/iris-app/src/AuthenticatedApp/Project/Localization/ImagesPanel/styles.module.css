@@ -19,7 +19,7 @@
   border-bottom: 1px solid var(--toolBarSpacer);
   user-select: none;
 
-  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-family: "ibm-plex-sans", Helvetica Neue, Arial, sans-serif;
   font-weight: 500;
   font-size: 12px;
   color: var(--brightText);
@@ -32,7 +32,7 @@
   outline: none;
   margin-left: 6px;
   width: 130px;
-  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-family: "ibm-plex-sans", Helvetica Neue, Arial, sans-serif;
   font-weight: 500;
   font-size: 12px;
   color: var(--brightText);
@@ -68,7 +68,7 @@
   z-index: 1;
   align-items: center;
   justify-content: flex-end;
-  font-family: 'ibm-plex-sans', Helvetica Neue, Arial, sans-serif;
+  font-family: "ibm-plex-sans", Helvetica Neue, Arial, sans-serif;
   font-weight: 500;
   font-size: 12px;
   color: var(--detailText);
