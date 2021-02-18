@@ -147,7 +147,11 @@ class FileSystemProvider {
         f.toLowerCase().endsWith(".jpg") ||
         f.toLowerCase().endsWith(".jpeg")
       ) {
-        project.images[f] = { id: f, date: "", annotations: [] };
+        // Only add image if it's not already there.
+        // TODO: We should update the date of the image maybe?
+        if (project.images[f] === undefined) {
+          project.images[f] = { id: f, date: "", annotations: [] };
+        }
       }
     }
 

@@ -110,14 +110,16 @@ export function useActiveImageStatus() {
 }
 
 export function useShapes() {
-  // const activeImage = useActiveImage();
-  // return useSelector((project: ProjectState) => {
-  //   if (activeImage) {
-  //     return project.data.annotations[activeImage.id] ?? [];
-  //   }
-  //   return [];
-  // });
-  return [] as Project.AnnotationWithID[];
+  return useSelector((project: ProjectState) => {
+    const activeImageID = project.data.images.active;
+    const image = project.data.images.data[activeImageID];
+
+    const annotations = image.annotations.map(
+      (aID) => project.data.annotations.data[aID]
+    );
+
+    return annotations;
+  });
 }
 
 export function useActiveLabel() {
