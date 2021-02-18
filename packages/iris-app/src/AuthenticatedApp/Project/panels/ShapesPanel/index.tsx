@@ -14,7 +14,7 @@ import {
   DELETE_ANNOTATION,
 } from "@iris/core";
 
-import classes from "./LayersPanel.module.css";
+import classes from "./styles.module.css";
 
 const MAX_HEIGHT = 24;
 const MAX_WIDTH = 24;

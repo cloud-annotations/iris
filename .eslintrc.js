@@ -15,7 +15,7 @@ module.exports = {
         bundledDependencies: true,
       },
     ],
-    "import/no-relative-parent-imports": "warn",
+    // "import/no-relative-parent-imports": "warn",
     "import/order": [
       "warn",
       {

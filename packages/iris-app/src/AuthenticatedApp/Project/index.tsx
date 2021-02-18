@@ -5,12 +5,22 @@ import { useParams } from "react-router-dom";
 
 import { ProjectState, store, load } from "@iris/core";
 
-import Header from "./Header";
+import Header from "./components/Header";
+import Main from "./components/Main";
+import ObjectDetection from "./editors/ObjectDetection";
 import Layout from "./Layout";
-import Main from "./Main";
 
 function ProjectsView() {
-  return <Layout header={<Header />} main={<Main />} />;
+  return (
+    <Layout
+      header={<Header />}
+      main={
+        <Main>
+          <ObjectDetection />
+        </Main>
+      }
+    />
+  );
 }
 
 function ProjectController() {

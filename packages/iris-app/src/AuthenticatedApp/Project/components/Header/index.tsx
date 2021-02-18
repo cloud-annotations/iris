@@ -18,7 +18,7 @@ import {
 } from "@iris/core";
 import { IrisLogo } from "@iris/icons";
 
-import { createJPEGs } from "./image-utils";
+import { createJPEGs } from "../image-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -145,6 +145,7 @@ function HeaderController() {
               accept: "image/*,video/*",
               multiple: true,
             });
+            // TODO: Should we be able to dispatch "files" instead of JPEGs?
             const jpegs = await createJPEGs(files);
             // dispatch(addImages(jpegs));
           },

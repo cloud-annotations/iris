@@ -3,8 +3,7 @@ import React, { useCallback } from "react";
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
 
-import { createJPEGs } from "./image-utils";
-import Localization from "./Localization";
+import { createJPEGs } from "../image-utils";
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -71,7 +70,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-function Main() {
+interface Props {
+  children?: React.ReactNode;
+}
+
+function Main({ children }: Props) {
   const classes = useStyles();
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -92,7 +95,7 @@ function Main() {
           <div className={classes.dropText}>Drop to upload your images</div>
         </div>
       </div>
-      <Localization />
+      {children}
     </div>
   );
 }
