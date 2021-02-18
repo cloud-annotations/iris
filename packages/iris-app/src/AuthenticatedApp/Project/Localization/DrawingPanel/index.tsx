@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
-import { useDispatch } from "react-redux";
 
 import { endpoint } from "@iris/api";
 import { CanvasView, CrossHair, EmptySet } from "@iris/components";
 import {
-  Project,
   useActiveImageStatus,
   useActiveImageID,
   useActiveLabel,
@@ -17,98 +15,9 @@ import {
 } from "@iris/core";
 
 import { uniqueColor } from "./color-utils";
-import styles from "./DrawingPanel.module.css";
+import styles from "./styles.module.css";
 
-const MOVE = "move";
 const BOX = "box";
-
-const useIsControlPressed = (onCtrlChange: Function) => {
-  const [isPressed, setIsPressed] = useState(false);
-  const handleKeyDown = useCallback(
-    (e) => {
-      if (document.activeElement?.tagName.toLowerCase() === "input") {
-        setIsPressed(false);
-        onCtrlChange(false);
-        return;
-      }
-
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey) {
-        setIsPressed(true);
-        onCtrlChange(true);
-        return;
-      }
-
-      setIsPressed(false);
-      onCtrlChange(false);
-    },
-    [onCtrlChange]
-  );
-
-  const handleKeyUp = useCallback(() => {
-    setIsPressed(false);
-    onCtrlChange(false);
-  }, [onCtrlChange]);
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    document.addEventListener("keyup", handleKeyUp);
-
-    document.addEventListener("msvisibilitychange", handleKeyUp);
-    document.addEventListener("webkitvisibilitychange", handleKeyUp);
-    document.addEventListener("visibilitychange", handleKeyUp);
-    window.addEventListener("blur", handleKeyUp);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      document.removeEventListener("keyup", handleKeyUp);
-
-      document.removeEventListener("msvisibilitychange", handleKeyUp);
-      document.removeEventListener("webkitvisibilitychange", handleKeyUp);
-      document.removeEventListener("visibilitychange", handleKeyUp);
-      window.removeEventListener("blur", handleKeyUp);
-    };
-  }, [handleKeyDown, handleKeyUp]);
-
-  return isPressed;
-};
-
-const useToggleLabel = (
-  activeLabel: string,
-  labels: Project.Label[],
-  setActiveLabel: (label: string) => void
-) => {
-  const handleKeyDown = useCallback(
-    (e) => {
-      if (document.activeElement?.tagName.toLowerCase() === "input") {
-        return;
-      }
-
-      const char = e.key.toLowerCase();
-      if (char === "q") {
-        setActiveLabel(
-          labels[
-            (labels.findIndex((l) => l.id === activeLabel) + 1) % labels.length
-          ].id
-        );
-      }
-      let labelIndex = parseInt(char) - 1;
-      // Treat 0 as 10 because it comes after 9 on the keyboard.
-      if (labelIndex < 0) {
-        labelIndex = 9;
-      }
-      if (labelIndex < labels.length) {
-        setActiveLabel(labels[labelIndex].id);
-      }
-    },
-    [activeLabel, labels, setActiveLabel]
-  );
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [handleKeyDown]);
-};
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -161,6 +70,7 @@ function CanvasWrapper({
   switch (status) {
     case "success":
       return (
+        // TODO: The plugin should set a crosshair flag.
         <CrossHair color={activeColor} active={selectedTool === BOX}>
           <CanvasView
             mode={selectedTool === "move" ? "move" : "draw"}
@@ -211,8 +121,6 @@ function CanvasWrapper({
 }
 
 function DrawingPanel() {
-  const dispatch = useDispatch();
-
   const selectedTool = useActiveTool();
   const highlightedBox = "";
   const activeImageID = useActiveImageID();
@@ -221,30 +129,6 @@ function DrawingPanel() {
   const projectID = useProjectID();
   const activeLabel = useActiveLabel();
   const labels = useLabels();
-
-  const handleControlChange = useCallback(
-    (isPressed) => {
-      // dispatch(selectTool(isPressed ? MOVE : BOX));
-    },
-    [dispatch]
-  );
-
-  // TODO: move this to the toolbar component
-  useIsControlPressed(handleControlChange);
-
-  // TODO: move this to the tool options component
-  useToggleLabel(activeLabel, labels, (label) => {
-    // dispatch(selectCategory(label))
-  });
-
-  const handleDeleteLabel = useCallback(
-    (annotation) => () => {
-      if (activeImageID) {
-        // dispatch(deleteAnnotations({ images: [activeImage.id], annotation }));
-      }
-    },
-    [activeImageID, dispatch]
-  );
 
   const cmap = labels.reduce((acc: { [key: string]: string }, label, i) => {
     acc[label.id] = uniqueColor(i, labels.length);
@@ -293,9 +177,7 @@ function DrawingPanel() {
       </div>
       <CanvasWrapper
         image={activeImageID}
-        // TODO
-        // status={activeImageStatus}
-        status={"success"}
+        status={activeImageStatus}
         activeColor={activeColor}
         selectedTool={selectedTool}
         projectID={projectID}

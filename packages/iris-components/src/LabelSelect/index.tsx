@@ -150,12 +150,10 @@ function LabelSelect({
     [onFocusChange]
   );
 
-  const ref = useRef(null);
-  const handleBlur = useCallback(() => {
+  const { ref } = useClickOutside<HTMLDivElement>(() => {
     setEditingLabelValue(undefined);
     setFocus(false);
-  }, [setFocus]);
-  useClickOutside(ref, handleBlur);
+  });
 
   useEffect(() => {
     // calling this directly after setEditing doesn't work, which is why we need

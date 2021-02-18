@@ -1,4 +1,6 @@
-import React, { useRef, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
+
+import { useBlockSwipeBack } from "@iris/hooks";
 
 import HorizontalListItem from "./HorizontalListItem";
 
@@ -22,8 +24,6 @@ const HorizontalListController = ({
   range,
   onSelectionChanged,
 }) => {
-  const horizontalScrollRef = useRef(null);
-
   const handleKeyDown = useCallback(
     (e) => {
       if (document.activeElement.tagName.toLowerCase() === "input") {
@@ -66,29 +66,11 @@ const HorizontalListController = ({
     [items, onSelectionChanged, selection]
   );
 
-  const blockSwipeBack = (e) => {
-    e.stopPropagation();
-    const scrollElement = horizontalScrollRef.current;
-    if (!scrollElement.contains(e.target)) {
-      return;
-    }
-
-    e.preventDefault();
-    const max = scrollElement.scrollWidth - scrollElement.offsetWidth;
-    const scrollPosition =
-      Math.abs(e.deltaX) > Math.abs(e.deltaY)
-        ? scrollElement.scrollLeft + e.deltaX
-        : scrollElement.scrollLeft + e.deltaY;
-    scrollElement.scrollLeft = Math.max(0, Math.min(max, scrollPosition));
-  };
+  const { ref } = useBlockSwipeBack();
 
   useEffect(() => {
-    document.addEventListener("mousewheel", blockSwipeBack, {
-      passive: false,
-    });
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("mousewheel", blockSwipeBack);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown]);
@@ -104,7 +86,7 @@ const HorizontalListController = ({
   );
 
   return (
-    <div ref={horizontalScrollRef} style={style}>
+    <div ref={ref} style={style}>
       {cells.map((cell, i) => {
         return (
           <HorizontalListItem

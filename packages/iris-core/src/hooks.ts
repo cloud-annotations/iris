@@ -101,10 +101,12 @@ export function useActiveImageID() {
 }
 
 export function useActiveImageStatus() {
-  return useSelector(
-    (project: ProjectState) =>
-      project.data.images.data[project.data.images.active].status
-  );
+  // TODO:
+  // return useSelector(
+  //   (project: ProjectState) =>
+  //     project.data.images.data[project.data.images.active].status
+  // );
+  return "success";
 }
 
 export function useShapes() {

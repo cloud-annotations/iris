@@ -1,20 +1,15 @@
 import React from "react";
 
-import { useSelector } from "react-redux";
+import { useActiveTool } from "@iris/core";
 
-import { ProjectState } from "@iris/core";
-
-import styles from "./ToolOptionsPanel.module.css";
+import classes from "./styles.module.css";
 
 function ToolOptionsPanel() {
-  const tool = useSelector(
-    (project: ProjectState) =>
-      project.data.tool.active ?? window.IRIS.tools.list()[1].id
-  );
+  const tool = useActiveTool();
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.divider} />
+    <div className={classes.wrapper}>
+      <div className={classes.divider} />
       {window.IRIS.tools
         .get(tool)
         .options.list()
@@ -22,7 +17,7 @@ function ToolOptionsPanel() {
           return (
             <React.Fragment key={i}>
               {option.component}
-              <div className={styles.divider} />
+              <div className={classes.divider} />
             </React.Fragment>
           );
         })}

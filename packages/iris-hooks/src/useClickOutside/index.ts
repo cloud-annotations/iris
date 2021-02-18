@@ -1,43 +1,61 @@
-import React, { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
-const useClickOutside = (
-  ref: React.MutableRefObject<any>,
+function useClickOutside<T extends HTMLElement>(
   handler: EventListener,
-  hideOnBlur?: boolean
-) => {
+  options?: { hideOnBlur?: boolean }
+) {
+  const ref = useRef<T>(null);
+
+  const savedHandler = useRef<EventListener>();
   useEffect(() => {
-    const listener: EventListenerOrEventListenerObject = (e) => {
-      // Do nothing if clicking ref's element or descendent elements
-      if (!ref.current || ref.current.contains(e.target)) {
+    savedHandler.current = handler;
+  }, [handler]);
+
+  useEffect(() => {
+    const current = ref.current;
+
+    function handeMouseDown(e: Event) {
+      if (current === null) {
         return;
       }
-      handler(e);
-    };
 
-    const loseFocusListener: EventListenerOrEventListenerObject = (e) => {
-      if (!document.hasFocus() && hideOnBlur) {
-        handler(e);
+      if (current.contains(e.target as Node)) {
+        return;
       }
-    };
 
-    document.addEventListener("msvisibilitychange", loseFocusListener);
-    document.addEventListener("webkitvisibilitychange", loseFocusListener);
-    document.addEventListener("visibilitychange", loseFocusListener);
-    window.addEventListener("blur", loseFocusListener);
+      savedHandler.current?.(e);
+    }
 
-    document.addEventListener("mousedown", listener);
-    document.addEventListener("touchstart", listener);
+    function handleLoseFocus(e: Event) {
+      if (!document.hasFocus()) {
+        savedHandler.current?.(e);
+      }
+    }
+
+    if (options?.hideOnBlur) {
+      document.addEventListener("msvisibilitychange", handleLoseFocus);
+      document.addEventListener("webkitvisibilitychange", handleLoseFocus);
+      document.addEventListener("visibilitychange", handleLoseFocus);
+      window.addEventListener("blur", handleLoseFocus);
+    }
+
+    document.addEventListener("mousedown", handeMouseDown);
+    document.addEventListener("touchstart", handeMouseDown);
 
     return () => {
-      document.removeEventListener("msvisibilitychange", loseFocusListener);
-      document.removeEventListener("webkitvisibilitychange", loseFocusListener);
-      document.removeEventListener("visibilitychange", loseFocusListener);
-      window.removeEventListener("blur", loseFocusListener);
+      if (options?.hideOnBlur) {
+        document.removeEventListener("msvisibilitychange", handleLoseFocus);
+        document.removeEventListener("webkitvisibilitychange", handleLoseFocus);
+        document.removeEventListener("visibilitychange", handleLoseFocus);
+        window.removeEventListener("blur", handleLoseFocus);
+      }
 
-      document.removeEventListener("mousedown", listener);
-      document.removeEventListener("touchstart", listener);
+      document.removeEventListener("mousedown", handeMouseDown);
+      document.removeEventListener("touchstart", handeMouseDown);
     };
-  }, [ref, hideOnBlur, handler]);
-};
+  }, [options]);
+
+  return { ref };
+}
 
 export default useClickOutside;

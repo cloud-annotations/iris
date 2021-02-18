@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import clsx from "clsx";
@@ -69,8 +69,6 @@ interface Props {
 function ToolbarMenus({ menus }: Props) {
   const classes = useStyles();
 
-  const optionsRef = useRef<HTMLDivElement>(null);
-
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [lastHoveredOption, setLastHoveredOption] = useState(undefined);
   const [lastHoveredSubOption, setLastHoveredSubOption] = useState(undefined);
@@ -95,7 +93,9 @@ function ToolbarMenus({ menus }: Props) {
     setLastHoveredSubOption(e.currentTarget.id);
   }, []);
 
-  useClickOutside(optionsRef, handleClose, true);
+  const { ref: optionsRef } = useClickOutside<HTMLDivElement>(handleClose, {
+    hideOnBlur: true,
+  });
 
   return (
     <div ref={optionsRef} className={classes.options}>

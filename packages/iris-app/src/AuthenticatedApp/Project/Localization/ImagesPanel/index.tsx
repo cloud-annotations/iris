@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useCallback } from "react";
 
 import { useDispatch, useSelector } from "react-redux";
 
@@ -18,41 +18,15 @@ import {
   useLabelFilter,
   useSelectedImages,
 } from "@iris/core";
+import { useBlockSwipeBack } from "@iris/hooks";
 
-import styles from "./ImagesPanel.module.css";
+import classes from "./styles.module.css";
 
 const filterMap = {
   all: "All Images",
   labeled: "Labeled",
   unlabeled: "Unlabeled",
   byLabel: "",
-};
-
-const blockSwipeBack = (element: any) => (e: any) => {
-  e.stopPropagation();
-  if (!element.contains(e.target)) {
-    return;
-  }
-
-  e.preventDefault();
-  const max = element.scrollWidth - element.offsetWidth;
-  const scrollPosition =
-    Math.abs(e.deltaX) > Math.abs(e.deltaY)
-      ? element.scrollLeft + e.deltaX
-      : element.scrollLeft + e.deltaY;
-  element.scrollLeft = Math.max(0, Math.min(max, scrollPosition));
-};
-
-const useBlockSwipeBack = (ref: any) => {
-  useEffect(() => {
-    const current = ref.current;
-    document.addEventListener("mousewheel", blockSwipeBack(current), {
-      passive: false,
-    });
-    return () => {
-      document.removeEventListener("mousewheel", blockSwipeBack(current));
-    };
-  }, [ref]);
 };
 
 function ImagesPanel() {
@@ -74,6 +48,8 @@ function ImagesPanel() {
   const labels = useLabelCount();
 
   // const annotations = useAnnotations();
+
+  const { ref: scrollElementRef } = useBlockSwipeBack<HTMLDivElement>();
 
   const cells = images.map((i) => {
     const e = endpoint("/images/:imageID", {
@@ -120,9 +96,6 @@ function ImagesPanel() {
     [dispatch, images]
   );
 
-  const scrollElementRef = useRef(null);
-  useBlockSwipeBack(scrollElementRef);
-
   const handleDelete = useCallback(
     (label) => async (e: any) => {
       e.stopPropagation();
@@ -166,16 +139,16 @@ function ImagesPanel() {
   const filterImageModeCount = useFilteredImageCount();
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.labelFilterWrapper}>
+    <div className={classes.wrapper}>
+      <div className={classes.labelFilterWrapper}>
         {filter !== undefined ? (
           <>
-            <div className={styles.labelCount}>
+            <div className={classes.labelCount}>
               {filterImageModeCount.toLocaleString()}
             </div>
             <div
               onClick={handleClickLabel(undefined)}
-              className={styles.filterNotSelected}
+              className={classes.filterNotSelected}
             >
               {filterMode === undefined
                 ? filterMap["all"]
@@ -184,11 +157,11 @@ function ImagesPanel() {
           </>
         ) : (
           <>
-            <div className={styles.labelCount}>
+            <div className={classes.labelCount}>
               {filterImageModeCount.toLocaleString()}
             </div>
             <select
-              className={styles.filter}
+              className={classes.filter}
               onChange={handleFilterChange}
               value={filterMode}
             >
@@ -199,20 +172,20 @@ function ImagesPanel() {
           </>
         )}
 
-        <div ref={scrollElementRef} className={styles.labelList}>
+        <div ref={scrollElementRef} className={classes.labelList}>
           {Object.keys(labels).map((label) => (
             <div
               key={label}
               className={
-                filter === label ? styles.selectedLabelItem : styles.labelItem
+                filter === label ? classes.selectedLabelItem : classes.labelItem
               }
               onClick={handleClickLabel(label)}
             >
               <div>{label}</div>
-              <div className={styles.labelItemCount}>
+              <div className={classes.labelItemCount}>
                 {labels[label].toLocaleString()}
               </div>
-              <div onClick={handleDelete(label)} className={styles.deleteIcon}>
+              <div onClick={handleDelete(label)} className={classes.deleteIcon}>
                 <svg height="12px" width="12px" viewBox="2 2 36 36">
                   <g>
                     <path d="m31.6 10.7l-9.3 9.3 9.3 9.3-2.3 2.3-9.3-9.3-9.3 9.3-2.3-2.3 9.3-9.3-9.3-9.3 2.3-2.3 9.3 9.3 9.3-9.3z" />
@@ -223,7 +196,7 @@ function ImagesPanel() {
           ))}
         </div>
       </div>
-      <div className={styles.imageList}>
+      <div className={classes.imageList}>
         <HorizontalListController
           items={images}
           cells={cells}

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 
 import {
   Table,
@@ -276,9 +276,7 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
 
   const { providerID, connectionID } = useParams<any>();
 
-  const ref = useRef<HTMLDivElement>(null);
-
-  useClickOutside(ref, () => {
+  const { ref } = useClickOutside<HTMLDivElement>(() => {
     setSelected([]);
   });
 
@@ -438,15 +436,6 @@ function Main({ projects }: Props) {
           created: p.created ? new Date(p.created) : undefined,
           modified: p.modified ? new Date(p.modified) : undefined,
         })),
-        // { name: "boop1", created: new Date() },
-        // { name: "boop2", created: new Date() },
-        // { name: "boop3", created: new Date() },
-        // { name: "boop4", created: new Date() },
-        // { name: "boop5", created: new Date() },
-        // { name: "boop6", created: new Date() },
-        // { name: "boop7", created: new Date() },
-        // { name: "boop8", created: new Date() },
-        // { name: "boop9", created: new Date() },
       ]}
     />
   );
