@@ -14,7 +14,7 @@ import {
   DELETE_ANNOTATION,
 } from "@iris/core";
 
-import styles from "./LayersPanel.module.css";
+import classes from "./LayersPanel.module.css";
 
 const MAX_HEIGHT = 24;
 const MAX_WIDTH = 24;
@@ -91,6 +91,7 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
   }, [box.id, dispatch]);
 
   const handleLabelChosen = useCallback((label) => {
+    // TODO:
     // dispatch(
     //   editAnnotations({
     //     images: [imageID],
@@ -103,6 +104,7 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
   }, []);
 
   const handleNewLabel = useCallback((label) => {
+    // TODO:
     // dispatch(
     //   editAnnotations({
     //     images: [imageID],
@@ -116,12 +118,14 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
 
   const handleBoxEnter = useCallback(
     (box) => () => {
+      // TODO:
       // dispatch(highlightBox(box.id));
     },
     []
   );
 
   const handleBoxLeave = useCallback(() => {
+    // TODO:
     // dispatch(highlightBox(undefined));
   }, []);
 
@@ -136,11 +140,11 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
 
   return (
     <div
-      className={focused ? styles.editing : styles.listItemWrapper}
+      className={focused ? classes.editing : classes.listItemWrapper}
       onMouseEnter={handleBoxEnter(box)}
       onMouseLeave={handleBoxLeave}
     >
-      <div className={styles.thumbnailWrapper}>
+      <div className={classes.thumbnailWrapper}>
         <div
           style={{
             backgroundImage: `url(${image})`,
@@ -158,7 +162,7 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
         onNew={handleNewLabel}
         onFocusChange={(f) => setFocused(f)}
       />
-      <div onClick={handleDelete} className={styles.deleteIcon}>
+      <div onClick={handleDelete} className={classes.deleteIcon}>
         <svg height="12px" width="12px" viewBox="2 2 36 36">
           <g>
             <path d="m31.6 10.7l-9.3 9.3 9.3 9.3-2.3 2.3-9.3-9.3-9.3 9.3-2.3-2.3 9.3-9.3-9.3-9.3 2.3-2.3 9.3 9.3 9.3-9.3z" />
@@ -195,7 +199,7 @@ function LayersPanel() {
   }, [imageUrl]);
 
   return (
-    <div className={styles.wrapper}>
+    <div className={classes.wrapper}>
       {shapes
         .filter((b) => b.targets !== undefined)
         .map((box) => (
