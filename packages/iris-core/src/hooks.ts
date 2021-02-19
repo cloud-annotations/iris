@@ -112,13 +112,16 @@ export function useActiveImageStatus() {
 export function useShapes() {
   return useSelector((project: ProjectState) => {
     const activeImageID = project.data.images.active;
-    const image = project.data.images.data[activeImageID];
 
-    const annotations = image.annotations.map(
-      (aID) => project.data.annotations.data[aID]
-    );
+    if (activeImageID !== undefined) {
+      const image = project.data.images.data[activeImageID];
+      const annotations = image.annotations.map(
+        (aID) => project.data.annotations.data[aID]
+      );
+      return annotations;
+    }
 
-    return annotations;
+    return [];
   });
 }
 

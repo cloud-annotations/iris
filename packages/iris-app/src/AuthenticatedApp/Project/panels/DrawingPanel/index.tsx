@@ -138,7 +138,7 @@ function DrawingPanel() {
     return acc;
   }, {});
 
-  const activeColor = cmap[activeLabel] ?? "white";
+  const activeColor = cmap[activeLabel ?? ""] ?? "white";
 
   const maxBubbles = 3;
   const othersCount = Math.max(headCount - 1, 0);

@@ -79,7 +79,7 @@ function ActiveLabel() {
   return (
     <LabelSelect
       labels={labels}
-      activeLabel={activeLabel}
+      activeLabel={activeLabel ?? ""}
       placeholder="Create new label"
       onChange={handleLabelChosen}
       onNew={handleNewLabel}

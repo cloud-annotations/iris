@@ -215,7 +215,7 @@ function LayersPanel() {
               box={box}
               labels={labels}
               image={imageUrl}
-              imageID={activeImage}
+              imageID={activeImage ?? ""} // TODO: this probably a hack, just trying to get ts to build for now
               imageDims={imageDims}
             />
           </motion.div>
