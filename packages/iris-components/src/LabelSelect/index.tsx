@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
+import clsx from "clsx";
 
 import { useClickOutside } from "@iris/hooks";
 
@@ -70,6 +71,9 @@ const useStyles = makeStyles((theme: Theme) =>
         backgroundColor: theme.palette.action.hover, // highlight
       },
     },
+    listItemSelected: {
+      backgroundColor: theme.palette.action.hover, // highlight
+    },
     editTextWrapperOpen: {
       fontFamily: '"ibm-plex-sans", Helvetica Neue, Arial, sans-serif',
       fontWeight: 500,
@@ -105,6 +109,9 @@ const useStyles = makeStyles((theme: Theme) =>
       height: "100%",
       width: 28,
       padding: " 0 8px",
+    },
+    queryHighlight: {
+      color: theme.palette.primary.light,
     },
   })
 );
@@ -168,20 +175,6 @@ function LabelSelect({
     setEditingLabelValue(e.target.value);
   }, []);
 
-  const handleKeyPress = useCallback(
-    (e) => {
-      if (e.key === "Enter" && inputRef.current) {
-        const newActiveLabel = inputRef.current.value.trim();
-        if (newActiveLabel) {
-          onChange(newActiveLabel);
-        }
-        setEditingLabelValue(undefined);
-        setFocus(false);
-      }
-    },
-    [onChange, setFocus]
-  );
-
   const handleClick = useCallback(() => {
     setFocus(true);
   }, [setFocus]);
@@ -224,6 +217,24 @@ function LabelSelect({
     items.push({ label: `Create label "${query}"`, value: "freeform" });
   }
 
+  const handleKeyPress = useCallback(
+    (e) => {
+      if (e.key === "Enter") {
+        const selected = items[0];
+        if (query !== "" && selected !== undefined) {
+          if (selected.value === "freeform") {
+            onNew(query);
+          } else {
+            onChange(selected.value);
+          }
+        }
+        setEditingLabelValue(undefined);
+        setFocus(false);
+      }
+    },
+    [items, onChange, onNew, query, setFocus]
+  );
+
   const activeLabelObj = labels.find((l) => l.id === activeLabel);
   const activeLabelName = activeLabelObj?.name;
 
@@ -235,13 +246,24 @@ function LabelSelect({
     >
       {items.length > 0 && (
         <div className={labelOpen ? classes.cardOpen : classes.card}>
-          {items.map((label) => (
+          {items.map((label, i) => (
             <div
-              className={classes.listItem}
+              className={clsx(classes.listItem, {
+                [classes.listItemSelected]: query.length > 0 && i === 0,
+              })}
               key={label.value}
               onClick={handleLabelChosen(label.value)}
             >
-              {label.label}
+              {label.value === "freeform" ? (
+                label.label
+              ) : (
+                <React.Fragment>
+                  <span className={classes.queryHighlight}>
+                    {label.label.substring(0, query.length)}
+                  </span>
+                  {label.label.substring(query.length)}
+                </React.Fragment>
+              )}
             </div>
           ))}
         </div>

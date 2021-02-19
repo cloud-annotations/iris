@@ -12,6 +12,8 @@ import {
   useShapes,
   Project,
   DELETE_ANNOTATION,
+  UPDATE_ANNOTATION,
+  NEW_LABEL,
 } from "@iris/core";
 
 import classes from "./styles.module.css";
@@ -90,42 +92,42 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
     dispatch(DELETE_ANNOTATION(box.id));
   }, [box.id, dispatch]);
 
-  const handleLabelChosen = useCallback((label) => {
-    // TODO:
-    // dispatch(
-    //   editAnnotations({
-    //     images: [imageID],
-    //     annotation: {
-    //       ...box,
-    //       label: label,
-    //     },
-    //   })
-    // );
-  }, []);
+  const handleLabelChosen = useCallback(
+    (label) => {
+      dispatch(
+        UPDATE_ANNOTATION({
+          ...box,
+          label: label,
+        })
+      );
+    },
+    [box, dispatch]
+  );
 
-  const handleNewLabel = useCallback((label) => {
-    // TODO:
-    // dispatch(
-    //   editAnnotations({
-    //     images: [imageID],
-    //     annotation: {
-    //       ...box,
-    //       label: label,
-    //     },
-    //   })
-    // );
-  }, []);
+  const handleNewLabel = useCallback(
+    (label) => {
+      const action = NEW_LABEL(label);
+      dispatch(action);
+      dispatch(
+        UPDATE_ANNOTATION({
+          ...box,
+          label: action.payload.id,
+        })
+      );
+    },
+    [box, dispatch]
+  );
 
   const handleBoxEnter = useCallback(
     (box) => () => {
-      // TODO:
+      // TODO: Highlight box should be handled outside of redux
       // dispatch(highlightBox(box.id));
     },
     []
   );
 
   const handleBoxLeave = useCallback(() => {
-    // TODO:
+    // TODO: Highlight box should be handled outside of redux
     // dispatch(highlightBox(undefined));
   }, []);
 
