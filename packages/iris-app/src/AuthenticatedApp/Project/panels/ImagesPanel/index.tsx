@@ -9,12 +9,13 @@ import {
   showConfirmDialog,
 } from "@iris/components";
 import {
+  DELETE_LABEL,
   ProjectState,
   useActiveImageID,
   useFilteredImageCount,
   useFilterMode,
   useImages,
-  useLabelCount,
+  useLabelsWithInfo,
   useLabelFilter,
   useSelectedImages,
 } from "@iris/core";
@@ -45,7 +46,7 @@ function ImagesPanel() {
 
   const selectedIndex = images.findIndex((i) => i.id === activeImage);
 
-  const labels = useLabelCount();
+  const labels = useLabelsWithInfo();
 
   // const annotations = useAnnotations();
 
@@ -101,12 +102,12 @@ function ImagesPanel() {
       e.stopPropagation();
       const deleteTheLabel = await showConfirmDialog({
         title: "Delete label?",
-        body: `This will also delete any bounding boxes with the label "${label}".`,
+        body: `This will also delete any bounding boxes with the label "${label.name}".`,
         primary: "Delete",
         danger: true,
       });
       if (deleteTheLabel) {
-        // dispatch(deleteCategory(label));
+        dispatch(DELETE_LABEL(label.id));
       }
     },
     [dispatch]
@@ -173,17 +174,19 @@ function ImagesPanel() {
         )}
 
         <div ref={scrollElementRef} className={classes.labelList}>
-          {Object.keys(labels).map((label) => (
+          {labels.map((label) => (
             <div
-              key={label}
+              key={label.id}
               className={
-                filter === label ? classes.selectedLabelItem : classes.labelItem
+                filter === label.id
+                  ? classes.selectedLabelItem
+                  : classes.labelItem
               }
               onClick={handleClickLabel(label)}
             >
-              <div>{label}</div>
+              <div>{label.name}</div>
               <div className={classes.labelItemCount}>
-                {labels[label].toLocaleString()}
+                {label.count.toLocaleString()}
               </div>
               <div onClick={handleDelete(label)} className={classes.deleteIcon}>
                 <svg height="12px" width="12px" viewBox="2 2 36 36">

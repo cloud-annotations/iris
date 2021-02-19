@@ -150,16 +150,19 @@ export function useImages() {
   return useSelector(getVisibleImages);
 }
 
-export function useLabelCount() {
+interface LabelInfo extends Project.Label {
+  count: number;
+}
+export function useLabelsWithInfo() {
   return useSelector((project: ProjectState) => {
-    const categories: { [key: string]: number } = {};
+    const categories: { [key: string]: LabelInfo } = {};
     for (const l of Object.values(project.data.labels.data)) {
-      categories[l.name] = 0;
+      categories[l.name] = { ...l, count: 0 };
     }
     for (const a of Object.values(project.data.annotations.data)) {
-      categories[project.data.labels.data[a.label].name] += 1;
+      categories[project.data.labels.data[a.label].name].count += 1;
     }
-    return categories;
+    return Object.values(categories);
   });
 }
 

@@ -78,6 +78,7 @@ const reducer = createReducer(initialState, (builder) => {
   });
   builder.addCase(DELETE_LABEL, (state, { payload }) => {
     delete state.labels.data[payload];
+    // TODO: update active label if we deleted it.
   });
   builder.addCase(SELECT_LABEL, (state, { payload }) => {
     state.labels.active = payload;
