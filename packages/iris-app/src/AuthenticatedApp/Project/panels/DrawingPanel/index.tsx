@@ -12,6 +12,7 @@ import {
   useProjectID,
   useActiveTool,
   useShapes,
+  useHeadCount,
 } from "@iris/core";
 
 import { uniqueColor } from "./color-utils";
@@ -130,6 +131,8 @@ function DrawingPanel() {
   const activeLabel = useActiveLabel();
   const labels = useLabels();
 
+  const headCount = useHeadCount();
+
   const cmap = labels.reduce((acc: { [key: string]: string }, label, i) => {
     acc[label.id] = uniqueColor(i, labels.length);
     return acc;
@@ -137,7 +140,6 @@ function DrawingPanel() {
 
   const activeColor = cmap[activeLabel] ?? "white";
 
-  const headCount = 10;
   const maxBubbles = 3;
   const othersCount = Math.max(headCount - 1, 0);
   const clippedCount = Math.min(othersCount, maxBubbles);

@@ -7,14 +7,14 @@ import { labelNameExists } from "./utils";
 const initialState: DataState = {
   labels: {
     data: {},
-    active: "",
+    active: undefined,
   },
   annotations: {
     data: {},
   },
   images: {
     data: {},
-    active: "",
+    active: undefined,
     filter: {},
     selection: [],
   },

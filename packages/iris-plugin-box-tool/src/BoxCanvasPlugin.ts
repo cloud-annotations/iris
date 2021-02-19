@@ -1,7 +1,13 @@
 import produce from "immer";
-import { v4 as uuidv4 } from "uuid";
 
-import { store, CanvasPlugin, Canvas } from "@iris/core";
+import {
+  store,
+  CanvasPlugin,
+  Canvas,
+  UPDATE_ANNOTATION,
+  NEW_ANNOTATION,
+  NEW_LABEL,
+} from "@iris/core";
 
 function constructBox(shape: Canvas.Shape) {
   if (shape.targets === undefined) {
@@ -20,61 +26,39 @@ class BoxCanvasPlugin implements CanvasPlugin {
   dragging = false;
 
   onTargetMove(point: Canvas.Point, { shapeID, targetID }: Canvas.TouchTarget) {
-    // const image = visibleSelectedImagesSelector(store.getState())[0];
-    // if (image === undefined) {
-    //   return;
-    // }
+    const shape = store.getState().data.annotations.data[shapeID];
 
-    // const graphs = store.getState().data.annotations[image.id];
-    // if (graphs === undefined) {
-    //   return;
-    // }
+    const newShape = produce(shape, (draft) => {
+      const { targets, connections } = draft;
+      if (targets === undefined || connections === undefined) {
+        // this should never happen.
+        console.error("BOX.onMove: missing stuff is undefined");
+        return;
+      }
 
-    // const shape = graphs.find((s) => s.id === shapeID);
-    // if (shape === undefined) {
-    //   // this should never happen.
-    //   console.error("BOX.onMove: shape is undefined");
-    //   return;
-    // }
+      const txy = targets.find((t) => t.id === targetID);
 
-    // const newShape = produce(shape, (draft) => {
-    //   const { targets, connections } = draft;
-    //   if (targets === undefined || connections === undefined) {
-    //     // this should never happen.
-    //     console.error("BOX.onMove: missing stuff is undefined");
-    //     return;
-    //   }
+      if (txy === undefined) {
+        // this should never happen.
+        console.error("BOX.onMove: target is undefined");
+        return;
+      }
 
-    //   const txy = targets.find((t) => t.id === targetID);
+      const connect = connections[txy.id];
 
-    //   if (txy === undefined) {
-    //     // this should never happen.
-    //     console.error("BOX.onMove: target is undefined");
-    //     return;
-    //   }
+      const tx = targets.find((t) => t.id === connect.x);
+      const ty = targets.find((t) => t.id === connect.y);
 
-    //   const connect = connections[txy.id];
+      if (tx !== undefined && ty !== undefined) {
+        txy.x = point.x;
+        txy.y = point.y;
 
-    //   const tx = targets.find((t) => t.id === connect.x);
-    //   const ty = targets.find((t) => t.id === connect.y);
+        tx.x = point.x;
+        ty.y = point.y;
+      }
+    });
 
-    //   if (tx !== undefined && ty !== undefined) {
-    //     txy.x = coords.x;
-    //     txy.y = coords.y;
-
-    //     tx.x = coords.x;
-    //     ty.y = coords.y;
-    //   }
-    // });
-
-    // store.dispatch(
-    //   editAnnotations({
-    //     images: [image.id],
-    //     annotation: {
-    //       ...newShape,
-    //     },
-    //   })
-    // );
+    store.dispatch(UPDATE_ANNOTATION(newShape));
     return;
   }
 
@@ -83,108 +67,79 @@ class BoxCanvasPlugin implements CanvasPlugin {
   }
 
   onMouseMove(point: Canvas.Point) {
-    // if (this.dragging === false) {
-    //   return;
-    // }
-    // const image = visibleSelectedImagesSelector(store.getState())[0];
-    // if (image === undefined) {
-    //   return;
-    // }
-    // if (this.editing === null) {
-    //   const category =
-    //     selectedCategorySelector(store.getState()) ?? "Untitled Label";
-    //   const id = uuidv4();
-    //   this.editing = id;
-    //   store.dispatch(
-    //     addAnnotations({
-    //       images: [image.id],
-    //       annotation: {
-    //         id: id,
-    //         label: category,
-    //         tool: "box",
-    //         connections: {
-    //           [`${id}-0`]: {
-    //             x: `${id}-1`,
-    //             y: `${id}-3`,
-    //           },
-    //           [`${id}-1`]: {
-    //             x: `${id}-0`,
-    //             y: `${id}-2`,
-    //           },
-    //           [`${id}-2`]: {
-    //             x: `${id}-3`,
-    //             y: `${id}-1`,
-    //           },
-    //           [`${id}-3`]: {
-    //             x: `${id}-2`,
-    //             y: `${id}-0`,
-    //           },
-    //         },
-    //         targets: [
-    //           { id: `${id}-0`, x: coords.x, y: coords.y },
-    //           { id: `${id}-1`, x: coords.x, y: coords.y },
-    //           { id: `${id}-2`, x: coords.x, y: coords.y },
-    //           { id: `${id}-3`, x: coords.x, y: coords.y },
-    //         ],
-    //       },
-    //     })
-    //   );
-    //   return;
-    // }
-    // const graphs = store.getState().data.annotations[image.id];
-    // if (graphs === undefined) {
-    //   return;
-    // }
-    // const box = graphs.find((b) => b.id === this.editing);
-    // if (box) {
-    //   const newBox = produce(box, (draft) => {
-    //     if (draft.targets === undefined) {
-    //       return;
-    //     }
-    //     draft.targets[1].y = coords.y;
-    //     draft.targets[2].x = coords.x;
-    //     draft.targets[2].y = coords.y;
-    //     draft.targets[3].x = coords.x;
-    //   });
-    //   store.dispatch(
-    //     editAnnotations({
-    //       images: [image.id],
-    //       annotation: {
-    //         ...newBox,
-    //       },
-    //     })
-    //   );
-    // }
+    if (this.dragging === false) {
+      return;
+    }
+
+    if (this.editing === null) {
+      let label = store.getState().data.labels.active;
+
+      if (label === undefined) {
+        const action = NEW_LABEL("Untitled Label");
+        label = action.payload.id;
+        store.dispatch(action);
+      }
+
+      const action = NEW_ANNOTATION({
+        label,
+        tool: "box",
+        connections: {
+          "0": { x: "1", y: "3" },
+          "1": { x: "0", y: "2" },
+          "2": { x: "3", y: "1" },
+          "3": { x: "2", y: "0" },
+        },
+        targets: [
+          { id: "0", x: point.x, y: point.y },
+          { id: "1", x: point.x, y: point.y },
+          { id: "2", x: point.x, y: point.y },
+          { id: "3", x: point.x, y: point.y },
+        ],
+      });
+
+      this.editing = action.payload.id;
+      store.dispatch(action);
+      return;
+    }
+
+    const shape = store.getState().data.annotations.data[this.editing];
+    if (shape !== undefined) {
+      const newShape = produce(shape, (draft) => {
+        if (draft.targets === undefined) {
+          return;
+        }
+        draft.targets[1].y = point.y;
+        draft.targets[2].x = point.x;
+        draft.targets[2].y = point.y;
+        draft.targets[3].x = point.x;
+      });
+      store.dispatch(UPDATE_ANNOTATION(newShape));
+    }
   }
 
-  onMouseUp(point: Canvas.Point, xScale: number, yScale: number) {
-    // if (this.dragging === true && this.editing === null) {
-    //   // click then click mode (vs drag to draw)
-    //   return;
-    // }
-    // const image = visibleSelectedImagesSelector(store.getState())[0];
-    // if (image === undefined) {
-    //   return;
-    // }
-    // const graphs = store.getState().data.annotations[image.id];
-    // if (graphs === undefined) {
-    //   return;
-    // }
-    // const box = graphs.find((b) => b.id === this.editing);
-    // if (box?.targets !== undefined) {
-    //   const xMin = Math.min(...box.targets.map((t) => t.x));
-    //   const yMin = Math.min(...box.targets.map((t) => t.y));
-    //   const xMax = Math.max(...box.targets.map((t) => t.x));
-    //   const yMax = Math.max(...box.targets.map((t) => t.y));
-    //   const width = xMax - xMin;
-    //   const height = yMax - yMin;
-    //   if (width * xScale <= 4 && height * yScale <= 4) {
-    //     // click then click mode (vs drag to draw)
-    //     return;
-    //   }
-    // }
-    // this.dragging = false;
-    // this.editing = null;
+  onMouseUp(_point: Canvas.Point, xScale: number, yScale: number) {
+    if (this.dragging === true && this.editing === null) {
+      // click then click mode (vs drag to draw)
+      return;
+    }
+
+    if (this.editing !== null) {
+      const shape = store.getState().data.annotations.data[this.editing];
+      if (shape?.targets !== undefined) {
+        const xMin = Math.min(...shape.targets.map((t) => t.x));
+        const yMin = Math.min(...shape.targets.map((t) => t.y));
+        const xMax = Math.max(...shape.targets.map((t) => t.x));
+        const yMax = Math.max(...shape.targets.map((t) => t.y));
+        const width = xMax - xMin;
+        const height = yMax - yMin;
+        if (width * xScale <= 4 && height * yScale <= 4) {
+          // click then click mode (vs drag to draw)
+          return;
+        }
+      }
+    }
+    this.dragging = false;
+    this.editing = null;
   }
 
   render(ctx: Canvas.Context, shape: Canvas.Shape) {
@@ -194,8 +149,8 @@ class BoxCanvasPlugin implements CanvasPlugin {
     }
 
     ctx.drawBox(box, {
-      color: "red",
-      highlight: false,
+      color: shape.color,
+      highlight: shape.highlight,
     });
   }
 }

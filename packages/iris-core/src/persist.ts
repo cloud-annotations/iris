@@ -4,14 +4,14 @@ import { Manager } from "socket.io-client";
 import { api } from "@iris/api";
 
 import { decrementSaving, incrementSaving } from "./meta";
+import { SET_HEADCOUNT } from "./room";
 import store, { ProjectState } from "./store";
 
 const manager = new Manager();
 const socket = manager.socket("/");
 
 socket.on("roomSize", (res: number) => {
-  // TODO:
-  // store.dispatch(setRoomSize(res));
+  store.dispatch(SET_HEADCOUNT(res));
 });
 
 socket.on("patch", (res: any) => {

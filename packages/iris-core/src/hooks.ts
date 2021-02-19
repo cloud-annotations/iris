@@ -126,9 +126,9 @@ export function useActiveLabel() {
   return useSelector((project: ProjectState) => project.data.labels.active);
 }
 
-// export function useHeadCount() {
-//   useSelector((project: ProjectState) => project.data.roomSize ?? 0);
-// }
+export function useHeadCount() {
+  return useSelector((project: ProjectState) => project.room.headCount ?? 0);
+}
 
 export function useFilterMode() {
   return useSelector(

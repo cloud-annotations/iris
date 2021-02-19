@@ -18,6 +18,7 @@ export namespace Canvas {
 
   export interface Shape {
     targets: Point[];
+    [key: string]: any;
   }
 
   export interface TouchTarget {

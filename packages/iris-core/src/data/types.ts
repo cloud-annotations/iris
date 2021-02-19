@@ -1,12 +1,12 @@
 export interface DataState {
   labels: {
     data: { [key: string]: Project.Label };
-    active: string;
+    active: string | undefined;
   };
 
   images: {
     data: { [key: string]: Project.Image };
-    active: string;
+    active: string | undefined;
     filter: {
       mode?: "unlabeled" | "labeled" | "byLabel";
       label?: string;
