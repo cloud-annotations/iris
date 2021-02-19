@@ -108,8 +108,11 @@ const reducer = createReducer(initialState, (builder) => {
   });
   builder.addCase(load.fulfilled, (state, action) => {
     state.labels.data = action.payload.labels;
+    state.labels.active = (Object.values(action.payload.labels)[0] as any).id;
+
     state.images.data = action.payload.images;
     state.images.active = (Object.values(action.payload.images)[0] as any).id;
+
     state.annotations.data = action.payload.annotations;
   });
 });
