@@ -217,9 +217,9 @@ function LabelSelect({
     items.push({ label: `Create label "${query}"`, value: "freeform" });
   }
 
-  const handleKeyPress = useCallback(
+  const handleKeyDown = useCallback(
     (e) => {
-      if (e.key === "Enter") {
+      if (e.code === "Enter") {
         const selected = items[0];
         if (query !== "" && selected !== undefined) {
           if (selected.value === "freeform") {
@@ -230,6 +230,12 @@ function LabelSelect({
         }
         setEditingLabelValue(undefined);
         setFocus(false);
+        return;
+      }
+      if (e.code === "Escape") {
+        setEditingLabelValue(undefined);
+        setFocus(false);
+        return;
       }
     },
     [items, onChange, onNew, query, setFocus]
@@ -277,7 +283,7 @@ function LabelSelect({
         readOnly={!labelOpen}
         // disabled={!labelOpen} this causes issues in FireFox
         onChange={handleChange}
-        onKeyPress={handleKeyPress}
+        onKeyDown={handleKeyDown}
         // We need to use undefined because an empty string is falsy
         value={
           labelEditingValue !== undefined
