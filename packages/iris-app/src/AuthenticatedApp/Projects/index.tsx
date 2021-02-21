@@ -42,21 +42,6 @@ function ProjectsController({ connections }: { connections: any[] }) {
       : null,
     fetcher
   );
-  // useFetchAction();
-  // const { connections, error: err2 } = useConnections();
-  // console.log(connections);
-
-  // const { projects, connections } = useProjects();
-
-  // if (connections.data !== undefined && projects.data !== undefined) {
-  //   return (
-  //     <ProjectsView projects={projects.data} connections={connections.data} />
-  //   );
-  // }
-
-  // if (connections.status === "error" && projects.status !== "error") {
-  //   return <div>LOADING...</div>;
-  // }
 
   if (!connections) {
     return <div>LOADING...</div>;

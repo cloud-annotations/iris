@@ -24,6 +24,7 @@ import {
   useSelectedImages,
   useProjectID,
   SELECT_IMAGE,
+  UPDATE_IMAGE,
 } from "@iris/core";
 import { useBlockSwipeBack } from "@iris/hooks";
 
@@ -63,28 +64,22 @@ function ImagesPanel() {
     });
     return (
       <ImageTile
-        // TODO
-        status="success"
-        // status={i.status}
+        status={i.status}
         url={e}
         targets={
-          undefined
-          // TODO:
-          // filter !== undefined
-          //   ? annotations[i.id]
-          //       .filter((a) => a.label === filter)
-          //       .map((a) => a.targets)
-          //   : undefined
+          filter !== undefined
+            ? i.resolvedAnnotations
+                .filter((a) => a.label === filter)
+                .map((a) => a.targets)
+            : undefined
         }
         onError={() => {
-          // TODO:
-          // dispatch(
-          //   editImage({
-          //     id: i.id,
-          //     status: "error",
-          //     date: "",
-          //   })
-          // );
+          dispatch(
+            UPDATE_IMAGE({
+              ...i,
+              status: "error",
+            })
+          );
         }}
       />
     );

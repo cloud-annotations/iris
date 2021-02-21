@@ -48,6 +48,10 @@ export const SELECT_IMAGE = createAction<string>("[project] Select image");
 
 export const TOGGLE_IMAGE = createAction<string>("[project] Toggle image");
 
+export const UPDATE_IMAGE = createAction<Project.Image>(
+  "[project] Update image"
+);
+
 export const SELECT_TOOL = createAction<string>("[project] Select tool");
 
 export const NEW_ANNOTATION = createAction(
@@ -170,15 +174,6 @@ const reducer = createReducer(initialState, (builder) => {
     // TODO: This could be optimized if we pass the imageID.
     deleteAnnotation(state, payload);
   });
-  builder.addCase(load.fulfilled, (state, action) => {
-    state.labels.data = action.payload.labels;
-    state.labels.active = (Object.values(action.payload.labels)[0] as any).id;
-
-    state.images.data = action.payload.images;
-    state.images.active = (Object.values(action.payload.images)[0] as any).id;
-
-    state.annotations.data = action.payload.annotations;
-  });
 
   builder.addCase(SHOW_ALL_IMAGES, (state, _action) => {
     state.images.filter.mode = undefined;
@@ -203,6 +198,28 @@ const reducer = createReducer(initialState, (builder) => {
     state.images.filter.label = payload;
     state.images.selection = [];
     state.images.active = getVisibleImages({ data: state })[0]?.id;
+  });
+
+  builder.addCase(UPDATE_IMAGE, (state, { payload }) => {
+    state.images.data[payload.id] = payload;
+  });
+
+  builder.addCase(load.fulfilled, (state, action) => {
+    state.labels.data = action.payload.labels;
+    state.labels.active = (Object.values(action.payload.labels)[0] as any)?.id;
+
+    state.images.data = action.payload.images;
+
+    for (const key of Object.keys(state.images.data)) {
+      state.images.data[key] = {
+        ...state.images.data[key],
+        status: "success",
+      };
+    }
+
+    state.images.active = getVisibleImages({ data: state })[0]?.id;
+
+    state.annotations.data = action.payload.annotations;
   });
 });
 
