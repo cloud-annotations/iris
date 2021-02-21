@@ -74,7 +74,7 @@ export function useProjectStatus() {
 // Project
 ////////////////////////////////////////////////////////////////////////////////
 export function useSelectedImagesCount() {
-  return useImages().length;
+  return useSelectedImages().length;
 }
 
 export function useSelectedImages() {

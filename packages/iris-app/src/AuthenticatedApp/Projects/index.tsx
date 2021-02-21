@@ -11,16 +11,17 @@ import Layout from "./Layout";
 import Main from "./Main";
 
 interface ProjectProps {
+  name: string;
   projects: any[];
   connections: any[];
 }
 
-function ProjectsView({ projects, connections }: ProjectProps) {
+function ProjectsView({ name, projects, connections }: ProjectProps) {
   return (
     <Layout
       header={<Header />}
       left={<Connections connections={connections} />}
-      main={<Main projects={projects} />}
+      main={<Main projects={projects} name={name} />}
     />
   );
 }
@@ -61,7 +62,13 @@ function ProjectsController({ connections }: { connections: any[] }) {
     return <div>LOADING...</div>;
   }
 
-  return <ProjectsView projects={projects ?? []} connections={connections} />;
+  return (
+    <ProjectsView
+      name={connection.name}
+      projects={projects ?? []}
+      connections={connections}
+    />
+  );
 }
 
 export default ProjectsController;

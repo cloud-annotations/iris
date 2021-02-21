@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import {
   Table,
@@ -16,6 +16,7 @@ import { useClickOutside } from "@iris/hooks";
 
 interface Props {
   projects: any[];
+  name: string;
 }
 
 interface Data {
@@ -266,11 +267,17 @@ function formatDate(d: Date) {
   return `${months[d.getMonth()]} ${d.getDate()}, ${d.getUTCFullYear()}`;
 }
 
-function EnhancedTable({ rows }: { rows: Data[] }) {
+function EnhancedTable({
+  rows,
+  name: connectionName,
+}: {
+  rows: Data[];
+  name: string;
+}) {
   const classes = useStyles();
-  const [order, setOrder] = React.useState<Order>("desc");
-  const [orderBy, setOrderBy] = React.useState<keyof Data>("modified");
-  const [selected, setSelected] = React.useState<string[]>([]);
+  const [order, setOrder] = useState<Order>("desc");
+  const [orderBy, setOrderBy] = useState<keyof Data>("modified");
+  const [selected, setSelected] = useState<string[]>([]);
 
   const history = useHistory();
 
@@ -303,10 +310,7 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
   return (
     <div className={classes.root} ref={ref}>
       <div className={classes.header}>
-        <div className={classes.title}>FIX ME!!!! - CONNECTION NAME</div>
-        {/* <Button variant="contained" color="primary">
-          Start a new project
-        </Button> */}
+        <div className={classes.title}>{connectionName}</div>
       </div>
       <TableContainer>
         <Table
@@ -425,9 +429,10 @@ function EnhancedTable({ rows }: { rows: Data[] }) {
   );
 }
 
-function Main({ projects }: Props) {
+function Main({ projects, name }: Props) {
   return (
     <EnhancedTable
+      name={name}
       rows={[
         ...projects.map((p) => ({
           name: p.name,
