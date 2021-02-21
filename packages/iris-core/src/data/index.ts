@@ -184,29 +184,25 @@ const reducer = createReducer(initialState, (builder) => {
     state.images.filter.mode = undefined;
     state.images.filter.label = undefined;
     state.images.selection = [];
-    // TODO: this is probably not great...
-    state.images.active = getVisibleImages({ data: state } as any)[0]?.id;
+    state.images.active = getVisibleImages({ data: state })[0]?.id;
   });
   builder.addCase(SHOW_LABELED_IMAGES, (state, _action) => {
     state.images.filter.mode = "labeled";
     state.images.filter.label = undefined;
     state.images.selection = [];
-    // TODO: this is probably not great...
-    state.images.active = getVisibleImages({ data: state } as any)[0]?.id;
+    state.images.active = getVisibleImages({ data: state })[0]?.id;
   });
   builder.addCase(SHOW_UNLABELED_IMAGES, (state, _action) => {
     state.images.filter.mode = "unlabeled";
     state.images.filter.label = undefined;
     state.images.selection = [];
-    // TODO: this is probably not great...
-    state.images.active = getVisibleImages({ data: state } as any)[0]?.id;
+    state.images.active = getVisibleImages({ data: state })[0]?.id;
   });
   builder.addCase(SHOW_IMAGES_WITH_SPECIFIC_LABEL, (state, { payload }) => {
     state.images.filter.mode = "byLabel";
     state.images.filter.label = payload;
     state.images.selection = [];
-    // TODO: this is probably not great...
-    state.images.active = getVisibleImages({ data: state } as any)[0]?.id;
+    state.images.active = getVisibleImages({ data: state })[0]?.id;
   });
 });
 

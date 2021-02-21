@@ -4,9 +4,12 @@ import { useSelector } from "react-redux";
 import { Project } from "./data";
 import { ProjectState } from "./store";
 
-const getImageFilter = (project: ProjectState) => project.data.images.filter;
-const getAnnotations = (project: ProjectState) => project.data.annotations.data;
-const getImages = (project: ProjectState) => project.data.images.data;
+const getImageFilter = (project: Pick<ProjectState, "data">) =>
+  project.data.images.filter;
+const getAnnotations = (project: Pick<ProjectState, "data">) =>
+  project.data.annotations.data;
+const getImages = (project: Pick<ProjectState, "data">) =>
+  project.data.images.data;
 
 export const getResolvedImages = createSelector(
   [getImages, getAnnotations],
