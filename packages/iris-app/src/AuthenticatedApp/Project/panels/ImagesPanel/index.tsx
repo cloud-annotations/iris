@@ -54,8 +54,6 @@ function ImagesPanel() {
 
   const labels = useLabelsWithInfo();
 
-  // const annotations = useAnnotations();
-
   const { ref: scrollElementRef } = useBlockSwipeBack<HTMLDivElement>();
 
   const cells = images.map((i) => {
@@ -71,6 +69,7 @@ function ImagesPanel() {
         url={e}
         targets={
           undefined
+          // TODO:
           // filter !== undefined
           //   ? annotations[i.id]
           //       .filter((a) => a.label === filter)
@@ -78,6 +77,7 @@ function ImagesPanel() {
           //   : undefined
         }
         onError={() => {
+          // TODO:
           // dispatch(
           //   editImage({
           //     id: i.id,

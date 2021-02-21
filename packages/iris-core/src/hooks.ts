@@ -74,8 +74,7 @@ export function useProjectStatus() {
 // Project
 ////////////////////////////////////////////////////////////////////////////////
 export function useSelectedImagesCount() {
-  // return useSelector(visibleSelectedImagesSelector).length;
-  return 0;
+  return useImages().length;
 }
 
 export function useSelectedImages() {
@@ -89,7 +88,6 @@ export function useLabels() {
 }
 
 export function useActiveTool() {
-  // NOTE: window.IRIS.tools.list()[1].id
   return useSelector((project: ProjectState) => project.data.tool.active);
 }
 
@@ -98,7 +96,6 @@ export function useActiveTool() {
 // }
 
 export function useActiveImageID() {
-  // return useSelector(activeImageSelector);
   return useSelector((project: ProjectState) => project.data.images.active);
 }
 
@@ -170,14 +167,3 @@ export function useLabelsWithInfo() {
     return Object.values(categories);
   });
 }
-
-export function useAnnotations() {
-  return useSelector(getAnnotations);
-}
-
-// NOTE: to self.
-// We should use an active image along with a selection array. This seems like
-// duplicated work and unnecessary to track then active image instead just
-// having the first index of the selection be the "active" image. However, an
-// explicit active image is useful because we need to explicitly set which room
-// the user is in. So having both be explicit makes it less bug prone.
