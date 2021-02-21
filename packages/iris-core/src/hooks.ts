@@ -76,8 +76,7 @@ export function useSelectedImagesCount() {
 }
 
 export function useSelectedImages() {
-  // return useSelector(visibleSelectedImagesSelector);
-  return [];
+  return useSelector((project: ProjectState) => project.data.images.selection);
 }
 
 export function useLabels() {

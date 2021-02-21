@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
 import { endpoint } from "@iris/api";
 import {
@@ -10,7 +10,11 @@ import {
 } from "@iris/components";
 import {
   DELETE_LABEL,
-  ProjectState,
+  SHOW_ALL_IMAGES,
+  SHOW_LABELED_IMAGES,
+  SHOW_UNLABELED_IMAGES,
+  SHOW_IMAGES_WITH_SPECIFIC_LABEL,
+  TOGGLE_IMAGE,
   useActiveImageID,
   useFilteredImageCount,
   useFilterMode,
@@ -18,6 +22,8 @@ import {
   useLabelsWithInfo,
   useLabelFilter,
   useSelectedImages,
+  useProjectID,
+  SELECT_IMAGE,
 } from "@iris/core";
 import { useBlockSwipeBack } from "@iris/hooks";
 
@@ -33,7 +39,7 @@ const filterMap = {
 function ImagesPanel() {
   const dispatch = useDispatch();
 
-  const projectID = useSelector((project: ProjectState) => project.meta.id);
+  const projectID = useProjectID();
 
   const filterMode = useFilterMode();
   const filter = useLabelFilter();
@@ -42,7 +48,7 @@ function ImagesPanel() {
   const selection = useSelectedImages();
   const activeImage = useActiveImageID();
 
-  const range = selection.map((s) => images.indexOf(s));
+  const range = selection.map((s) => images.findIndex((i) => i.id === s));
 
   const selectedIndex = images.findIndex((i) => i.id === activeImage);
 
@@ -89,9 +95,9 @@ function ImagesPanel() {
       if (key.shiftKey) {
         // TODO
       } else if (key.ctrlKey) {
-        // dispatch(toggleSelectedImage(images[selection].id));
+        dispatch(TOGGLE_IMAGE(images[selection].id));
       } else {
-        // dispatch(selectImages(images[selection].id));
+        dispatch(SELECT_IMAGE(images[selection].id));
       }
     },
     [dispatch, images]
@@ -117,13 +123,13 @@ function ImagesPanel() {
     (e) => {
       switch (e.target.value) {
         case "all":
-          // dispatch(showAllImages());
+          dispatch(SHOW_ALL_IMAGES());
           break;
         case "labeled":
-          // dispatch(showLabeledImages());
+          dispatch(SHOW_LABELED_IMAGES());
           break;
         case "unlabeled":
-          // dispatch(showUnlabeledImages());
+          dispatch(SHOW_UNLABELED_IMAGES());
           break;
       }
     },
@@ -132,32 +138,29 @@ function ImagesPanel() {
 
   const handleClickLabel = useCallback(
     (label) => () => {
-      // dispatch(filterByLabel(label));
+      dispatch(SHOW_IMAGES_WITH_SPECIFIC_LABEL(label.id));
     },
     [dispatch]
   );
+
+  const handleShowAllImage = useCallback(() => {
+    dispatch(SHOW_ALL_IMAGES());
+  }, [dispatch]);
 
   const filterImageModeCount = useFilteredImageCount();
 
   return (
     <div className={classes.wrapper}>
       <div className={classes.labelFilterWrapper}>
-        {filter !== undefined ? (
-          <>
-            <div className={classes.labelCount}>
-              {filterImageModeCount.toLocaleString()}
-            </div>
-            <div
-              onClick={handleClickLabel(undefined)}
-              className={classes.filterNotSelected}
-            >
-              {filterMode === undefined
-                ? filterMap["all"]
-                : filterMap[filterMode]}
-            </div>
-          </>
+        {filterMode === "byLabel" ? (
+          <div
+            onClick={handleShowAllImage}
+            className={classes.filterNotSelected}
+          >
+            Show all images
+          </div>
         ) : (
-          <>
+          <React.Fragment>
             <div className={classes.labelCount}>
               {filterImageModeCount.toLocaleString()}
             </div>
@@ -166,11 +169,11 @@ function ImagesPanel() {
               onChange={handleFilterChange}
               value={filterMode}
             >
-              <option value="all">{filterMap["all"]}</option>
-              <option value="labeled">{filterMap["labeled"]}</option>
-              <option value="unlabeled">{filterMap["unlabeled"]}</option>
+              <option value="all">{filterMap.all}</option>
+              <option value="labeled">{filterMap.labeled}</option>
+              <option value="unlabeled">{filterMap.unlabeled}</option>
             </select>
-          </>
+          </React.Fragment>
         )}
 
         <div ref={scrollElementRef} className={classes.labelList}>
