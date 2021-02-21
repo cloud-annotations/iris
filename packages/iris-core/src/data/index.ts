@@ -19,7 +19,7 @@ const initialState: DataState = {
     selection: [],
   },
   tool: {
-    active: "move",
+    active: "box",
   },
 };
 
@@ -67,6 +67,20 @@ export const DELETE_ANNOTATION = createAction<string>(
   "[project] Delete annotation"
 );
 
+function deleteAnnotation(state: DataState, annotationID: string) {
+  delete state.annotations.data[annotationID];
+  const image = Object.values(state.images.data).find((i) =>
+    i.annotations.includes(annotationID)
+  );
+  if (image?.id === undefined) {
+    return;
+  }
+  const index = state.images.data[image.id].annotations.indexOf(annotationID);
+  if (index !== -1) {
+    state.images.data[image.id].annotations.splice(index, 1);
+  }
+}
+
 const reducer = createReducer(initialState, (builder) => {
   builder.addCase(NEW_LABEL, (state, { payload }) => {
     if (!labelNameExists(state.labels.data, payload.name)) {
@@ -78,6 +92,15 @@ const reducer = createReducer(initialState, (builder) => {
   });
   builder.addCase(DELETE_LABEL, (state, { payload }) => {
     delete state.labels.data[payload];
+
+    const annotation = Object.values(state.annotations.data).find(
+      (a) => a.label === payload
+    );
+
+    if (annotation === undefined) {
+      return;
+    }
+    deleteAnnotation(state, annotation.id);
     // TODO: update active label if we deleted it.
   });
   builder.addCase(SELECT_LABEL, (state, { payload }) => {
@@ -105,7 +128,8 @@ const reducer = createReducer(initialState, (builder) => {
     }
   });
   builder.addCase(DELETE_ANNOTATION, (state, { payload }) => {
-    delete state.annotations.data[payload];
+    // TODO: This could be optimized if we pass the imageID.
+    deleteAnnotation(state, payload);
   });
   builder.addCase(load.fulfilled, (state, action) => {
     state.labels.data = action.payload.labels;
