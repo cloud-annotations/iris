@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 
-import { Provider, useSelector } from "react-redux";
+import { Provider } from "react-redux";
 import { useParams } from "react-router-dom";
 
-import { ProjectState, store, load } from "@iris/core";
+import { store, load, useProjectStatus } from "@iris/core";
 
 import Header from "./components/Header";
 import Main from "./components/Main";
@@ -24,13 +24,14 @@ function ProjectsView() {
 }
 
 function ProjectController() {
-  const status = useSelector((project: ProjectState) => project.meta.status);
+  const status = useProjectStatus();
 
   switch (status) {
     case "idle":
     case "pending":
       return <div>LOADING...</div>;
     case "success":
+    case "saving":
       return <ProjectsView />;
     default:
       return <div>ERROR</div>;
@@ -38,7 +39,7 @@ function ProjectController() {
 }
 
 function Project() {
-  const { connectionID, projectID } = useParams<{
+  const { projectID } = useParams<{
     connectionID: string;
     projectID: string;
   }>();

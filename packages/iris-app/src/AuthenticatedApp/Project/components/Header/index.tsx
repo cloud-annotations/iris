@@ -1,7 +1,7 @@
 import React from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
 
 import {
@@ -11,10 +11,11 @@ import {
 } from "@iris/components";
 import { Menu } from "@iris/components/dist/ToolbarMenus/types";
 import {
-  ProjectState,
   useSelectedImagesCount,
   useLabels,
   NEW_ANNOTATION,
+  useProjectName,
+  useProjectStatus,
 } from "@iris/core";
 import { IrisLogo } from "@iris/icons";
 
@@ -90,7 +91,7 @@ const useStyles = makeStyles((theme: Theme) =>
 
 interface Props {
   name: string;
-  saving: number;
+  saving: boolean;
   menus: Menu[];
   backLink?: string;
 }
@@ -115,7 +116,7 @@ function Header({ name, saving, menus, backLink }: Props) {
         <div className={classes.menus}>
           <ToolbarMenus menus={menus} />
           <div className={classes.saveStatus}>
-            {saving > 0 ? "Saving..." : "Saved"}
+            {saving ? "Saving..." : "Saved"}
           </div>
         </div>
       </div>
@@ -124,8 +125,8 @@ function Header({ name, saving, menus, backLink }: Props) {
 }
 
 function HeaderController() {
-  const name = useSelector((project: ProjectState) => project.meta.name);
-  const saving = useSelector((project: ProjectState) => project.meta.saving);
+  const name = useProjectName();
+  const status = useProjectStatus();
 
   const { pathname } = useLocation();
 
@@ -147,6 +148,7 @@ function HeaderController() {
             });
             // TODO: Should we be able to dispatch "files" instead of JPEGs?
             const jpegs = await createJPEGs(files);
+            // TODO:
             // dispatch(addImages(jpegs));
           },
         },
@@ -165,6 +167,7 @@ function HeaderController() {
               danger: true,
             });
             if (shouldDeleteImages) {
+              // TODO:
               // dispatch(removeImages());
             }
           },
@@ -173,6 +176,7 @@ function HeaderController() {
         {
           name: 'Mark as "negative"',
           action: () => {
+            // TODO:
             // dispatch(NEW_ANNOTATION({ id: uuidv4(), label: "negative" }));
           },
         },
@@ -194,7 +198,7 @@ function HeaderController() {
   return (
     <Header
       name={name ?? ""}
-      saving={saving}
+      saving={status === "saving"}
       menus={menus}
       backLink={pathname.startsWith("/projects/") ? backLink : undefined}
     />
