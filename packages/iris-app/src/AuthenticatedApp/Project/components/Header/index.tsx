@@ -17,6 +17,7 @@ import {
   useProjectName,
   useProjectStatus,
   NEW_LABEL,
+  DELETE_IMAGES,
 } from "@iris/core";
 import { IrisLogo } from "@iris/icons";
 
@@ -168,8 +169,7 @@ function HeaderController() {
               danger: true,
             });
             if (shouldDeleteImages) {
-              // TODO:
-              // dispatch(removeImages());
+              dispatch(DELETE_IMAGES());
             }
           },
         },

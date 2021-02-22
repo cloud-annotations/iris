@@ -52,6 +52,8 @@ export const UPDATE_IMAGE = createAction<Project.Image>(
   "[project] Update image"
 );
 
+export const DELETE_IMAGES = createAction("[project] Delete images");
+
 export const SELECT_TOOL = createAction<string>("[project] Select tool");
 
 export const NEW_ANNOTATION = createAction(
@@ -126,6 +128,20 @@ const reducer = createReducer(initialState, (builder) => {
   });
   builder.addCase(SELECT_LABEL, (state, { payload }) => {
     state.labels.active = payload;
+  });
+  builder.addCase(DELETE_IMAGES, (state, _action) => {
+    if (state.images.active === undefined) {
+      return;
+    }
+
+    for (const selected of state.images.selection) {
+      delete state.images.data[selected];
+    }
+    state.images.selection = [];
+
+    delete state.images.data[state.images.active];
+
+    state.images.active = getVisibleImages({ data: state })[0]?.id;
   });
   builder.addCase(SELECT_IMAGE, (state, { payload }) => {
     state.images.active = payload;
