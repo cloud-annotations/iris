@@ -6,7 +6,7 @@ initIris()
 {{#each extensions}}
 try {
   const {{clean this}} = require("{{this}}")
-  {{clean this}}.default.activate(window.IRIS)
+  {{clean this}}.activate(window.IRIS)
 } catch (e) {
   console.log(e)
 }

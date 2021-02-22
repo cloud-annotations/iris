@@ -75,7 +75,7 @@ const iris = {
 };
 for (const extension of extensions) {
   try {
-    const provider = require(extension).default;
+    const provider = require(extension);
     provider.activate(iris);
   } catch (e) {
     console.log(e);

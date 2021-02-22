@@ -1,13 +1,13 @@
-import initIris from "./initIris"
-import initReactApp from "./initReactApp"
+import initIris from "./initIris";
+import initReactApp from "./initReactApp";
 
-initIris()
+initIris();
 
 try {
-  const _iris_plugin_box_tool = require("@iris/plugin-box-tool")
-  _iris_plugin_box_tool.default.activate(window.IRIS)
+  const _iris_plugin_box_tool = require("@iris/plugin-box-tool");
+  _iris_plugin_box_tool.activate(window.IRIS);
 } catch (e) {
-  console.log(e)
+  console.log(e);
 }
 
-initReactApp()
+initReactApp();
