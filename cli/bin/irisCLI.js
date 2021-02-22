@@ -6,7 +6,8 @@ async function init() {
   if (process.argv[2] === "start") {
     console.log("starting...");
 
-    const irisRoot = path.resolve(__dirname, "../iris");
+    // const irisRoot = path.resolve(__dirname, "../iris");
+    const irisRoot = "/usr/local/lib/iris";
 
     const irisPath = path.resolve(__dirname, irisRoot, "iris/dist/index.js");
     const spaRoot = path.resolve(

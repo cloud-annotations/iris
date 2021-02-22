@@ -64,6 +64,22 @@ const output = template({
 });
 fs.writeFileSync(paths.appIndexJs, output);
 
+// NOTE:
+const irisPackages = Object.keys(appPackageJson.dependencies).filter((k) =>
+  k.startsWith("@iris/")
+);
+const externalPackages = [...irisPackages, ...appPackageJson.iris.extensions];
+const aliases = externalPackages.reduce((acc, cur) => {
+  const resolveApp = (relativePath) =>
+    path.resolve(require.resolve(cur + "/package.json"), "..", relativePath);
+  acc[cur] = paths.resolveModule(resolveApp, "src/index");
+  return acc;
+}, {});
+const externalSrcs = Object.values(aliases).map((v) => path.resolve(v, ".."));
+const babelLoaderInclude = [paths.appSrc, ...externalSrcs];
+console.log(aliases);
+console.log(babelLoaderInclude);
+
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function (webpackEnv) {
@@ -314,6 +330,7 @@ module.exports = function (webpackEnv) {
         .filter((ext) => useTypeScript || !ext.includes("ts")),
       alias: {
         // nick-added-fix-thing
+        ...aliases,
         react: require.resolve("react"),
         "react-dom": require.resolve("react-dom"),
         "react-redux": require.resolve("react-redux"),
@@ -376,7 +393,7 @@ module.exports = function (webpackEnv) {
               loader: require.resolve("eslint-loader"),
             },
           ],
-          include: paths.appSrc,
+          include: babelLoaderInclude,
         },
         {
           // "oneOf" will traverse all following loaders until one will
@@ -398,12 +415,28 @@ module.exports = function (webpackEnv) {
             // The preset includes JSX, Flow, TypeScript, and some ESnext features.
             {
               test: /\.(js|mjs|jsx|ts|tsx)$/,
-              include: paths.appSrc,
+              // NOTE:
+              include: babelLoaderInclude,
               loader: require.resolve("babel-loader"),
               options: {
                 customize: require.resolve(
                   "babel-preset-react-app/webpack-overrides"
                 ),
+
+                presets: [
+                  [
+                    require.resolve("babel-preset-react-app"),
+                    {
+                      runtime: "classic",
+                    },
+                  ],
+                  [
+                    require.resolve("@babel/preset-typescript"),
+                    {
+                      allowNamespaces: true,
+                    },
+                  ],
+                ],
 
                 plugins: [
                   [

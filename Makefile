@@ -20,12 +20,18 @@ install:
 
 .PHONY: build
 build:
-	yarn lerna run build --stream
-
-.PHONY: start
-start:
 	yarn lerna run build --stream --ignore @iris/app
-	FORCE_COLOR=true yarn lerna run start --parallel --stream
+	yarn lerna run build --scope @iris/app --stream
+
+# .PHONY: start
+# start:
+# 	yarn lerna run start --scope @iris/app --stream
+
+.PHONY: watch
+watch:
+	yarn lerna run build --stream --ignore @iris/app
+	FORCE_COLOR=true yarn lerna run start --scope @iris/app --stream
+	# FORCE_COLOR=true yarn lerna run start --parallel --stream
 
 
 
