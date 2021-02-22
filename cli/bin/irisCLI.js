@@ -1,15 +1,37 @@
-"use strict";
-
 const spawn = require("child_process").spawn;
+const fs = require("fs");
+const path = require("path");
 
-function init() {
+async function init() {
   if (process.argv[2] === "start") {
     console.log("starting...");
 
-    const iris = spawn("node", ["/usr/local/lib/iris/iris/dist/index.js"], {
+    const irisRoot = path.resolve(__dirname, "../iris");
+
+    const irisPath = path.resolve(__dirname, irisRoot, "iris/dist/index.js");
+    const spaRoot = path.resolve(
+      __dirname,
+      irisRoot,
+      "packages/iris-app/build"
+    );
+
+    // some of the build artifacts are missing, so rebuild the project
+    if (!fs.existsSync(irisPath) || !fs.existsSync(spaRoot)) {
+      console.log("Launching for the first time, building...");
+      const build = spawn("make", ["install", "build"], {
+        cwd: irisRoot,
+        stdio: "inherit",
+      });
+
+      await new Promise((resolve, _reject) => {
+        build.on("close", resolve);
+      });
+    }
+
+    const iris = spawn("node", [irisPath], {
       env: {
         ...process.env,
-        SPA_ROOT: "/usr/local/lib/iris/packages/iris-app/build",
+        SPA_ROOT: spaRoot,
       },
     });
 

@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "tsc -w",
-    "build": "tsc"
+    "build": "tsc",
+    "build-no-declarations": "tsc --declaration false"
   },
   "dependencies": {
     "@types/uuid": "^8.3.0"

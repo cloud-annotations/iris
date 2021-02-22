@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-"use strict";
-
-var currentNodeVersion = process.versions.node;
-var semver = currentNodeVersion.split(".");
-var major = semver[0];
+const currentNodeVersion = process.versions.node;
+const semver = currentNodeVersion.split(".");
+const major = semver[0];
 
 if (major < 10) {
   console.error(

@@ -22,6 +22,10 @@ install:
 build:
 	yarn lerna run build --stream
 
+.PHONY: build-no-declarations
+build-no-declarations:
+	yarn lerna run build-no-declarations --stream
+
 .PHONY: start
 start:
 	yarn lerna run build --stream --ignore @iris/app
