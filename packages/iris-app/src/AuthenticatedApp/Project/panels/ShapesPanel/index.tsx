@@ -147,15 +147,28 @@ function ListItem({ box, labels, imageID, image, imageDims }: ListItemProps) {
       onMouseLeave={handleBoxLeave}
     >
       <div className={classes.thumbnailWrapper}>
-        <div
-          style={{
-            backgroundImage: `url(${image})`,
-            width: `${cropWidth}px`,
-            height: `${cropHeight}px`,
-            backgroundPosition: `${xOffset}px ${yOffset}px`,
-            backgroundSize: `${fullWidth}px ${fullHeight}px`,
-          }}
-        />
+        {box.targets === undefined ? (
+          <div
+            style={{
+              backgroundImage: `url(${image})`,
+              width: "24px",
+              height: "24px",
+              backgroundSize: "contain",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center center",
+            }}
+          />
+        ) : (
+          <div
+            style={{
+              backgroundImage: `url(${image})`,
+              width: `${cropWidth}px`,
+              height: `${cropHeight}px`,
+              backgroundPosition: `${xOffset}px ${yOffset}px`,
+              backgroundSize: `${fullWidth}px ${fullHeight}px`,
+            }}
+          />
+        )}
       </div>
       <LabelSelect
         labels={labels}
@@ -200,26 +213,63 @@ function LayersPanel() {
     }
   }, [imageUrl]);
 
+  let tools = new Set<string>();
+  for (const shape of shapes) {
+    if (shape.tool !== undefined) {
+      tools.add(shape.tool);
+    }
+  }
+
   return (
     <div className={classes.wrapper}>
-      {shapes
-        .filter((b) => b.targets !== undefined)
-        .map((box) => (
+      {[...tools].map((tool) => (
+        <div
+          style={{
+            marginBottom: "16px",
+          }}
+        >
           <motion.div
-            key={box.id}
             transition={transition}
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0, transition: transition }}
           >
-            <ListItem
-              box={box}
-              labels={labels}
-              image={imageUrl}
-              imageID={activeImage ?? ""} // TODO: this probably a hack, just trying to get ts to build for now
-              imageDims={imageDims}
-            />
+            <div
+              style={{
+                fontFamily:
+                  '"ibm-plex-sans", Helvetica Neue, Arial, sans-serif',
+                fontSize: "12px",
+                fontWeight: 500,
+                height: "27px",
+                opacity: 0.53,
+                padding: "0 17px 0 25px",
+                lineHeight: "27px",
+              }}
+            >
+              {tool === "tag"
+                ? "Tags"
+                : window.IRIS.tools.get(tool).displayNamePlural}
+            </div>
           </motion.div>
-        ))}
+          {shapes
+            .filter((b) => b.tool === tool)
+            .map((box) => (
+              <motion.div
+                key={box.id}
+                transition={transition}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0, transition: transition }}
+              >
+                <ListItem
+                  box={box}
+                  labels={labels}
+                  image={imageUrl}
+                  imageID={activeImage ?? ""} // TODO: this probably a hack, just trying to get ts to build for now
+                  imageDims={imageDims}
+                />
+              </motion.div>
+            ))}
+        </div>
+      ))}
     </div>
   );
 }

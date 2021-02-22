@@ -67,9 +67,12 @@ function ImagesPanel() {
         status={i.status}
         url={e}
         targets={
+          // TODO: We should probably have some sort of thumbnail coords for the
+          // plugin to render this for situations like pixelmaps that won't have
+          // targets.
           filter !== undefined
             ? i.resolvedAnnotations
-                .filter((a) => a.label === filter)
+                .filter((a) => a.label === filter && a.targets !== undefined)
                 .map((a) => a.targets)
             : undefined
         }

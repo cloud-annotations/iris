@@ -1,6 +1,8 @@
 interface IRegisterToolOptions {
   id: string;
   icon: any;
+  displayName: string;
+  displayNamePlural?: string;
   priority?: number;
   options?: IRegisterOptionOptions[];
   canvasPlugin?: any;
@@ -10,6 +12,8 @@ interface ITool {
   id: string;
   icon: any;
   priority: number;
+  displayName: string;
+  displayNamePlural?: string;
   options: IOptions;
   canvasPlugin: any;
 }
@@ -94,8 +98,7 @@ function init() {
     }
 
     return {
-      id: tool.id,
-      icon: tool.icon,
+      ...tool,
       priority: tool.priority ?? 0,
       canvasPlugin: tool.canvasPlugin,
       options: {

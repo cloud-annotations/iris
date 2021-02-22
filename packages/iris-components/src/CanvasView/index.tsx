@@ -122,9 +122,7 @@ function CanvasView({ mode, tool, image, shapes, render, actions }: Props) {
       for (const shape of shapes) {
         c.setTargets(shape.tool, shape);
         const renderFunc = render[shape.tool];
-        if (renderFunc) {
-          renderFunc(c, shape);
-        }
+        renderFunc?.(c, shape);
       }
     }
   }, [height, imageData, mode, render, shapes, width]);

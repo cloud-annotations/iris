@@ -106,6 +106,10 @@ export namespace Canvas {
     setTargets(tool: string, shape: { id: string; targets: any[] }) {
       this.tool = tool;
 
+      if (shape.targets === undefined) {
+        return;
+      }
+
       for (const t of shape.targets) {
         const target = new Path2D();
         target.arc(this.x(t.x), this.y(t.y), this.px(8), 0, Math.PI * 2);

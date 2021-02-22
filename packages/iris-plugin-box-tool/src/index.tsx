@@ -18,6 +18,7 @@ const BoxToolPlugin = {
   activate(iris: any) {
     iris.tools.register({
       id: "move",
+      displayName: "Move",
       priority: 100,
       icon: (
         <svg style={moveStyle} width="20" height="20" viewBox="0 0 40 40">
@@ -29,6 +30,8 @@ const BoxToolPlugin = {
     const boxTool = iris.tools.register({
       id: "box",
       canvasPlugin: new BoxCanvasPlugin(),
+      displayName: "Bounding Box",
+      displayNamePlural: "Bounding Boxes",
       icon: (
         <svg style={boxStyle} width="20" height="20" viewBox="0 0 40 40">
           <rect x="4" y="8" width="32" height="24" />

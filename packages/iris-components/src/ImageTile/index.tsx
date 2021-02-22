@@ -292,7 +292,7 @@ function Tile({ status, url, targets, onError }: TileProps) {
 
   return (
     <React.Fragment>
-      {targets !== undefined ? (
+      {targets !== undefined && targets.length > 0 ? (
         <div className={classes.image}>
           {targets.map((t, i) => (
             <ListItem key={i} targets={t} url={url} />

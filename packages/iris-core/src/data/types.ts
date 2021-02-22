@@ -42,7 +42,7 @@ export namespace Project {
 
   export interface Annotation {
     label: string;
-    tool?: string;
+    tool: string;
     targets?: Target[];
     [key: string]: any; // plugins can specify extra keys.
   }

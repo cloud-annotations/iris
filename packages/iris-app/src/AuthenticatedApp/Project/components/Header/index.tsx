@@ -16,6 +16,7 @@ import {
   NEW_ANNOTATION,
   useProjectName,
   useProjectStatus,
+  NEW_LABEL,
 } from "@iris/core";
 import { IrisLogo } from "@iris/icons";
 
@@ -176,8 +177,13 @@ function HeaderController() {
         {
           name: 'Mark as "negative"',
           action: () => {
-            // TODO:
-            // dispatch(NEW_ANNOTATION({ id: uuidv4(), label: "negative" }));
+            let labelID = labels.find((l) => l.name === "negative")?.id;
+            if (labelID === undefined) {
+              const action = NEW_LABEL("negative");
+              labelID = action.payload.id;
+              dispatch(action);
+            }
+            dispatch(NEW_ANNOTATION({ label: labelID, tool: "tag" }));
           },
         },
         {
@@ -186,7 +192,7 @@ function HeaderController() {
           items: labels.map((l) => ({
             name: l.name,
             action: () => {
-              dispatch(NEW_ANNOTATION({ label: l.id }));
+              dispatch(NEW_ANNOTATION({ label: l.id, tool: "tag" }));
             },
           })),
         },
