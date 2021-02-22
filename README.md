@@ -7,7 +7,6 @@
 ```sh
 git clone git@github.com:cloud-annotations/iris.git
 cd iris
-git checkout v2
 
 make install
 ```
