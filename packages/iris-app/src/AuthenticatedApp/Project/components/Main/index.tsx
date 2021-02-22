@@ -2,6 +2,9 @@ import React, { useCallback } from "react";
 
 import { createStyles, makeStyles, Theme } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
+import { useDispatch } from "react-redux";
+
+import { UPLOAD_IMAGES } from "@iris/core";
 
 import { createJPEGs } from "../image-utils";
 
@@ -77,10 +80,15 @@ interface Props {
 function Main({ children }: Props) {
   const classes = useStyles();
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const jpegs = await createJPEGs(acceptedFiles);
-    // dispatch(addImages(jpegs));
-  }, []);
+  const dispatch = useDispatch();
+
+  const onDrop = useCallback(
+    async (acceptedFiles: File[]) => {
+      const jpegs = await createJPEGs(acceptedFiles);
+      dispatch(UPLOAD_IMAGES(jpegs));
+    },
+    [dispatch]
+  );
 
   const { getRootProps, isDragActive } = useDropzone({
     onDrop,

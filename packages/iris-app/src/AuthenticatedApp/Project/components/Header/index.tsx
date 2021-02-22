@@ -18,6 +18,7 @@ import {
   useProjectStatus,
   NEW_LABEL,
   DELETE_IMAGES,
+  UPLOAD_IMAGES,
 } from "@iris/core";
 import { IrisLogo } from "@iris/icons";
 
@@ -150,8 +151,7 @@ function HeaderController() {
             });
             // TODO: Should we be able to dispatch "files" instead of JPEGs?
             const jpegs = await createJPEGs(files);
-            // TODO:
-            // dispatch(addImages(jpegs));
+            dispatch(UPLOAD_IMAGES(jpegs));
           },
         },
       ],

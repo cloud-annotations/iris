@@ -3,6 +3,7 @@ import { Manager } from "socket.io-client";
 
 import { api } from "@iris/api";
 
+import { UPDATE_IMAGE } from "./data";
 import { decrementSaving, incrementSaving } from "./meta";
 import { SET_HEADCOUNT } from "./room";
 import store, { ProjectState } from "./store";
@@ -20,79 +21,113 @@ socket.on("patch", (res: any) => {
 
 socket.emit("join", { image: "boop" });
 
+export const sockets: Middleware = (storeAPI) => (next) => async (action) => {
+  const result = next(action);
+
+  if (action.type.includes("[data]") && action.meta?.doNotEmit !== true) {
+    socket.emit("patch", action);
+  }
+
+  return result;
+};
+
 export const persist: Middleware = (storeAPI) => (next) => async (action) => {
   const result = next(action);
 
-  // // only persist data changes
-  // if (action.type?.startsWith("data/") && action.meta?.doNotEmit !== true) {
-  //   storeAPI.dispatch(incrementSaving());
+  const state = storeAPI.getState() as ProjectState;
 
-  //   const state = storeAPI.getState() as ProjectState;
+  if (
+    action.type.includes("[data]") ||
+    action.type.includes("[delete-images]") ||
+    action.type.includes("[upload-images]")
+  ) {
+    storeAPI.dispatch(incrementSaving());
+  }
 
-  //   socket.emit("patch", action);
+  if (action.type.includes("[data]")) {
+    try {
+      await api.put("/project", {
+        query: { projectID: state.meta.id },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        json: {
+          version: "v2",
+          labels: state.data.labels.data,
+          images: state.data.images.data,
+          annotations: state.data.annotations.data,
+        },
+      });
+    } catch {
+      // TODO
+    }
+  }
 
-  //   try {
-  //     await api.put("/project", {
-  //       query: { projectID: state.meta.id },
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       json: {
-  //         version: "v2",
-  //         labels: state.data.categories,
-  //         annotations: state.data.annotations,
-  //       },
-  //     });
-  //   } catch {
-  //     // TODO
-  //   }
+  if (action.type.includes("[delete-images]")) {
+    // TODO:
+    // const promises = action.payload.map(async (image: string) => {
+    //   try {
+    //     await api.del("/images/:imageID", {
+    //       path: { imageID: image },
+    //       query: {
+    //         projectID: state.meta.id,
+    //       },
+    //     });
+    //   } catch {
+    //     // TODO
+    //   }
+    // });
+    // await Promise.all(promises);
+  }
 
-  //   if (action.type === "data/removeImages") {
-  //     const promises = action.payload.map(async (image: string) => {
-  //       try {
-  //         await api.del("/images/:imageID", {
-  //           path: { imageID: image },
-  //           query: {
-  //             projectID: state.meta.id,
-  //           },
-  //         });
-  //       } catch {
-  //         // TODO
-  //       }
-  //     });
+  if (action.type.includes("[upload-images]")) {
+    const promises = action.payload.map(async (jpeg: any) => {
+      const formData = new FormData();
+      formData.append(jpeg.name, jpeg.blob);
+      storeAPI.dispatch(
+        UPDATE_IMAGE({
+          id: jpeg.name,
+          status: "pending",
+          date: "",
+          annotations: [],
+        })
+      );
+      try {
+        await api.post("/images", {
+          query: {
+            projectID: state.meta.id,
+          },
+          body: formData,
+        });
+        storeAPI.dispatch(
+          UPDATE_IMAGE({
+            id: jpeg.name,
+            status: "success",
+            date: "",
+            annotations: [],
+          })
+        );
+      } catch (e) {
+        storeAPI.dispatch(
+          UPDATE_IMAGE({
+            id: jpeg.name,
+            status: "error",
+            date: "",
+            annotations: [],
+          })
+        );
+      }
+    });
+    await Promise.all(promises);
+  }
 
-  //     await Promise.all(promises);
-  //   }
+  if (
+    action.type.includes("[data]") ||
+    action.type.includes("[delete-images]") ||
+    action.type.includes("[upload-images]")
+  ) {
+    storeAPI.dispatch(decrementSaving());
+  }
 
-  //   if (action.type === "data/addImages") {
-  //     const promises = action.payload.map(async (jpeg: any) => {
-  //       const formData = new FormData();
-  //       formData.append(jpeg.name, jpeg.blob);
-  //       try {
-  //         await api.post("/images", {
-  //           query: {
-  //             projectID: state.meta.id,
-  //           },
-  //           body: formData,
-  //         });
-  //         storeAPI.dispatch(
-  //           editImage({
-  //             id: jpeg.name,
-  //             status: "success",
-  //             date: "",
-  //           })
-  //         );
-  //       } catch (e) {
-  //         storeAPI.dispatch(
-  //           editImage({ id: jpeg.name, status: "error", date: "" })
-  //         );
-  //       }
-  //     });
-
-  //     await Promise.all(promises);
-  //   }
-
-  //   storeAPI.dispatch(decrementSaving());
-  // }
   return result;
 };

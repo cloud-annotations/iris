@@ -25,7 +25,7 @@ const initialState: DataState = {
 };
 
 export const NEW_LABEL = createAction(
-  "[project] Create a new label",
+  "[data] Create a new label",
   function prepare(name: string) {
     return {
       payload: {
@@ -37,27 +37,29 @@ export const NEW_LABEL = createAction(
 );
 
 export const RENAME_LABEL = createAction<{ id: string; name: string }>(
-  "[project] Rename label"
+  "[data] Rename label"
 );
 
-export const DELETE_LABEL = createAction<string>("[project] Delete label");
+export const DELETE_LABEL = createAction<string>("[data] Delete label");
 
-export const SELECT_LABEL = createAction<string>("[project] Select label");
+export const SELECT_LABEL = createAction<string>("[ui] Select label");
 
-export const SELECT_IMAGE = createAction<string>("[project] Select image");
+export const SELECT_IMAGE = createAction<string>("[ui] Select image");
 
-export const TOGGLE_IMAGE = createAction<string>("[project] Toggle image");
+export const TOGGLE_IMAGE = createAction<string>("[ui] Toggle image");
 
-export const UPDATE_IMAGE = createAction<Project.Image>(
-  "[project] Update image"
+export const UPDATE_IMAGE = createAction<Project.Image>("[ui] Update image");
+
+export const DELETE_IMAGES = createAction("[data] [delete-images]");
+
+export const UPLOAD_IMAGES = createAction<{ name: string; blob: Blob }[]>(
+  "[data] [upload-images]"
 );
 
-export const DELETE_IMAGES = createAction("[project] Delete images");
-
-export const SELECT_TOOL = createAction<string>("[project] Select tool");
+export const SELECT_TOOL = createAction<string>("[ui] Select tool");
 
 export const NEW_ANNOTATION = createAction(
-  "[project] Create new annotation",
+  "[sync] Create new annotation",
   function prepare(annotation: Project.Annotation) {
     return {
       payload: {
@@ -69,25 +71,21 @@ export const NEW_ANNOTATION = createAction(
 );
 
 export const UPDATE_ANNOTATION = createAction<Project.AnnotationWithID>(
-  "[project] Update annotation"
+  "[data] Update annotation"
 );
 
 export const DELETE_ANNOTATION = createAction<string>(
-  "[project] Delete annotation"
+  "[data] Delete annotation"
 );
 
-export const SHOW_ALL_IMAGES = createAction("[project] Show all images");
+export const SHOW_ALL_IMAGES = createAction("[ui] Show all images");
 
-export const SHOW_LABELED_IMAGES = createAction(
-  "[project] Show labeled images"
-);
+export const SHOW_LABELED_IMAGES = createAction("[ui] Show labeled images");
 
-export const SHOW_UNLABELED_IMAGES = createAction(
-  "[project] Show unlabeled images"
-);
+export const SHOW_UNLABELED_IMAGES = createAction("[ui] Show unlabeled images");
 
 export const SHOW_IMAGES_WITH_SPECIFIC_LABEL = createAction<string>(
-  "[project] Show images with specific label"
+  "[ui] Show images with specific label"
 );
 
 function deleteAnnotation(state: DataState, annotationID: string) {
@@ -129,6 +127,7 @@ const reducer = createReducer(initialState, (builder) => {
   builder.addCase(SELECT_LABEL, (state, { payload }) => {
     state.labels.active = payload;
   });
+
   builder.addCase(DELETE_IMAGES, (state, _action) => {
     if (state.images.active === undefined) {
       return;
