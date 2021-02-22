@@ -114,14 +114,14 @@ const reducer = createReducer(initialState, (builder) => {
   builder.addCase(DELETE_LABEL, (state, { payload }) => {
     delete state.labels.data[payload];
 
-    const annotation = Object.values(state.annotations.data).find(
+    const annotations = Object.values(state.annotations.data).filter(
       (a) => a.label === payload
     );
 
-    if (annotation === undefined) {
-      return;
+    for (const annotation of annotations) {
+      deleteAnnotation(state, annotation.id);
     }
-    deleteAnnotation(state, annotation.id);
+
     // TODO: update active label if we deleted it.
   });
   builder.addCase(SELECT_LABEL, (state, { payload }) => {
