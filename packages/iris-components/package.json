@@ -7,8 +7,7 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "start": "tsc -w",
-    "build": "tsc",
-    "build-no-declarations": "tsc --declaration false"
+    "build": "tsc"
   },
   "dependencies": {
     "@iris/core": "^0.0.1",

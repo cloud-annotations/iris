@@ -7,8 +7,7 @@
   },
   "scripts": {
     "start": "tsc -w",
-    "build": "tsc",
-    "build-no-declarations": "tsc --declaration false"
+    "build": "tsc"
   },
   "dependencies": {
     "@types/busboy": "^0.2.3",
