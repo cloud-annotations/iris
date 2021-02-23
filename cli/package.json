@@ -10,5 +10,8 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "commander": "^7.1.0"
   }
 }
