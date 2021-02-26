@@ -7,17 +7,17 @@ import theme from "@iris/theme";
 
 import { DIALOG_ROOT_ID } from ".";
 
-export function showDialog<T>(Dialog: any, props: any): Promise<T> {
+export function showDialog<T>(Dialog: any, props: any): Promise<T | undefined> {
   return new Promise((resolve) => {
     const dialogRoot = document.getElementById(DIALOG_ROOT_ID);
 
     if (dialogRoot === null) {
-      return resolve();
+      return resolve(undefined);
     }
 
     const handleClose = () => {
       ReactDOM.unmountComponentAtNode(dialogRoot);
-      resolve();
+      resolve(undefined);
     };
 
     const handleAction = (value: T) => {

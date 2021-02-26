@@ -150,7 +150,7 @@ function HeaderController() {
               multiple: true,
             });
             // TODO: Should we be able to dispatch "files" instead of JPEGs?
-            const jpegs = await createJPEGs(files);
+            const jpegs = await createJPEGs(files ?? []);
             dispatch(UPLOAD_IMAGES(jpegs));
           },
         },

@@ -63,6 +63,10 @@ class FileSystemProvider {
     ]);
   }
 
+  async createProject({ name }: any) {
+    await fs.ensureDir(this._dir(name));
+  }
+
   async getProjects() {
     const x = await fs.readdir(process.cwd(), { withFileTypes: true });
 

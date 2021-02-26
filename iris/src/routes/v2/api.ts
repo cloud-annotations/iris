@@ -48,6 +48,13 @@ interface Provider {
   }: {
     connectionID: string;
   }) => Promise<IProject[]>;
+  createProject: ({
+    connectionID,
+    name,
+  }: {
+    connectionID: string;
+    name: string;
+  }) => any;
   getProject: (
     options: Pick<IOptions, "projectID">
   ) => Promise<IProjectDetails>;
@@ -63,7 +70,7 @@ interface Provider {
 // TODO: pull from package.json
 let extensions = [
   "../../plugins/iris-server-plugin-file-system",
-  "../../plugins/iris-server-plugin-cos",
+  // "../../plugins/iris-server-plugin-cos",
 ];
 let providers: { [key: string]: Provider } = {};
 const iris = {
@@ -153,6 +160,22 @@ router.get("/projects", async (req, res, next) => {
     const connectionID = requiredQuery(req, "connectionID");
     const projects = await providers[providerID].getProjects({ connectionID });
     res.json(projects);
+  } catch (e) {
+    next(e);
+  }
+});
+
+/**
+ * POST /api/projects
+ */
+router.post("/projects", async (req, res, next) => {
+  try {
+    ensureProjectMode();
+    const providerID = requiredQuery(req, "providerID");
+    const connectionID = requiredQuery(req, "connectionID");
+    const name = requiredQuery(req, "name");
+    await providers[providerID].createProject({ connectionID, name });
+    res.sendStatus(200);
   } catch (e) {
     next(e);
   }

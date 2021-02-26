@@ -29,10 +29,10 @@ build:
 
 .PHONY: watch
 watch:
+	# yarn lerna run start --stream --scope @iris/server
 	yarn lerna run build --stream --ignore @iris/app
-	FORCE_COLOR=true yarn lerna run start --scope @iris/app --stream
-	# FORCE_COLOR=true yarn lerna run start --parallel --stream
-
+	# FORCE_COLOR=true yarn lerna run start --scope @iris/app --scope @iris/server --stream
+	FORCE_COLOR=true yarn lerna run start --parallel --stream
 
 
 # Add this back to the package.json to get storybook working again...

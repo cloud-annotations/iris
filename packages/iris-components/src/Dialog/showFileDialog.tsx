@@ -5,19 +5,21 @@ interface Options {
   multiple?: boolean;
 }
 
-export function showFileDialog(options: Options = {}): Promise<File[]> {
+export function showFileDialog(
+  options: Options = {}
+): Promise<File[] | undefined> {
   const { accept, multiple } = options;
   return new Promise((resolve) => {
     const input = document.getElementById(FILE_INPUT_ID) as HTMLInputElement;
 
     if (input === null) {
-      return resolve();
+      return resolve(undefined);
     }
 
     function handleFileChosen() {
       const curFiles = input.files;
       if (curFiles === null) {
-        return resolve();
+        return resolve(undefined);
       }
       return resolve(Array.from(curFiles));
     }

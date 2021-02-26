@@ -10,7 +10,8 @@ import {
 } from "@material-ui/core";
 import { useHistory, useParams } from "react-router-dom";
 
-import { showConfirmDialog } from "@iris/components";
+import { api } from "@iris/api";
+import { showInputDialog } from "@iris/components";
 
 function CreateIcon(props: SvgIconProps) {
   return (
@@ -135,16 +136,27 @@ function Connections({ connections }: any) {
   return (
     <div className={classes.root}>
       <div className={classes.buttonGroup1}>
-        <Button className={classes.button} variant="contained" color="primary">
-          New project
-        </Button>
-        {/* <Button
+        <Button
           className={classes.button}
           variant="contained"
-          color="secondary"
+          color="primary"
+          onClick={async () => {
+            const x = await showInputDialog({
+              title: "Bloop",
+              primary: "Mkay",
+            });
+            console.log(x);
+            // await api.post("/projects", {
+            //   query: {
+            //     providerID: params.providerID,
+            //     connectionID: params.connectionID,
+            //     name: "i-am-a-test",
+            //   },
+            // });
+          }}
         >
-          Add connection
-        </Button> */}
+          New project
+        </Button>
       </div>
       <div className={classes.divider} />
       {connections.map((connection: any) => (
@@ -153,7 +165,6 @@ function Connections({ connections }: any) {
             history.replace(
               `/projects/${connection.providerID}/${connection.id}`
             );
-            // dispatch(select(connection.id));
           }}
           className={
             classes.item +
@@ -175,12 +186,8 @@ function Connections({ connections }: any) {
           <div className={classes.text}>{connection.name}</div>
         </div>
       ))}
-      {/* <div className={classes.divider} /> */}
       <div className={classes.buttonGroup}>
-        {/* <Button className={classes.button} variant="contained" color="primary">
-          New project
-        </Button> */}
-        <Button
+        {/* <Button
           className={classes.button}
           variant="outlined"
           // variant="contained"
@@ -191,7 +198,7 @@ function Connections({ connections }: any) {
           }}
         >
           Add a connection
-        </Button>
+        </Button> */}
       </div>
     </div>
   );

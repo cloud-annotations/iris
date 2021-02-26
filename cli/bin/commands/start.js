@@ -7,27 +7,30 @@ const { Command } = require("commander");
 const command = new Command()
   .command("start")
   .option("-w, --watch")
+  .option("--irisRoot <path>", "path to iris source", "/usr/local/lib/iris")
   .description("TODO: description")
   .action((opts) => {
     if (opts.watch === true) {
-      watch();
+      watch(opts);
       return;
     }
-    start();
+    start(opts);
   });
 
-async function start() {
+async function start(opts) {
   console.log("starting...");
-  const irisRoot = "/usr/local/lib/iris";
+  const { irisRoot } = opts;
 
-  const irisPath = path.resolve(__dirname, irisRoot, "iris/dist/index.js");
-  const spaRoot = path.resolve(__dirname, irisRoot, "packages/iris-app/build");
+  const resolvedRoot = path.resolve(process.cwd(), irisRoot);
+
+  const irisPath = path.resolve(resolvedRoot, "iris/dist/index.js");
+  const spaRoot = path.resolve(resolvedRoot, "packages/iris-app/build");
 
   // some of the build artifacts are missing, so rebuild the project
   if (!fs.existsSync(irisPath) || !fs.existsSync(spaRoot)) {
     console.log("Launching for the first time, building...");
     const build = spawn("make", ["install", "build"], {
-      cwd: irisRoot,
+      cwd: resolvedRoot,
       stdio: "inherit",
     });
 
@@ -45,23 +48,23 @@ async function start() {
   });
 }
 
-async function watch() {
+async function watch(opts) {
   console.log("watching...");
-  const irisRoot = "/usr/local/lib/iris";
+  const { irisRoot } = opts;
 
-  const irisPath = path.resolve(__dirname, irisRoot, "iris/dist/index.js");
-  const spaRoot = path.resolve(__dirname, irisRoot, "packages/iris-app/build");
+  const resolvedRoot = path.resolve(process.cwd(), irisRoot);
+
+  const irisPath = path.resolve(resolvedRoot, "iris/dist/index.js");
 
   spawn("node", [irisPath], {
     env: {
       ...process.env,
-      SPA_ROOT: spaRoot,
     },
     stdio: "inherit",
   });
 
   const build = spawn("make", ["install", "watch"], {
-    cwd: irisRoot,
+    cwd: resolvedRoot,
     stdio: "inherit",
   });
 

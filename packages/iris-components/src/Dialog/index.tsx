@@ -16,3 +16,4 @@ export default Dialog;
 export * from "./showDialog";
 export * from "./showFileDialog";
 export * from "./showConfirmDialog";
+export * from "./showInputDialog";

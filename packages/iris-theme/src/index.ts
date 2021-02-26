@@ -158,6 +158,31 @@ theme.overrides = {
       },
     },
   },
+  MuiInput: {
+    input: {
+      // backgroundColor: "#e0e0e0",
+      "&:hover:not($disabled)": {
+        // backgroundColor: "#e5e5e5",
+      },
+    },
+    underline: {
+      "&:after": {
+        border: `2px solid ${theme.palette.primary.main}`,
+        left: 0,
+        bottom: 0,
+        top: 0,
+        content: '""',
+        position: "absolute",
+        right: 0,
+        transition: "none",
+        transform: "scaleX(0)",
+        pointerEvents: "none", // Transparent to the hover style.
+      },
+      "&:before": {
+        display: `none`,
+      },
+    },
+  },
   MuiButton: {
     root: {
       justifyContent: "space-between",
