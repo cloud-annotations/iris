@@ -9,8 +9,9 @@ import {
   Theme,
 } from "@material-ui/core";
 import { useHistory, useParams } from "react-router-dom";
+import { mutate } from "swr";
 
-import { api } from "@iris/api";
+import { api, endpoint } from "@iris/api";
 import { showInputDialog } from "@iris/components";
 
 function CreateIcon(props: SvgIconProps) {
@@ -145,14 +146,23 @@ function Connections({ connections }: any) {
               title: "Bloop",
               primary: "Mkay",
             });
-            console.log(x);
-            // await api.post("/projects", {
-            //   query: {
-            //     providerID: params.providerID,
-            //     connectionID: params.connectionID,
-            //     name: "i-am-a-test",
-            //   },
-            // });
+            if (x !== undefined && x.trim() !== "") {
+              await api.post("/projects", {
+                query: {
+                  providerID: params.providerID,
+                  connectionID: params.connectionID,
+                  name: x,
+                },
+              });
+              mutate(
+                endpoint("/projects", {
+                  query: {
+                    providerID: params.providerID,
+                    connectionID: params.connectionID,
+                  },
+                })
+              );
+            }
           }}
         >
           New project
