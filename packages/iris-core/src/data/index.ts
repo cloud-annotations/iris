@@ -59,7 +59,7 @@ export const UPLOAD_IMAGES = createAction<{ name: string; blob: Blob }[]>(
 export const SELECT_TOOL = createAction<string>("[ui] Select tool");
 
 export const NEW_ANNOTATION = createAction(
-  "[sync] Create new annotation",
+  "[data] Create new annotation",
   function prepare(annotation: Project.Annotation) {
     return {
       payload: {

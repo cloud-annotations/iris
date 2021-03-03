@@ -16,20 +16,12 @@ socket.on("roomSize", (res: number) => {
 });
 
 socket.on("patch", (res: any) => {
-  store.dispatch({ ...res, meta: { doNotEmit: true } });
+  console.log("received patch", res);
+  store.dispatch({ ...res, meta: { socket: true } });
 });
 
+// TODO
 socket.emit("join", { image: "boop" });
-
-export const sockets: Middleware = (storeAPI) => (next) => async (action) => {
-  const result = next(action);
-
-  if (action.type.includes("[data]") && action.meta?.doNotEmit !== true) {
-    socket.emit("patch", action);
-  }
-
-  return result;
-};
 
 export const persist: Middleware = (storeAPI) => (next) => async (action) => {
   const result = next(action);
@@ -44,7 +36,10 @@ export const persist: Middleware = (storeAPI) => (next) => async (action) => {
     storeAPI.dispatch(incrementSaving());
   }
 
-  if (action.type.includes("[data]")) {
+  const shouldEmit = action.meta?.socket !== true;
+  if (action.type.includes("[data]") && shouldEmit) {
+    socket.emit("patch", action);
+
     try {
       await api.put("/project", {
         query: { projectID: state.meta.id },
