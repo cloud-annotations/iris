@@ -2,6 +2,7 @@ import { createAction, createReducer, nanoid } from "@reduxjs/toolkit";
 
 import { getVisibleImages } from "../hooks";
 import { load } from "../load";
+import store, { ProjectState } from "../store";
 import { DataState, Project } from "./types";
 import { labelNameExists } from "./utils";
 
@@ -50,7 +51,17 @@ export const TOGGLE_IMAGE = createAction<string>("[ui] Toggle image");
 
 export const UPDATE_IMAGE = createAction<Project.Image>("[ui] Update image");
 
-export const DELETE_IMAGES = createAction("[data] [delete-images]");
+export const DELETE_IMAGES = createAction(
+  "[data] [delete-images]",
+  function prepare() {
+    return {
+      payload: {
+        activeImage: (store.getState() as ProjectState).data.images.active,
+        selection: (store.getState() as ProjectState).data.images.selection,
+      },
+    };
+  }
+);
 
 export const UPLOAD_IMAGES = createAction<{ name: string; blob: Blob }[]>(
   "[data] [upload-images]"
@@ -65,6 +76,7 @@ export const NEW_ANNOTATION = createAction(
       payload: {
         id: nanoid(),
         ...annotation,
+        activeImage: (store.getState() as ProjectState).data.images.active,
       },
     };
   }
@@ -128,19 +140,25 @@ const reducer = createReducer(initialState, (builder) => {
     state.labels.active = payload;
   });
 
-  builder.addCase(DELETE_IMAGES, (state, _action) => {
-    if (state.images.active === undefined) {
+  builder.addCase(DELETE_IMAGES, (state, { payload }) => {
+    if (payload.activeImage === undefined) {
       return;
     }
 
-    for (const selected of state.images.selection) {
+    for (const selected of payload.selection) {
       delete state.images.data[selected];
     }
-    state.images.selection = [];
 
-    delete state.images.data[state.images.active];
+    delete state.images.data[payload.activeImage];
 
-    state.images.active = getVisibleImages({ data: state })[0]?.id;
+    // If the states active image matches the image that was deleted,
+    // update the active image.
+    if (state.images.active === payload.activeImage) {
+      state.images.active = getVisibleImages({ data: state })[0]?.id;
+    }
+    state.images.selection = state.images.selection.filter(
+      (i) => !payload.selection.includes(i)
+    );
   });
   builder.addCase(SELECT_IMAGE, (state, { payload }) => {
     state.images.active = payload;
@@ -171,13 +189,13 @@ const reducer = createReducer(initialState, (builder) => {
     state.tool.active = payload;
   });
   builder.addCase(NEW_ANNOTATION, (state, { payload }) => {
-    const { active } = state.images;
-    if (active && state.labels.data.hasOwnProperty(payload.label)) {
-      if (state.images.data[active].annotations === undefined) {
-        state.images.data[active].annotations = [];
+    const { activeImage, ...annotation } = payload;
+    if (activeImage && state.labels.data.hasOwnProperty(annotation.label)) {
+      if (state.images.data[activeImage].annotations === undefined) {
+        state.images.data[activeImage].annotations = [];
       }
-      state.images.data[active].annotations.push(payload.id);
-      state.annotations.data[payload.id] = payload;
+      state.images.data[activeImage].annotations.push(annotation.id);
+      state.annotations.data[annotation.id] = annotation;
     }
   });
   builder.addCase(UPDATE_ANNOTATION, (state, { payload }) => {

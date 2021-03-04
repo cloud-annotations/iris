@@ -56,6 +56,15 @@ async function watch(opts) {
 
   const irisPath = path.resolve(resolvedRoot, "iris/dist/index.js");
 
+  const build = spawn("make", ["install", "build"], {
+    cwd: resolvedRoot,
+    stdio: "inherit",
+  });
+
+  await new Promise((resolve, _reject) => {
+    build.on("close", resolve);
+  });
+
   spawn("node", [irisPath], {
     env: {
       ...process.env,
@@ -63,13 +72,13 @@ async function watch(opts) {
     stdio: "inherit",
   });
 
-  const build = spawn("make", ["install", "watch"], {
+  const watch = spawn("make", ["watch"], {
     cwd: resolvedRoot,
     stdio: "inherit",
   });
 
   await new Promise((resolve, _reject) => {
-    build.on("close", resolve);
+    watch.on("close", resolve);
   });
 }
 

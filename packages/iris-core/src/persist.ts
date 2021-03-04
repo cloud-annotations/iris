@@ -1,5 +1,5 @@
 import { Middleware } from "@reduxjs/toolkit";
-import { Manager } from "socket.io-client";
+import { io } from "socket.io-client";
 
 import { api } from "@iris/api";
 
@@ -8,8 +8,7 @@ import { decrementSaving, incrementSaving } from "./meta";
 import { SET_HEADCOUNT } from "./room";
 import store, { ProjectState } from "./store";
 
-const manager = new Manager();
-const socket = manager.socket("/");
+const socket = io();
 
 socket.on("headcount", (res: number) => {
   store.dispatch(SET_HEADCOUNT(res));
@@ -20,14 +19,23 @@ socket.on("patch", (res: any) => {
   store.dispatch({ ...res, meta: { socket: true } });
 });
 
-// TODO
-socket.emit("join", { image: "boop" });
-
 export const persist: Middleware = (storeAPI) => (next) => async (action) => {
+  const prevState = storeAPI.getState() as ProjectState;
+
   const result = next(action);
   const shouldEmit = action.meta?.socket !== true;
 
   const state = storeAPI.getState() as ProjectState;
+
+  if (
+    prevState.data.images.active !== state.data.images.active ||
+    prevState.meta.id !== state.meta.id
+  ) {
+    socket.emit("join", {
+      image: state.data.images.active,
+      project: state.meta.id,
+    });
+  }
 
   if (
     action.type.includes("[data]") ||

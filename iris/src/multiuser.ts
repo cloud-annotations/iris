@@ -4,10 +4,6 @@ import { RedisClient } from "redis";
 import { Server, Socket } from "socket.io";
 import { createAdapter } from "socket.io-redis";
 
-interface CustomSocket extends Socket {
-  room?: string;
-}
-
 function multiuser(server: http.Server) {
   const io = new Server(server);
 
@@ -29,34 +25,45 @@ function multiuser(server: http.Server) {
     // do nothing
   });
 
-  function broadcastRoomCount(room: string) {
-    const namespace = io.in(room);
-    const people = namespace.sockets.sockets.size;
-    namespace.emit("headcount", people);
+  function broadcastHeadcount(room: string) {
+    if (room.startsWith("image:")) {
+      const count = io.of("/").adapter.rooms.get(room)?.size;
+      io.to(room).emit("headcount", count);
+    }
   }
 
-  io.on("connection", (socket: CustomSocket) => {
+  io.of("/").adapter.on("join-room", (room, _id) => {
+    broadcastHeadcount(room);
+  });
+
+  io.of("/").adapter.on("leave-room", (room, _id) => {
+    broadcastHeadcount(room);
+  });
+
+  io.on("connection", (socket: Socket) => {
     socket.on("patch", (res: any) => {
-      socket.broadcast.emit("patch", res);
+      const projectRoom = [...socket.rooms].find((r) =>
+        r.startsWith("project:")
+      );
+      if (projectRoom !== undefined) {
+        socket.to(projectRoom).emit("patch", res);
+      }
     });
 
     socket.on("join", async (res: any) => {
-      const newRoom = res.image;
+      const projectRoom = `project:${res.project}`;
+      const imageRoom = `image:${res.project}:${res.image}`;
+
+      // TODO: we should check that you are allowed to join the room.
 
       for (const room of socket.rooms) {
-        socket.leave(room);
-        broadcastRoomCount(room);
+        if (room !== imageRoom || room !== projectRoom) {
+          socket.leave(room);
+        }
       }
 
-      socket.room = newRoom;
-      socket.join(newRoom);
-      broadcastRoomCount(newRoom);
-    });
-
-    socket.on("disconnect", () => {
-      if (socket.room) {
-        broadcastRoomCount(socket.room);
-      }
+      socket.join(projectRoom);
+      socket.join(imageRoom);
     });
   });
 }

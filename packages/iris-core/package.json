@@ -15,6 +15,6 @@
     "@types/uuid": "^8.3.0",
     "react": "^17.0.1",
     "react-redux": "^7.2.1",
-    "socket.io-client": "^3.0.1"
+    "socket.io-client": "^3.1.2"
   }
 }
