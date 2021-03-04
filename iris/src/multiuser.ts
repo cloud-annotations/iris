@@ -32,7 +32,7 @@ function multiuser(server: http.Server) {
   function broadcastRoomCount(room: string) {
     const namespace = io.in(room);
     const people = namespace.sockets.sockets.size;
-    namespace.emit("roomSize", people);
+    namespace.emit("headcount", people);
   }
 
   io.on("connection", (socket: CustomSocket) => {

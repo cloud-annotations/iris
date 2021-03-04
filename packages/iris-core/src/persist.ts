@@ -11,7 +11,7 @@ import store, { ProjectState } from "./store";
 const manager = new Manager();
 const socket = manager.socket("/");
 
-socket.on("roomSize", (res: number) => {
+socket.on("headcount", (res: number) => {
   store.dispatch(SET_HEADCOUNT(res));
 });
 
@@ -25,6 +25,7 @@ socket.emit("join", { image: "boop" });
 
 export const persist: Middleware = (storeAPI) => (next) => async (action) => {
   const result = next(action);
+  const shouldEmit = action.meta?.socket !== true;
 
   const state = storeAPI.getState() as ProjectState;
 
@@ -36,7 +37,6 @@ export const persist: Middleware = (storeAPI) => (next) => async (action) => {
     storeAPI.dispatch(incrementSaving());
   }
 
-  const shouldEmit = action.meta?.socket !== true;
   if (action.type.includes("[data]") && shouldEmit) {
     socket.emit("patch", action);
 
