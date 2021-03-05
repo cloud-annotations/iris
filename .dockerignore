@@ -1,14 +1,17 @@
 # Ignore everything.
 **
 
-# Allow `/ui-frontend`, /ui-backend` and `Dockerfile`.
+# Allow:
+!/packages/**
+!/iris/**
 !/Dockerfile
-!/cli/**
-# !/ui-backend/**
-# !/ui-frontend/**
+!/package.json
+!/yarn.lock
+!/lerna.json
+!/tsconfig.base.json
 
 ################################################################################
-# Ignore things inside of `/src`. (esentially Node .gitignore)
+# re-ignore (esentially Node .gitignore)
 ################################################################################
 # Logs
 **/logs

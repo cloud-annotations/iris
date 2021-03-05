@@ -4,10 +4,18 @@ import { RedisClient } from "redis";
 import { Server, Socket } from "socket.io";
 import { createAdapter } from "socket.io-redis";
 
+const host = process.env.REDIS_HOST ?? "redis";
+const port = parseInt(process.env.REDIS_PORT ?? "6379", 10);
+const password = process.env.REDIS_PASSWORD;
+
 function multiuser(server: http.Server) {
   const io = new Server(server);
 
-  const pubClient = new RedisClient({ host: "redis", port: 6379 });
+  const pubClient = new RedisClient({
+    host,
+    port,
+    password,
+  });
 
   pubClient.on("ready", () => {
     console.log("pub client ready");
