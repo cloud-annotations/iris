@@ -41,7 +41,7 @@ interface IOptions {
   projectID?: string;
 }
 
-const ignoreRegex = /^lost+found$/;
+const ignoreRegex = /^lost\+found$/;
 
 class FileSystemProvider {
   private _dir(projectID: string | undefined) {
