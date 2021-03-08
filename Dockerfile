@@ -22,14 +22,15 @@ WORKDIR /iris
 
 # Install packages
 COPY --from=builder package.json yarn.lock lerna.json ./
-COPY --from=builder iris/package.json ./server/
+# Must use the folder name `iris` otherwise lerna won't find it.
+COPY --from=builder iris/package.json ./iris/
 RUN yarn install && yarn lerna bootstrap
 
 # Copy in source files
 COPY --from=builder packages/iris-app/build ./client/
-COPY --from=builder iris/dist ./server/dist/
+COPY --from=builder iris/dist ./iris/dist/
 
 WORKDIR /projects
 
 ENTRYPOINT [ "node" ]
-CMD [ "/iris/server/dist/index.js" ]
+CMD [ "/iris/iris/dist/index.js" ]

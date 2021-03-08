@@ -41,6 +41,8 @@ interface IOptions {
   projectID?: string;
 }
 
+const ignoreRegex = /^not+found$/;
+
 class FileSystemProvider {
   private _dir(projectID: string | undefined) {
     if (projectID) {
@@ -72,7 +74,7 @@ class FileSystemProvider {
 
     return await Promise.all(
       x
-        .filter((dir) => dir.isDirectory())
+        .filter((dir) => dir.isDirectory() && !ignoreRegex.test(dir.name))
         .map(async (dir) => {
           const stats: { created?: Date; modified?: Date; opened?: Date } = {
             created: undefined,
