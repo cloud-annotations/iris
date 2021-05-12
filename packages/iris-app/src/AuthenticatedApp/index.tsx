@@ -4,9 +4,9 @@ import { Redirect, Route, Switch } from "react-router-dom";
 import useSWR from "swr";
 
 import { endpoint, fetcher } from "@iris/api";
+import Project from "@iris/editor";
 
 import NotFound from "./NotFound";
-import Project from "./Project";
 import Projects from "./Projects";
 
 function ProjectsMode() {

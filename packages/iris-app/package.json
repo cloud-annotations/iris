@@ -70,6 +70,7 @@
     ]
   },
   "dependencies": {
+    "@iris/editor": "^0.0.1",
     "@iris/api": "^0.0.1",
     "@iris/components": "^0.0.1",
     "@iris/core": "^0.0.1",

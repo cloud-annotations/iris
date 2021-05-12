@@ -1,0 +1,22 @@
+{
+  "name": "@iris/editor",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsc -w",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "react": "^17.0.1",
+    "react-redux": "^7.2.1",
+    "@iris/api": "^0.0.1",
+    "@iris/components": "^0.0.1",
+    "@iris/core": "^0.0.1",
+    "@iris/hooks": "^0.0.1",
+    "@iris/icons": "^0.0.1",
+    "@iris/plugin-box-tool": "^0.0.1",
+    "@iris/theme": "^0.0.1"
+  }
+}
