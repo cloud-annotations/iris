@@ -20,11 +20,11 @@ const accountNameForAccount = (account: any) => {
   }
 }
 
-const tabs = [
-  { name: 'Buckets', path: '/buckets' },
-  { name: 'Training runs', path: '/training' },
-  // { name: 'Deployments', path: '/deployments' },
-]
+const tabs = [{ name: 'Buckets', path: '/buckets' }]
+
+if (window.WML_SUPPORT) {
+  tabs.push({ name: 'Training runs', path: '/training' })
+}
 
 function Header() {
   const accounts = useSelector((state: any) => state.accounts.accounts)

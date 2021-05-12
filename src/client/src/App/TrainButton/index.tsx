@@ -15,16 +15,19 @@ const trainingOptionsMap = {
   ],
   classification: [
     {
-      id: 'wml',
-      displayName: 'Train with Watson Machine Learning',
-      dialog: WMLDialog,
-    },
-    {
       id: 'colab',
       displayName: 'Train in Colab',
       dialog: ColabDialog,
     },
   ],
+}
+
+if (window.WML_SUPPORT) {
+  trainingOptionsMap.classification.push({
+    id: 'wml',
+    displayName: 'Train with Watson Machine Learning',
+    dialog: WMLDialog,
+  })
 }
 
 function TrainButton() {
@@ -36,11 +39,12 @@ function TrainButton() {
     | 'classification'
     | 'localization'
 
-  const [active, setActive] = useState<{
-    id: string
-    displayName: string
-    dialog: any
-  }>()
+  const [active, setActive] =
+    useState<{
+      id: string
+      displayName: string
+      dialog: any
+    }>()
 
   const trainingOptions = trainingOptionsMap[modelType]
 
@@ -66,29 +70,31 @@ function TrainButton() {
           {active.displayName}
         </button>
 
-        <button
-          className={styles.caret}
-          onClick={() => {
-            setShowTrainingOptions(!showTrainingOptions)
-          }}
-        >
-          <div className={styles.border} />
-          <svg
-            focusable="false"
-            preserveAspectRatio="xMidYMid meet"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            name="chevron--down"
-            aria-label="Open menu"
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            role="img"
+        {trainingOptions.length > 1 && (
+          <button
+            className={styles.caret}
+            onClick={() => {
+              setShowTrainingOptions(!showTrainingOptions)
+            }}
           >
-            <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
-            <title>Open menu</title>
-          </svg>
-        </button>
+            <div className={styles.border} />
+            <svg
+              focusable="false"
+              preserveAspectRatio="xMidYMid meet"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              name="chevron--down"
+              aria-label="Open menu"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              role="img"
+            >
+              <path d="M8 11L3 6 3.7 5.3 8 9.6 12.3 5.3 13 6z"></path>
+              <title>Open menu</title>
+            </svg>
+          </button>
+        )}
         {showTrainingOptions && (
           <div className={styles.dropdown}>
             {trainingOptions.map((o) => (

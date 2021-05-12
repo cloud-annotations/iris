@@ -30,6 +30,8 @@ import {
 import theme from './theme'
 import { ThemeProvider } from '@material-ui/core'
 
+window.WML_SUPPORT = false
+
 // Global Settings:
 window.FPS = 3
 window.MAX_IMAGE_WIDTH = 1500
