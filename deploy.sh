@@ -2,17 +2,14 @@
 
 trap 'echo "The deployment was aborted. Message -- "; exit 1' ERR
 
-CLUSTER="bso3qn4w0imtmamdicu0"
-IMAGE_NAME="us.icr.io/cloud-annotations/frontend:$(git rev-parse HEAD)"
-
 # Log in
 echo "Logging in..."
 ibmcloud config --check-version=false
 ibmcloud login -a cloud.ibm.com -r us-east -g prod
 
 # Download cluster config
-echo Downloading config for $CLUSTER ...
-ibmcloud ks cluster config --cluster $CLUSTER
+echo Downloading config for $CLUSTER_ID ...
+ibmcloud ks cluster config --cluster $CLUSTER_ID
 
 # Build image
 echo Building $IMAGE_NAME ...
