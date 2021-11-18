@@ -10,7 +10,7 @@ on:
 env:
   DEPLOY_TO: production
   CLUSTER_ID: c6bbmpjw0i2st0vc9gr0
-  IMAGE_NAME: us.icr.io/cloud-annotations/frontend:$GITHUB_SHA
+  IMAGE_NAME: us.icr.io/cloud-annotations/frontend:${{ github.sha }}
   CLIENT_ID: ${{ secrets.CLIENT_ID }}
   CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
   IBMCLOUD_API_KEY: ${{ secrets.IBMCLOUD_API_KEY }}
