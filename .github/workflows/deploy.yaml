@@ -5,7 +5,7 @@ concurrency: production
 on:
   push:
     branches:
-      - main
+      - master
 
 env:
   DEPLOY_TO: production
