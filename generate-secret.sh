@@ -1,3 +1,4 @@
+# brew install certbot
 # sudo certbot certonly --manual --preferred-challenges=dns
 # *.annotations.ai, annotations.ai
 # nslookup -type=TXT _acme-challenge.annotations.ai
@@ -9,6 +10,8 @@
 # ibmcloud ks cluster config --cluster c6bbmpjw0i2st0vc9gr0
 # kl apply -f secret.yaml
 
+# kl get ingress ingress
+
 cert=$(sudo openssl base64 -in /etc/letsencrypt/live/annotations.ai/fullchain.pem)
 key=$(sudo openssl base64 -in /etc/letsencrypt/live/annotations.ai/privkey.pem)
 
@@ -19,7 +22,7 @@ echo "apiVersion: v1
 kind: Secret
 metadata:
   name: certbot-annotations-secret
-type: Opaque
+type: kubernetes.io/tls
 data:
   tls.crt: ""$stripped_cert""
   tls.key: ""$stripped_key""" > secret.yaml
