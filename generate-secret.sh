@@ -5,10 +5,8 @@
 # run this script, then:
 # ./generate-secret.sh 
 
-# ibmcloud api https://cloud.ibm.com
-# ibmcloud login -sso
-# ibmcloud ks cluster config annotations
-# export KUBECONFIG="/Users/niko/.bluemix/plugins/container-service/clusters/annotations/kube-config-wdc04-annotations.yml"
+# ibmcloud login -a https://cloud.ibm.com -r us-east -g prod --sso
+# ibmcloud ks cluster config --cluster c6bbmpjw0i2st0vc9gr0
 # kl apply -f secret.yaml
 
 cert=$(sudo openssl base64 -in /etc/letsencrypt/live/annotations.ai/fullchain.pem)
@@ -20,8 +18,8 @@ stripped_key=$(tr -d '\n' <<< "$key")
 echo "apiVersion: v1
 kind: Secret
 metadata:
-  name: annotations-secret
+  name: certbot-annotations-secret
 type: Opaque
 data:
   tls.crt: ""$stripped_cert""
-  tls.key: ""$stripped_key""" > k8s-prod/secret.yaml
+  tls.key: ""$stripped_key""" > secret.yaml
