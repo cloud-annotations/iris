@@ -1,6 +1,6 @@
 # brew install certbot
 # sudo certbot certonly --manual --preferred-challenges=dns
-# *.annotations.ai, annotations.ai
+# cloud.annotations.ai, test.cloud.annotations.ai
 # nslookup -type=TXT _acme-challenge.annotations.ai
 
 # run this script, then:
@@ -12,8 +12,9 @@
 
 # kl get ingress ingress
 
-cert=$(sudo openssl base64 -in /etc/letsencrypt/live/annotations.ai/fullchain.pem)
-key=$(sudo openssl base64 -in /etc/letsencrypt/live/annotations.ai/privkey.pem)
+# NOTE: This path might need to change depending on provided domain names
+cert=$(sudo openssl base64 -in /etc/letsencrypt/live/cloud.annotations.ai/fullchain.pem)
+key=$(sudo openssl base64 -in /etc/letsencrypt/live/cloud.annotations.ai/privkey.pem)
 
 stripped_cert=$(tr -d '\n' <<< "$cert")
 stripped_key=$(tr -d '\n' <<< "$key")
