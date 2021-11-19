@@ -28,5 +28,9 @@ jobs:
         run: |
           curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
           ibmcloud plugin install container-registry
+          ibmcloud plugin install container-service
+      - name: Install Kubernetes CLI
+        run: |
+          curl --progress-bar -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
       - name: Deploy
         run: ./deploy.sh
