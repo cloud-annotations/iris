@@ -5,7 +5,8 @@ trap 'echo "The deployment was aborted. Message -- "; exit 1' ERR
 # Log in
 echo "Logging in..."
 ibmcloud config --check-version=false
-ibmcloud login -a cloud.ibm.com -r us-east -g prod
+ibmcloud login -a https://cloud.ibm.com -r us-east -g prod
+ibmcloud cr region-set us-south
 ibmcloud cr login
 
 # Download cluster config
