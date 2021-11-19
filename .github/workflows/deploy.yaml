@@ -25,6 +25,8 @@ jobs:
         with:
           node-version: "*"
       - name: Install IBM Cloud CLI
-        run: curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+        run: |
+          curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
+          ibmcloud plugin install container-registry
       - name: Deploy
         run: ./deploy.sh
