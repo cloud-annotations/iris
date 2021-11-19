@@ -6,6 +6,7 @@ trap 'echo "The deployment was aborted. Message -- "; exit 1' ERR
 echo "Logging in..."
 ibmcloud config --check-version=false
 ibmcloud login -a cloud.ibm.com -r us-east -g prod
+ibmcloud cr login
 
 # Download cluster config
 echo Downloading config for $CLUSTER_ID ...
@@ -13,7 +14,6 @@ ibmcloud ks cluster config --cluster $CLUSTER_ID
 
 # Build image
 echo Building $IMAGE_NAME ...
-ibmcloud cr login
 docker build --build-arg CLIENT_ID=$CLIENT_ID --build-arg CLIENT_SECRET=$CLIENT_SECRET -t $IMAGE_NAME .
 docker push $IMAGE_NAME
 

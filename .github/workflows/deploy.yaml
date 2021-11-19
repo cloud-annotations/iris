@@ -25,6 +25,6 @@ jobs:
         with:
           node-version: "*"
       - name: Install IBM Cloud CLI
-        run: curl -sL https://ibm.biz/idt-installer | bash
+        run: curl -fsSL https://clis.cloud.ibm.com/install/linux | sh
       - name: Deploy
         run: ./deploy.sh
