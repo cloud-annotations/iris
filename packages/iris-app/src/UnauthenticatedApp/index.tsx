@@ -1,7 +1,11 @@
 import React from "react";
 
-function UnauthenticatedApp() {
-  return <div>bloop</div>;
+interface Props {
+  error: Error;
+}
+
+function UnauthenticatedApp({ error }: Props) {
+  return <div>{error.message}</div>;
 }
 
 export default UnauthenticatedApp;

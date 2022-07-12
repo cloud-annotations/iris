@@ -7,7 +7,7 @@ const { Command } = require("commander");
 const command = new Command()
   .command("start")
   .option("-w, --watch")
-  .option("--irisRoot <path>", "path to iris source", "/usr/local/lib/iris")
+  .option("--rebuild")
   .description("TODO: description")
   .action((opts) => {
     if (opts.watch === true) {
@@ -19,15 +19,13 @@ const command = new Command()
 
 async function start(opts) {
   console.log("starting...");
-  const { irisRoot } = opts;
-
-  const resolvedRoot = path.resolve(process.cwd(), irisRoot);
+  const resolvedRoot = path.resolve(__dirname, "../../..");
 
   const irisPath = path.resolve(resolvedRoot, "iris/dist/index.js");
   const spaRoot = path.resolve(resolvedRoot, "packages/iris-app/build");
 
   // some of the build artifacts are missing, so rebuild the project
-  if (!fs.existsSync(irisPath) || !fs.existsSync(spaRoot)) {
+  if (opts.rebuild || !fs.existsSync(irisPath) || !fs.existsSync(spaRoot)) {
     console.log("Launching for the first time, building...");
     const build = spawn("make", ["install", "build"], {
       cwd: resolvedRoot,
@@ -48,11 +46,10 @@ async function start(opts) {
   });
 }
 
-async function watch(opts) {
+async function watch(_opts) {
   console.log("watching...");
-  const { irisRoot } = opts;
 
-  const resolvedRoot = path.resolve(process.cwd(), irisRoot);
+  const resolvedRoot = path.resolve(__dirname, "../../..");
 
   const irisPath = path.resolve(resolvedRoot, "iris/dist/index.js");
 

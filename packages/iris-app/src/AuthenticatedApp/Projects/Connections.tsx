@@ -143,8 +143,9 @@ function Connections({ connections }: any) {
           color="primary"
           onClick={async () => {
             const x = await showInputDialog({
-              title: "Bloop",
-              primary: "Mkay",
+              title: "New project",
+              primary: "Create",
+              placeholder: "Project name",
             });
             if (x !== undefined && x.trim() !== "") {
               await api.post("/projects", {

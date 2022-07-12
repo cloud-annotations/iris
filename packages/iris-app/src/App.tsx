@@ -21,7 +21,11 @@ function App() {
 
   return (
     <Suspense fallback={<div>loading...</div>}>
-      {authenticated ? <AuthenticatedApp /> : <UnauthenticatedApp />}
+      {authenticated ? (
+        <AuthenticatedApp />
+      ) : (
+        <UnauthenticatedApp error={error} />
+      )}
     </Suspense>
   );
 }

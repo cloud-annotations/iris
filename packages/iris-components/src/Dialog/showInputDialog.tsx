@@ -16,11 +16,18 @@ import { showDialog } from "./showDialog";
 interface Props {
   title: string;
   primary: string;
+  placeholder?: string;
   onClose: () => any;
   onAction: (value: any) => any;
 }
 
-function InputDialog({ title, primary, onClose, onAction }: Props) {
+function InputDialog({
+  title,
+  primary,
+  placeholder,
+  onClose,
+  onAction,
+}: Props) {
   const ref = useRef<HTMLInputElement>(null);
   return (
     <Dialog
@@ -33,7 +40,7 @@ function InputDialog({ title, primary, onClose, onAction }: Props) {
 
       <DialogContent>
         {/* <DialogContentText id="alert-dialog-description"></DialogContentText> */}
-        <Input placeholder="Card Number" inputRef={ref} fullWidth />
+        <Input placeholder={placeholder} inputRef={ref} fullWidth />
       </DialogContent>
 
       <DialogActions>
@@ -60,6 +67,7 @@ function InputDialog({ title, primary, onClose, onAction }: Props) {
 interface ConfirmOptions {
   title: string;
   primary: string;
+  placeholder?: string;
 }
 
 export async function showInputDialog(options: ConfirmOptions) {
