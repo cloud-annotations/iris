@@ -1,7 +1,8 @@
 {
   "packages": [
     "packages/*",
-    "iris"
+    "iris",
+    "cli"
   ],
   "npmClient": "yarn",
   "useWorkspaces": true,
